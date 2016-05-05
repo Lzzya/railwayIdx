@@ -1,13 +1,10 @@
 shinyServer(function(input, output) {
   require(ggplot2)
   require(DT)
-  
 
   df<-read.csv("compidx-trans.csv",head=T)
   df$tm<-as.Date.POSIXct(df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(df$tm)
-  
-  
 
   output$main_plot <- renderPlot( {
     
