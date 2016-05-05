@@ -1,5 +1,5 @@
 
-#gusong--shiyan
+#gusong--shiyan--
 #github
 
 require(shiny)
@@ -46,7 +46,7 @@ TruckTimedf<-read.csv("货车辆数.csv",head=T)
 
 CoalTimedf<-read.csv("原煤产量.csv",head=T)
 
-OilTimedf<-read.csv("原油加工�?.csv",head=T)
+OilTimedf<-read.csv("原油加工???.csv",head=T)
 
 dfyssj<-read.csv("compidx-qitahangye.csv",head=T)
 dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  
@@ -58,16 +58,16 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
 #预警信号系统界面
 
                    tabPanel("预警信号系统",
-                            titlePanel("铁路预警信号�?"),
+                            titlePanel("铁路预警信号???"),
                             hr(),                          
                             plotOutput(outputId = "plot_index", height = "400px"),
                             hr(),
                             wellPanel(
-                              h4("铁路运输景气预警信号系统，是借助于相关计量经济分析方法，将多个指标进行数据处理，合并为一个综合�?"),
-                              h4("的指标，对这组指标和综合指标所代表的铁路运输波动状况发出预警信号，通过观察信号的变化情况，来判�?"), 
+                              h4("铁路运输景气预警信号系统，是借助于相关计量经济分析方法，将多个指标进行数据处理，合并为一个综合???"),
+                              h4("的指标，对这组指标和综合指标所代表的铁路运输波动状况发出预警信号，通过观察信号的变化情况，来判???"), 
                               h4("未来铁路运输增长的趋势。在本APP中，五种颜色信号的含义如下："),
-                              h4("绿灯---铁路运输发展很稳�?"),
-                              h4("蓝灯&浅蓝�?---运输市场景气偏热"),
+                              h4("绿灯---铁路运输发展很稳???"),
+                              h4("蓝灯&浅蓝???---运输市场景气偏热"),
                               h4("黄灯---铁路运输短期内有转稳和萎缩的可能"),
                               h4("红灯---铁路运输市场景气偏冷")
                             )
@@ -88,7 +88,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                           fluidRow(
                                                                             sidebarLayout(
                                                                               sidebarPanel(
-                                                                                h4(strong("1.各要素权重默�?"),style="color:black"),
+                                                                                h4(strong("1.各要素权重默???"),style="color:black"),
                                                                                 checkboxInput(inputId="trans_coor_Index",
                                                                                               label=("同步指数"),
                                                                                               value=TRUE),
@@ -99,18 +99,18 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                               label = ("滞后指数"),
                                                                                               value = TRUE),
                                                                                 
-                                                                                h4(strong("2.各要素权重手动调�?"),style="color:black"),
+                                                                                h4(strong("2.各要素权重手动调???"),style="color:black"),
                                                                                 checkboxInput(inputId="trans_qz_coor_input",
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
                                                                                 textInput(inputId="trans_hyl_qz_input",
-                                                                                          label=h5("货运�?%"),
+                                                                                          label=h5("货运???%"),
                                                                                           value="38.66"),
                                                                                 textInput(inputId="trans_gyzjz_qz_input",
-                                                                                          label=h5("工业增加�?%"),
+                                                                                          label=h5("工业增加???%"),
                                                                                           value="29.74"),
                                                                                 textInput(inputId="trans_hyzzl_qz_input",
-                                                                                          label=h5("货运周转�?%"),
+                                                                                          label=h5("货运周转???%"),
                                                                                           value="31.60"),
                                                                                 
                                                                                 checkboxInput(inputId="trans_qz_adv_input",
@@ -126,33 +126,33 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                           label=h5("原油%"),
                                                                                           value="10.31"),
                                                                                 textInput(inputId="trans_hlfdl_qz_input",
-                                                                                          label=h5("火力发电�?%"),
+                                                                                          label=h5("火力发电???%"),
                                                                                           value="21.29"),
                                                                                 
                                                                                 checkboxInput(inputId="trans_qz_delay_input",
                                                                                               label = strong("2.3 滞后指数要素权重"),
                                                                                               value = FALSE),
                                                                                 textInput(inputId="trans_kyl_qz_input",
-                                                                                          label=h5("客运�?%"),
+                                                                                          label=h5("客运???%"),
                                                                                           value="9.46"),
                                                                                 textInput(inputId="trans_kyzzl_qz_input",
-                                                                                          label=h5("客运周转�?%"),
+                                                                                          label=h5("客运周转???%"),
                                                                                           value="10.06"),
                                                                                 textInput(inputId="trans_gdzctz_qz_input",
                                                                                           label=h5("固定资产投资%"),
                                                                                           value="80.48"),
                                                                                 width=3
-                                                                              ),#侧边�?
+                                                                              ),#侧边???
                                                                               
                                                                               
                                                                               mainPanel(
                                                                                 fluidRow(
                                                                                   column(3,  selectInput(inputId = "year_start_trans",
-                                                                                                         label = "�?:", 
+                                                                                                         label = "???:", 
                                                                                                          choices = y_wenjing,
                                                                                                          selected = min(y_wenjing) )),
                                                                                   column(3, selectInput(inputId="year_end_trans",
-                                                                                                        label="�?:",
+                                                                                                        label="???:",
                                                                                                         choice=y_wenjing,
                                                                                                         selected=max(y_wenjing)))
                                                                                 ),
@@ -162,13 +162,13 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 width=9
                                                                               )#主显示区
                                                                               
-                                                                            ))), #运输指数的页�?
+                                                                            ))), #运输指数的页???
                                                                 
                                                                 tabPanel( "设备合成指数", 
                                                                           fluidRow(
                                                                             sidebarLayout(
                                                                               sidebarPanel(
-                                                                                h4(strong("1.各要素权重默�?"),style="color:black"),
+                                                                                h4(strong("1.各要素权重默???"),style="color:black"),
                                                                                 checkboxInput(inputId="equip_coor_Index",
                                                                                               label=("同步指数"),
                                                                                               value=TRUE),
@@ -179,15 +179,15 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                               label=("先行指数"),
                                                                                               value=TRUE),
                                                                                 
-                                                                                h4(strong("2.各要素权重手动调�?"),style="color:black"),
+                                                                                h4(strong("2.各要素权重手动调???"),style="color:black"),
                                                                                 checkboxInput(inputId="equip_qz_coor_input",
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
                                                                                 textInput(inputId="equip_jczxzlc_qz_input",
-                                                                                          label=h5("机车总行走里�?%"),
+                                                                                          label=h5("机车总行走里???%"),
                                                                                           value="81.28"),
                                                                                 textInput(inputId="equip_rjyyc_qz_input",
-                                                                                          label=h5("日均运用�?%"),
+                                                                                          label=h5("日均运用???%"),
                                                                                           value="18.72"),
                                                                                 
                                                                                 checkboxInput(inputId="equip_qz_adv_input",
@@ -203,14 +203,14 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                           label=h5("原油%"),
                                                                                           value="10.56"),
                                                                                 textInput(inputId="equip_hlfdl_qz_input",
-                                                                                          label=h5("火力发电�?%"),
+                                                                                          label=h5("火力发电???%"),
                                                                                           value="19.51"),
                                                                                 
                                                                                 checkboxInput(inputId="equip_qz_delay_input",
                                                                                               label = strong("2.3 滞后指数要素权重"),
                                                                                               value = FALSE),
                                                                                 textInput(inputId="equip_rjxzc_qz_input",
-                                                                                          label=h5("日均现在�?%"),
+                                                                                          label=h5("日均现在???%"),
                                                                                           value="15.44"),
                                                                                 textInput(inputId="equip_kyjclc_qz_input",
                                                                                           label=h5("客运机车里程%"),
@@ -234,11 +234,11 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                               mainPanel(
                                                                                 fluidRow(
                                                                                   column(3,  selectInput(inputId = "year_start_equip",
-                                                                                                         label = "�?:", 
+                                                                                                         label = "???:", 
                                                                                                          choices = y_wenjing,
                                                                                                          selected = min(y_wenjing) )),
                                                                                   column(3, selectInput(inputId="year_end_equip",
-                                                                                                        label="�?:",
+                                                                                                        label="???:",
                                                                                                         choice=y_wenjing,
                                                                                                         selected=max(y_wenjing)))
                                                                                 ),
@@ -248,13 +248,13 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 width=9
                                                                               )
                                                                               
-                                                                            ))), #设备指数的页�?
+                                                                            ))), #设备指数的页???
                                                                 
                                                                 tabPanel( "规模合成指数", 
                                                                           fluidRow(
                                                                             sidebarLayout(
                                                                               sidebarPanel(
-                                                                                h4(strong("1.各要素权重默�?"),style="color:black"),
+                                                                                h4(strong("1.各要素权重默???"),style="color:black"),
                                                                                 checkboxInput(inputId="scale_coor_Index",
                                                                                               label=strong("同步指数"),
                                                                                               value=TRUE),
@@ -265,18 +265,18 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                               label = strong("滞后指数"),
                                                                                               value = TRUE),
                                                                                 
-                                                                                h4(strong("2.各要素权重手动调�?"),style="color:black"),
+                                                                                h4(strong("2.各要素权重手动调???"),style="color:black"),
                                                                                 checkboxInput(inputId="scale_qz_coor_input",
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
                                                                                 textInput(inputId="scale_hyl_qz_input",
-                                                                                          label=h5("货运�?%"),
+                                                                                          label=h5("货运???%"),
                                                                                           value="17.87"),
                                                                                 textInput(inputId="scale_gyzjz_qz_input",
-                                                                                          label=h5("工业增加�?%"),
+                                                                                          label=h5("工业增加???%"),
                                                                                           value="67.71"),
                                                                                 textInput(inputId="scale_hyzzl_qz_input",
-                                                                                          label=h5("货运周转�?%"),
+                                                                                          label=h5("货运周转???%"),
                                                                                           value="14.42"),
                                                                                 
                                                                                 checkboxInput(inputId="scale_qz_adv_input",
@@ -292,7 +292,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                           label=h5("原油%"),
                                                                                           value="10.56"),
                                                                                 textInput(inputId="scale_hlfdl_qz_input",
-                                                                                          label=h5("火力发电�?%"),
+                                                                                          label=h5("火力发电???%"),
                                                                                           value="19.51"),
                                                                                 
                                                                                 checkboxInput(inputId="scale_qz_delay_input",
@@ -321,11 +321,11 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                               mainPanel(
                                                                                 fluidRow(
                                                                                   column(3,  selectInput(inputId = "year_start_scale",
-                                                                                                         label = "�?:", 
+                                                                                                         label = "???:", 
                                                                                                          choices = y_wenjing,
                                                                                                          selected = min(y_wenjing) )),
                                                                                   column(3, selectInput(inputId="year_end_scale",
-                                                                                                        label="�?:",
+                                                                                                        label="???:",
                                                                                                         choice=y_wenjing,
                                                                                                         selected=max(y_wenjing)))
                                                                                 ),
@@ -335,7 +335,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 width=9
                                                                               )
                                                                               
-                                                                            ))) #规模指数的页�?
+                                                                            ))) #规模指数的页???
                                                                 
                                                                 
                                          )))
@@ -346,7 +346,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
 
 #--------------------------------------------------------------------
 #--------------------------------------------------------------------
-#黑白货指数界�?
+#黑白货指数界???
 
 tabPanel("黑货白货指数",
          titlePanel("黑货白货指数"),
@@ -361,12 +361,12 @@ tabPanel("黑货白货指数",
                                               sidebarLayout(
                                                 sidebarPanel(
                                                   selectInput(inputId = "liaozili_year_start",
-                                                              label = "�?:", 
+                                                              label = "???:", 
                                                               choices = liaozili_y,
                                                               selected = min(liaozili_y),
                                                               width =('100%')),
                                                   selectInput(inputId="liaozili_year_end",
-                                                              label="�?:",
+                                                              label="???:",
                                                               choice=liaozili_y,
                                                               selected=max(liaozili_y),
                                                               width =('100%')),
@@ -419,12 +419,12 @@ tabPanel("黑货白货指数",
                                               sidebarLayout(
                                                 sidebarPanel(
                                                   selectInput(inputId = "liaozili_year2_start",
-                                                              label = "�?:", 
+                                                              label = "???:", 
                                                               choices = liaozili_y,
                                                               selected = min(liaozili_y),
                                                               width =('100%')),
                                                   selectInput(inputId="liaozili_year2_end",
-                                                              label="�?:",
+                                                              label="???:",
                                                               choice=liaozili_y,
                                                               selected=max(liaozili_y),
                                                               width =('100%')),
@@ -465,7 +465,7 @@ tabPanel("黑货白货指数",
                                                                max=100,
                                                                step=0.1),
                                                   numericInput(inputId="weightcontainer_input",
-                                                               label=h6("集装箱权�?(%)"),
+                                                               label=h6("集装箱权???(%)"),
                                                                value='12.75',
                                                                min=0,
                                                                max=100,
@@ -491,34 +491,34 @@ tabPanel("黑货白货指数",
 
 #---------------------------------------------------------------------
 #---------------------------------------------------------------------
-#适配性研究界�?
+#适配性研究界???
 
 
-                   navbarMenu("适配性研�?",
+                   navbarMenu("适配性研???",
                      tabPanel("固定资产-营业里程",
                               titlePanel("固定资产-营业里程"),
                               
                               sidebarLayout(
                                 sidebarPanel(
                                   checkboxInput(inputId="operatingmileage_stat_data",
-                                                label=strong("历史统计�?"),
+                                                label=strong("历史统计???"),
                                                 value=TRUE),
                                   
                                   checkboxInput(inputId = "operatingmileage_predict_data",
-                                                label = strong("回归预测�?"),
+                                                label = strong("回归预测???"),
                                                 value = TRUE),
                                   selectInput(inputId = "operatingmileage_year_start",
-                                              label = "�?:", 
+                                              label = "???:", 
                                               choices = operatingmileage_y,
                                               selected = min(operatingmileage_y) ),
                                   selectInput(inputId="operatingmileage_year_end",
-                                              label="�?:",
+                                              label="???:",
                                               choice=operatingmileage_y,
                                               selected=max(operatingmileage_y) ),
                                   textInput(inputId="operatingmileage_input",
                                             label=strong("营业里程"),
                                             value=mean(operatingmileage_df$operatingmileage)),
-                                  hr("预测结果——固定资产值（亿元�?"),
+                                  hr("预测结果——固定资产值（亿元???"),
                                   hr(),
                                   textOutput("operatingmileage_asset_output") ,
                                   hr(),
@@ -531,9 +531,9 @@ tabPanel("黑货白货指数",
                                 
                                 mainPanel(
                                   tabsetPanel(
-                                    tabPanel("多元线性回�?", plotOutput("operatingmileage_linearplot")), 
+                                    tabPanel("多元线性回???", plotOutput("operatingmileage_linearplot")), 
                                     tabPanel("随机森林回归", plotOutput("operatingmileage_rfplot")), 
-                                    tabPanel("支持向量机回�?", plotOutput("operatingmileage_svmplot"))
+                                    tabPanel("支持向量机回???", plotOutput("operatingmileage_svmplot"))
                                   ),
                                   
                                   fluidRow(  DT::dataTableOutput("operatingmileage_table")   )
@@ -546,18 +546,18 @@ tabPanel("黑货白货指数",
                               sidebarLayout(
                                 sidebarPanel(
                                   checkboxInput(inputId="mileage_stat_data",
-                                                label=strong("历史统计�?"),
+                                                label=strong("历史统计???"),
                                                 value=TRUE),
                                   
                                   checkboxInput(inputId = "mileage_predict_data",
-                                                label = strong("回归预测�?"),
+                                                label = strong("回归预测???"),
                                                 value = TRUE),
                                   selectInput(inputId = "mileage_year_start",
-                                              label = "�?:", 
+                                              label = "???:", 
                                               choices = pg_cw_y,
                                               selected = min(pg_cw_y) ),
                                   selectInput(inputId="mileage_year_end",
-                                              label="�?:",
+                                              label="???:",
                                               choice=pg_cw_y,
                                               selected=max(pg_cw_y) ),
                                   textInput(inputId="nlm_input",
@@ -566,7 +566,7 @@ tabPanel("黑货白货指数",
                                   textInput(inputId="olm_input",
                                             label=strong("复线铺轨里程（公里）"),
                                             value=mean(pg_cw_df$olm)),
-                                  hr("预测结果——固定资产值（亿元�?"),
+                                  hr("预测结果——固定资产值（亿元???"),
                                   hr(),
                                   textOutput("pg_asset_output") ,
                                   hr(),
@@ -578,39 +578,39 @@ tabPanel("黑货白货指数",
                                 
                                 mainPanel(
                                   tabsetPanel(
-                                    tabPanel("多元线性回�?", plotOutput("pg_asset_linearplot")), 
+                                    tabPanel("多元线性回???", plotOutput("pg_asset_linearplot")), 
                                     tabPanel("随机森林回归", plotOutput("pg_asset_rfplot")), 
-                                    tabPanel("支持向量机回�?", plotOutput("pg_asset_svmplot"))
+                                    tabPanel("支持向量机回???", plotOutput("pg_asset_svmplot"))
                                   ),
                                   
                                   fluidRow(  DT::dataTableOutput("pg_assettable")   )
                                 )
                               )
                               ),
-                     tabPanel("固定资产-动车�?",
-                              titlePanel("固定资产投资--动车�?"),
+                     tabPanel("固定资产-动车???",
+                              titlePanel("固定资产投资--动车???"),
                               
                               sidebarLayout(
                                 sidebarPanel(
                                   checkboxInput(inputId="emu_stat_data",
-                                                label=strong("历史统计�?"),
+                                                label=strong("历史统计???"),
                                                 value=TRUE),
                                   
                                   checkboxInput(inputId = "emu_predict_data",
-                                                label = strong("回归预测�?"),
+                                                label = strong("回归预测???"),
                                                 value = TRUE),
                                   selectInput(inputId = "emu_year_start",
-                                              label = "�?:", 
+                                              label = "???:", 
                                               choices = cw_y,
                                               selected = min(cw_y) ),
                                   selectInput(inputId="emu_year_end",
-                                              label="�?:",
+                                              label="???:",
                                               choice=cw_y,
                                               selected=max(cw_y) ),
                                   textInput(inputId="emu_input",
                                             label=strong("动车新增数量"),
                                             value=mean(cw_df$emu)),
-                                  hr("预测结果——固定资产值（亿元�?"),
+                                  hr("预测结果——固定资产值（亿元???"),
                                   hr(),
                                   textOutput("emu_asset_output") ,
                                   hr(),
@@ -623,40 +623,40 @@ tabPanel("黑货白货指数",
                                 
                                 mainPanel(
                                   tabsetPanel(
-                                    tabPanel("多元线性回�?", plotOutput("emu_asset_linearplot")), 
+                                    tabPanel("多元线性回???", plotOutput("emu_asset_linearplot")), 
                                     tabPanel("随机森林回归", plotOutput("emu_asset_rfplot")), 
-                                    tabPanel("支持向量机回�?", plotOutput("emu_asset_svmplot"))
+                                    tabPanel("支持向量机回???", plotOutput("emu_asset_svmplot"))
                                   ),
                                   
                                   fluidRow(  DT::dataTableOutput("emu_asset_table")   )
                                 )
                               )
                               ),
-                     tabPanel("客运�?-客车车辆�?"),
+                     tabPanel("客运???-客车车辆???"),
                      tabPanel("机车车辆-营业里程",
                  
                               titlePanel("机车车辆-营业里程"),
                               sidebarLayout(
                                 sidebarPanel(
                                   checkboxInput(inputId="stat_data_1",
-                                                label=strong("历史统计�?"),
+                                                label=strong("历史统计???"),
                                                 value=TRUE),
                                   
                                   checkboxInput(inputId = "predict_data_1",
-                                                label = strong("回归预测�?"),
+                                                label = strong("回归预测???"),
                                                 value = TRUE),
                                   selectInput(inputId = "year_start_1",
-                                              label = "�?:", 
+                                              label = "???:", 
                                               choices = y_1,
                                               selected = min(y_1) ),
                                   selectInput(inputId="year_end_1",
-                                              label="�?:",
+                                              label="???:",
                                               choice=y_1,
                                               selected=max(y_1) ),
                                   textInput(inputId="km_input_1",
-                                            label=strong("预测输入值——营业里程（公里�?"),
+                                            label=strong("预测输入值——营业里程（公里???"),
                                             value=mean(df_1$distance)),
-                                  hr("预测结果——机车车辆数（辆�?"),
+                                  hr("预测结果——机车车辆数（辆???"),
                                   hr(),
                                   textOutput("locomotive_output_1") ,
                                   hr(),
@@ -669,9 +669,9 @@ tabPanel("黑货白货指数",
                                 
                                 mainPanel(
                                   tabsetPanel(
-                                    tabPanel("多元线性回�?", plotOutput("linearplot_1")), 
+                                    tabPanel("多元线性回???", plotOutput("linearplot_1")), 
                                     tabPanel("随机森林回归", plotOutput("rfplot_1")), 
-                                    tabPanel("支持向量机回�?", plotOutput("svmplot_1"))
+                                    tabPanel("支持向量机回???", plotOutput("svmplot_1"))
                                   ),
                                   
                                   fluidRow(  DT::dataTableOutput("table_1")   )
@@ -680,28 +680,28 @@ tabPanel("黑货白货指数",
                               
                              ),
     #----------------------------
-    #显示货车车辆-营业里程适配性分�?---
+    #显示货车车辆-营业里程适配性分???---
                      tabPanel("货车车辆-营业里程",
                        titlePanel("货车车辆-营业里程"),
                               sidebarLayout(
                                 sidebarPanel(
                                   checkboxInput(inputId="stat_data_21",
-                                                label=strong("历史统计�?"),
+                                                label=strong("历史统计???"),
                                                 value=TRUE),
                                   
                                   checkboxInput(inputId = "predict_data_21",
-                                                label = strong("回归预测�?"),
+                                                label = strong("回归预测???"),
                                                 value = TRUE),
                                   selectInput(inputId = "year_start_21",
-                                              label = "�?:", 
+                                              label = "???:", 
                                               choices = y_21,
                                               selected = min(y_21) ),
                                   selectInput(inputId="year_end_21",
-                                              label="�?:",
+                                              label="???:",
                                               choice=y_21,
                                               selected=max(y_21) ),
                                   textInput(inputId="km_input_21",
-                                            label=strong("预测输入值——营业里程（公里�?"),
+                                            label=strong("预测输入值——营业里程（公里???"),
                                             value=mean(df_21$distance)),
                                   hr("预测结果——货车辆数（辆）"),
                                   hr(),
@@ -716,9 +716,9 @@ tabPanel("黑货白货指数",
                                 
                                 mainPanel(
                                   tabsetPanel(
-                                    tabPanel("多元线性回�?", plotOutput("linearplot_21")), 
+                                    tabPanel("多元线性回???", plotOutput("linearplot_21")), 
                                     tabPanel("随机森林回归", plotOutput("rfplot_21")), 
-                                    tabPanel("支持向量机回�?", plotOutput("svmplot_21"))
+                                    tabPanel("支持向量机回???", plotOutput("svmplot_21"))
                                   ),
                                   
                                   fluidRow(  DT::dataTableOutput("table_21")   )
@@ -731,22 +731,22 @@ tabPanel("黑货白货指数",
              sidebarLayout(
                sidebarPanel(
                  checkboxInput(inputId="stat_data_ky",     #ky表示客运量和营业里程
-                               label=strong("历史统计�?"),
+                               label=strong("历史统计???"),
                                value=TRUE),
                  
                  checkboxInput(inputId = "predict_data_ky",
-                               label = strong("回归预测�?"),
+                               label = strong("回归预测???"),
                                value = TRUE),
                  selectInput(inputId = "year_start_ky",
-                             label = "�?:", 
+                             label = "???:", 
                              choices = Carriagey,
                              selected = min(Carriagey) ),
                  selectInput(inputId="year_end_ky",
-                             label="�?:",
+                             label="???:",
                              choice=Carriagey,
                              selected=max(Carriagey) ),
                  textInput(inputId="km_input_ky",
-                           label=strong("预测输入值——营业里程（公里�?"),
+                           label=strong("预测输入值——营业里程（公里???"),
                            value=mean(Carriagedf$distance)),
                  hr("预测结果——客车辆数（辆）"),
                  hr(),
@@ -760,9 +760,9 @@ tabPanel("黑货白货指数",
                
                mainPanel(
                  tabsetPanel(
-                   tabPanel("多元线性回�?", plotOutput("ky_linearplot")), 
+                   tabPanel("多元线性回???", plotOutput("ky_linearplot")), 
                    tabPanel("随机森林回归", plotOutput("ky_rfplot")), 
-                   tabPanel("支持向量机回�?", plotOutput("ky_svmplot"))
+                   tabPanel("支持向量机回???", plotOutput("ky_svmplot"))
                  ),
                  
                  fluidRow(  DT::dataTableOutput("ky_table")   )
@@ -775,35 +775,35 @@ tabPanel("黑货白货指数",
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-#铁路货运量预测界�?
+#铁路货运量预测界???
 
-    tabPanel("货运量预�?",
-             titlePanel("铁路货运量预�?"),
+    tabPanel("货运量预???",
+             titlePanel("铁路货运量预???"),
              hr(),
              
              sidebarLayout(
                sidebarPanel(
                  checkboxInput(inputId="stat_data",
-                               label=strong("历史统计�?"),
+                               label=strong("历史统计???"),
                                value=TRUE),
                  
                  checkboxInput(inputId = "predict_data",
-                               label = strong("回归预测�?"),
+                               label = strong("回归预测???"),
                                value = TRUE),
                  selectInput(inputId = "year_start",
-                             label = "�?:", 
+                             label = "???:", 
                              choices = y,
                              selected = min(y) ),
                  selectInput(inputId="year_end",
-                             label="�?:",
+                             label="???:",
                              choice=y,
                              selected=max(y) ),
                  numericInput(inputId="iron_input",
-                              label=strong("预测输入�?--成品钢材产量(万吨)"),
+                              label=strong("预测输入???--成品钢材产量(万吨)"),
                               value=9822                                                      
                  ),
                  numericInput(inputId="coal_input",
-                              label=strong("预测输入�?--原煤产量输入值（万吨�?"),
+                              label=strong("预测输入???--原煤产量输入值（万吨???"),
                               value=33000),
                  hr("预测结果——货运量（万吨）"),
                  hr(),
@@ -818,9 +818,9 @@ tabPanel("黑货白货指数",
                
                mainPanel(
                  tabsetPanel(
-                   tabPanel("多元线性回�?", plotOutput("linearplot")), 
+                   tabPanel("多元线性回???", plotOutput("linearplot")), 
                    tabPanel("随机森林回归", plotOutput("rfplot")), 
-                   tabPanel("支持向量机回�?", plotOutput("svmplot"))
+                   tabPanel("支持向量机回???", plotOutput("svmplot"))
                  ),
                  
                  fluidRow(  DT::dataTableOutput("table")   )
@@ -831,8 +831,8 @@ tabPanel("黑货白货指数",
 
 
     navbarMenu("时间序列预测",
-               tabPanel("货运�?",
-                        titlePanel("货运量时间序列预�?"),
+               tabPanel("货运???",
+                        titlePanel("货运量时间序列预???"),
                         
                         fluidRow(
                           plotOutput(outputId = "freight_forecast", height = "600px")
@@ -861,7 +861,7 @@ tabPanel("黑货白货指数",
                           column(12,DT::dataTableOutput("gdzctz_forecast_table_timesery"))
                         )
                         ),
-               tabPanel("货车车辆�?",
+               tabPanel("货车车辆???",
                         titlePanel("货车辆数时间序列预测"),
                         
                         fluidRow(
@@ -882,7 +882,7 @@ tabPanel("黑货白货指数",
                         ) 
                         ),
                tabPanel("成品钢材产量",
-                        titlePanel("成品钢材量时间序列预�?"),
+                        titlePanel("成品钢材量时间序列预???"),
                         fluidRow(
                           plotOutput(outputId = "SteelTime_forecast", height = "600px")
                         ), 
@@ -890,8 +890,8 @@ tabPanel("黑货白货指数",
                           column(12,DT::dataTableOutput("SteelTime_forecast_table"))
                         ) 
                         ),
-               tabPanel("原油加工�?",
-                        titlePanel("原油加工量时间序列预�?"),
+               tabPanel("原油加工???",
+                        titlePanel("原油加工量时间序列预???"),
                         
                         fluidRow(
                           plotOutput(outputId = "OilTime_forecast", height = "600px")
@@ -910,7 +910,7 @@ tabPanel("原始数据",
          fluidRow(
            column(12, tabsetPanel(type="tabs",
                                   
-                                  #-------------------页签：相关行业数�?
+                                  #-------------------页签：相关行业数???
                                   
                                   tabPanel( "相关行业数据", 
                                             fluidRow(
@@ -921,17 +921,17 @@ tabPanel("原始数据",
                                                   radioButtons(inputId="xghysj.yssj",
                                                                label=NULL,
                                                                choices = c("成品钢材产量(亿吨)"="cpgccl.yssj",
-                                                                           "原油加工�?(亿吨)"="yyjgl.yssj",
+                                                                           "原油加工???(亿吨)"="yyjgl.yssj",
                                                                            "原煤产量(亿吨)"="ymcl.yssj",
-                                                                           "火力发电�?(亿千瓦时)"="hlfdl.yssj",
-                                                                           "工业增加�?(%)"="gyzjz.yssj") ),
+                                                                           "火力发电???(亿千瓦时)"="hlfdl.yssj",
+                                                                           "工业增加???(%)"="gyzjz.yssj") ),
                                                   hr(),
                                                   selectInput(inputId = "year_start_xghy",
-                                                              label = "�?:", 
+                                                              label = "???:", 
                                                               choices = y.wenjing.yssj,
                                                               selected = min(y.wenjing.yssj) ),
                                                   selectInput(inputId="year_end_xghy",
-                                                              label="�?:",
+                                                              label="???:",
                                                               choice=y.wenjing.yssj,
                                                               selected=max(y.wenjing.yssj) ),
                                                   width=3
@@ -943,10 +943,10 @@ tabPanel("原始数据",
                                             fluidRow(
                                               column(12,DT::dataTableOutput("yssj.xghy.table"))
                                             )
-                                  ), #第一个页�?
+                                  ), #第一个页???
                                   
                                   
-                                  #-------------------页签：运量相�? 
+                                  #-------------------页签：运量相??? 
                                   
                                   tabPanel("运量相关", 
                                            fluidRow(
@@ -954,17 +954,17 @@ tabPanel("原始数据",
                                                sidebarPanel(
                                                  radioButtons(inputId="ylxg.yssj",
                                                               label=NULL,
-                                                              choices = c("货运�?(亿吨)"="hyl.yssj",
-                                                                          "货运周转�?(亿吨)"="hyzzl.yssj",
-                                                                          "客运�?(亿人)"="kyl.yssj",
-                                                                          "客运周转�?(亿人)"="kyzzl.yssj") ),
+                                                              choices = c("货运???(亿吨)"="hyl.yssj",
+                                                                          "货运周转???(亿吨)"="hyzzl.yssj",
+                                                                          "客运???(亿人)"="kyl.yssj",
+                                                                          "客运周转???(亿人)"="kyzzl.yssj") ),
                                                  hr(),
                                                  selectInput(inputId = "year_start_ylxg",
-                                                             label = "�?:", 
+                                                             label = "???:", 
                                                              choices = y.wenjing.yssj,
                                                              selected = min(y.wenjing.yssj) ),
                                                  selectInput(inputId="year_end_ylxg",
-                                                             label="�?:",
+                                                             label="???:",
                                                              choice=y.wenjing.yssj,
                                                              selected=max(y.wenjing.yssj) ),
                                                  width=3
@@ -976,9 +976,9 @@ tabPanel("原始数据",
                                            fluidRow(
                                              column(12,DT::dataTableOutput("yssj.ylxg.table"))
                                            )
-                                  ), #第二个页�?
+                                  ), #第二个页???
                                   
-                                  #-------------------页签：运营相�? 
+                                  #-------------------页签：运营相??? 
                                   
                                   tabPanel("运营相关", 
                                            fluidRow(
@@ -987,18 +987,18 @@ tabPanel("原始数据",
                                                  radioButtons(inputId="yyxg.yssj",
                                                               label=NULL,
                                                               choices = c("营业里程(km)"="yylc.yssj",
-                                                                          "日均运用�?(万辆)"="rjyyc.yssj",
-                                                                          "日均现在�?(万辆)"="rjxzc.yssj",
+                                                                          "日均运用???(万辆)"="rjyyc.yssj",
+                                                                          "日均现在???(万辆)"="rjxzc.yssj",
                                                                           "客运机车日车公里(km)"="kyjcrcgl.yssj",
                                                                           "货运机车日车公里(km)"="hyjcrcgl.yssj",
-                                                                          "机车总行走里�?(1000km)"="jczxzlc.yssj") ),
+                                                                          "机车总行走里???(1000km)"="jczxzlc.yssj") ),
                                                  hr(),     
                                                  selectInput(inputId = "year_start_yyxg",
-                                                             label = "�?:", 
+                                                             label = "???:", 
                                                              choices = y.wenjing.yssj,
                                                              selected = min(y.wenjing.yssj) ),
                                                  selectInput(inputId="year_end_yyxg",
-                                                             label="�?:",
+                                                             label="???:",
                                                              choice=y.wenjing.yssj,
                                                              selected=max(y.wenjing.yssj) ),
                                                  width=3
@@ -1010,20 +1010,20 @@ tabPanel("原始数据",
                                            fluidRow(
                                              column(12,DT::dataTableOutput("yssj.yyxg.table"))
                                            )
-                                  ), #第三个页�?
+                                  ), #第三个页???
                                   
                                   
-                                  #-------------------页签：运营相�?---------------------------------------------    
-                                  tabPanel("资产相关",           #第四个页�?
+                                  #-------------------页签：运营相???---------------------------------------------    
+                                  tabPanel("资产相关",           #第四个页???
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
                                                  radioButtons(inputId="zcxg.yssj",
                                                               label=NULL,
-                                                              choices = c("客车辆数(�?)"="kcls.yssj",
+                                                              choices = c("客车辆数(???)"="kcls.yssj",
                                                                           "货车辆数(万辆)"="hcls.yssj",
-                                                                          "机车台数(�?)"="jcts.yssj",
-                                                                          "动车台数(�?)"="dcts.yssj",
+                                                                          "机车台数(???)"="jcts.yssj",
+                                                                          "动车台数(???)"="dcts.yssj",
                                                                           "铁路固定资产投资(亿元)"="tlgdzctz.yssj",
                                                                           "从业人员数量(万人)"="cyrysl.yssj",
                                                                           "新线铺轨里程(km)"="xxpglc.yssj",
@@ -1031,11 +1031,11 @@ tabPanel("原始数据",
                                                  
                                                  hr(),   
                                                  selectInput(inputId = "year_start_zcxg",
-                                                             label = "�?:", 
+                                                             label = "???:", 
                                                              choices = y.wenjing.yssj,
                                                              selected = min(y.wenjing.yssj) ),
                                                  selectInput(inputId="year_end_zcxg",
-                                                             label="�?:",
+                                                             label="???:",
                                                              choice=y.wenjing.yssj,
                                                              selected=max(y.wenjing.yssj) ),
                                                  width=3
@@ -1047,11 +1047,11 @@ tabPanel("原始数据",
                                            fluidRow(
                                              column(12,DT::dataTableOutput("yssj.zcxg.table"))
                                            )
-                                  ), #第四个页�?
+                                  ), #第四个页???
                                   
                                   
-                                  #-------------------页签：黑货白货相�?---------------------------------------------    
-                                  tabPanel("黑货白货",           #第五个页�?
+                                  #-------------------页签：黑货白货相???---------------------------------------------    
+                                  tabPanel("黑货白货",           #第五个页???
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
@@ -1062,17 +1062,17 @@ tabPanel("原始数据",
                                                                           "农副产品(万吨)"="nfcp.yssj",
                                                                           "饮食烟草(万吨)"="ysyc.yssj",
                                                                           "文教用品(万吨)"="wjyp.yssj", 
-                                                                          "零担(�?)"="ldld.yssj" ,
-                                                                          "集装�?(万吨)"="jzx.yssj" ,
+                                                                          "零担(???)"="ldld.yssj" ,
+                                                                          "集装???(万吨)"="jzx.yssj" ,
                                                                           "金属矿石(万吨)"="jsks.yssj")),
                                                  
                                                  hr(),   
                                                  selectInput(inputId = "year_start_hhbh",
-                                                             label = "�?:", 
+                                                             label = "???:", 
                                                              choices = y.wenjing.yssj,
                                                              selected = min(y.wenjing.yssj) ),
                                                  selectInput(inputId="year_end_hhbh",
-                                                             label="�?:",
+                                                             label="???:",
                                                              choice=y.wenjing.yssj,
                                                              selected=max(y.wenjing.yssj) ),
                                                  width=3
@@ -1083,12 +1083,12 @@ tabPanel("原始数据",
                                            fluidRow(
                                              column(12,DT::dataTableOutput("yssj.hhbh.table"))
                                            )
-                                  ) #第五个页�?
+                                  ) #第五个页???
                                   
                                   
                                   
                                   
-           ) #页签套的总括�?
+           ) #页签套的总括???
            ))
          )
   )
