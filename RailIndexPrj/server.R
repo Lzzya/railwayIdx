@@ -3239,7 +3239,8 @@ output$yssj.hhbh.plot <- renderPlot( {
   }
   
   if (input$hhbh.yssj=="dzdq.yssj") {
-    p<-p+geom_line(aes(x=tm,y=dzdq),color="red",size=0.6)
+    p<-p+geom_line(aes(x=tm,y=dzdq),color="red",size=0.6)+geom_point(aes(x=tm,y=dzdq),size=4,shape=22,colour="darkred",fill="pink",position="dodge")
+  #  增加了标记点，鲁晓春2016-5-11
   }
   
   if (input$hhbh.yssj=="nfcp.yssj") {
