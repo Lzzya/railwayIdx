@@ -1,6 +1,6 @@
 shinyServer(function(input, output) {
 
-  ###---测试一哈，文静-----
+  ###---测试一哈，文静-测试成功---
    
   require(ggplot2)
   require(DT)
@@ -2854,7 +2854,7 @@ output$table<-DT::renderDataTable(
 #-----------货运量时间序列预测---------------
 
 freight_ind<-read.csv("货运量.csv",head=T)
-freight_indus<-ts(freight_ind,start=c(2008,1),freq=12)
+freight_indus<-ts(freight_ind,start=c(2001,1),freq=12)
 freight_rn<-auto.arima(freight_indus,ic="bic")
 freight_rn<-arima(freight_indus,order=c(2,1,3),seasonal=c(0,1,2))
 freight_rn2<-forecast(freight_rn,h=12)
@@ -3080,7 +3080,7 @@ if (input$xghysj.yssj=="ymcl.yssj") {
 }
 
 if (input$xghysj.yssj=="hlfdl.yssj") {
-  p<-p+geom_line(aes(x=tm,y=hlfdl),color="green",size=0.6)+ylim(500,4500)
+  p<-p+geom_line(aes(x=tm,y=hlfdl),color="orange",size=0.6)+ylim(500,4500)
   
 }
 
@@ -3143,27 +3143,27 @@ output$yssj.yyxg.plot <- renderPlot( {
   }
   
   if(input$yyxg.yssj=="yylc.yssj"){
-    p<-p+geom_line(aes(x=tm,y=yylc),color="black",size=0.6)+ylim(60000,120000)
+    p<-p+geom_line(aes(x=tm,y=yylc),color="black",size=0.6)+ylim(60000,120000)+geom_point(aes(x=tm,y=yylc),size=4,shape=20,colour="black",position="dodge")
   }
   
   if (input$yyxg.yssj=="rjyyc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=rjyyc),color="red",size=0.6)+ylim(40,55)
+    p<-p+geom_line(aes(x=tm,y=rjyyc),color="red",size=0.6)+ylim(40,55)+geom_point(aes(x=tm,y=rjyyc),size=4,shape=20,colour="red",position="dodge")
   }
   
   if (input$yyxg.yssj=="rjxzc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=rjxzc),color="purple",size=0.6)+ylim(40,90)
+    p<-p+geom_line(aes(x=tm,y=rjxzc),color="purple",size=0.6)+ylim(40,90)+geom_point(aes(x=tm,y=rjxzc),size=4,shape=20,colour="purple",position="dodge")
   }
   
   if (input$yyxg.yssj=="kyjcrcgl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=kyjcrcgl),color="green",size=0.6)+ylim(500,1000)
+    p<-p+geom_line(aes(x=tm,y=kyjcrcgl),color="blue",size=0.6)+ylim(500,1000)+geom_point(aes(x=tm,y=kyjcrcgl),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$yyxg.yssj=="hyjcrcgl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=hyjcrcgl),color="blue",size=0.6)+ylim(400,600)
+    p<-p+geom_line(aes(x=tm,y=hyjcrcgl),color="darkgreen",size=0.6)+ylim(400,600)+geom_point(aes(x=tm,y=hyjcrcgl),size=4,shape=20,colour="darkgreen",position="dodge")
   }
   
   if (input$yyxg.yssj=="jczxzlc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=jczxzlc),color="orange",size=0.6)+ylim(200,350)
+    p<-p+geom_line(aes(x=tm,y=jczxzlc),color="orange",size=0.6)+ylim(200,350)+geom_point(aes(x=tm,y=jczxzlc),size=4,shape=20,colour="orange",position="dodge")
   }
   
   p+ylab("运营相关")+xlab("时间")+geom_line()
@@ -3186,35 +3186,35 @@ output$yssj.zcxg.plot <- renderPlot( {
   }
   
   if(input$zcxg.yssj=="kcls.yssj"){
-    p<-p+geom_line(aes(x=tm,y=kcls),color="black",size=0.6)+ylim(30000,70000)
+    p<-p+geom_line(aes(x=tm,y=kcls),color="black",size=0.6)+ylim(30000,70000)+geom_point(aes(x=tm,y=kcls),size=4,shape=18,colour="black",position="dodge")
   }
   
   if (input$zcxg.yssj=="hcls.yssj") {
-    p<-p+geom_line(aes(x=tm,y=hcls),color="red",size=0.6)+ylim(40,80)
+    p<-p+geom_line(aes(x=tm,y=hcls),color="red",size=0.6)+ylim(40,80)+geom_point(aes(x=tm,y=hcls),size=4,shape=18,colour="red",position="dodge")
   }
   
   if (input$zcxg.yssj=="jcts.yssj") {
-    p<-p+geom_line(aes(x=tm,y=jcts),color="green",size=0.6)+ylim(13000,25000)
+    p<-p+geom_line(aes(x=tm,y=jcts),color="blue",size=0.6)+ylim(13000,25000)+geom_point(aes(x=tm,y=jcts),size=4,shape=18,colour="blue",position="dodge")
   }
   
   if(input$zcxg.yssj=="dcts.yssj"){
-    p<-p+geom_line(aes(x=tm,y=dcts),color="purple",size=0.6)+ylim(500,1500)
+    p<-p+geom_line(aes(x=tm,y=dcts),color="purple",size=0.6)+ylim(500,1500)+geom_point(aes(x=tm,y=dcts),size=4,shape=18,colour="purple",position="dodge")
   }
   
   if (input$zcxg.yssj=="cyrysl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=cyrysl),color="orange",size=0.6)+ylim(180,320)
+    p<-p+geom_line(aes(x=tm,y=cyrysl),color="orange",size=0.6)+ylim(180,320)+geom_point(aes(x=tm,y=cyrysl),size=4,shape=18,colour="orange",position="dodge")
   }
   
   if (input$zcxg.yssj=="tlgdzctz.yssj") {
-    p<-p+geom_line(aes(x=tm,y=tlgdzctz),color="blue",size=0.6)
+    p<-p+geom_line(aes(x=tm,y=tlgdzctz),color="darkgreen",size=0.6)+geom_point(aes(x=tm,y=tlgdzctz),size=4,shape=18,colour="darkgreen",position="dodge")
   }
   
   if (input$zcxg.yssj=="xxpglc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=xxpglc),color="black",size=0.6)
+    p<-p+geom_line(aes(x=tm,y=xxpglc),color="pink",size=0.6)+geom_point(aes(x=tm,y=xxpglc),size=4,shape=18,colour="pink",position="dodge")
   }
   
   if (input$zcxg.yssj=="fxpglc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=fxpglc),color="blue",size=0.6)
+    p<-p+geom_line(aes(x=tm,y=fxpglc),color="brown",size=0.6)+geom_point(aes(x=tm,y=fxpglc),size=4,shape=18,colour="brown",position="dodge")
   }
   p+ylab("资产相关")+xlab("时间")+geom_line()
 })  
@@ -3245,7 +3245,7 @@ output$yssj.hhbh.plot <- renderPlot( {
   }
   
   if (input$hhbh.yssj=="nfcp.yssj") {
-    p<-p+geom_line(aes(x=tm,y=nfcp),color="green",size=0.6)
+    p<-p+geom_line(aes(x=tm,y=nfcp),color="purple",size=0.6)
   }
   
   if (input$hhbh.yssj=="ysyc.yssj") {
@@ -3253,11 +3253,11 @@ output$yssj.hhbh.plot <- renderPlot( {
   }
   
   if (input$hhbh.yssj=="wjyp.yssj") {
-    p<-p+geom_line(aes(x=tm,y=wjyp),color="blue",size=0.6)+ylim(25,65)
+    p<-p+geom_line(aes(x=tm,y=wjyp),color="darkgreen",size=0.6)+ylim(25,65)
   }
   
   if (input$hhbh.yssj=="ldld.yssj") {
-    p<-p+geom_line(aes(x=tm,y=ldld),color="purple",size=0.6)
+    p<-p+geom_line(aes(x=tm,y=ldld),color="pink",size=0.6)
   }
   
   if (input$hhbh.yssj=="jzx.yssj") {
@@ -3265,7 +3265,7 @@ output$yssj.hhbh.plot <- renderPlot( {
   }
   
   if (input$hhbh.yssj=="jsks.yssj") {
-    p<-p+geom_line(aes(x=tm,y=jsks),color="black",size=0.6)+ylim(2000,4000)
+    p<-p+geom_line(aes(x=tm,y=jsks),color="darkred",size=0.6)+ylim(2000,4000)
   }
   p+ylab("黑货白货")+xlab("时间")+geom_line()
 })  
