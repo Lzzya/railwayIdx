@@ -447,9 +447,9 @@ navbarMenu("铁路景气指数",
                                                                               ),
                                                                               plotOutput(outputId = "trans_DI_index", height = "400px"),
                                                                               fluidRow(
-                                                                                DT::dataTableOutput("table_trans_DI_index")
-                                                                              ))#主显示区
-                                                                            
+                                                                                column(12,DT::dataTableOutput("table_trans_DI_index")) ),
+                                                                              width=9
+                                                                              )#主显示区
                                                                           )), #运输指数的页签
                                                                 
                                                                 #------------------------------------------------------------  
