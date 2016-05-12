@@ -1072,8 +1072,8 @@ output$heihuo_index<- renderPlot( {
     p<-ggplot(dfsub,x=c(dfsub$tm[1],dfsub$tm[liaozili_len]),aes(x=tm,y=80))
   }
   
-  p<-p+geom_line(aes(x=tm,y=dfsub$heihuo_index),color="blue",size=0.6)
-  p+ylab("黑货指数")+xlab("时间")+geom_line()+ylim(60,100)
+  p<-p+geom_line(aes(x=tm,y=dfsub$heihuo_index),color="blue",size=0.6)#+geom_point(aes(x=tm,y=dfsub$heihuo_index),size=3,shape=22,colour="darkred",fill="pink",position="dodge")
+  p+ylab("黑货指数")+xlab("时间")+geom_line()+ylim(70,110)
 })
 
 # -----黑货指数：数据显示--------
@@ -1086,7 +1086,7 @@ output$heihuotable<-DT::renderDataTable({
   lx5<-input$weightmine_input/100
   
   averagerate<-coal3*lx1 +oil3*lx2 + metal3*lx3 + iron3*lx4+ mine3*lx5
-  liaozili$heihuo_index<-index(averagerate,0)
+  liaozili$heihuo_index<-round(index(averagerate,0),2)
   
   DT::datatable(
 {data<-liaozili},
@@ -1177,7 +1177,7 @@ output$baihuotable<-DT::renderDataTable({
   
   
   averagerate1<-machinery3* lz_x1 +electronic3* lz_x2 + agricultural3* lz_x3 + food3*lz_x4+ education3*lz_x5+ltl3*lz_x6+container3*lz_x7
-  liaozili2$baihuo_index<-index(averagerate1,0)
+  liaozili2$baihuo_index<-round(index(averagerate1,0),2)
   
   DT::datatable(
 {data<-liaozili2},
@@ -1973,7 +1973,7 @@ rownames = TRUE)
     locomotive<-c(0)
     inputdata<-data.frame(tm,locomotive,distance)#  其中的数不能省略
     pred<-as.integer(predict(olsRegModel_1,inputdata))
-    paste("多元回归预测：",pred ) 
+    paste("多元回归预测：",round(pred,0) ) 
   }
   )
   #-------------------------------------------------
@@ -2164,7 +2164,7 @@ output$truck_output_21<-renderText({
   truck<-c(0)
   inputdata<-data.frame(tm,truck,distance)
   pred<-as.integer(predict(olsRegModel_21,inputdata))
-  paste("多元回归预测：",pred ) 
+  paste("多元回归预测：",round(pred,0) ) 
 }
 )
 #-------------------------------------------------
