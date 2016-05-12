@@ -2,7 +2,7 @@ shinyServer(function(input, output) {
 
  
   require(ggplot2)
-  require(DT)
+  require(DT) #古松
   require(e1071)
   require(randomForest)
   require(forecast)
