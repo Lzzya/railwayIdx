@@ -1,7 +1,6 @@
 shinyServer(function(input, output) {
 
-  ###---测试一哈，文静-测试成功---
-  ## Github 同步测试2016-5-12 
+ 
   require(ggplot2)
   require(DT)
   require(e1071)
