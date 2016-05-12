@@ -1,9 +1,8 @@
 shinyServer(function(input, output) {
 
-  ###---测试一哈，文静-测试成功---
-   
+ 
   require(ggplot2)
-  require(DT)
+  require(DT)#chenwen
   require(e1071)
   require(randomForest)
   require(forecast)
@@ -2922,7 +2921,7 @@ TruckTimern4<- data.frame(TruckTimern3$forecast,TruckTimern3$low80,TruckTimern3$
 
 output$TruckTime_forecast <- renderPlot( {
   
-  TruckTimep<- plot(TruckTimern2,main="货车辆数（预测未来一年）",ylab="货车辆数",xlab="???")})
+  TruckTimep<- plot(TruckTimern2,main="货车辆数（预测未来一年）",ylab="货车辆数",xlab="年")})
 
 
 
