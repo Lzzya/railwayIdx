@@ -1765,7 +1765,7 @@ output$car_passenger_linearplot <- renderPlot( {
   }
   if(input$mileage_predict_data){
     
-    PVp<-PVp+geom_line(aes(x=PVtm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    PVp<-PVp+geom_line(aes(x=PVtm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=PVtm,y=linearRegPred),size=4,shape=18,colour="blue",position="dodge")#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     
   }
   
@@ -2143,7 +2143,7 @@ output$linearplot_21 <- renderPlot( {
   
   if(input$predict_data_21){
     
-    p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position="dodge")#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2337,7 +2337,7 @@ output$ky_linearplot <- renderPlot( {
   
   if(input$predict_data_ky){
     
-    Carriagep<-Carriagep+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    Carriagep<-Carriagep+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position="dodge")#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2907,7 +2907,7 @@ colnames = c('成品钢材产量',  '80%概率区间下限','80%概率区间上�
 #----货车车辆数时间序列预测--------
 
 TruckTimeind<-read.csv("货车辆数.csv",head=T)
-TruckTimeindus<-ts(TruckTimeind,start=c(1990),freq=1)
+TruckTimeindus<-ts(TruckTimeind,start=c(1993),freq=1)
 TruckTimern<-auto.arima(TruckTimeindus,ic="bic")
 TruckTimern<-arima(TruckTimeindus,order=c(2,1,3),seasonal=c(0,1,2))
 TruckTimern2<-forecast(TruckTimern,h=1)
