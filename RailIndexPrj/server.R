@@ -1240,8 +1240,7 @@ output$operatingmileage_linearplot <- renderPlot( {
   }
   if(input$operatingmileage_predict_data){
     
-    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
-    #+stat_smooth(method=lm,color='black',level=0.95)
+    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$operatingmileage_stat_data) {
@@ -1312,7 +1311,7 @@ output$operatingmileage_rfplot <- renderPlot( {
   }
   
   if(input$operatingmileage_predict_data){
-    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
+    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$operatingmileage_stat_data) {
@@ -1346,7 +1345,7 @@ output$operatingmileage_svmplot <- renderPlot( {
     }
   }
   if(input$operatingmileage_predict_data){
-    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
+    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$operatingmileage_stat_data) {
@@ -1415,7 +1414,7 @@ output$pg_asset_linearplot <- renderPlot( {
   }
   if(input$mileage_predict_data){
     
-    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position="dodge")
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -1493,7 +1492,7 @@ output$pg_asset_rfplot <- renderPlot( {
   }
   
   if(input$mileage_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
+    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$mileage_stat_data) {
@@ -1527,7 +1526,7 @@ output$pg_asset_svmplot <- renderPlot( {
     }
   }
   if(input$mileage_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
+    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$mileage_stat_data) {
@@ -1596,7 +1595,7 @@ output$emu_asset_linearplot <- renderPlot( {
   }
   if(input$emu_predict_data){
     
-    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position="dodge")
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -1668,7 +1667,7 @@ output$emu_asset_rfplot <- renderPlot( {
   }
   
   if(input$emu_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
+    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$emu_stat_data) {
@@ -1702,7 +1701,7 @@ output$emu_asset_svmplot <- renderPlot( {
     }
   }
   if(input$emu_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
+    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$emu_stat_data) {
