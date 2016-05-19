@@ -1,6 +1,6 @@
 shinyServer(function(input, output) {
 
- #----鲁晓春
+
   require(ggplot2)
   require(DT)
   require(e1071)
