@@ -81,7 +81,7 @@ shinyServer(function(input, output) {
   coor.trans.test<- index.1(dftrans$x12hyl)*hyl.trans.qz + index.1(dftrans$x12hyzzl)*hyzzl.trans.qz+index.1(dftrans$x12gyzjz)*gyzjz.trans.qz
   #coor.test一致合成指数平均变化率R2
   
-  adv.trans.test<- index.1(dftrans$x12gc)*gc.trans.qz + index.1(dftrans$x12ym)*ym.trans.qz+index.1(dftrans$x12yy)*yy.trans.qz+index.1(dftrans$x12hlfdl)*hlfdl.trans.qz
+  adv.trans.test<- index.1(dftrans$x12gc)*(gc.trans.qz-0.2)+ index.1(dftrans$x12ym)*ym.trans.qz+index.1(dftrans$x12yy)*(yy.trans.qz+0.1)+index.1(dftrans$x12hlfdl)*(hlfdl.trans.qz+0.1)
   #adv.trans.test先行合成指数平均变化率R1
   
   delay.trans.test<- index.1(dftrans$x12kyl)*kyl.trans.qz + index.1(dftrans$x12kyzzl)*kyzzl.trans.qz+index.1(dftrans$x12gdzctz)*gdzctz.trans.qz
