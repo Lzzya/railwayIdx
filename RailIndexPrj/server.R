@@ -3097,11 +3097,13 @@ p+ylab("相关行业数据")+xlab("时间")+geom_line()
 
 })
 
+#-----------------运输原始数据
 output$yssj.ylxg.plot <- renderPlot( {
   
   dfyssj<-read.csv("compidx-yunliang.csv",head=T)
   dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(dfyssj$tm)
+
   
   if(input$year_start_ylxg> input$year_end_ylxg)  {
     p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0))
@@ -3112,18 +3114,24 @@ output$yssj.ylxg.plot <- renderPlot( {
     p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))
   }
   
+  
+  #hyzzl.yssj -----------货运周转量(亿吨)
+  
   if(input$ylxg.yssj=="hyzzl.yssj"){
-    p<-p+geom_line(aes(x=tm,y=hyzzl),color="black",size=0.6)+ylim(1,3)
+    p<-p+geom_line(aes(x=tm,y=hyzzl),color="black",size=0.6)+ylim(1,3)+geom_point(aes(x=tm,y=hyzzl),size=2,shape=21,colour="darkblue",fill="cornsilk",position="dodge")
   }
-  
+  #hyl.yssj  ------------货运量(亿吨)
   if (input$ylxg.yssj=="hyl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=hyl),color="red",size=0.6)+ylim(800,2500)
+    p<-p+geom_line(aes(x=tm,y=hyl),color="red",size=0.6)+ylim(800,2500)+geom_point(aes(x=tm,y=hyl),size=2,shape=21,colour="darkred",fill="pink",position="dodge")
   }
   
+  
+  #kyl.yssj----------客运量(亿人)
   if (input$ylxg.yssj=="kyl.yssj") {
     p<-p+geom_line(aes(x=tm,y=kyl),color="blue",size=0.6)+ylim(0.5,3)
   }
   
+  # kyzzl.yssj---------------客运周转量(亿人)
   if (input$ylxg.yssj=="kyzzl.yssj") {
     p<-p+geom_line(aes(x=tm,y=kyzzl),color="purple",size=0.6)
   }
