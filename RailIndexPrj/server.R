@@ -3062,28 +3062,35 @@ else{
   dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_xghy))
   p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))
 }
+#--------相关行业数据
+#cpgccl.yssj---------------成品钢材产量(亿吨)
 
 if(input$xghysj.yssj=="cpgccl.yssj"){
-  p<-p+geom_line(aes(x=tm,y=cpgccl),color="black",size=0.6)
+  p<-p+geom_line(aes(x=tm,y=cpgccl),color="black",size=0.7)+geom_point(aes(x=tm,y=cpgccl),size=2,shape=21,colour="black",fill="cornsilk",position="dodge")
 }
+
+#yyjgl.yssj --------------原油加工量(亿吨) 
 
 if (input$xghysj.yssj=="yyjgl.yssj") {
-  p<-p+geom_line(aes(x=tm,y=yyjgl),color="red",size=0.6)
+  p<-p+geom_line(aes(x=tm,y=yyjgl),color="red",size=0.6)+geom_point(aes(x=tm,y=yyjgl),size=2,shape=21,colour="darkred",fill="pink",position="dodge")
   
 }
 
+#ymcl.yssj-----------------原煤产量(亿吨)
 if (input$xghysj.yssj=="ymcl.yssj") {
-  p<-p+geom_line(aes(x=tm,y=ymcl),color="blue",size=0.6)+ylim(1000,6000)
+  p<-p+geom_line(aes(x=tm,y=ymcl),color="blue",size=0.6)+ylim(1000,6000)+geom_point(aes(x=tm,y=ymcl),size=2,shape=21,colour="darkblue",fill="cornsilk",position="dodge")
   
 }
+#hlfdl.yssj----------------火力发电量(亿千瓦时)
 
 if (input$xghysj.yssj=="hlfdl.yssj") {
-  p<-p+geom_line(aes(x=tm,y=hlfdl),color="orange",size=0.6)+ylim(500,4500)
+  p<-p+geom_line(aes(x=tm,y=hlfdl),color="orange",size=0.6)+ylim(500,4500)+geom_point(aes(x=tm,y=hlfdl),size=2,shape=21,colour="darkred",fill="cornsilk",position="dodge")
   
 }
 
+#gyzjz.yssj-----------工业增加值
 if (input$xghysj.yssj=="gyzjz.yssj") {
-  p<-p+geom_line(aes(x=tm,y=gyzjz),color="purple",size=0.6)+ylim(3,25)
+  p<-p+geom_line(aes(x=tm,y=gyzjz),color="purple",size=0.6)+ylim(3,25)+geom_point(aes(x=tm,y=gyzjz),size=2,shape=21,colour="darkblue",fill="cornsilk",position="dodge")
   
 }
 p+ylab("相关行业数据")+xlab("时间")+geom_line()
