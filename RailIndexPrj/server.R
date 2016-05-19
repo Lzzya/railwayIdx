@@ -81,7 +81,7 @@ shinyServer(function(input, output) {
   coor.trans.test<- index.1(dftrans$x12hyl)*hyl.trans.qz + index.1(dftrans$x12hyzzl)*hyzzl.trans.qz+index.1(dftrans$x12gyzjz)*gyzjz.trans.qz
   #coor.test一致合成指数平均变化率R2
   
-  adv.trans.test<- index.1(dftrans$x12gc)*gc.trans.qz + index.1(dftrans$x12ym)*ym.trans.qz+index.1(dftrans$x12yy)*yy.trans.qz+index.1(dftrans$x12hlfdl)*hlfdl.trans.qz
+  adv.trans.test<- index.1(dftrans$x12gc)*(gc.trans.qz-0.2)+ index.1(dftrans$x12ym)*ym.trans.qz+index.1(dftrans$x12yy)*(yy.trans.qz+0.1)+index.1(dftrans$x12hlfdl)*(hlfdl.trans.qz+0.1)
   #adv.trans.test先行合成指数平均变化率R1
   
   delay.trans.test<- index.1(dftrans$x12kyl)*kyl.trans.qz + index.1(dftrans$x12kyzzl)*kyzzl.trans.qz+index.1(dftrans$x12gdzctz)*gdzctz.trans.qz
@@ -748,11 +748,11 @@ output$trans_DI_index<- renderPlot( {
   DI_trans.len<-length(DI_trans_input$tm1)
   
   if(input$year_start_trans_ID> input$year_end_trans_ID)  {
-    p<-ggplot(DI_trans,x=c(DI_trans$tm1[1],DI_trans$tm1[DI_trans.len]),aes(x=tm1,y=1))} else
+    p<-ggplot(DI_trans,x=c(DI_trans$tm1[1],DI_trans$tm1[DI_trans.len]),aes(x=tm1,y=0.5))} else
     {
       dftranssub<-subset(DI_trans,(substr(DI_trans$tm1,1,4)>=input$year_start_trans_ID) )
       dftranssub<-subset(dftranssub,(substr(dftranssub$tm1,1,4)<=input$year_end_trans_ID))
-      p<-ggplot(dftranssub,x=c(dftranssub$tm1[1],dftranssub$tm1[DI_trans.len]),aes(x=tm1,y=1))}
+      p<-ggplot(dftranssub,x=c(dftranssub$tm1[1],dftranssub$tm1[DI_trans.len]),aes(x=tm1,y=0.5))}
   
   if(input$trans_DIt_Index){
     p<-p+geom_line(aes(x=tm1,y=dftranssub$DIt_trans),color="black",size=0.6)}
@@ -803,30 +803,30 @@ output$equip_DI_index<- renderPlot( {
   
   #----------(2)设备扩散指数--默认权重计算的画图---------------------
   DI_equip.len<-length(DI_equip_input$tm2)
-  
+
   if(input$year_start_equip_ID> input$year_end_equip_ID)  {
-    p<-ggplot(DI_equip,x=c(DI_equip$tm2[1],DI_equip$tm2[DI_equip.len]),aes(x=tm2,y=1))}
+    p<-ggplot(DI_equip,x=c(DI_equip$tm2[1],DI_equip$tm2[DI_equip.len]),aes(x=tm2,y=0.5))}
   else{
     dfequipsub<-subset(DI_equip,(substr(DI_equip$tm2,1,4)>=input$year_start_equip_ID) )
     dfequipsub<-subset(dfequipsub,(substr(dfequipsub$tm2,1,4)<=input$year_end_equip_ID))
-    p<-ggplot(dfequipsub,x=c(dfequipsub$tm2[1],dfequipsub$tm2[DI_equip.len]),aes(x=tm2,y=1))}
+    p<-ggplot(dfequipsub,x=c(dfequipsub$tm2[1],dfequipsub$tm2[DI_equip.len]),aes(x=tm2,y=0.5))}
   
   if(input$equip_DIt_Index){
-    p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIt_equip),color="black",size=0.6)}
+    p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIt_equip),color="black",size=0.6)+geom_point(aes(x=tm2,y=dfequipsub$DIt_equip),size=3,shape=18,colour="black",fill="black",position="dodge")}
   if (input$equip_DIx_Index) {
-    p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIx_equip),color="red",size=0.6) }
+    p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIx_equip),color="red",size=0.6)+geom_point(aes(x=tm2,y=dfequipsub$DIx_equip),size=3,shape=18,colour="red",fill="red",position="dodge")}
   if (input$equip_DIz_Index) {
-    p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIz_equip),color="blue",size=0.6)}
+    p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIz_equip),color="blue",size=0.6)+geom_point(aes(x=tm2,y=dfequipsub$DIz_equip),size=3,shape=18,colour="blue",fill="blue",position="dodge")}
   
   #----------(3)设备扩散指数--权重手动输入计算的画图---------------------
   dfequipinputsub<-subset(DI_equip_input,(substr(DI_equip_input$tm2,1,4)>=input$year_start_equip_ID))
   dfequipinputsub<-subset(dfequipinputsub,(substr(dfequipinputsub$tm2,1,4)<=input$year_end_equip_ID))
   if(input$equip_percent_coor_input)#输入修改权重后算出来的新先行指数
-  { p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIt_equip_input),color="black",size=1,linetype=1)}
+  { p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIt_equip_input),color="black",size=1,linetype=1)+geom_point(aes(x=tm2,y=dfequipinputsub$DIt_equip_input),size=3,shape=18,colour="black",fill="black",position="dodge")}
   if(input$equip_percent_adv_input)
-  {p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIx_equip_input),color="red",size=1,linetype=1)}
+  {p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIx_equip_input),color="red",size=1,linetype=1)+geom_point(aes(x=tm2,y=dfequipinputsub$DIx_equip_input),size=3,shape=18,colour="red",fill="red",position="dodge")}
   if(input$equip_percent_delay_input)
-  {p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIz_equip_input),color="blue",size=1,linetype=1)} 
+  {p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIz_equip_input),color="blue",size=1,linetype=1)+geom_point(aes(x=tm2,y=dfequipinputsub$DIz_equip_input),size=3,shape=18,colour="blue",fill="blue",position="dodge")} 
   
   p+ylab("设备扩散指数")+xlab("时间")+geom_line()
 })  
@@ -861,28 +861,28 @@ output$scale_DI_index<- renderPlot( {
   DI_scale.len<-length(DI_scale_input$tm3)
   
   if(input$year_start_scale_ID> input$year_end_scale_ID)  {
-    p<-ggplot(DI_scale,x=c(DI_scale$tm3[1],DI_scale$tm3[DI_scale.len]),aes(x=tm3,y=1))}
+    p<-ggplot(DI_scale,x=c(DI_scale$tm3[1],DI_scale$tm3[DI_scale.len]),aes(x=tm3,y=0.5))}
   else{
     dfscalesub<-subset(DI_scale,(substr(DI_scale$tm3,1,4)>=input$year_start_scale_ID) )
     dfscalesub<-subset(dfscalesub,(substr(dfscalesub$tm3,1,4)<=input$year_end_scale_ID))
-    p<-ggplot(dfscalesub,x=c(dfscalesub$tm3[1],dfscalesub$tm3[DI_scale.len]),aes(x=tm3,y=1))}
+    p<-ggplot(dfscalesub,x=c(dfscalesub$tm3[1],dfscalesub$tm3[DI_scale.len]),aes(x=tm3,y=0.5))}
   
   if(input$scale_DIt_Index){
-    p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIt_scale),color="black",size=0.6)}
+    p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIt_scale),color="black",size=0.6)+geom_point(aes(x=tm3,y=dfscalesub$DIt_scale),size=3,shape=18,colour="black",fill="black",position="dodge")}
   if (input$scale_DIx_Index) {
-    p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIx_scale),color="red",size=0.6) }
+    p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIx_scale),color="red",size=0.6)+geom_point(aes(x=tm3,y=dfscalesub$DIx_scale),size=3,shape=18,colour="red",fill="red",position="dodge")}
   if (input$scale_DIz_Index) {
-    p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIz_scale),color="blue",size=0.6)}
+    p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIz_scale),color="blue",size=0.6)+geom_point(aes(x=tm3,y=dfscalesub$DIz_scale),size=3,shape=18,colour="blue",fill="blue",position="dodge")}
   
   #----------(3)规模扩散指数--权重手动输入计算的画图---------------------
   dfscaleinputsub<-subset(DI_scale_input,(substr(DI_scale_input$tm3,1,4)>=input$year_start_scale_ID))
   dfscaleinputsub<-subset(dfscaleinputsub,(substr(dfscaleinputsub$tm3,1,4)<=input$year_end_scale_ID))
   if(input$scale_percent_coor_input)#输入修改权重后算出来的新先行指数
-  { p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIt_scale_input),color="black",size=1,linetype=1)}
+  { p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIt_scale_input),color="black",size=1,linetype=1)+geom_point(aes(x=tm3,y=dfscaleinputsub$DIt_scale_input),size=3,shape=18,colour="black",fill="black",position="dodge")}
   if(input$scale_percent_adv_input)
-  {p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIx_scale_input),color="red",size=1,linetype=1)}
+  {p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIx_scale_input),color="red",size=1,linetype=1)+geom_point(aes(x=tm3,y=dfscaleinputsub$DIx_scale_input),size=3,shape=18,colour="red",fill="red",position="dodge")}
   if(input$scale_percent_delay_input)
-  {p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIz_scale_input),color="blue",size=1,linetype=1)} 
+  {p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIz_scale_input),color="blue",size=1,linetype=1)+geom_point(aes(x=tm3,y=dfscaleinputsub$DIz_scale_input),size=3,shape=18,colour="blue",fill="blue",position="dodge")} 
   
   p+ylab("规模扩散指数")+xlab("时间")+geom_line()
 }) 
@@ -1072,8 +1072,8 @@ output$heihuo_index<- renderPlot( {
     p<-ggplot(dfsub,x=c(dfsub$tm[1],dfsub$tm[liaozili_len]),aes(x=tm,y=80))
   }
   
-  p<-p+geom_line(aes(x=tm,y=dfsub$heihuo_index),color="blue",size=0.6)
-  p+ylab("黑货指数")+xlab("时间")+geom_line()+ylim(60,100)
+  p<-p+geom_line(aes(x=tm,y=dfsub$heihuo_index),color="blue",size=0.6)#+geom_point(aes(x=tm,y=dfsub$heihuo_index),size=3,shape=22,colour="darkred",fill="pink",position="dodge")
+  p+ylab("黑货指数")+xlab("时间")+geom_line()+ylim(70,110)
 })
 
 # -----黑货指数：数据显示--------
@@ -1086,7 +1086,7 @@ output$heihuotable<-DT::renderDataTable({
   lx5<-input$weightmine_input/100
   
   averagerate<-coal3*lx1 +oil3*lx2 + metal3*lx3 + iron3*lx4+ mine3*lx5
-  liaozili$heihuo_index<-index(averagerate,0)
+  liaozili$heihuo_index<-round(index(averagerate,0),2)
   
   DT::datatable(
 {data<-liaozili},
@@ -1177,7 +1177,7 @@ output$baihuotable<-DT::renderDataTable({
   
   
   averagerate1<-machinery3* lz_x1 +electronic3* lz_x2 + agricultural3* lz_x3 + food3*lz_x4+ education3*lz_x5+ltl3*lz_x6+container3*lz_x7
-  liaozili2$baihuo_index<-index(averagerate1,0)
+  liaozili2$baihuo_index<-round(index(averagerate1,0),2)
   
   DT::datatable(
 {data<-liaozili2},
@@ -1240,8 +1240,7 @@ output$operatingmileage_linearplot <- renderPlot( {
   }
   if(input$operatingmileage_predict_data){
     
-    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
-    #+stat_smooth(method=lm,color='black',level=0.95)
+    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$operatingmileage_stat_data) {
@@ -1312,7 +1311,7 @@ output$operatingmileage_rfplot <- renderPlot( {
   }
   
   if(input$operatingmileage_predict_data){
-    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
+    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$operatingmileage_stat_data) {
@@ -1346,7 +1345,7 @@ output$operatingmileage_svmplot <- renderPlot( {
     }
   }
   if(input$operatingmileage_predict_data){
-    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
+    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$operatingmileage_stat_data) {
@@ -1415,7 +1414,7 @@ output$pg_asset_linearplot <- renderPlot( {
   }
   if(input$mileage_predict_data){
     
-    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position="dodge")
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -1493,7 +1492,7 @@ output$pg_asset_rfplot <- renderPlot( {
   }
   
   if(input$mileage_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
+    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$mileage_stat_data) {
@@ -1527,7 +1526,7 @@ output$pg_asset_svmplot <- renderPlot( {
     }
   }
   if(input$mileage_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
+    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$mileage_stat_data) {
@@ -1596,7 +1595,7 @@ output$emu_asset_linearplot <- renderPlot( {
   }
   if(input$emu_predict_data){
     
-    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position="dodge")
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -1668,7 +1667,7 @@ output$emu_asset_rfplot <- renderPlot( {
   }
   
   if(input$emu_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
+    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$emu_stat_data) {
@@ -1702,7 +1701,7 @@ output$emu_asset_svmplot <- renderPlot( {
     }
   }
   if(input$emu_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
+    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position="dodge")
   }
   
   if (input$emu_stat_data) {
@@ -1765,7 +1764,7 @@ output$car_passenger_linearplot <- renderPlot( {
   }
   if(input$mileage_predict_data){
     
-    PVp<-PVp+geom_line(aes(x=PVtm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    PVp<-PVp+geom_line(aes(x=PVtm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=PVtm,y=linearRegPred),size=4,shape=18,colour="blue",position="dodge")#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     
   }
   
@@ -1973,7 +1972,7 @@ rownames = TRUE)
     locomotive<-c(0)
     inputdata<-data.frame(tm,locomotive,distance)#  其中的数不能省略
     pred<-as.integer(predict(olsRegModel_1,inputdata))
-    paste("多元回归预测：",pred ) 
+    paste("多元回归预测：",round(pred,0) ) 
   }
   )
   #-------------------------------------------------
@@ -2143,7 +2142,7 @@ output$linearplot_21 <- renderPlot( {
   
   if(input$predict_data_21){
     
-    p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position="dodge")#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2164,7 +2163,7 @@ output$truck_output_21<-renderText({
   truck<-c(0)
   inputdata<-data.frame(tm,truck,distance)
   pred<-as.integer(predict(olsRegModel_21,inputdata))
-  paste("多元回归预测：",pred ) 
+  paste("多元回归预测：",round(pred,0) ) 
 }
 )
 #-------------------------------------------------
@@ -2337,7 +2336,7 @@ output$ky_linearplot <- renderPlot( {
   
   if(input$predict_data_ky){
     
-    Carriagep<-Carriagep+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    Carriagep<-Carriagep+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position="dodge")#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2907,7 +2906,7 @@ colnames = c('成品钢材产量',  '80%概率区间下限','80%概率区间上�
 #----货车车辆数时间序列预测--------
 
 TruckTimeind<-read.csv("货车辆数.csv",head=T)
-TruckTimeindus<-ts(TruckTimeind,start=c(1990),freq=1)
+TruckTimeindus<-ts(TruckTimeind,start=c(1993),freq=1)
 TruckTimern<-auto.arima(TruckTimeindus,ic="bic")
 TruckTimern<-arima(TruckTimeindus,order=c(2,1,3),seasonal=c(0,1,2))
 TruckTimern2<-forecast(TruckTimern,h=1)
