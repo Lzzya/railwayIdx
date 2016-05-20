@@ -1113,18 +1113,18 @@ tabPanel("黑货白货指数",
              
              sidebarLayout(
                sidebarPanel(
-                 checkboxInput(inputId="mileage_stat_data",
+                 checkboxInput(inputId="freight_mileage_stat_data",
                                label=strong("历史统计值"),
                                value=TRUE),
                  
-                 checkboxInput(inputId = "mileage_predict_data",
+                 checkboxInput(inputId = "freight_mileage_predict_data",
                                label = strong("回归预测值"),
                                value = TRUE),
-                 selectInput(inputId = "mileage_year_start",
+                 selectInput(inputId = "freight_mileage_year_start",
                              label = "自:", 
                              choices = freight_car_y,
                              selected = min(freight_car_y) ),
-                 selectInput(inputId="mileage_year_end",
+                 selectInput(inputId="freight_mileage_year_end",
                              label="至:",
                              choice=freight_car_y,
                              selected=max(freight_car_y) ),
