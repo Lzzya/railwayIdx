@@ -648,7 +648,7 @@ tabPanel("黑货白货指数",
                                             fluidRow(
                                               sidebarLayout(
                                                 sidebarPanel(
-                                                  selectInput(inputId = "liaozili_year_start",
+                                                  selectInput(inputId = "liaozili_year_start",# 时间选项框
                                                               label = "自:", 
                                                               choices = liaozili_y,
                                                               selected = min(liaozili_y),
@@ -659,31 +659,31 @@ tabPanel("黑货白货指数",
                                                               selected=max(liaozili_y),
                                                               width =('100%')),
                                                   
-                                                  numericInput(inputId="weightcoal_input",
-                                                               label=h6("原煤权重权重(%)"),
+                                                  numericInput(inputId="weightcoal_input",#原煤权重输入
+                                                               label=h6("原煤权重(%)"),
                                                                value='66.93',
                                                                min=0,
                                                                max=100,
                                                                step=0.1),
-                                                  numericInput(inputId="weightoil_input",
+                                                  numericInput(inputId="weightoil_input",#石油权重输入
                                                                label=h6("石油权重(%)"),
                                                                value='5.22',
                                                                min=0,
                                                                max=100,
                                                                step=0.1),
-                                                  numericInput(inputId="weightmetal_input",
+                                                  numericInput(inputId="weightmetal_input",#金属矿石权重
                                                                label=h6("金属矿石权重(%)"),
                                                                value='14.97',
                                                                min=0,
                                                                max=100,
                                                                step=0.1),
-                                                  numericInput(inputId="weightiron_input",
+                                                  numericInput(inputId="weightiron_input",#钢铁权重输入
                                                                label=h6("钢铁权重(%)"),
                                                                value='8.02',
                                                                min=0,
                                                                max=100,
                                                                step=0.1),
-                                                  numericInput(inputId="weightmine_input",
+                                                  numericInput(inputId="weightmine_input",#矿建权重输入
                                                                label=h6("矿建权重(%)"),
                                                                value= "4.84",
                                                                min=0,
@@ -691,8 +691,8 @@ tabPanel("黑货白货指数",
                                                                step=0.1),
                                                   width =3
                                                 ),
-                                                mainPanel(plotOutput(outputId="heihuo_index", height = "400px"),
-                                                          fluidRow( DT::dataTableOutput("heihuotable",width = "100%", height = "auto")),
+                                                mainPanel(plotOutput(outputId="heihuo_index", height = "400px"),#heihuo_index 表示黑货指数
+                                                          fluidRow( DT::dataTableOutput("heihuotable",width = "100%", height = "auto")),#heihuotable 黑货指数数据显示
                                                           width =8)
                                                 
                                                 # plotOutput(outputId="heihuo_index", height = "400px")
@@ -706,7 +706,7 @@ tabPanel("黑货白货指数",
                                             fluidRow(
                                               sidebarLayout(
                                                 sidebarPanel(
-                                                  selectInput(inputId = "liaozili_year2_start",
+                                                  selectInput(inputId = "liaozili_year2_start",#时间框
                                                               label = "自:", 
                                                               choices = liaozili_y,
                                                               selected = min(liaozili_y),
@@ -716,43 +716,43 @@ tabPanel("黑货白货指数",
                                                               choice=liaozili_y,
                                                               selected=max(liaozili_y),
                                                               width =('100%')),
-                                                  numericInput(inputId="weightmachinery_input",
+                                                  numericInput(inputId="weightmachinery_input",#工程机械权重输入
                                                                label=h6("工程机械权重(%)"),
                                                                value='18.10',
                                                                min=0,
                                                                max=100,
                                                                step=0.1),
-                                                  numericInput(inputId="weightelectronic_input",
+                                                  numericInput(inputId="weightelectronic_input",#电子电器权重输入
                                                                label=h6("电子电器权重(%)"),
                                                                value='18.80',
                                                                min=0,
                                                                max=100,
                                                                step=0.1),
-                                                  numericInput(inputId="weightagricultural_input",
+                                                  numericInput(inputId="weightagricultural_input",#农副产品权重输入
                                                                label=h6("农副产品权重(%)"),
                                                                value='11.10',
                                                                min=0,
                                                                max=100,
                                                                step=0.1),
-                                                  numericInput(inputId="weightfood_input",
+                                                  numericInput(inputId="weightfood_input",#饮食烟草权重输入
                                                                label=h6("饮食烟草权重(%)"),
                                                                value='17.19',
                                                                min=0,
                                                                max=100,
                                                                step=0.1),
-                                                  numericInput(inputId="weighteducation_input",
+                                                  numericInput(inputId="weighteducation_input",#科教用品权重输入
                                                                label=h6("科教用品权重(%)"),
                                                                value='17.77',
                                                                min=0,
                                                                max=100,
                                                                step=0.1),
-                                                  numericInput(inputId="weightltl_input",
+                                                  numericInput(inputId="weightltl_input",#零担权重输入
                                                                label=h6("零担权重(%)"),
                                                                value='4.29',
                                                                min=0,
                                                                max=100,
                                                                step=0.1),
-                                                  numericInput(inputId="weightcontainer_input",
+                                                  numericInput(inputId="weightcontainer_input",#集装箱权重输入
                                                                label=h6("集装箱权重(%)"),
                                                                value='12.75',
                                                                min=0,
@@ -761,8 +761,8 @@ tabPanel("黑货白货指数",
                                                   width = 3 
                                                 ),
                                                 mainPanel(
-                                                  plotOutput(outputId="baihuo_index", height = "400px"),
-                                                  fluidRow(DT::dataTableOutput("baihuotable")),
+                                                  plotOutput(outputId="baihuo_index", height = "400px"),#白货指数
+                                                  fluidRow(DT::dataTableOutput("baihuotable")),#白货数据显示
                                                   width =8)
                                                 
                                                 #plotOutput(outputId="baihuo_index", height = "400px")
@@ -977,11 +977,11 @@ tabPanel("黑货白货指数",
                               titlePanel("机车车辆-营业里程"),
                               sidebarLayout(
                                 sidebarPanel(
-                                  checkboxInput(inputId="stat_data_1",
+                                  checkboxInput(inputId="stat_data_1",   #时间选择框
                                                 label=strong("历史统计值"),
                                                 value=TRUE),
                                   
-                                  checkboxInput(inputId = "predict_data_1",
+                                  checkboxInput(inputId = "predict_data_1", #计算的回归预测值
                                                 label = strong("回归预测值"),
                                                 value = TRUE),
                                   selectInput(inputId = "year_start_1",
@@ -992,28 +992,28 @@ tabPanel("黑货白货指数",
                                               label="至:",
                                               choice=locomotive_dis_y,
                                               selected=max(locomotive_dis_y) ),
-                                  textInput(inputId="km_input_1",
+                                  textInput(inputId="km_input_1",#输入营业里程
                                             label=strong("预测输入值——营业里程（公里）"),
                                             value=mean(locomotive_dis$distance)),
                                   hr("预测结果—机车车辆数（辆）"),
                                   hr(),
-                                  textOutput("locomotive_output_1") ,
+                                  textOutput("locomotive_output_1") ,#多元回归预测值
                                   hr(),
-                                  textOutput("locomotive_FRR_1"),
+                                  textOutput("locomotive_FRR_1"),# 随机森林预测值
                                   hr(),
-                                  textOutput("locomotive_zhi_1")
+                                  textOutput("locomotive_zhi_1")#支向量回归预测值
                                   # actionButton("predictCAR","预测新客车量") 
                                   
                                 ), 
                                 
                                 mainPanel(
                                   tabsetPanel(
-                                    tabPanel("多元线性回归", plotOutput("linearplot_1")), 
-                                    tabPanel("随机森林回归", plotOutput("rfplot_1")), 
-                                    tabPanel("支持向量机回归", plotOutput("svmplot_1"))
+                                    tabPanel("多元线性回归", plotOutput("linearplot_1")), #多元线性回归图
+                                    tabPanel("随机森林回归", plotOutput("rfplot_1")), #随机森林回归图
+                                    tabPanel("支持向量机回归", plotOutput("svmplot_1"))#支持向量机回归图
                                   ),
                                   
-                                  fluidRow(  DT::dataTableOutput("table_1")   )
+                                  fluidRow(  DT::dataTableOutput("table_1")   )#将预测值放入table_1
                                 )
                               ) 
                               

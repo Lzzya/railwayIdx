@@ -1017,33 +1017,33 @@ source("rate3.R")
 source("index.R")
 
 #-----黑货指数计算--------------------------------------------------------------------------------------------
-liaozili<-read.csv("index-black.csv",head=T)
+liaozili<-read.csv("index-black.csv",head=T)# 读取黑货原始数据到变量liaozili中
 liaozili$tm<-as.Date.POSIXct(liaozili$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
 liaozili_len<-length(liaozili$tm)
 #-----增长率--------------
 
-coal1<-rate1(liaozili$coal)
-oil1<- rate1(liaozili$oil)
-metal1<-rate1(liaozili$metal)
-iron1<-rate1(liaozili$iron)
-mine1<-rate1(liaozili$mine)
+coal1<-rate1(liaozili$coal) #原煤增长率
+oil1<- rate1(liaozili$oil)#原油增长率
+metal1<-rate1(liaozili$metal)#金属矿石增长率
+iron1<-rate1(liaozili$iron)#钢铁增长率
+mine1<-rate1(liaozili$mine)#矿建增长率
 
 #-----对称变化率--------------
 
-coal2<- rate2(coal1,0)
-oil2<-rate2(oil1,0)
-metal2<-rate2(metal1,0)
-iron2<-rate2(iron1,0)
-mine2<-rate2(mine1,0)
+coal2<- rate2(coal1,0)#原煤对称变化率
+oil2<-rate2(oil1,0)#原油对称变化率
+metal2<-rate2(metal1,0)#金属矿石对称变化率
+iron2<-rate2(iron1,0)#钢铁对称变化率
+mine2<-rate2(mine1,0)#矿建对称变化率
 
 
 #-----标准化对称变换率--------
 
-coal3<-rate3(coal1,coal2)
-oil3<-rate3(oil1,oil2)
-metal3<-rate3(metal1,metal2)
-iron3<-rate3(iron1,iron2)
-mine3<-rate3(mine1,mine2)
+coal3<-rate3(coal1,coal2)#原煤标准化对称变换率
+oil3<-rate3(oil1,oil2)#原油标准化对称变换率
+metal3<-rate3(metal1,metal2)#金属矿石标准化对称变换率
+iron3<-rate3(iron1,iron2)#钢铁标准化对称变换率
+mine3<-rate3(mine1,mine2)#矿建标准化对称变换率
 
 
 # -----黑货指数：图像显示--------
@@ -1054,14 +1054,14 @@ output$heihuo_index<- renderPlot( {
   lx3<-input$weightmetal_input/100
   lx4<-input$weightiron_input/100
   lx5<-input$weightmine_input/100
+  # 原煤、原油、金属矿石、钢铁、矿建权重输入
   
   
+  dfweight<- data.frame(lx1,lx2,lx3,lx4,lx5)#将输入权重值写入数据框
+  dfinitial <- data.frame(0.6693,0.0522,0.1497,0.0802,0.0485)# 权重值初始化
   
-  dfweight<- data.frame(lx1,lx2,lx3,lx4,lx5)
-  dfinitial <- data.frame(0.6693,0.0522,0.1497,0.0802,0.0485)
-  
-  averagerate<-coal3*lx1 +oil3*lx2 + metal3*lx3 + iron3*lx4+ mine3*lx5
-  liaozili$heihuo_index<-index(averagerate,0)
+  averagerate<-coal3*lx1 +oil3*lx2 + metal3*lx3 + iron3*lx4+ mine3*lx5  #平均变换率
+  liaozili$heihuo_index<-index(averagerate,0)#计算黑货指数并写入表格中
   
   if(input$liaozili_year_start> input$liaozili_year_end)  {
     p<-ggplot(liaozili,x=c(liaozili$tm[1],liaozili$tm[liaozili_len]),aes(x=tm,y=0))
@@ -1084,6 +1084,7 @@ output$heihuotable<-DT::renderDataTable({
   lx3<-input$weightmetal_input/100
   lx4<-input$weightiron_input/100
   lx5<-input$weightmine_input/100
+  # 原煤、原油、金属矿石、钢铁、矿建权重输入
   
   averagerate<-coal3*lx1 +oil3*lx2 + metal3*lx3 + iron3*lx4+ mine3*lx5
   liaozili$heihuo_index<-round(index(averagerate,0),2)
@@ -1097,38 +1098,39 @@ style="bootstrap")
 
 
 #-----白货指数计算--------------------------------------------------------------------------------------------
-liaozili2<-read.csv("index-white.csv",head=T)
+liaozili2<-read.csv("index-white.csv",head=T)#读取白货原始数据到变量liaozili2中
 liaozili2$tm<-as.Date.POSIXct(liaozili2$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
 liaozili_len1<-length(liaozili2$tm)
 
 
 #-----增长率--------------调用上面公式
-machinery1<-rate1(liaozili2$machinery)
-electronic1<-rate1(liaozili2$electronic)
-agricultural1<-rate1(liaozili2$agricultural)
-food1<-rate1(liaozili2$food)
-education1<-rate1(liaozili2$education)
-ltl1<-rate1(liaozili2$ltl)
-container1<-rate1(liaozili2$container)
+machinery1<-rate1(liaozili2$machinery)#工业机械增长率
+electronic1<-rate1(liaozili2$electronic)#电子电气增长率
+agricultural1<-rate1(liaozili2$agricultural)#农副产品增长率
+food1<-rate1(liaozili2$food)#饮食烟草增长率
+education1<-rate1(liaozili2$education)#文教用增长率
+ltl1<-rate1(liaozili2$ltl)#零担增长率
+container1<-rate1(liaozili2$container)#集装箱增长率
+
 
 
 #-----对称变化率--------------调用上面公式
-machinery2<- rate2( machinery1,0)
-electronic2<-rate2(electronic1,0)
-agricultural2<-rate2(agricultural1,0)
-food2<-rate2(food1,0)
-education2<-rate2(education1,0)
-ltl2<-rate2(ltl1,0)
-container2<-rate2(container1,0)
+machinery2<- rate2( machinery1,0)#工业机械对称变化率
+electronic2<-rate2(electronic1,0)#电子电气对称变化率
+agricultural2<-rate2(agricultural1,0)#农副产品对称变化率
+food2<-rate2(food1,0)#饮食烟草对称变化率
+education2<-rate2(education1,0)#文教用对称变化率
+ltl2<-rate2(ltl1,0)#零担对称变化率
+container2<-rate2(container1,0)#集装箱对称变化率
 
 #-----标准化对称变换率--------调用上面公式
-machinery3<- rate3(machinery1, machinery2)
-electronic3<- rate3( electronic1, electronic2)
-agricultural3<- rate3( agricultural1, agricultural2)
-food3<- rate3( food1, food2)
-education3<- rate3( education1, education2)
-ltl3<- rate3( ltl1,ltl2)
-container3<- rate3( container1, container2)
+machinery3<- rate3(machinery1, machinery2)#工业机械标准对称变化率
+electronic3<- rate3( electronic1, electronic2)#电子电气标准对称变化率
+agricultural3<- rate3( agricultural1, agricultural2)#农副产品标准对称变化率
+food3<- rate3( food1, food2)#饮食烟草标准对称变化率
+education3<- rate3( education1, education2)#文教用品标准对称变化率
+ltl3<- rate3( ltl1,ltl2)#零担标准对称变化率
+container3<- rate3( container1, container2)#集装箱标准对称变化率
 
 
 
@@ -1136,20 +1138,20 @@ container3<- rate3( container1, container2)
 
 output$baihuo_index<- renderPlot( {
   
-  lz_x1<-input$weightmachinery_input/100
-  lz_x2<-input$weightelectronic_input/100
-  lz_x3<-input$weightagricultural_input/100
-  lz_x4<-input$weightfood_input/100
-  lz_x5<-input$weighteducation_input/100
-  lz_x6<-input$weightltl_input/100
-  lz_x7<-input$weightcontainer_input/100
+  lz_x1<-input$weightmachinery_input/100#工业机械输入权重
+  lz_x2<-input$weightelectronic_input/100#电子电气输入权重
+  lz_x3<-input$weightagricultural_input/100#农副产品输入权重
+  lz_x4<-input$weightfood_input/100#饮食烟草输入权重
+  lz_x5<-input$weighteducation_input/100#文教用品输入权重
+  lz_x6<-input$weightltl_input/100#零担标准输入权重
+  lz_x7<-input$weightcontainer_input/100#集装箱输入权重
   
-  dfweight1<- data.frame( lz_x1, lz_x2, lz_x3, lz_x4, lz_x5, lz_x6, lz_x7)
-  dfinitial1<- data.frame(0.181,0.188,0.111,0.1719,0.1777,0.0429,0.1275) 
+  dfweight1<- data.frame( lz_x1, lz_x2, lz_x3, lz_x4, lz_x5, lz_x6, lz_x7)#权重读入数据框
+  dfinitial1<- data.frame(0.181,0.188,0.111,0.1719,0.1777,0.0429,0.1275) #权重初始化
   
    
-  averagerate1<-machinery3* lz_x1 +electronic3* lz_x2 + agricultural3* lz_x3 + food3* lz_x4+ education3*lz_x5+ltl3*lz_x6+container3* lz_x7
-  liaozili2$baihuo_index<-index(averagerate1,0)
+  averagerate1<-machinery3* lz_x1 +electronic3* lz_x2 + agricultural3* lz_x3 + food3* lz_x4+ education3*lz_x5+ltl3*lz_x6+container3* lz_x7#白货平均变化率
+  liaozili2$baihuo_index<-index(averagerate1,0)#白货指数
   
   if(input$liaozili_year2_start> input$liaozili_year2_end)  {
     p<-ggplot(liaozili2,x=c(liaozili2$tm[1],liaozili2$tm[liaozili_len1]),aes(x=tm,y=100))
@@ -1174,7 +1176,7 @@ output$baihuotable<-DT::renderDataTable({
   lz_x5<-input$weighteducation_input/100
   lz_x6<-input$weightltl_input/100
   lz_x7<-input$weightcontainer_input/100
-  
+  # 工业机械、电子电气、农副产品、饮食烟草、文教用品，零担，集装箱权重输入
   
   averagerate1<-machinery3* lz_x1 +electronic3* lz_x2 + agricultural3* lz_x3 + food3*lz_x4+ education3*lz_x5+ltl3*lz_x6+container3*lz_x7
   liaozili2$baihuo_index<-round(index(averagerate1,0),2)
@@ -1905,10 +1907,10 @@ rownames = TRUE)
   #-----------------------适配性研究---------------------------------
   #----------------------机车车辆-营业里程---------------------------
   
-  df_1<-read.csv("Locomotive-dis.csv",head=T)
-  olsRegModel_1<-lm(locomotive~distance,data=df_1)
+  df_1<-read.csv("Locomotive-dis.csv",head=T)#读取机车车辆与营业里程原始表
+  olsRegModel_1<-lm(locomotive~distance,data=df_1)# 多元回归计算
   
-  df_1$linearRegPred<-as.integer(predict(olsRegModel_1,newdata=df_1))
+  df_1$linearRegPred<-as.integer(predict(olsRegModel_1,newdata=df_1))# 多元回归计算并写入表
   
   
   rfRegModel_1<-randomForest(locomotive~distance,data=df_1,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
