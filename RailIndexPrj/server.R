@@ -3235,7 +3235,7 @@ output$yssj.zcxg.plot <- renderPlot( {
     p<-p+geom_line(aes(x=tm,y=cyrysl),color="orange",size=0.6)+ylim(180,320)
     p<-p+geom_point(aes(x=tm,y=cyrysl),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #
+  #tlgdzctz------------铁路固定资产投资
   if (input$zcxg.yssj=="tlgdzctz.yssj") {
     p<-p+geom_line(aes(x=tm,y=tlgdzctz),color="darkgreen",size=0.6)
     p<-p+geom_point(aes(x=tm,y=tlgdzctz),size=4,shape=21,colour="darkgreen",fill="cornsilk",position=position_dodge(width=0.2))
@@ -3253,6 +3253,7 @@ output$yssj.zcxg.plot <- renderPlot( {
   p+ylab("规模相关")+xlab("时间")+geom_line()
 })  
 
+#-------------黑货白货原始数据
 output$yssj.hhbh.plot <- renderPlot( {
   
   dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
@@ -3268,38 +3269,45 @@ output$yssj.hhbh.plot <- renderPlot( {
     dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_hhbh))
     p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))
   }
-  
+  #gyjx--------------工业机械
   if(input$hhbh.yssj=="gyjx.yssj"){
     p<-p+geom_line(aes(x=tm,y=gyjx),color="black",size=0.6)+ylim(20,55)
+    p<-p+geom_point(aes(x=tm,y=gyjx),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  
+  #dzdq--------------电子电器
   if (input$hhbh.yssj=="dzdq.yssj") {
-    p<-p+geom_line(aes(x=tm,y=dzdq),color="red",size=0.6)+geom_point(aes(x=tm,y=dzdq),size=4,shape=22,colour="darkred",fill="pink",position=position_dodge(width=0.2))
-  #  增加了标记点，鲁晓春2016-5-11
-  }
+    p<-p+geom_line(aes(x=tm,y=dzdq),color="red",size=0.6)+geom_point(aes(x=tm,y=dzdq),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   
+  }
+  #nfcp-------------农副产品
   if (input$hhbh.yssj=="nfcp.yssj") {
-    p<-p+geom_line(aes(x=tm,y=nfcp),color="purple",size=0.6)
+    p<-p+geom_line(aes(x=tm,y=nfcp),color="blue",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=nfcp),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  
+  #ysyc------------饮食烟草
   if (input$hhbh.yssj=="ysyc.yssj") {
     p<-p+geom_line(aes(x=tm,y=ysyc),color="orange",size=0.6)+ylim(70,230)
+    p<-p+geom_point(aes(x=tm,y=ysyc),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  
+  #wjyp------------文教用品
   if (input$hhbh.yssj=="wjyp.yssj") {
     p<-p+geom_line(aes(x=tm,y=wjyp),color="darkgreen",size=0.6)+ylim(25,65)
+    p<-p+geom_point(aes(x=tm,y=wjyp),size=4,shape=21,colour="darkblue",fill="lightgreen",position=position_dodge(width=0.2))
   }
-  
+  #ldld-------------零担
   if (input$hhbh.yssj=="ldld.yssj") {
-    p<-p+geom_line(aes(x=tm,y=ldld),color="pink",size=0.6)
+    p<-p+geom_line(aes(x=tm,y=ldld),color="red",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=ldld),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
-  
+  #jzx--------------集装箱
   if (input$hhbh.yssj=="jzx.yssj") {
     p<-p+geom_line(aes(x=tm,y=jzx),color="brown",size=0.6)+ylim(300,1000)
+    p<-p+geom_point(aes(x=tm,y=jzx),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  
+  #jsks------------
   if (input$hhbh.yssj=="jsks.yssj") {
-    p<-p+geom_line(aes(x=tm,y=jsks),color="darkred",size=0.6)+ylim(2000,4000)
+    p<-p+geom_line(aes(x=tm,y=jsks),color="red",size=0.6)+ylim(2000,4000)
+    p<-p+geom_point(aes(x=tm,y=jsks),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
   p+ylab("黑货白货")+xlab("时间")+geom_line()
 })  
