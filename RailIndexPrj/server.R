@@ -1073,7 +1073,7 @@ output$heihuo_index<- renderPlot( {
   }
   
   p<-p+geom_line(aes(x=tm,y=dfsub$heihuo_index),color="blue",size=0.6)#+geom_point(aes(x=tm,y=dfsub$heihuo_index),size=3,shape=22,colour="darkred",fill="pink",position="dodge")
-  p+ylab("黑货指数")+xlab("时间")+geom_line()+ylim(70,110)
+  p+ylab("黑货指数")+xlab("时间")+geom_line()+ylim(70,105)
 })
 
 # -----黑货指数：数据显示--------
