@@ -3090,7 +3090,8 @@ if (input$xghysj.yssj=="hlfdl.yssj") {
 
 #gyzjz.yssj-----------工业增加值
 if (input$xghysj.yssj=="gyzjz.yssj") {
-  p<-p+geom_line(aes(x=tm,y=gyzjz),color="purple",size=0.6)+ylim(3,25)+geom_point(aes(x=tm,y=gyzjz),size=2,shape=21,colour="darkblue",fill="cornsilk",position="dodge")
+  p<-p+geom_line(aes(x=tm,y=gyzjz),color="purple",size=0.6)+ylim(3,25)
+  p<p+geom_point(aes(x=tm,y=gyzjz),size=2,shape=21,colour="darkblue",fill="cornsilk",position="dodge")
   
 }
 p+ylab("相关行业数据")+xlab("时间")+geom_line()
@@ -3139,6 +3140,8 @@ output$yssj.ylxg.plot <- renderPlot( {
   p+ylab("运量相关")+xlab("时间")+geom_line()
 })
 
+
+# 运营相关
 output$yssj.yyxg.plot <- renderPlot( {
   
   dfyssj<-read.csv("compidx-yunying.csv",head=T)
@@ -3154,27 +3157,28 @@ output$yssj.yyxg.plot <- renderPlot( {
     dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_yyxg))
     p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))
   }
-  
+  #yylc-----------运营里程
   if(input$yyxg.yssj=="yylc.yssj"){
     p<-p+geom_line(aes(x=tm,y=yylc),color="black",size=0.6)+ylim(60000,120000)+geom_point(aes(x=tm,y=yylc),size=4,shape=20,colour="black",position="dodge")
   }
-  
+  #rjyyc---------日均运用车
   if (input$yyxg.yssj=="rjyyc.yssj") {
     p<-p+geom_line(aes(x=tm,y=rjyyc),color="red",size=0.6)+ylim(40,55)+geom_point(aes(x=tm,y=rjyyc),size=4,shape=20,colour="red",position="dodge")
   }
-  
+  #rjxzc--------日均现在车
   if (input$yyxg.yssj=="rjxzc.yssj") {
     p<-p+geom_line(aes(x=tm,y=rjxzc),color="purple",size=0.6)+ylim(40,90)+geom_point(aes(x=tm,y=rjxzc),size=4,shape=20,colour="purple",position="dodge")
   }
-  
+  #kyjcrcgl-----------客运机车日车公里
   if (input$yyxg.yssj=="kyjcrcgl.yssj") {
     p<-p+geom_line(aes(x=tm,y=kyjcrcgl),color="blue",size=0.6)+ylim(500,1000)+geom_point(aes(x=tm,y=kyjcrcgl),size=4,shape=20,colour="blue",position="dodge")
   }
-  
+  #hyjcrcgl-----------货运机车日车公里
   if (input$yyxg.yssj=="hyjcrcgl.yssj") {
     p<-p+geom_line(aes(x=tm,y=hyjcrcgl),color="darkgreen",size=0.6)+ylim(400,600)+geom_point(aes(x=tm,y=hyjcrcgl),size=4,shape=20,colour="darkgreen",position="dodge")
   }
   
+  #jczxzlc-------------机车总行走里程
   if (input$yyxg.yssj=="jczxzlc.yssj") {
     p<-p+geom_line(aes(x=tm,y=jczxzlc),color="orange",size=0.6)+ylim(200,350)+geom_point(aes(x=tm,y=jczxzlc),size=4,shape=20,colour="orange",position="dodge")
   }
