@@ -812,21 +812,21 @@ output$equip_DI_index<- renderPlot( {
     p<-ggplot(dfequipsub,x=c(dfequipsub$tm2[1],dfequipsub$tm2[DI_equip.len]),aes(x=tm2,y=0.5))}
   
   if(input$equip_DIt_Index){
-    p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIt_equip),color="black",size=0.6)+geom_point(aes(x=tm2,y=dfequipsub$DIt_equip),size=3,shape=18,colour="black",fill="black",position="dodge")}
+    p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIt_equip),color="black",size=0.6)+geom_point(aes(x=tm2,y=dfequipsub$DIt_equip),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
   if (input$equip_DIx_Index) {
-    p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIx_equip),color="red",size=0.6)+geom_point(aes(x=tm2,y=dfequipsub$DIx_equip),size=3,shape=18,colour="red",fill="red",position="dodge")}
+    p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIx_equip),color="red",size=0.6)+geom_point(aes(x=tm2,y=dfequipsub$DIx_equip),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
   if (input$equip_DIz_Index) {
-    p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIz_equip),color="blue",size=0.6)+geom_point(aes(x=tm2,y=dfequipsub$DIz_equip),size=3,shape=18,colour="blue",fill="blue",position="dodge")}
+    p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIz_equip),color="blue",size=0.6)+geom_point(aes(x=tm2,y=dfequipsub$DIz_equip),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))}
   
   #----------(3)设备扩散指数--权重手动输入计算的画图---------------------
   dfequipinputsub<-subset(DI_equip_input,(substr(DI_equip_input$tm2,1,4)>=input$year_start_equip_ID))
   dfequipinputsub<-subset(dfequipinputsub,(substr(dfequipinputsub$tm2,1,4)<=input$year_end_equip_ID))
   if(input$equip_percent_coor_input)#输入修改权重后算出来的新先行指数
-  { p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIt_equip_input),color="black",size=1,linetype=1)+geom_point(aes(x=tm2,y=dfequipinputsub$DIt_equip_input),size=3,shape=18,colour="black",fill="black",position="dodge")}
+  { p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIt_equip_input),color="black",size=1,linetype=1)+geom_point(aes(x=tm2,y=dfequipinputsub$DIt_equip_input),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
   if(input$equip_percent_adv_input)
-  {p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIx_equip_input),color="red",size=1,linetype=1)+geom_point(aes(x=tm2,y=dfequipinputsub$DIx_equip_input),size=3,shape=18,colour="red",fill="red",position="dodge")}
+  {p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIx_equip_input),color="red",size=1,linetype=1)+geom_point(aes(x=tm2,y=dfequipinputsub$DIx_equip_input),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
   if(input$equip_percent_delay_input)
-  {p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIz_equip_input),color="blue",size=1,linetype=1)+geom_point(aes(x=tm2,y=dfequipinputsub$DIz_equip_input),size=3,shape=18,colour="blue",fill="blue",position="dodge")} 
+  {p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIz_equip_input),color="blue",size=1,linetype=1)+geom_point(aes(x=tm2,y=dfequipinputsub$DIz_equip_input),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))} 
   
   p+ylab("设备扩散指数")+xlab("时间")+geom_line()
 })  
@@ -868,21 +868,21 @@ output$scale_DI_index<- renderPlot( {
     p<-ggplot(dfscalesub,x=c(dfscalesub$tm3[1],dfscalesub$tm3[DI_scale.len]),aes(x=tm3,y=0.5))}
   
   if(input$scale_DIt_Index){
-    p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIt_scale),color="black",size=0.6)+geom_point(aes(x=tm3,y=dfscalesub$DIt_scale),size=3,shape=18,colour="black",fill="black",position="dodge")}
+    p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIt_scale),color="black",size=0.6)+geom_point(aes(x=tm3,y=dfscalesub$DIt_scale),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
   if (input$scale_DIx_Index) {
-    p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIx_scale),color="red",size=0.6)+geom_point(aes(x=tm3,y=dfscalesub$DIx_scale),size=3,shape=18,colour="red",fill="red",position="dodge")}
+    p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIx_scale),color="red",size=0.6)+geom_point(aes(x=tm3,y=dfscalesub$DIx_scale),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
   if (input$scale_DIz_Index) {
-    p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIz_scale),color="blue",size=0.6)+geom_point(aes(x=tm3,y=dfscalesub$DIz_scale),size=3,shape=18,colour="blue",fill="blue",position="dodge")}
+    p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIz_scale),color="blue",size=0.6)+geom_point(aes(x=tm3,y=dfscalesub$DIz_scale),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))}
   
   #----------(3)规模扩散指数--权重手动输入计算的画图---------------------
   dfscaleinputsub<-subset(DI_scale_input,(substr(DI_scale_input$tm3,1,4)>=input$year_start_scale_ID))
   dfscaleinputsub<-subset(dfscaleinputsub,(substr(dfscaleinputsub$tm3,1,4)<=input$year_end_scale_ID))
   if(input$scale_percent_coor_input)#输入修改权重后算出来的新先行指数
-  { p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIt_scale_input),color="black",size=1,linetype=1)+geom_point(aes(x=tm3,y=dfscaleinputsub$DIt_scale_input),size=3,shape=18,colour="black",fill="black",position="dodge")}
+  { p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIt_scale_input),color="black",size=1,linetype=1)+geom_point(aes(x=tm3,y=dfscaleinputsub$DIt_scale_input),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
   if(input$scale_percent_adv_input)
-  {p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIx_scale_input),color="red",size=1,linetype=1)+geom_point(aes(x=tm3,y=dfscaleinputsub$DIx_scale_input),size=3,shape=18,colour="red",fill="red",position="dodge")}
+  {p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIx_scale_input),color="red",size=1,linetype=1)+geom_point(aes(x=tm3,y=dfscaleinputsub$DIx_scale_input),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
   if(input$scale_percent_delay_input)
-  {p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIz_scale_input),color="blue",size=1,linetype=1)+geom_point(aes(x=tm3,y=dfscaleinputsub$DIz_scale_input),size=3,shape=18,colour="blue",fill="blue",position="dodge")} 
+  {p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIz_scale_input),color="blue",size=1,linetype=1)+geom_point(aes(x=tm3,y=dfscaleinputsub$DIz_scale_input),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))} 
   
   p+ylab("规模扩散指数")+xlab("时间")+geom_line()
 }) 
@@ -1072,7 +1072,7 @@ output$heihuo_index<- renderPlot( {
     p<-ggplot(dfsub,x=c(dfsub$tm[1],dfsub$tm[liaozili_len]),aes(x=tm,y=80))
   }
   
-  p<-p+geom_line(aes(x=tm,y=dfsub$heihuo_index),color="blue",size=0.6)#+geom_point(aes(x=tm,y=dfsub$heihuo_index),size=3,shape=22,colour="darkred",fill="pink",position="dodge")
+  p<-p+geom_line(aes(x=tm,y=dfsub$heihuo_index),color="blue",size=0.6)#+geom_point(aes(x=tm,y=dfsub$heihuo_index),size=3,shape=22,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   p+ylab("黑货指数")+xlab("时间")+geom_line()+ylim(70,110)
 })
 
@@ -1240,7 +1240,7 @@ output$operatingmileage_linearplot <- renderPlot( {
   }
   if(input$operatingmileage_predict_data){
     
-    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position="dodge")
+    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
   }
   
   if (input$operatingmileage_stat_data) {
@@ -1311,7 +1311,7 @@ output$operatingmileage_rfplot <- renderPlot( {
   }
   
   if(input$operatingmileage_predict_data){
-    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position="dodge")
+    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
   }
   
   if (input$operatingmileage_stat_data) {
@@ -1345,7 +1345,7 @@ output$operatingmileage_svmplot <- renderPlot( {
     }
   }
   if(input$operatingmileage_predict_data){
-    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position="dodge")
+    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
   }
   
   if (input$operatingmileage_stat_data) {
@@ -1414,7 +1414,7 @@ output$pg_asset_linearplot <- renderPlot( {
   }
   if(input$mileage_predict_data){
     
-    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position="dodge")
+    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -1492,7 +1492,7 @@ output$pg_asset_rfplot <- renderPlot( {
   }
   
   if(input$mileage_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position="dodge")
+    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
   }
   
   if (input$mileage_stat_data) {
@@ -1526,7 +1526,7 @@ output$pg_asset_svmplot <- renderPlot( {
     }
   }
   if(input$mileage_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position="dodge")
+    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
   }
   
   if (input$mileage_stat_data) {
@@ -1595,7 +1595,7 @@ output$emu_asset_linearplot <- renderPlot( {
   }
   if(input$emu_predict_data){
     
-    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position="dodge")
+    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -1667,7 +1667,7 @@ output$emu_asset_rfplot <- renderPlot( {
   }
   
   if(input$emu_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position="dodge")
+    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
   }
   
   if (input$emu_stat_data) {
@@ -1701,7 +1701,7 @@ output$emu_asset_svmplot <- renderPlot( {
     }
   }
   if(input$emu_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position="dodge")
+    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
   }
   
   if (input$emu_stat_data) {
@@ -1764,7 +1764,7 @@ output$car_passenger_linearplot <- renderPlot( {
   }
   if(input$mileage_predict_data){
     
-    PVp<-PVp+geom_line(aes(x=PVtm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=PVtm,y=linearRegPred),size=4,shape=18,colour="blue",position="dodge")#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    PVp<-PVp+geom_line(aes(x=PVtm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=PVtm,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     
   }
   
@@ -2142,7 +2142,7 @@ output$linearplot_21 <- renderPlot( {
   
   if(input$predict_data_21){
     
-    p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position="dodge")#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2336,7 +2336,7 @@ output$ky_linearplot <- renderPlot( {
   
   if(input$predict_data_ky){
     
-    Carriagep<-Carriagep+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position="dodge")#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    Carriagep<-Carriagep+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -3066,32 +3066,32 @@ else{
 #cpgccl.yssj---------------成品钢材产量(亿吨)
 
 if(input$xghysj.yssj=="cpgccl.yssj"){
-  p<-p+geom_line(aes(x=tm,y=cpgccl),color="black",size=0.7)+geom_point(aes(x=tm,y=cpgccl),size=2,shape=21,colour="black",fill="cornsilk",position="dodge")
+  p<-p+geom_line(aes(x=tm,y=cpgccl),color="black",size=0.7)+geom_point(aes(x=tm,y=cpgccl),size=2,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
 }
 
 #yyjgl.yssj --------------原油加工量(亿吨) 
 
 if (input$xghysj.yssj=="yyjgl.yssj") {
-  p<-p+geom_line(aes(x=tm,y=yyjgl),color="red",size=0.6)+geom_point(aes(x=tm,y=yyjgl),size=2,shape=21,colour="darkred",fill="pink",position="dodge")
+  p<-p+geom_line(aes(x=tm,y=yyjgl),color="red",size=0.6)+geom_point(aes(x=tm,y=yyjgl),size=2,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   
 }
 
 #ymcl.yssj-----------------原煤产量(亿吨)
 if (input$xghysj.yssj=="ymcl.yssj") {
-  p<-p+geom_line(aes(x=tm,y=ymcl),color="blue",size=0.6)+ylim(1000,6000)+geom_point(aes(x=tm,y=ymcl),size=2,shape=21,colour="darkblue",fill="cornsilk",position="dodge")
+  p<-p+geom_line(aes(x=tm,y=ymcl),color="blue",size=0.6)+ylim(1000,6000)+geom_point(aes(x=tm,y=ymcl),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   
 }
 #hlfdl.yssj----------------火力发电量(亿千瓦时)
 
 if (input$xghysj.yssj=="hlfdl.yssj") {
-  p<-p+geom_line(aes(x=tm,y=hlfdl),color="orange",size=0.6)+ylim(500,4500)+geom_point(aes(x=tm,y=hlfdl),size=2,shape=21,colour="darkred",fill="cornsilk",position="dodge")
+  p<-p+geom_line(aes(x=tm,y=hlfdl),color="orange",size=0.6)+ylim(500,4500)+geom_point(aes(x=tm,y=hlfdl),size=2,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
   
 }
 
 #gyzjz.yssj-----------工业增加值
 if (input$xghysj.yssj=="gyzjz.yssj") {
   p<-p+geom_line(aes(x=tm,y=gyzjz),color="purple",size=0.6)+ylim(3,25)
-  p<p+geom_point(aes(x=tm,y=gyzjz),size=2,shape=21,colour="darkblue",fill="cornsilk",position="dodge")
+  p<-p+geom_point(aes(x=tm,y=gyzjz),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   
 }
 p+ylab("相关行业数据")+xlab("时间")+geom_line()
@@ -3119,22 +3119,25 @@ output$yssj.ylxg.plot <- renderPlot( {
   #hyzzl.yssj -----------货运周转量(亿吨)
   
   if(input$ylxg.yssj=="hyzzl.yssj"){
-    p<-p+geom_line(aes(x=tm,y=hyzzl),color="black",size=0.6)+ylim(1,3)+geom_point(aes(x=tm,y=hyzzl),size=2,shape=21,colour="darkblue",fill="cornsilk",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=hyzzl),color="black",size=0.6)+ylim(1,3)+geom_point(aes(x=tm,y=hyzzl),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   #hyl.yssj  ------------货运量(亿吨)
   if (input$ylxg.yssj=="hyl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=hyl),color="red",size=0.6)+ylim(800,2500)+geom_point(aes(x=tm,y=hyl),size=2,shape=21,colour="darkred",fill="pink",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=hyl),color="red",size=0.6)+ylim(800,2500)
+    p<-p+geom_point(aes(x=tm,y=hyl),size=2,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
   
   
   #kyl.yssj----------客运量(亿人)
   if (input$ylxg.yssj=="kyl.yssj") {
     p<-p+geom_line(aes(x=tm,y=kyl),color="blue",size=0.6)+ylim(0.5,3)
+    p<-p+geom_point(aes(x=tm,y=kyl),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   
   # kyzzl.yssj---------------客运周转量(亿人)
   if (input$ylxg.yssj=="kyzzl.yssj") {
     p<-p+geom_line(aes(x=tm,y=kyzzl),color="purple",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=kyzzl),size=2,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
   
   p+ylab("运量相关")+xlab("时间")+geom_line()
@@ -3159,28 +3162,34 @@ output$yssj.yyxg.plot <- renderPlot( {
   }
   #yylc-----------运营里程
   if(input$yyxg.yssj=="yylc.yssj"){
-    p<-p+geom_line(aes(x=tm,y=yylc),color="black",size=0.6)+ylim(60000,120000)+geom_point(aes(x=tm,y=yylc),size=4,shape=20,colour="black",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=yylc),color="black",size=0.6)+ylim(60000,120000)
+    p<-p+geom_point(aes(x=tm,y=yylc),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
   #rjyyc---------日均运用车
   if (input$yyxg.yssj=="rjyyc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=rjyyc),color="red",size=0.6)+ylim(40,55)+geom_point(aes(x=tm,y=rjyyc),size=4,shape=20,colour="red",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=rjyyc),color="red",size=0.6)+ylim(40,55)
+    p<-p+geom_point(aes(x=tm,y=rjyyc),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
   #rjxzc--------日均现在车
   if (input$yyxg.yssj=="rjxzc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=rjxzc),color="purple",size=0.6)+ylim(40,90)+geom_point(aes(x=tm,y=rjxzc),size=4,shape=20,colour="purple",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=rjxzc),color="purple",size=0.6)+ylim(40,90)
+    p<-p+geom_point(aes(x=tm,y=rjxzc),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
   #kyjcrcgl-----------客运机车日车公里
   if (input$yyxg.yssj=="kyjcrcgl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=kyjcrcgl),color="blue",size=0.6)+ylim(500,1000)+geom_point(aes(x=tm,y=kyjcrcgl),size=4,shape=20,colour="blue",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=kyjcrcgl),color="blue",size=0.6)+ylim(500,1000)
+    p<-p+geom_point(aes(x=tm,y=kyjcrcgl),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   #hyjcrcgl-----------货运机车日车公里
   if (input$yyxg.yssj=="hyjcrcgl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=hyjcrcgl),color="darkgreen",size=0.6)+ylim(400,600)+geom_point(aes(x=tm,y=hyjcrcgl),size=4,shape=20,colour="darkgreen",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=hyjcrcgl),color="blue",size=0.6)+ylim(400,600)
+    p<-p+geom_point(aes(x=tm,y=hyjcrcgl),size=4,shape=21,colour="darkgreen",fill="cornsilk",position=position_dodge(width=0.2))
   }
   
   #jczxzlc-------------机车总行走里程
   if (input$yyxg.yssj=="jczxzlc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=jczxzlc),color="orange",size=0.6)+ylim(200,350)+geom_point(aes(x=tm,y=jczxzlc),size=4,shape=20,colour="orange",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=jczxzlc),color="orange",size=0.6)+ylim(200,350)
+    p<-p+geom_point(aes(x=tm,y=jczxzlc),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
   
   p+ylab("运营相关")+xlab("时间")+geom_line()
@@ -3201,39 +3210,47 @@ output$yssj.zcxg.plot <- renderPlot( {
     dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_zcxg))
     p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))
   }
-  
+  #kcls------------客车辆数
   if(input$zcxg.yssj=="kcls.yssj"){
-    p<-p+geom_line(aes(x=tm,y=kcls),color="black",size=0.6)+ylim(30000,70000)+geom_point(aes(x=tm,y=kcls),size=4,shape=18,colour="black",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=kcls),color="black",size=0.6)+ylim(30000,70000)
+    p<-p+geom_point(aes(x=tm,y=kcls),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  
+  #hcls-----------货车辆数
   if (input$zcxg.yssj=="hcls.yssj") {
-    p<-p+geom_line(aes(x=tm,y=hcls),color="red",size=0.6)+ylim(40,80)+geom_point(aes(x=tm,y=hcls),size=4,shape=18,colour="red",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=hcls),color="red",size=0.6)+ylim(40,80)
+    p<-p+geom_point(aes(x=tm,y=hcls),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
-  
+  #jcts---------- 机车台数
   if (input$zcxg.yssj=="jcts.yssj") {
-    p<-p+geom_line(aes(x=tm,y=jcts),color="blue",size=0.6)+ylim(13000,25000)+geom_point(aes(x=tm,y=jcts),size=4,shape=18,colour="blue",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=jcts),color="blue",size=0.6)+ylim(13000,25000)
+    p<-p+geom_point(aes(x=tm,y=jcts),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  
+  #dcts------------动车台数
   if(input$zcxg.yssj=="dcts.yssj"){
-    p<-p+geom_line(aes(x=tm,y=dcts),color="purple",size=0.6)+ylim(500,1500)+geom_point(aes(x=tm,y=dcts),size=4,shape=18,colour="purple",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=dcts),color="purple",size=0.6)+ylim(500,1500)
+    p<-p+geom_point(aes(x=tm,y=dcts),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  
+  #cyrysl------------从业人员数量
   if (input$zcxg.yssj=="cyrysl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=cyrysl),color="orange",size=0.6)+ylim(180,320)+geom_point(aes(x=tm,y=cyrysl),size=4,shape=18,colour="orange",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=cyrysl),color="orange",size=0.6)+ylim(180,320)
+    p<-p+geom_point(aes(x=tm,y=cyrysl),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  
+  #
   if (input$zcxg.yssj=="tlgdzctz.yssj") {
-    p<-p+geom_line(aes(x=tm,y=tlgdzctz),color="darkgreen",size=0.6)+geom_point(aes(x=tm,y=tlgdzctz),size=4,shape=18,colour="darkgreen",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=tlgdzctz),color="darkgreen",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=tlgdzctz),size=4,shape=21,colour="darkgreen",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  
+  #xxpglc-----------新线铺轨里程
   if (input$zcxg.yssj=="xxpglc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=xxpglc),color="pink",size=0.6)+geom_point(aes(x=tm,y=xxpglc),size=4,shape=18,colour="pink",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=xxpglc),color="red",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=xxpglc),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
-  
+  #fxpglc------------复线铺轨里程
   if (input$zcxg.yssj=="fxpglc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=fxpglc),color="brown",size=0.6)+geom_point(aes(x=tm,y=fxpglc),size=4,shape=18,colour="brown",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=fxpglc),color="brown",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=fxpglc),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
-  p+ylab("资产相关")+xlab("时间")+geom_line()
+  p+ylab("规模相关")+xlab("时间")+geom_line()
 })  
 
 output$yssj.hhbh.plot <- renderPlot( {
@@ -3257,7 +3274,7 @@ output$yssj.hhbh.plot <- renderPlot( {
   }
   
   if (input$hhbh.yssj=="dzdq.yssj") {
-    p<-p+geom_line(aes(x=tm,y=dzdq),color="red",size=0.6)+geom_point(aes(x=tm,y=dzdq),size=4,shape=22,colour="darkred",fill="pink",position="dodge")
+    p<-p+geom_line(aes(x=tm,y=dzdq),color="red",size=0.6)+geom_point(aes(x=tm,y=dzdq),size=4,shape=22,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   #  增加了标记点，鲁晓春2016-5-11
   }
   
