@@ -1017,33 +1017,33 @@ source("rate3.R")
 source("index.R")
 
 #-----黑货指数计算--------------------------------------------------------------------------------------------
-liaozili<-read.csv("index-black.csv",head=T)
+liaozili<-read.csv("index-black.csv",head=T)# 读取黑货原始数据到变量liaozili中
 liaozili$tm<-as.Date.POSIXct(liaozili$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
 liaozili_len<-length(liaozili$tm)
 #-----增长率--------------
 
-coal1<-rate1(liaozili$coal)
-oil1<- rate1(liaozili$oil)
-metal1<-rate1(liaozili$metal)
-iron1<-rate1(liaozili$iron)
-mine1<-rate1(liaozili$mine)
+coal1<-rate1(liaozili$coal) #原煤增长率
+oil1<- rate1(liaozili$oil)#原油增长率
+metal1<-rate1(liaozili$metal)#金属矿石增长率
+iron1<-rate1(liaozili$iron)#钢铁增长率
+mine1<-rate1(liaozili$mine)#矿建增长率
 
 #-----对称变化率--------------
 
-coal2<- rate2(coal1,0)
-oil2<-rate2(oil1,0)
-metal2<-rate2(metal1,0)
-iron2<-rate2(iron1,0)
-mine2<-rate2(mine1,0)
+coal2<- rate2(coal1,0)#原煤对称变化率
+oil2<-rate2(oil1,0)#原油对称变化率
+metal2<-rate2(metal1,0)#金属矿石对称变化率
+iron2<-rate2(iron1,0)#钢铁对称变化率
+mine2<-rate2(mine1,0)#矿建对称变化率
 
 
 #-----标准化对称变换率--------
 
-coal3<-rate3(coal1,coal2)
-oil3<-rate3(oil1,oil2)
-metal3<-rate3(metal1,metal2)
-iron3<-rate3(iron1,iron2)
-mine3<-rate3(mine1,mine2)
+coal3<-rate3(coal1,coal2)#原煤标准化对称变换率
+oil3<-rate3(oil1,oil2)#原油标准化对称变换率
+metal3<-rate3(metal1,metal2)#金属矿石标准化对称变换率
+iron3<-rate3(iron1,iron2)#钢铁标准化对称变换率
+mine3<-rate3(mine1,mine2)#矿建标准化对称变换率
 
 
 # -----黑货指数：图像显示--------
@@ -1054,14 +1054,14 @@ output$heihuo_index<- renderPlot( {
   lx3<-input$weightmetal_input/100
   lx4<-input$weightiron_input/100
   lx5<-input$weightmine_input/100
+  # 原煤、原油、金属矿石、钢铁、矿建权重输入
   
   
+  dfweight<- data.frame(lx1,lx2,lx3,lx4,lx5)#将输入权重值写入数据框
+  dfinitial <- data.frame(0.6693,0.0522,0.1497,0.0802,0.0485)# 权重值初始化
   
-  dfweight<- data.frame(lx1,lx2,lx3,lx4,lx5)
-  dfinitial <- data.frame(0.6693,0.0522,0.1497,0.0802,0.0485)
-  
-  averagerate<-coal3*lx1 +oil3*lx2 + metal3*lx3 + iron3*lx4+ mine3*lx5
-  liaozili$heihuo_index<-index(averagerate,0)
+  averagerate<-coal3*lx1 +oil3*lx2 + metal3*lx3 + iron3*lx4+ mine3*lx5  #平均变换率
+  liaozili$heihuo_index<-index(averagerate,0)#计算黑货指数并写入表格中
   
   if(input$liaozili_year_start> input$liaozili_year_end)  {
     p<-ggplot(liaozili,x=c(liaozili$tm[1],liaozili$tm[liaozili_len]),aes(x=tm,y=0))
@@ -1072,8 +1072,13 @@ output$heihuo_index<- renderPlot( {
     p<-ggplot(dfsub,x=c(dfsub$tm[1],dfsub$tm[liaozili_len]),aes(x=tm,y=80))
   }
   
+<<<<<<< HEAD
+  p<-p+geom_line(aes(x=tm,y=dfsub$heihuo_index),color="blue",size=0.6)#+geom_point(aes(x=tm,y=dfsub$heihuo_index),size=3,shape=22,colour="darkred",fill="pink",position="dodge")
+  p+ylab("黑货指数")+xlab("时间")+geom_line()+ylim(70,105)
+=======
   p<-p+geom_line(aes(x=tm,y=dfsub$heihuo_index),color="blue",size=0.6)#+geom_point(aes(x=tm,y=dfsub$heihuo_index),size=3,shape=22,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   p+ylab("黑货指数")+xlab("时间")+geom_line()+ylim(70,110)
+>>>>>>> refs/remotes/origin/master
 })
 
 # -----黑货指数：数据显示--------
@@ -1084,6 +1089,7 @@ output$heihuotable<-DT::renderDataTable({
   lx3<-input$weightmetal_input/100
   lx4<-input$weightiron_input/100
   lx5<-input$weightmine_input/100
+  # 原煤、原油、金属矿石、钢铁、矿建权重输入
   
   averagerate<-coal3*lx1 +oil3*lx2 + metal3*lx3 + iron3*lx4+ mine3*lx5
   liaozili$heihuo_index<-round(index(averagerate,0),2)
@@ -1097,38 +1103,39 @@ style="bootstrap")
 
 
 #-----白货指数计算--------------------------------------------------------------------------------------------
-liaozili2<-read.csv("index-white.csv",head=T)
+liaozili2<-read.csv("index-white.csv",head=T)#读取白货原始数据到变量liaozili2中
 liaozili2$tm<-as.Date.POSIXct(liaozili2$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
 liaozili_len1<-length(liaozili2$tm)
 
 
 #-----增长率--------------调用上面公式
-machinery1<-rate1(liaozili2$machinery)
-electronic1<-rate1(liaozili2$electronic)
-agricultural1<-rate1(liaozili2$agricultural)
-food1<-rate1(liaozili2$food)
-education1<-rate1(liaozili2$education)
-ltl1<-rate1(liaozili2$ltl)
-container1<-rate1(liaozili2$container)
+machinery1<-rate1(liaozili2$machinery)#工业机械增长率
+electronic1<-rate1(liaozili2$electronic)#电子电气增长率
+agricultural1<-rate1(liaozili2$agricultural)#农副产品增长率
+food1<-rate1(liaozili2$food)#饮食烟草增长率
+education1<-rate1(liaozili2$education)#文教用增长率
+ltl1<-rate1(liaozili2$ltl)#零担增长率
+container1<-rate1(liaozili2$container)#集装箱增长率
+
 
 
 #-----对称变化率--------------调用上面公式
-machinery2<- rate2( machinery1,0)
-electronic2<-rate2(electronic1,0)
-agricultural2<-rate2(agricultural1,0)
-food2<-rate2(food1,0)
-education2<-rate2(education1,0)
-ltl2<-rate2(ltl1,0)
-container2<-rate2(container1,0)
+machinery2<- rate2( machinery1,0)#工业机械对称变化率
+electronic2<-rate2(electronic1,0)#电子电气对称变化率
+agricultural2<-rate2(agricultural1,0)#农副产品对称变化率
+food2<-rate2(food1,0)#饮食烟草对称变化率
+education2<-rate2(education1,0)#文教用对称变化率
+ltl2<-rate2(ltl1,0)#零担对称变化率
+container2<-rate2(container1,0)#集装箱对称变化率
 
 #-----标准化对称变换率--------调用上面公式
-machinery3<- rate3(machinery1, machinery2)
-electronic3<- rate3( electronic1, electronic2)
-agricultural3<- rate3( agricultural1, agricultural2)
-food3<- rate3( food1, food2)
-education3<- rate3( education1, education2)
-ltl3<- rate3( ltl1,ltl2)
-container3<- rate3( container1, container2)
+machinery3<- rate3(machinery1, machinery2)#工业机械标准对称变化率
+electronic3<- rate3( electronic1, electronic2)#电子电气标准对称变化率
+agricultural3<- rate3( agricultural1, agricultural2)#农副产品标准对称变化率
+food3<- rate3( food1, food2)#饮食烟草标准对称变化率
+education3<- rate3( education1, education2)#文教用品标准对称变化率
+ltl3<- rate3( ltl1,ltl2)#零担标准对称变化率
+container3<- rate3( container1, container2)#集装箱标准对称变化率
 
 
 
@@ -1136,20 +1143,20 @@ container3<- rate3( container1, container2)
 
 output$baihuo_index<- renderPlot( {
   
-  lz_x1<-input$weightmachinery_input/100
-  lz_x2<-input$weightelectronic_input/100
-  lz_x3<-input$weightagricultural_input/100
-  lz_x4<-input$weightfood_input/100
-  lz_x5<-input$weighteducation_input/100
-  lz_x6<-input$weightltl_input/100
-  lz_x7<-input$weightcontainer_input/100
+  lz_x1<-input$weightmachinery_input/100#工业机械输入权重
+  lz_x2<-input$weightelectronic_input/100#电子电气输入权重
+  lz_x3<-input$weightagricultural_input/100#农副产品输入权重
+  lz_x4<-input$weightfood_input/100#饮食烟草输入权重
+  lz_x5<-input$weighteducation_input/100#文教用品输入权重
+  lz_x6<-input$weightltl_input/100#零担标准输入权重
+  lz_x7<-input$weightcontainer_input/100#集装箱输入权重
   
-  dfweight1<- data.frame( lz_x1, lz_x2, lz_x3, lz_x4, lz_x5, lz_x6, lz_x7)
-  dfinitial1<- data.frame(0.181,0.188,0.111,0.1719,0.1777,0.0429,0.1275) 
+  dfweight1<- data.frame( lz_x1, lz_x2, lz_x3, lz_x4, lz_x5, lz_x6, lz_x7)#权重读入数据框
+  dfinitial1<- data.frame(0.181,0.188,0.111,0.1719,0.1777,0.0429,0.1275) #权重初始化
   
    
-  averagerate1<-machinery3* lz_x1 +electronic3* lz_x2 + agricultural3* lz_x3 + food3* lz_x4+ education3*lz_x5+ltl3*lz_x6+container3* lz_x7
-  liaozili2$baihuo_index<-index(averagerate1,0)
+  averagerate1<-machinery3* lz_x1 +electronic3* lz_x2 + agricultural3* lz_x3 + food3* lz_x4+ education3*lz_x5+ltl3*lz_x6+container3* lz_x7#白货平均变化率
+  liaozili2$baihuo_index<-index(averagerate1,0)#白货指数
   
   if(input$liaozili_year2_start> input$liaozili_year2_end)  {
     p<-ggplot(liaozili2,x=c(liaozili2$tm[1],liaozili2$tm[liaozili_len1]),aes(x=tm,y=100))
@@ -1174,7 +1181,7 @@ output$baihuotable<-DT::renderDataTable({
   lz_x5<-input$weighteducation_input/100
   lz_x6<-input$weightltl_input/100
   lz_x7<-input$weightcontainer_input/100
-  
+  # 工业机械、电子电气、农副产品、饮食烟草、文教用品，零担，集装箱权重输入
   
   averagerate1<-machinery3* lz_x1 +electronic3* lz_x2 + agricultural3* lz_x3 + food3*lz_x4+ education3*lz_x5+ltl3*lz_x6+container3*lz_x7
   liaozili2$baihuo_index<-round(index(averagerate1,0),2)
@@ -1197,7 +1204,7 @@ style="bootstrap")
   
 #---------------------------------------------------------------------
 #---------------固定资产投资-营业里程---------------------------------
-
+#operatingmileage-----营业里程
 operatingmileage_df<-read.csv("营业里程.csv",head=T)
 
 operatingmileage_olsRegModel<-lm(asset~operatingmileage,data=operatingmileage_df)
@@ -1240,7 +1247,7 @@ output$operatingmileage_linearplot <- renderPlot( {
   }
   if(input$operatingmileage_predict_data){
     
-    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
+    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
   }
   
   if (input$operatingmileage_stat_data) {
@@ -1311,7 +1318,7 @@ output$operatingmileage_rfplot <- renderPlot( {
   }
   
   if(input$operatingmileage_predict_data){
-    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
+    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
   }
   
   if (input$operatingmileage_stat_data) {
@@ -1345,7 +1352,7 @@ output$operatingmileage_svmplot <- renderPlot( {
     }
   }
   if(input$operatingmileage_predict_data){
-    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
+    operatingmileage_p<-operatingmileage_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
   }
   
   if (input$operatingmileage_stat_data) {
@@ -1373,79 +1380,79 @@ rownames = TRUE)
 
 #--------------------适配性研究-----------------------------
 #----------------固定资产-铺轨里程--------------------------
-
-pg_cw_df<-read.csv("固定资产指标.csv",head=T)
-pg_cw_olsRegModel<-lm(asset~nlm+olm,data=pg_cw_df)
-pg_cw_df$linearRegPred<-as.integer(predict(pg_cw_olsRegModel,newdata=pg_cw_df))
-pg_cw_rfRegModel<-randomForest(asset~nlm+olm,data=pg_cw_df,importance=T, ntree=100,type="regression")
-pg_cw_df$frRegPred<-as.integer(predict(pg_cw_rfRegModel,pg_cw_df))
-pg_cw_svmRegModel<-svm(asset~nlm+olm,data=pg_cw_df,type="eps-regression",cross=dim(pg_cw_df)[1]/2)
-pg_cw_df$svmRegPred<-as.integer(predict(pg_cw_svmRegModel,pg_cw_df))
-pg_cw_len<-length(pg_cw_df$tm)
+#tl_mileage-------铺轨里程 nim------新线铺轨里程  olm--------旧线铺轨里程
+tl_mileage_df<-read.csv("固定资产指标.csv",head=T)
+tl_mileage_olsRegModel<-lm(asset~nlm+olm,data=tl_mileage_df)
+tl_mileage_df$linearRegPred<-as.integer(predict(tl_mileage_olsRegModel,newdata=tl_mileage_df))
+tl_mileage_rfRegModel<-randomForest(asset~nlm+olm,data=tl_mileage_df,importance=T, ntree=100,type="regression")
+tl_mileage_df$frRegPred<-as.integer(predict(tl_mileage_rfRegModel,tl_mileage_df))
+tl_mileage_svmRegModel<-svm(asset~nlm+olm,data=tl_mileage_df,type="eps-regression",cross=dim(tl_mileage_df)[1]/2)
+tl_mileage_df$svmRegPred<-as.integer(predict(tl_mileage_svmRegModel,tl_mileage_df))
+tl_mileage_len<-length(tl_mileage_df$tm)
 
 plotCurve<-function(db,xdata,ydata)
 {
-  pg_cw_len=dim(xdata)[1]
-  cw_plt<-ggplot(db,x=c(xdata[1],xdata[pg_cw_len]),aes(x=xdata,y=ydata),color="red")
-  return(cw_plt)
+  tl_mileage_len=dim(xdata)[1]
+  tl_mileage_plt<-ggplot(db,x=c(xdata[1],xdata[tl_mileage_len]),aes(x=xdata,y=ydata),color="red")
+  return(tl_mileage_plt)
 }
 output$pg_asset_linearplot <- renderPlot( {
   
   if(input$mileage_year_start> input$mileage_year_end)  {
     
     if (input$mileage_stat_data) {
-      cw_p<-plotCurve(pg_cw_df,pg_cw_df$tm,pg_cw_df$asset)
+      tl_mileage_p<-plotCurve(tl_mileage_df,tl_mileage_df$tm,tl_mileage_df$asset)
     }
     else
     {
-      cw_p<-plotCurve(pg_cw_df,pg_cw_df$tm,pg_cw_df$linearRegPred)
+      tl_mileage_p<-plotCurve(tl_mileage_df,tl_mileage_df$tm,tl_mileage_df$linearRegPred)
     }
   }
   else{
-    pg_cw_dfsub<-subset(pg_cw_df,pg_cw_df$tm>=input$mileage_year_start) 
-    pg_cw_dfsub<-subset(pg_cw_dfsub,pg_cw_dfsub$tm<=input$mileage_year_end)
+    tl_mileage_dfsub<-subset(tl_mileage_df,tl_mileage_df$tm>=input$mileage_year_start) 
+    tl_mileage_dfsub<-subset(tl_mileage_dfsub,tl_mileage_dfsub$tm<=input$mileage_year_end)
     if (input$mileage_stat_data) {
-      cw_p<-plotCurve(pg_cw_dfsub,pg_cw_dfsub$tm,pg_cw_dfsub$asset)
+      tl_mileage_p<-plotCurve(tl_mileage_dfsub,tl_mileage_dfsub$tm,tl_mileage_dfsub$asset)
     }
     else
     {
-      cw_p<-plotCurve(pg_cw_dfsub,pg_cw_dfsub$tm,pg_cw_dfsub$linearRegPred)
+      tl_mileage_p<-plotCurve(tl_mileage_dfsub,tl_mileage_dfsub$tm,tl_mileage_dfsub$linearRegPred)
     }
   }
   if(input$mileage_predict_data){
     
-    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
+    tl_mileage_p<-tl_mileage_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
   if (input$mileage_stat_data) {
-    cw_p<-cw_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+    tl_mileage_p<-tl_mileage_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
   }
-  cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  tl_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 output$pg_asset_output<-renderText({
-  cw_x1<-as.numeric(input$nlm_input)
-  cw_x2<-as.numeric(input$olm_input)
-  nlm<-c(cw_x1)
-  olm<-c(cw_x2)
+  tl_mileage_x1<-as.numeric(input$nlm_input)
+  tl_mileage_x2<-as.numeric(input$olm_input)
+  nlm<-c(tl_mileage_x1)
+  olm<-c(tl_mileage_x2)
   tm<-c(2016)
   asset<-c(0)
   inputdata<-data.frame(tm,asset,nlm,olm)
-  cw_pred<-as.integer(predict(pg_cw_olsRegModel,inputdata,interval="prediction",level=0.95))
-  paste("多元回归预测：",cw_pred[1],"预测区间95%：(",cw_pred[2],",",cw_pred[3],")" ) 
+  tl_mileage_pred<-as.integer(predict(tl_mileage_olsRegModel,inputdata,interval="prediction",level=0.95))
+  paste("多元回归预测：",tl_mileage_pred[1],"预测区间95%：(",tl_mileage_pred[2],",",tl_mileage_pred[3],")" ) 
 }
 )
 #-------------------------------------------------
 #随机森林回归预测计算
 output$pg_asset_FRR<-renderText({
-  cw_x1<-as.numeric(input$nlm_input)
-  cw_x2<-as.numeric(input$olm_input)
-  nlm<-c(cw_x1)
-  olm<-c(cw_x2)
+  tl_mileage_x1<-as.numeric(input$nlm_input)
+  tl_mileage_x2<-as.numeric(input$olm_input)
+  nlm<-c(tl_mileage_x1)
+  olm<-c(tl_mileage_x2)
   tm<-c(2016)
   asset<-c(0)
   inputdata<-data.frame(tm,asset,nlm,olm)
-  railasset<-predict(pg_cw_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
+  railasset<-predict(tl_mileage_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
   paste("随机森林回归预测：",as.integer(railasset[1])  ) 
   
 }
@@ -1453,16 +1460,16 @@ output$pg_asset_FRR<-renderText({
 #----------------------------------
 #支持向量机回归预测计算
 output$pg_asset_zhi<-renderText({
-  cw_x1<-as.numeric(input$nlm_input)
-  cw_x2<-as.numeric(input$olm_input)
-  nlm<-c(cw_x1)
-  olm<-c(cw_x2)
+  tl_mileage_x1<-as.numeric(input$nlm_input)
+  tl_mileage_x2<-as.numeric(input$olm_input)
+  nlm<-c(tl_mileage_x1)
+  olm<-c(tl_mileage_x2)
   tm<-c(2016)
   asset<-c(0)
   inputdata<-data.frame(tm,asset,nlm,olm)
-  cw_pred<-as.integer(predict(pg_cw_svmRegModel,inputdata))
+  tl_mileage_pred<-as.integer(predict(tl_mileage_svmRegModel,inputdata))
   
-  paste("支持向量机预测：",cw_pred)
+  paste("支持向量机预测：",tl_mileage_pred)
   
 }
 )
@@ -1472,33 +1479,33 @@ output$pg_asset_rfplot <- renderPlot( {
   if(input$mileage_year_start> input$mileage_year_end)  {
     
     if (input$mileage_stat_data) {
-      cw_p<-plotCurve(pg_cw_df,pg_cw_df$tm,pg_cw_df$asset)
+      tl_mileage_p<-plotCurve(tl_mileage_df,tl_mileage_df$tm,tl_mileage_df$asset)
     }
     else
     {
-      cw_p<-plotCurve(pg_cw_df,pg_cw_df$tm,pg_cw_df$frRegPred)
+      tl_mileage_p<-plotCurve(tl_mileage_df,tl_mileage_df$tm,tl_mileage_df$frRegPred)
     }
   }
   else{
-    pg_cw_dfsub<-subset(pg_cw_df,pg_cw_df$tm>=input$mileage_year_start) 
-    pg_cw_dfsub<-subset(pg_cw_dfsub,pg_cw_dfsub$tm<=input$mileage_year_end)
+    tl_mileage_dfsub<-subset(tl_mileage_df,tl_mileage_df$tm>=input$mileage_year_start) 
+    tl_mileage_dfsub<-subset(tl_mileage_dfsub,tl_mileage_dfsub$tm<=input$mileage_year_end)
     if (input$mileage_stat_data) {
-      cw_p<-plotCurve(pg_cw_dfsub,pg_cw_dfsub$tm,pg_cw_dfsub$asset)
+      tl_mileage_p<-plotCurve(tl_mileage_dfsub,tl_mileage_dfsub$tm,tl_mileage_dfsub$asset)
     }
     else
     {
-      cw_p<-plotCurve(pg_cw_dfsub,pg_cw_dfsub$tm,pg_cw_dfsub$frRegPred)
+      tl_mileage_p<-plotCurve(tl_mileage_dfsub,tl_mileage_dfsub$tm,tl_mileage_dfsub$frRegPred)
     }
   }
   
   if(input$mileage_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
+    tl_mileage_p<-tl_mileage_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
   }
   
   if (input$mileage_stat_data) {
-    cw_p<-cw_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+    tl_mileage_p<-tl_mileage_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
   }
-  cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  tl_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 #----------------------------支持向量机Tabset画线
 
@@ -1507,32 +1514,32 @@ output$pg_asset_svmplot <- renderPlot( {
   if(input$mileage_year_start> input$mileage_year_end)  {
     
     if (input$mileage_stat_data) {
-      cw_p<-plotCurve(pg_cw_df,pg_cw_df$tm,pg_cw_df$asset)
+      tl_mileage_p<-plotCurve(tl_mileage_df,tl_mileage_df$tm,tl_mileage_df$asset)
     }
     else
     {
-      cw_p<-plotCurve(pg_cw_df,pg_cw_df$tm,pg_cw_df$svmRegPred)
+      tl_mileage_p<-plotCurve(tl_mileage_df,tl_mileage_df$tm,tl_mileage_df$svmRegPred)
     }
   }
   else{
-    pg_cw_dfsub<-subset(pg_cw_df,pg_cw_df$tm>=input$mileage_year_start) 
-    pg_cw_dfsub<-subset(pg_cw_dfsub,pg_cw_dfsub$tm<=input$mileage_year_end)
+    tl_mileage_dfsub<-subset(tl_mileage_df,tl_mileage_df$tm>=input$mileage_year_start) 
+    tl_mileage_dfsub<-subset(tl_mileage_dfsub,tl_mileage_dfsub$tm<=input$mileage_year_end)
     if (input$mileage_stat_data) {
-      cw_p<-plotCurve(pg_cw_dfsub,pg_cw_dfsub$tm,pg_cw_dfsub$asset)
+      tl_mileage_p<-plotCurve(tl_mileage_dfsub,tl_mileage_dfsub$tm,tl_mileage_dfsub$asset)
     }
     else
     {
-      cw_p<-plotCurve(pg_cw_dfsub,pg_cw_dfsub$tm,pg_cw_dfsub$svmRegPred)
+      tl_mileage_p<-plotCurve(tl_mileage_dfsub,tl_mileage_dfsub$tm,tl_mileage_dfsub$svmRegPred)
     }
   }
   if(input$mileage_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
+    tl_mileage_p<-tl_mileage_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
   }
   
   if (input$mileage_stat_data) {
-    cw_p<-cw_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+    tl_mileage_p<-tl_mileage_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
   }
-  cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  tl_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 
@@ -1542,87 +1549,86 @@ output$pg_asset_table<-DT::renderDataTable(
   DT::datatable(
 {
   
-  pg_cw_data<-pg_cw_df
+  tl_mileage_data<-tl_mileage_df
 } , 
 colnames = c('序号', '时间', '固定资产投资（亿元）','新线铺轨里程（公里）','复线铺轨里程（公里）','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
 rownames = TRUE)
 ) 
-  
 
 #--------------------------------------------------------------------------
 #----------------固定资产-动车组数量适配性研究----------------------------
-
-cw_df<-read.csv("动车增加数量.csv",head=T)
-cw_df$tm<-as.Date.POSIXct(cw_df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
-cw_olsRegModel<-lm(asset~emu,data=cw_df)
+#emu-------动车组增加数量
+emu_df<-read.csv("动车增加数量.csv",head=T)
+emu_df$tm<-as.Date.POSIXct(emu_df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
+emu_olsRegModel<-lm(asset~emu,data=emu_df)
 #bound<-(predict(olsRegModel,newdata=df,interval = "prediction"))  
 #df$linearRegPred<-as.integer(bound[,1])
-cw_df$linearRegPred<-as.integer(predict(cw_olsRegModel,newdata=cw_df))
-cw_rfRegModel<-randomForest(asset~emu,data=cw_df,importance=T, ntree=100,type="regression")
-cw_df$frRegPred<-as.integer(predict(cw_rfRegModel,cw_df))
-cw_svmRegModel<-svm(asset~emu,data=cw_df,type="eps-regression",cross=dim(cw_df)[1]/2)
-cw_df$svmRegPred<-as.integer(predict(cw_svmRegModel,cw_df))
-cw_len<-length(cw_df$tm)
+emu_df$linearRegPred<-as.integer(predict(emu_olsRegModel,newdata=emu_df))
+emu_rfRegModel<-randomForest(asset~emu,data=emu_df,importance=T, ntree=100,type="regression")
+emu_df$frRegPred<-as.integer(predict(emu_rfRegModel,emu_df))
+emu_svmRegModel<-svm(asset~emu,data=emu_df,type="eps-regression",cross=dim(emu_df)[1]/2)
+emu_df$svmRegPred<-as.integer(predict(emu_svmRegModel,emu_df))
+emu_len<-length(emu_df$tm)
 
 plotCurve<-function(db,xdata,ydata)
 {
-  cw_len=dim(xdata)[1]
-  cw_plt<-ggplot(db,x=c(xdata[1],xdata[cw_len]),aes(x=xdata,y=ydata),color="red")
-  return(cw_plt)
+  emu_len=dim(xdata)[1]
+  emu_plt<-ggplot(db,x=c(xdata[1],xdata[emu_len]),aes(x=xdata,y=ydata),color="red")
+  return(emu_plt)
 }
 output$emu_asset_linearplot <- renderPlot( {
   
   if(input$emu_year_start> input$emu_year_end)  {
     
     if (input$emu_stat_data) {
-      cw_p<-plotCurve(cw_df,cw_df$tm,cw_df$asset)
+      emu_p<-plotCurve(emu_df,emu_df$tm,emu_df$asset)
     }
     else
     {
-      cw_p<-plotCurve(cw_df,cw_df$tm,cw_df$linearRegPred)
+      emu_p<-plotCurve(emu_df,emu_df$tm,emu_df$linearRegPred)
     }
   }
   else{
-    cw_dfsub<-subset(cw_df,substr(cw_df$tm,1,4)>=input$emu_year_start) 
-    cw_dfsub<-subset(cw_dfsub,substr(cw_dfsub$tm,1,4)<=input$emu_year_end)
+    emu_dfsub<-subset(emu_df,substr(emu_df$tm,1,4)>=input$emu_year_start) 
+    emu_dfsub<-subset(emu_dfsub,substr(emu_dfsub$tm,1,4)<=input$emu_year_end)
     if (input$emu_stat_data) {
-      cw_p<-plotCurve(cw_dfsub,cw_dfsub$tm,cw_dfsub$asset)
+      emu_p<-plotCurve(emu_dfsub,emu_dfsub$tm,emu_dfsub$asset)
     }
     else
     {
-      cw_p<-plotCurve(cw_dfsub,cw_dfsub$tm,cw_dfsub$linearRegPred)
+      emu_p<-plotCurve(emu_dfsub,emu_dfsub$tm,emu_dfsub$linearRegPred)
     }
   }
   if(input$emu_predict_data){
     
-    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
+    emu_p<-emu_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
   if (input$emu_stat_data) {
-    cw_p<-cw_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+    emu_p<-emu_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
   }
-  cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  emu_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 output$emu_asset_output<-renderText({
-  cw_x<-as.numeric(input$emu_input)
-  emu<-c(cw_x)
+  emu_x<-as.numeric(input$emu_input)
+  emu<-c(emu_x)
   tm<-c(2016)
   asset<-c(0)
   inputdata<-data.frame(tm,asset,emu)
-  cw_pred<-as.integer(predict(cw_olsRegModel,inputdata,interval="prediction",level=0.95))
-  paste("多元回归预测：",cw_pred[1],"预测区间95%：(",cw_pred[2],",",cw_pred[3],")" ) 
+  emu_pred<-as.integer(predict(emu_olsRegModel,inputdata,interval="prediction",level=0.95))
+  paste("多元回归预测：",emu_pred[1],"预测区间95%：(",emu_pred[2],",",emu_pred[3],")" ) 
 }
 )
 #-------------------------------------------------
 #随机森林回归预测计算
 output$emu_asset_FRR<-renderText({
-  cw_x<-as.numeric(input$emu_input)
-  emu<-c(cw_x)
+  emu_x<-as.numeric(input$emu_input)
+  emu<-c(emu_x)
   tm<-c(2016)
   asset<-c(0)
   inputdata<-data.frame(tm,asset,emu)
-  railasset<-predict(cw_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
+  railasset<-predict(emu_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
   paste("随机森林回归预测：",as.integer(railasset[1])  ) 
   
 }
@@ -1630,14 +1636,14 @@ output$emu_asset_FRR<-renderText({
 #----------------------------------
 #支持向量机回归预测计算
 output$emu_asset_zhi<-renderText({
-  cw_x<-as.numeric(input$emu_input)
-  emu<-c(cw_x)
+  emu_x<-as.numeric(input$emu_input)
+  emu<-c(emu_x)
   tm<-c(2016)
   asset<-c(0)
   inputdata<-data.frame(tm,asset,emu)
-  cw_pred<-as.integer(predict(cw_svmRegModel,inputdata))
+  emu_pred<-as.integer(predict(emu_svmRegModel,inputdata))
   
-  paste("支持向量机预测：",cw_pred)
+  paste("支持向量机预测：",emu_pred)
   
 }
 )
@@ -1647,33 +1653,33 @@ output$emu_asset_rfplot <- renderPlot( {
   if(input$emu_year_start> input$emu_year_end)  {
     
     if (input$emu_stat_data) {
-      cw_p<-plotCurve(cw_df,cw_df$tm,cw_df$asset)
+      emu_p<-plotCurve(emu_df,emu_df$tm,emu_df$asset)
     }
     else
     {
-      cw_p<-plotCurve(cw_df,cw_df$tm,cw_df$frRegPred)
+      emu_p<-plotCurve(emu_df,emu_df$tm,emu_df$frRegPred)
     }
   }
   else{
-    cw_dfsub<-subset(cw_df,substr(cw_df$tm,1,4)>=input$emu_year_start) 
-    cw_dfsub<-subset(cw_dfsub,substr(cw_df$tm,1,4)<=input$emu_year_end)
+    emu_dfsub<-subset(emu_df,substr(emu_df$tm,1,4)>=input$emu_year_start) 
+    emu_dfsub<-subset(emu_dfsub,substr(emu_df$tm,1,4)<=input$emu_year_end)
     if (input$emu_stat_data) {
-      cw_p<-plotCurve(cw_dfsub,cw_dfsub$tm,cw_dfsub$asset)
+      emu_p<-plotCurve(emu_dfsub,emu_dfsub$tm,emu_dfsub$asset)
     }
     else
     {
-      cw_p<-plotCurve(cw_dfsub,cw_dfsub$tm,cw_dfsub$frRegPred)
+      emu_p<-plotCurve(emu_dfsub,emu_dfsub$tm,emu_dfsub$frRegPred)
     }
   }
   
   if(input$emu_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
+    emu_p<-emu_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
   }
   
   if (input$emu_stat_data) {
-    cw_p<-cw_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+    emu_p<-emu_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
   }
-  cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  emu_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 #----------------------------支持向量机Tabset画线
 
@@ -1682,32 +1688,32 @@ output$emu_asset_svmplot <- renderPlot( {
   if(input$emu_year_start> input$emu_year_end)  {
     
     if (input$emu_stat_data) {
-      cw_p<-plotCurve(cw_df,cw_df$tm,cw_df$asset)
+      emu_p<-plotCurve(emu_df,emu_df$tm,emu_df$asset)
     }
     else
     {
-      cw_p<-plotCurve(cw_df,cw_df$tm,cw_df$svmRegPred)
+      emu_p<-plotCurve(emu_df,emu_df$tm,emu_df$svmRegPred)
     }
   }
   else{
-    cw_dfsub<-subset(cw_df,substr(cw_df$tm,1,4)>=input$emu_year_start) 
-    cw_dfsub<-subset(cw_dfsub,substr(cw_dfsub$tm,1,4)<=input$emu_year_end)
+    emu_dfsub<-subset(emu_df,substr(emu_df$tm,1,4)>=input$emu_year_start) 
+    emu_dfsub<-subset(emu_dfsub,substr(emu_dfsub$tm,1,4)<=input$emu_year_end)
     if (input$emu_stat_data) {
-      cw_p<-plotCurve(cw_dfsub,cw_dfsub$tm,cw_dfsub$asset)
+      emu_p<-plotCurve(emu_dfsub,emu_dfsub$tm,emu_dfsub$asset)
     }
     else
     {
-      cw_p<-plotCurve(cw_dfsub,cw_dfsub$tm,cw_dfsub$svmRegPred)
+      emu_p<-plotCurve(emu_dfsub,emu_dfsub$tm,emu_dfsub$svmRegPred)
     }
   }
   if(input$emu_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=20,colour="blue",position=position_dodge(width=0.2))
+    emu_p<-emu_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
   }
   
   if (input$emu_stat_data) {
-    cw_p<-cw_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+    emu_p<-emu_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
   }
-  cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  emu_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 
@@ -1716,7 +1722,7 @@ output$emu_asset_table<-DT::renderDataTable(
   DT::datatable(
 {
   
-  cw_data<-cw_df
+  emu_data<-emu_df
 } , 
 colnames = c('序号', '时间', '固定资产投资（亿元）', '动车新增数量','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
 rownames = TRUE)
@@ -1904,10 +1910,10 @@ rownames = TRUE)
   #-----------------------适配性研究---------------------------------
   #----------------------机车车辆-营业里程---------------------------
   
-  df_1<-read.csv("Locomotive-dis.csv",head=T)
-  olsRegModel_1<-lm(locomotive~distance,data=df_1)
+  df_1<-read.csv("Locomotive-dis.csv",head=T)#读取机车车辆与营业里程原始表
+  olsRegModel_1<-lm(locomotive~distance,data=df_1)# 多元回归计算
   
-  df_1$linearRegPred<-as.integer(predict(olsRegModel_1,newdata=df_1))
+  df_1$linearRegPred<-as.integer(predict(olsRegModel_1,newdata=df_1))# 多元回归计算并写入表
   
   
   rfRegModel_1<-randomForest(locomotive~distance,data=df_1,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
@@ -2716,7 +2722,7 @@ output$f_car_table<-DT::renderDataTable(
   DT::datatable(
 {
   
-  pg_cw_data<-freight_car_df
+  mileage_data<-freight_car_df
 } , 
 colnames = c('序号', '时间', '货运量','货车车辆数','营业里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
 rownames = TRUE)
@@ -2977,7 +2983,7 @@ output$table<-DT::renderDataTable(
 
 #--------------------------------------------
 #-----------货运量时间序列预测---------------
-
+#freight-----------货运量
 freight_ind<-read.csv("货运量.csv",head=T)
 freight_indus<-ts(freight_ind,start=c(2001,1),freq=12)
 freight_rn<-auto.arima(freight_indus,ic="bic")
