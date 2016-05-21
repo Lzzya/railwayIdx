@@ -2490,54 +2490,77 @@ f_car_olsRegModel<-lm(freight~freightcar+olm,data=freight_car_df)
 freight_car_df$linearRegPred<-as.integer(predict(f_car_olsRegModel,newdata=freight_car_df))
 f_car_rfRegModel<-randomForest(freight~freightcar+olm,data=freight_car_df,importance=T, ntree=100,type="regression")
 freight_car_df$frRegPred<-as.integer(predict(f_car_rfRegModel,freight_car_df))
-f_car_svmRegModel<-svm(freight~freightcar+olm,data=freight_car_df,type="eps-regression",cross=dim(freight_car_df)[1]/2)
-freight_car_df$svmRegPred<-as.integer(predict(f_car_svmRegModel,freight_car_df))
-pg_cw_len<-length(freight_car_df$tm)
+f_car_rfRegModel<-svm(freight~freightcar+olm,data=freight_car_df,type="eps-regression",cross=dim(freight_car_df)[1]/2)
+freight_car_df$svmRegPred<-as.integer(predict(f_car_rfRegModel,freight_car_df))
 
-plotCurve<-function(db,xdata,ydata)
-{
-  pg_cw_len=dim(xdata)[1]
-  cw_plt<-ggplot(db,x=c(xdata[1],xdata[pg_cw_len]),aes(x=xdata,y=ydata),color="red")
-  return(cw_plt)
-}
+
+
+
+
+
 output$f_car_linearplot <- renderPlot( {
   
-  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {
+  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {      
     
-    if (input$freight_mileage_stat_data) {
-      cw_p<-plotCurve(freight_car_df,freight_car_df$tm,freight_car_df$freight)
+    if(input$freight_mileage_stat_data){
+      freight_car_p<-ggplot(data=freight_car_df)+geom_line(aes(x=freight_car_df$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
+      
+      if(input$freight_mileage_predict_data){
+        
+        freight_car_p+geom_line(aes(x=freight_car_df$tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=linearRegPred),color="blue",size=3,shape=3)
+      } 
+      else{
+        freight_car_p
+      }
     }
-    else
-    {
-      cw_p<-plotCurve(freight_car_df,freight_car_df$tm,freight_car_df$linearRegPred)
+    
+    else{
+      if(input$freight_mileage_predict_data){
+        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=linearRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
+      }
+      else{
+        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=linearRegPred))+xlab("日期")+ylab("货运量")
+      }
     }
+    
   }
+  
   else{
     freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$freight_mileage_year_start) 
     freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$freight_mileage_year_end)
-    if (input$freight_mileage_stat_data) {
-      cw_p<-plotCurve(freight_car_dfsub,freight_car_dfsub$tm,freight_car_dfsub$freight)
-    }
-    else
-    {
-      cw_p<-plotCurve(freight_car_dfsub,freight_car_dfsub$tm,freight_car_dfsub$linearRegPred)
-    }
-  }
-  if(input$freight_mileage_predict_data){
     
-    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
-    #+stat_smooth(method=lm,color='black',level=0.95)
+    if(input$freight_mileage_stat_data){
+      freight_car_p<-ggplot(data=freight_car_dfsub)+geom_line(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
+      
+      if(input$freight_mileage_predict_data){
+        
+        freight_car_p+geom_line(aes(x=freight_car_dfsub$tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=linearRegPred),color="blue",size=3,shape=3)
+      } 
+      else{
+        freight_car_p
+      }
+    }
+    
+    else{
+      if(input$freight_mileage_predict_data){
+        ggplot(data=freight_car_dfsub,aes(x=freight_car_dfsub$tm,y=linearRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
+      }
+      else{
+        ggplot(data=freight_car_dfsub,aes(x=freight_car_df$tm,y=linearRegPred))+xlab("日期")+ylab("货运量")
+      }
+    }
+    
+    
   }
   
-  if (input$freight_mileage_stat_data) {
-    cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
-  }
-  cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  
+  
 })
+
 
 output$f_car_output<-renderText({
   cw_x1<-as.numeric(input$freightcar_input)
-  cw_x2<-as.numeric(input$freight_olm_input)
+  cw_x2<-as.numeric(input$freightolm_input)
   freightcar<-c(cw_x1)
   olm<-c(cw_x2)
   tm<-c(2016)
@@ -2551,7 +2574,7 @@ output$f_car_output<-renderText({
 #随机森林回归预测计算
 output$f_car_FRR<-renderText({
   cw_x1<-as.numeric(input$freightcar_input)
-  cw_x2<-as.numeric(input$freight_olm_input)
+  cw_x2<-as.numeric(input$freightolm_input)
   freightcar<-c(cw_x1)
   olm<-c(cw_x2)
   tm<-c(2016)
@@ -2566,13 +2589,13 @@ output$f_car_FRR<-renderText({
 #支持向量机回归预测计算
 output$f_car_zhi<-renderText({
   cw_x1<-as.numeric(input$freightcar_input)
-  cw_x2<-as.numeric(input$freight_olm_input)
+  cw_x2<-as.numeric(input$freightolm_input)
   freightcar<-c(cw_x1)
   olm<-c(cw_x2)
   tm<-c(2016)
   freight<-c(0)
   inputdata<-data.frame(tm,freight,freightcar,olm)
-  cw_pred<-as.integer(predict(f_car_svmRegModel,inputdata))
+  cw_pred<-as.integer(predict(f_car_rfRegModel,inputdata))
   
   paste("支持向量机预测：",cw_pred)
   
@@ -2581,70 +2604,116 @@ output$f_car_zhi<-renderText({
 #-----------随机森林Tabset画线  
 output$f_car_rfplot <- renderPlot( {
   
-  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {
+  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {      
     
-    if (input$freight_mileage_stat_data) {
-      cw_p<-plotCurve(freight_car_df,freight_car_df$tm,freight_car_df$freight)
+    if(input$freight_mileage_stat_data){
+      freight_car_p<-ggplot(data=freight_car_df)+geom_line(aes(x=freight_car_df$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
+      
+      if(input$freight_mileage_predict_data){
+        
+        freight_car_p+geom_line(aes(x=freight_car_df$tm,y=frRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=svmRegPred),color="blue",size=3,shape=3)
+      } 
+      else{
+        freight_car_p
+      }
     }
-    else
-    {
-      cw_p<-plotCurve(freight_car_df,freight_car_df$tm,freight_car_df$frRegPred)
+    
+    else{
+      if(input$freight_mileage_predict_data){
+        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=frRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
+      }
+      else{
+        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=frRegPred))+xlab("日期")+ylab("货运量")
+      }
     }
+    
   }
+  
   else{
-    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$mileage_year_start) 
-    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$mileage_year_end)
-    if (input$freight_mileage_stat_data) {
-      cw_p<-plotCurve(freight_car_dfsub,freight_car_dfsub$tm,freight_car_dfsub$freight)
+    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$freight_mileage_year_start) 
+    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$freight_mileage_year_end)
+    
+    if(input$freight_mileage_stat_data){
+      freight_car_psub<-ggplot(data=freight_car_dfsub)+geom_line(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
+      
+      if(input$freight_mileage_predict_data){
+        
+        freight_car_psub+geom_line(aes(x=freight_car_dfsub$tm,y=frRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=svmRegPred),color="blue",size=3,shape=3)
+      } 
+      else{
+        freight_car_psub
+      }
     }
-    else
-    {
-      cw_p<-plotCurve(freight_car_dfsub,freight_car_dfsub$tm,freight_car_dfsub$frRegPred)
+    
+    else{
+      if(input$freight_mileage_predict_data){
+        ggplot(data=freight_car_dfsub,aes(x=freight_car_dfsub$tm,y=frRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
+      }
+      else{
+        ggplot(data=freight_car_dfsub,aes(x=freight_car_df$tm,y=frRegPred))+xlab("日期")+ylab("货运量")
+      }
     }
+    
+    
   }
-  
-  if(input$freight_mileage_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
-  }
-  
-  if (input$freight_mileage_stat_data) {
-    cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
-  }
-  cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
+
 #----------------------------支持向量机Tabset画线
 
 output$f_car_svmplot <- renderPlot( {
   
-  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {
+  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {      
     
-    if (input$freight_mileage_stat_data) {
-      cw_p<-plotCurve(freight_car_df,freight_car_df$tm,freight_car_df$freight)
+    if(input$freight_mileage_stat_data){
+      freight_car_p<-ggplot(data=freight_car_df)+geom_line(aes(x=freight_car_df$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
+      
+      if(input$freight_mileage_predict_data){
+        
+        freight_car_p+geom_line(aes(x=freight_car_df$tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=svmRegPred),color="blue",size=3,shape=3)
+      } 
+      else{
+        freight_car_p
+      }
     }
-    else
-    {
-      cw_p<-plotCurve(freight_car_df,freight_car_df$tm,freight_car_df$svmRegPred)
+    
+    else{
+      if(input$freight_mileage_predict_data){
+        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=svmRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
+      }
+      else{
+        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=svmRegPred))+xlab("日期")+ylab("货运量")
+      }
     }
-  }
-  else{
-    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$mileage_year_start) 
-    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$mileage_year_end)
-    if (input$freight_mileage_stat_data) {
-      cw_p<-plotCurve(freight_car_dfsub,freight_car_dfsub$tm,freight_car_dfsub$freight)
-    }
-    else
-    {
-      cw_p<-plotCurve(freight_car_dfsub,freight_car_dfsub$tm,freight_car_dfsub$svmRegPred)
-    }
-  }
-  if(input$freight_mileage_predict_data){
-    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
+    
   }
   
-  if (input$freight_mileage_stat_data) {
-    cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
+  else{
+    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$freight_mileage_year_start) 
+    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$freight_mileage_year_end)
+    
+    if(input$freight_mileage_stat_data){
+      freight_car_p<-ggplot(data=freight_car_dfsub)+geom_line(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
+      
+      if(input$freight_mileage_predict_data){
+        
+        freight_car_p+geom_line(aes(x=freight_car_dfsub$tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=svmRegPred),color="blue",size=3,shape=3)
+      } 
+      else{
+        freight_car_p
+      }
+    }
+    
+    else{
+      if(input$freight_mileage_predict_data){
+        ggplot(data=freight_car_dfsub,aes(x=freight_car_dfsub$tm,y=svmRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
+      }
+      else{
+        ggplot(data=freight_car_dfsub,aes(x=freight_car_df$tm,y=svmRegPred))+xlab("日期")+ylab("货运量")
+      }
+    }
+    
+    
   }
-  cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 
@@ -2681,47 +2750,62 @@ df$frRegPred<-as.integer(predict(rfRegModel,df))     #<-----------随机森林�
 svmRegModel<-svm(freight~iron+coal,data=df,type="eps-regression",cross=dim(df)[1]/2)
 df$svmRegPred<-as.integer(predict(svmRegModel,df))   #<-----------支持向量机的预测数据已经在这里计算得到
 
-len<-length(df$tm)
-plotCurve<-function(db,xdata,ydata)
-{
-  len=dim(xdata)[1]
-  plt<-ggplot(db,x=c(xdata[1],xdata[len]),aes(x=xdata,y=ydata),color="red")
-  return(plt)
-}
+
 #---------------------------多元回归画线
 output$linearplot <- renderPlot( {
   
-  if(input$year_start> input$year_end)  {
+  if(input$year_start> input$year_end)  {      
     
-    if (input$stat_data) {
-      p<-plotCurve(df,df$tm,df$freight)
+    if(input$stat_data){
+      freight_car_p<-ggplot(data=freight_car_df)+geom_line(aes(x=freight_car_df$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
+      
+      if(input$predict_data){
+        
+        freight_car_p+geom_line(aes(x=freight_car_df$tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=linearRegPred),color="blue",size=3,shape=3)
+      } 
+      else{
+        freight_car_p
+      }
     }
-    else
-    {
-      p<-plotCurve(df,df$tm,df$linearRegPred)
+    
+    else{
+      if(input$predict_data){
+        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=linearRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
+      }
+      else{
+        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=linearRegPred))+xlab("日期")+ylab("货运量")
+      }
     }
+    
   }
+  
   else{
-    dfsub<-subset(df,substr(df$tm,1,4)>=input$year_start) 
-    dfsub<-subset(dfsub,substr(dfsub$tm,1,4)<=input$year_end)
-    if (input$stat_data) {
-      p<-plotCurve(dfsub,dfsub$tm,dfsub$freight)
-    }
-    else
-    {
-      p<-plotCurve(dfsub,dfsub$tm,dfsub$linearRegPred)
-    }
-  }
-  
-  if(input$predict_data){
+    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$year_start) 
+    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$year_end)
     
-    p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    if(input$stat_data){
+      freight_car_p<-ggplot(data=freight_car_dfsub)+geom_line(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
+      
+      if(input$predict_data){
+        
+        freight_car_p+geom_line(aes(x=freight_car_dfsub$tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=linearRegPred),color="blue",size=3,shape=3)
+      } 
+      else{
+        freight_car_p
+      }
+    }
+    
+    else{
+      if(input$predict_data){
+        ggplot(data=freight_car_dfsub,aes(x=freight_car_dfsub$tm,y=linearRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
+      }
+      else{
+        ggplot(data=freight_car_dfsub,aes(x=freight_car_df$tm,y=linearRegPred))+xlab("日期")+ylab("货运量")
+      }
+    }
+    
+    
   }
-  
-  if (input$stat_data) {
-    p<-p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
-  }
-  p+ylab("货运量（万吨）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 #多元回归预测计算
@@ -2771,71 +2855,115 @@ output$freight_zhi<-renderText({
 
 output$rfplot <- renderPlot( {
   
-  if(input$year_start> input$year_end)  {
+  if(input$year_start> input$year_end)  {      
     
-    if (input$stat_data) {
-      p<-plotCurve(df,df$tm,df$freight)
+    if(input$stat_data){
+      freight_car_p<-ggplot(data=freight_car_df)+geom_line(aes(x=freight_car_df$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
+      
+      if(input$predict_data){
+        
+        freight_car_p+geom_line(aes(x=freight_car_df$tm,y=frRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=frRegPred),color="blue",size=3,shape=3)
+      } 
+      else{
+        freight_car_p
+      }
     }
-    else
-    {
-      p<-plotCurve(df,df$tm,df$frRegPred)
+    
+    else{
+      if(input$predict_data){
+        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=frRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
+      }
+      else{
+        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=frRegPred))+xlab("日期")+ylab("货运量")
+      }
     }
+    
   }
+  
   else{
-    dfsub<-subset(df,substr(df$tm,1,4)>=input$year_start) 
-    dfsub<-subset(dfsub,substr(dfsub$tm,1,4)<=input$year_end)
-    if (input$stat_data) {
-      p<-plotCurve(dfsub,dfsub$tm,dfsub$freight)
+    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$year_start) 
+    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$year_end)
+    
+    if(input$stat_data){
+      freight_car_psub<-ggplot(data=freight_car_dfsub)+geom_line(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
+      
+      if(input$predict_data){
+        
+        freight_car_psub+geom_line(aes(x=freight_car_dfsub$tm,y=frRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=frRegPred),color="blue",size=3,shape=3)
+      } 
+      else{
+        freight_car_psub
+      }
     }
-    else
-    {
-      p<-plotCurve(dfsub,dfsub$tm,dfsub$frRegPred)
+    
+    else{
+      if(input$predict_data){
+        ggplot(data=freight_car_dfsub,aes(x=freight_car_dfsub$tm,y=frRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
+      }
+      else{
+        ggplot(data=freight_car_dfsub,aes(x=freight_car_df$tm,y=freight))+xlab("日期")+ylab("货运量")
+      }
     }
+    
+    
   }
-  
-  if(input$predict_data){
-    p<-p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
-  }
-  
-  if (input$stat_data) {
-    p<-p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
-  }
-  p+ylab("货运量(万吨)")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 
 output$svmplot <- renderPlot( {
   
-  if(input$year_start> input$year_end)  {
+  if(input$year_start> input$year_end)  {      
     
-    if (input$stat_data) {
-      p<-plotCurve(df,df$tm,df$carriage)
+    if(input$stat_data){
+      freight_car_p<-ggplot(data=freight_car_df)+geom_line(aes(x=freight_car_df$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
+      
+      if(input$predict_data){
+        
+        freight_car_p+geom_line(aes(x=freight_car_df$tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=svmRegPred),color="blue",size=3,shape=3)
+      } 
+      else{
+        freight_car_p
+      }
     }
-    else
-    {
-      p<-plotCurve(df,df$tm,df$svmRegPred)
+    
+    else{
+      if(input$predict_data){
+        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=svmRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
+      }
+      else{
+        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=svmRegPred))+xlab("日期")+ylab("货运量")
+      }
     }
+    
   }
+  
   else{
-    dfsub<-subset(df,substr(df$tm,1,4)>=input$year_start) 
-    dfsub<-subset(dfsub,substr(dfsub$tm,1,4)<=input$year_end)
-    if (input$stat_data) {
-      p<-plotCurve(dfsub,dfsub$tm,dfsub$freight)
+    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$year_start) 
+    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$year_end)
+    
+    if(input$stat_data){
+      freight_car_psub<-ggplot(data=freight_car_dfsub)+geom_line(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
+      
+      if(input$predict_data){
+        
+        freight_car_psub+geom_line(aes(x=freight_car_dfsub$tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=svmRegPred),color="blue",size=3,shape=3)
+      } 
+      else{
+        freight_car_psub
+      }
     }
-    else
-    {
-      p<-plotCurve(dfsub,dfsub$tm,dfsub$svmRegPred)
+    
+    else{
+      if(input$predict_data){
+        ggplot(data=freight_car_dfsub,aes(x=freight_car_dfsub$tm,y=svmRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
+      }
+      else{
+        ggplot(data=freight_car_dfsub,aes(x=freight_car_df$tm,y=freight))+xlab("日期")+ylab("货运量")
+      }
     }
+    
+    
   }
-  
-  if(input$predict_data){
-    p<-p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
-  }
-  
-  if (input$stat_data) {
-    p<-p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
-  }
-  p+ylab("货运量(万吨)")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 
@@ -2845,7 +2973,6 @@ output$table<-DT::renderDataTable(
     colnames = c('日期', '货运量(万吨)','成品钢材产量(万吨)','原煤产量(万吨)','多元回归预测(万吨)','随机森林回归预测(万吨)','支持向量机回归预测(万吨)'),
     rownames = TRUE)
 )
-
 
 
 #——————————————————————————————————————————————————————————————————————————————
