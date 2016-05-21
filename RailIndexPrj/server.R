@@ -2495,9 +2495,9 @@ plotCurve<-function(db,xdata,ydata)
 }
 output$f_car_linearplot <- renderPlot( {
   
-  if(input$mileage_year_start> input$mileage_year_end)  {
+  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {
     
-    if (input$mileage_stat_data) {
+    if (input$freight_mileage_stat_data) {
       cw_p<-plotCurve(freight_car_df,freight_car_df$tm,freight_car_df$freight)
     }
     else
@@ -2506,9 +2506,9 @@ output$f_car_linearplot <- renderPlot( {
     }
   }
   else{
-    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$mileage_year_start) 
-    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$mileage_year_end)
-    if (input$mileage_stat_data) {
+    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$freight_mileage_year_start) 
+    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$freight_mileage_year_end)
+    if (input$freight_mileage_stat_data) {
       cw_p<-plotCurve(freight_car_dfsub,freight_car_dfsub$tm,freight_car_dfsub$freight)
     }
     else
@@ -2516,13 +2516,13 @@ output$f_car_linearplot <- renderPlot( {
       cw_p<-plotCurve(freight_car_dfsub,freight_car_dfsub$tm,freight_car_dfsub$linearRegPred)
     }
   }
-  if(input$mileage_predict_data){
+  if(input$freight_mileage_predict_data){
     
     cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
-  if (input$mileage_stat_data) {
+  if (input$freight_mileage_stat_data) {
     cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
   }
   cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
@@ -2574,9 +2574,9 @@ output$f_car_zhi<-renderText({
 #-----------随机森林Tabset画线  
 output$f_car_rfplot <- renderPlot( {
   
-  if(input$mileage_year_start> input$mileage_year_end)  {
+  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {
     
-    if (input$mileage_stat_data) {
+    if (input$freight_mileage_stat_data) {
       cw_p<-plotCurve(freight_car_df,freight_car_df$tm,freight_car_df$freight)
     }
     else
@@ -2587,7 +2587,7 @@ output$f_car_rfplot <- renderPlot( {
   else{
     freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$mileage_year_start) 
     freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$mileage_year_end)
-    if (input$mileage_stat_data) {
+    if (input$freight_mileage_stat_data) {
       cw_p<-plotCurve(freight_car_dfsub,freight_car_dfsub$tm,freight_car_dfsub$freight)
     }
     else
@@ -2596,11 +2596,11 @@ output$f_car_rfplot <- renderPlot( {
     }
   }
   
-  if(input$mileage_predict_data){
+  if(input$freight_mileage_predict_data){
     cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
   }
   
-  if (input$mileage_stat_data) {
+  if (input$freight_mileage_stat_data) {
     cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
   }
   cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
@@ -2609,9 +2609,9 @@ output$f_car_rfplot <- renderPlot( {
 
 output$f_car_svmplot <- renderPlot( {
   
-  if(input$mileage_year_start> input$mileage_year_end)  {
+  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {
     
-    if (input$mileage_stat_data) {
+    if (input$freight_mileage_stat_data) {
       cw_p<-plotCurve(freight_car_df,freight_car_df$tm,freight_car_df$freight)
     }
     else
@@ -2622,7 +2622,7 @@ output$f_car_svmplot <- renderPlot( {
   else{
     freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$mileage_year_start) 
     freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$mileage_year_end)
-    if (input$mileage_stat_data) {
+    if (input$freight_mileage_stat_data) {
       cw_p<-plotCurve(freight_car_dfsub,freight_car_dfsub$tm,freight_car_dfsub$freight)
     }
     else
@@ -2630,11 +2630,11 @@ output$f_car_svmplot <- renderPlot( {
       cw_p<-plotCurve(freight_car_dfsub,freight_car_dfsub$tm,freight_car_dfsub$svmRegPred)
     }
   }
-  if(input$mileage_predict_data){
+  if(input$freight_mileage_predict_data){
     cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
   }
   
-  if (input$mileage_stat_data) {
+  if (input$freight_mileage_stat_data) {
     cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
   }
   cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
