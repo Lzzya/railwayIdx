@@ -447,9 +447,9 @@ navbarMenu("铁路景气指数",
                                                                               ),
                                                                               plotOutput(outputId = "trans_DI_index", height = "400px"),
                                                                               fluidRow(
-                                                                                DT::dataTableOutput("table_trans_DI_index")
-                                                                              ))#主显示区
-                                                                            
+                                                                                column(12,DT::dataTableOutput("table_trans_DI_index")) ),
+                                                                              width=9
+                                                                              )#主显示区
                                                                           )), #运输指数的页签
                                                                 
                                                                 #------------------------------------------------------------  
@@ -807,7 +807,7 @@ tabPanel("黑货白货指数",
                                               selected=max(operatingmileage_y) ),
                                   textInput(inputId="operatingmileage_input",
                                             label=strong("营业里程"),
-                                            value=mean(operatingmileage_df$operatingmileage)),
+                                            value=round(mean(operatingmileage_df$operatingmileage),2)),
                                   hr("预测结果—固定资产值（亿元）"),
                                   hr(),
                                   textOutput("operatingmileage_asset_output") ,
@@ -853,10 +853,10 @@ tabPanel("黑货白货指数",
                                               selected=max(pg_cw_y) ),
                                   textInput(inputId="nlm_input",
                                             label=strong("新线铺轨里程（公里）"),
-                                            value=mean(pg_cw_df$nlm)),
+                                            value=round(mean(pg_cw_df$nlm),2)),
                                   textInput(inputId="olm_input",
                                             label=strong("复线铺轨里程（公里）"),
-                                            value=mean(pg_cw_df$olm)),
+                                            value=round(mean(pg_cw_df$olm),2)),
                                   hr("预测结果——固定资产值（亿元）"),
                                   hr(),
                                   textOutput("pg_asset_output") ,
@@ -901,7 +901,7 @@ tabPanel("黑货白货指数",
                                               selected=max(cw_y) ),
                                   textInput(inputId="emu_input",
                                             label=strong("动车新增数量"),
-                                            value=mean(cw_df$emu)),
+                                            value=round(mean(cw_df$emu),0)),
                                   hr("预测结果——固定资产值（亿元）"),
                                   hr(),
                                   textOutput("emu_asset_output") ,
@@ -946,10 +946,10 @@ tabPanel("黑货白货指数",
                                               selected=max(PVy) ),
                                   textInput(inputId="CarriageNum_input",
                                             label=strong("客车车辆数（辆）"),
-                                            value=mean(PVdf$CarriageNum)),
+                                            value=round(mean(PVdf$CarriageNum),0)),
                                   textInput(inputId="CarKm_input",
                                             label=strong("客车机车日车公里（公里）"),
-                                            value=mean(PVdf$CarKm)),
+                                            value=round(mean(PVdf$CarKm),2)),
                                   hr("预测结果——客运量（万人）"),
                                   hr(),
                                   textOutput("PassengeVolume_output") ,
@@ -1108,32 +1108,33 @@ tabPanel("黑货白货指数",
                )
              )
              ),
+    
     tabPanel("货运量-营业里程",
              titlePanel("货运量-营业里程"),
              
              sidebarLayout(
                sidebarPanel(
-                 checkboxInput(inputId="mileage_stat_data",
+                 checkboxInput(inputId="freight_mileage_stat_data",
                                label=strong("历史统计值"),
                                value=TRUE),
                  
-                 checkboxInput(inputId = "mileage_predict_data",
+                 checkboxInput(inputId = "freight_mileage_predict_data",
                                label = strong("回归预测值"),
                                value = TRUE),
-                 selectInput(inputId = "mileage_year_start",
+                 selectInput(inputId = "freight_mileage_year_start",
                              label = "自:", 
                              choices = freight_car_y,
                              selected = min(freight_car_y) ),
-                 selectInput(inputId="mileage_year_end",
+                 selectInput(inputId="freight_mileage_year_end",
                              label="至:",
                              choice=freight_car_y,
                              selected=max(freight_car_y) ),
                  textInput(inputId="freightcar_input",
                            label=strong("货车车辆数"),
-                           value=mean(freight_car_df$freightcar)),
+                           value=round(mean(freight_car_df$freightcar),0)),
                  textInput(inputId="freight_olm_input",
                            label=strong("营业里程"),
-                           value=mean(freight_car_df$olm)),
+                           value=round(mean(freight_car_df$olm),0)),
                  hr("预测结果——货运量"),
                  hr(),
                  textOutput("f_car_output") ,
@@ -1410,8 +1411,8 @@ tabPanel("原始数据",
                                   ), #第三个页签
                                   
                                   
-                                  #-------------------页签：运营相关---------------------------------------------    
-                                  tabPanel("资产相关",           #第四个页签
+                                  #-------------------页签：规模相关---------------------------------------------    
+                                  tabPanel("规模相关",           #第四个页签
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
