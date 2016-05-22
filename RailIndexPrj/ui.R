@@ -67,6 +67,9 @@ dfyssj<-read.csv("compidx-qitahangye.csv",head=T)
 dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  
 y.wenjing.yssj<-unique(substr(dfyssj$tm,1,4))
 
+dfyssj.hhbh<-read.csv("compidx-heihuobaihuo.csv",head=T)
+dfyssj.hhbh$tm<-as.Date.POSIXct(dfyssj.hhbh$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  
+y.wenjing.yssj.hhbh<-unique(substr(dfyssj.hhbh$tm,1,4))
 
 #———————————————————————————————————————————————————————————————————————————————
 #-----------------------------------------主界面--------------------------------
@@ -1448,12 +1451,45 @@ tabPanel("原始数据",
                                   ), #第四个页签
                                   
                                   
-                                  #-------------------页签：黑货白货相关---------------------------------------------    
-                                  tabPanel("黑货白货",           #第五个页签
+                                  #-------------------页签：黑货运量---------------------------------------------    
+                                  tabPanel("黑货运量",           #第五个页签
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
-                                                 radioButtons(inputId="hhbh.yssj",
+                                                 radioButtons(inputId="heihuo.yssj",
+                                                              label=NULL,
+                                                              choices = c("矿建(万吨)"="kuangjian.yssj",
+                                                                          "钢材(万吨)"="gangcai.yssj",
+                                                                          "石油(万吨)"="shiyou.yssj",
+                                                                          "煤(万吨)"="mei.yssj",
+                                                                          "金属矿石(万吨)"="jsks.yssj") ),
+                                                 
+                                                 hr(),   
+                                                 selectInput(inputId = "year_start_heihuo.yssj",
+                                                             label = "自:", 
+                                                             choices = y.wenjing.yssj.hhbh,
+                                                             selected = min(y.wenjing.yssj.hhbh) ),
+                                                 selectInput(inputId="year_end_heihuo.yssj",
+                                                             label="至:",
+                                                             choice=y.wenjing.yssj.hhbh,
+                                                             selected=max(y.wenjing.yssj.hhbh) ),
+                                                 width=3
+                                               ),
+                                               mainPanel(plotOutput(outputId = "yssj.heihuo.plot", height = "400px"),width=9)
+                                             )),
+                                           
+                                           fluidRow(
+                                             column(12,DT::dataTableOutput("yssj.heihuo.table"))
+                                           )
+                                  ), #第五个页签
+                                  
+                                  
+                                  #-------------------页签：白货运量---------------------------------------------    
+                                  tabPanel("白货运量",           #第六个页签
+                                           fluidRow(
+                                             sidebarLayout(
+                                               sidebarPanel(
+                                                 radioButtons(inputId="baihuo.yssj",
                                                               label=NULL,
                                                               choices = c("工业机械(万吨)"="gyjx.yssj",
                                                                           "电子电气(万吨)"="dzdq.yssj",
@@ -1461,27 +1497,25 @@ tabPanel("原始数据",
                                                                           "饮食烟草(万吨)"="ysyc.yssj",
                                                                           "文教用品(万吨)"="wjyp.yssj", 
                                                                           "零担(吨)"="ldld.yssj" ,
-                                                                          "集装箱(万吨)"="jzx.yssj" ,
-                                                                          "金属矿石(万吨)"="jsks.yssj")),
-                                                 
+                                                                          "集装箱(万吨)"="jzx.yssj" )),
                                                  hr(),   
-                                                 selectInput(inputId = "year_start_hhbh",
+                                                 selectInput(inputId = "year_start_baihuo.yssj",
                                                              label = "自:", 
-                                                             choices = y.wenjing.yssj,
-                                                             selected = min(y.wenjing.yssj) ),
-                                                 selectInput(inputId="year_end_hhbh",
+                                                             choices = y.wenjing.yssj.hhbh,
+                                                             selected = min(y.wenjing.yssj.hhbh) ),
+                                                 selectInput(inputId="year_end_baihuo.yssj",
                                                              label="至:",
-                                                             choice=y.wenjing.yssj,
-                                                             selected=max(y.wenjing.yssj) ),
+                                                             choice=y.wenjing.yssj.hhbh,
+                                                             selected=max(y.wenjing.yssj.hhbh) ),
                                                  width=3
                                                ),
-                                               mainPanel(plotOutput(outputId = "yssj.hhbh.plot", height = "400px"),width=9)
+                                               mainPanel(plotOutput(outputId = "yssj.baihuo.plot", height = "400px"),width=9)
                                              )),
                                            
                                            fluidRow(
-                                             column(12,DT::dataTableOutput("yssj.hhbh.table"))
+                                             column(12,DT::dataTableOutput("yssj.baihuo.table"))
                                            )
-                                  ) 
+                                  )
                                   
                                   
                                   
