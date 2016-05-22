@@ -44,7 +44,7 @@ shinyServer(function(input, output) {
   dftrans$tm<-as.Date.POSIXct(dftrans$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   trans.len<-length(dftrans$tm)
   
-  #-----运输----1. 权重计算--------------------
+  #-----运输----1. 权重计算函数--------------------
   quanzhong.1<- function(x)
   { xlen<- length(x)
     x<- x/max(x)
@@ -106,6 +106,7 @@ shinyServer(function(input, output) {
     return(a1)
   }
   
+  #默认权重计算得到的运输同步、先行、滞后指数
   trans.coor<- hecheng.trans.index(coor.trans.test,biaozhunhua.F.coor)
   trans.adv<- hecheng.trans.index(adv.trans.test,biaozhunhua.trans.F.adv)
   trans.delay<- hecheng.trans.index(delay.trans.test,biaozhunhua.trans.F.delay)
@@ -114,7 +115,7 @@ shinyServer(function(input, output) {
   dftrans$adv<- trans.adv
   dftrans$delay<- trans.delay
   
-  #-----------运输的算完了！！----3.画线和显示数据表--------
+  #-----------运输的算完了！！----3.运输画线和显示数据表--------
   
   qz.input<- function(a)
   {a<- as.numeric(a)/100}  #权重手动输入部分计算的函数们
@@ -148,7 +149,7 @@ shinyServer(function(input, output) {
     dftrans$adv.input<- trans.adv.input
     dftrans$delay.input<- trans.delay.input
     
-    #-----运输----3.1 默认权重计算的画线------------  
+    #-----运输----3.1 运输默认权重计算的画线------------  
     if(input$year_start_trans> input$year_end_trans)  {
       p<-ggplot(dftrans,x=c(dftrans$tm[1],dftrans$tm[trans.len]),aes(x=tm,y=100))}
     else{
@@ -335,19 +336,25 @@ output$equip_index<- renderPlot( {
     p<-ggplot(dfequipsub,x=c(dfequipsub$tm[1],dfequipsub$tm[equip.len]),aes(x=tm,y=100))    }
   
   if(input$equip_coor_Index){
-    p<-p+geom_line(aes(x=tm,y=dfequipsub$coor),color="black",size=0.6)}
+    p<-p+geom_line(aes(x=tm,y=dfequipsub$coor),color="black",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=dfequipsub$coor),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if (input$equip_advanced_Index) {
-    p<-p+geom_line(aes(x=tm,y=dfequipsub$adv),color="red",size=0.6)  }
+    p<-p+geom_line(aes(x=tm,y=dfequipsub$adv),color="red",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=dfequipsub$adv),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if (input$equip_delay_Index) {
-    p<-p+geom_line(aes(x=tm,y=dfequipsub$delay),color="blue",size=0.6)}
+    p<-p+geom_line(aes(x=tm,y=dfequipsub$delay),color="blue",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=dfequipsub$delay),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   
   #-----设备----3.2 权重手动输入后的画线------------      
   if(input$equip_qz_coor_input)#输入修改权重后算出来的新先行指数
-  { p<-p+geom_line(aes(x=tm,y=dfequipsub$coor.input),color="black",size=1,linetype=1)}
+  { p<-p+geom_line(aes(x=tm,y=dfequipsub$coor.input),color="black",size=1,linetype=1)
+  p<-p+geom_point(aes(x=tm,y=dfequipsub$coor.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if(input$equip_qz_adv_input)
-  {p<-p+geom_line(aes(x=tm,y=dfequipsub$adv.input),color="red",size=1,linetype=1)}
+  {p<-p+geom_line(aes(x=tm,y=dfequipsub$adv.input),color="red",size=1,linetype=1)
+  p<-p+geom_point(aes(x=tm,y=dfequipsub$adv.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if(input$equip_qz_delay_input)
-  {p<-p+geom_line(aes(x=tm,y=dfequipsub$delay.input),color="blue",size=1,linetype=1)} 
+  {p<-p+geom_line(aes(x=tm,y=dfequipsub$delay.input),color="blue",size=1,linetype=1)
+  p<-p+geom_point(aes(x=tm,y=dfequipsub$delay.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))} 
   
   
   p+ylab("设备合成指数")+xlab("时间")+geom_line()
@@ -491,19 +498,25 @@ output$scale_index<- renderPlot( {
   }
   
   if(input$scale_coor_Index){
-    p<-p+geom_line(aes(x=tm,y=dfscalesub$coor),color="black",size=0.6)}
+    p<-p+geom_line(aes(x=tm,y=dfscalesub$coor),color="black",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=dfscalesub$coor),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if (input$scale_advanced_Index) {
-    p<-p+geom_line(aes(x=tm,y=dfscalesub$adv),color="red",size=0.6)  }
+    p<-p+geom_line(aes(x=tm,y=dfscalesub$adv),color="red",size=0.6) 
+    p<-p+geom_point(aes(x=tm,y=dfscalesub$adv),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if (input$scale_delay_Index) {
-    p<-p+geom_line(aes(x=tm,y=dfscalesub$delay),color="blue",size=0.6)}
+    p<-p+geom_line(aes(x=tm,y=dfscalesub$delay),color="blue",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=dfscalesub$delay),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   
   #-----设备----3.2 权重手动输入后的画线------------      
   if(input$scale_qz_coor_input)#输入修改权重后算出来的新先行指数
-  { p<-p+geom_line(aes(x=tm,y=dfscalesub$coor.input),color="black",size=1,linetype=1)}
+  { p<-p+geom_line(aes(x=tm,y=dfscalesub$coor.input),color="black",size=1,linetype=1)
+  p<-p+geom_point(aes(x=tm,y=dfscalesub$coor.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if(input$scale_qz_adv_input)
-  {p<-p+geom_line(aes(x=tm,y=dfscalesub$adv.input),color="red",size=1,linetype=1)}
+  {p<-p+geom_line(aes(x=tm,y=dfscalesub$adv.input),color="red",size=1,linetype=1)
+  p<-p+geom_point(aes(x=tm,y=dfscalesub$adv.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if(input$scale_qz_delay_input)
-  {p<-p+geom_line(aes(x=tm,y=dfscalesub$delay.input),color="blue",size=1,linetype=1)}    
+  {p<-p+geom_line(aes(x=tm,y=dfscalesub$delay.input),color="blue",size=1,linetype=1)
+  p<-p+geom_point(aes(x=tm,y=dfscalesub$delay.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}    
   
   p+ylab("规模合成指数")+xlab("时间")+geom_line()
 })
