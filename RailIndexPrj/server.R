@@ -3261,63 +3261,101 @@ output$yssj.zcxg.plot <- renderPlot( {
   p+ylab("规模相关")+xlab("时间")+geom_line()
 })  
 
-#-------------黑货白货原始数据
-output$yssj.hhbh.plot <- renderPlot( {
+#----黑货运量原始数据---------------
+output$yssj.heihuo.plot <- renderPlot( {
   
   dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
   dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(dfyssj$tm)
   
+  if(input$year_start_heihuo.yssj>input$year_end_heihuo.yssj)  { 
+    p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0)) }
   
-  if(input$year_start_hhbh> input$year_end_hhbh)  {
-    p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0))
-  }
   else{
-    dfyssjsub<-subset(dfyssj,(substr(dfyssj$tm,1,4)>=input$year_start_hhbh) )
-    dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_hhbh))
-    p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))
+    dfyssjsub<-subset(dfyssj,(substr(dfyssj$tm,1,4)>=input$year_start_heihuo.yssj) )
+    dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_heihuo.yssj))
+    p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))   }
+  
+  #jsks------------金属矿石
+  if (input$heihuo.yssj=="jsks.yssj") {
+    p<-p+geom_line(aes(x=tm,y=jsks),color="red",size=0.6)+ylim(2000,4000)
+    p<-p+geom_point(aes(x=tm,y=jsks),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
+  #kuangjian---------矿建
+  if (input$heihuo.yssj=="kuangjian.yssj") {
+    p<-p+geom_line(aes(x=tm,y=kuangjian),color="red",size=0.6)+ylim(300,1600)
+    p<-p+geom_point(aes(x=tm,y=kuangjian),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+  
+  #gangcai------钢材的运量月度
+  if (input$heihuo.yssj=="gangcai.yssj") {
+    p<-p+geom_line(aes(x=tm,y=gangcai),color="blue",size=0.6)+ylim(1200,2200)
+    p<-p+geom_point(aes(x=tm,y=gangcai),size=4,shape=21,colour="darkblue",fill="blue",position=position_dodge(width=0.2))}
+  
+  #shiyou----------石油的运量月度
+  if (input$heihuo.yssj=="shiyou.yssj") {
+    p<-p+geom_line(aes(x=tm,y=shiyou),color="brown",size=0.6)+ylim(900,1200)
+    p<-p+geom_point(aes(x=tm,y=shiyou),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+  
+  #mei--------煤的运量月度
+  if (input$heihuo.yssj=="mei.yssj") {
+    p<-p+geom_line(aes(x=tm,y=mei),color="blue",size=0.6)+ylim(9000,16000)
+    p<-p+geom_point(aes(x=tm,y=mei),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+  
+  p+ylab("黑货运量")+xlab("时间")+geom_line()
+})  
+
+#----白货运量原始数据---------------
+output$yssj.baihuo.plot <- renderPlot( {
+  
+  dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
+  dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfyssj$tm)
+  
+  if(input$year_start_baihuo.yssj> input$year_end_baihuo.yssj)  { 
+    p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0)) }
+  
+  else{
+    dfyssjsub<-subset(dfyssj,(substr(dfyssj$tm,1,4)>=input$year_start_baihuo.yssj) )
+    dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_baihuo.yssj))
+    p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))   }
+  
   #gyjx--------------工业机械
-  if(input$hhbh.yssj=="gyjx.yssj"){
+  if(input$baihuo.yssj=="gyjx.yssj"){
     p<-p+geom_line(aes(x=tm,y=gyjx),color="black",size=0.6)+ylim(20,55)
     p<-p+geom_point(aes(x=tm,y=gyjx),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   #dzdq--------------电子电器
-  if (input$hhbh.yssj=="dzdq.yssj") {
+  if (input$baihuo.yssj=="dzdq.yssj") {
     p<-p+geom_line(aes(x=tm,y=dzdq),color="red",size=0.6)+geom_point(aes(x=tm,y=dzdq),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
-  
+    
   }
   #nfcp-------------农副产品
-  if (input$hhbh.yssj=="nfcp.yssj") {
+  if (input$baihuo.yssj=="nfcp.yssj") {
     p<-p+geom_line(aes(x=tm,y=nfcp),color="blue",size=0.6)
     p<-p+geom_point(aes(x=tm,y=nfcp),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   #ysyc------------饮食烟草
-  if (input$hhbh.yssj=="ysyc.yssj") {
+  if (input$baihuo.yssj=="ysyc.yssj") {
     p<-p+geom_line(aes(x=tm,y=ysyc),color="orange",size=0.6)+ylim(70,230)
     p<-p+geom_point(aes(x=tm,y=ysyc),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   #wjyp------------文教用品
-  if (input$hhbh.yssj=="wjyp.yssj") {
+  if (input$baihuo.yssj=="wjyp.yssj") {
     p<-p+geom_line(aes(x=tm,y=wjyp),color="darkgreen",size=0.6)+ylim(25,65)
     p<-p+geom_point(aes(x=tm,y=wjyp),size=4,shape=21,colour="darkblue",fill="lightgreen",position=position_dodge(width=0.2))
   }
   #ldld-------------零担
-  if (input$hhbh.yssj=="ldld.yssj") {
+  if (input$baihuo.yssj=="ldld.yssj") {
     p<-p+geom_line(aes(x=tm,y=ldld),color="red",size=0.6)
     p<-p+geom_point(aes(x=tm,y=ldld),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
   #jzx--------------集装箱
-  if (input$hhbh.yssj=="jzx.yssj") {
+  if (input$baihuo.yssj=="jzx.yssj") {
     p<-p+geom_line(aes(x=tm,y=jzx),color="brown",size=0.6)+ylim(300,1000)
     p<-p+geom_point(aes(x=tm,y=jzx),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #jsks------------
-  if (input$hhbh.yssj=="jsks.yssj") {
-    p<-p+geom_line(aes(x=tm,y=jsks),color="red",size=0.6)+ylim(2000,4000)
-    p<-p+geom_point(aes(x=tm,y=jsks),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
-  }
-  p+ylab("黑货白货")+xlab("时间")+geom_line()
+  
+  p+ylab("白货运量")+xlab("时间")+geom_line()
 })  
 
 output$yssj.xghy.table<-DT::renderDataTable(
@@ -3354,13 +3392,23 @@ output$yssj.zcxg.table<-DT::renderDataTable(
 colnames = c('时间','客车辆数(辆)','货车辆数(万辆)','机车台数(辆)','动车台数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
 rownames = TRUE))
 
-output$yssj.hhbh.table<-DT::renderDataTable(
+output$yssj.heihuo.table<-DT::renderDataTable(
   DT::datatable(
-{  
-  dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
-  data<-dfyssj},
-colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担','集装箱(万吨)','金属矿石(万吨)'),
-rownames = TRUE))
+    {  
+      dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
+      dfyssj<-data.frame(dfyssj[1],dfyssj[9:13])
+      data<-dfyssj},
+    colnames = c('时间','金属矿石(万吨)','矿建(万吨)','钢材(万吨)', '石油(万吨)','煤(万吨)'),
+    rownames = TRUE))
+
+output$yssj.baihuo.table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
+      dfyssj<-data.frame(dfyssj[1:8])
+      data<-dfyssj},
+    colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担(吨)','集装箱(万吨)'),
+    rownames = TRUE))
 
 }
 )
