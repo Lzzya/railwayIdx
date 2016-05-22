@@ -2534,7 +2534,7 @@ output$f_car_linearplot <- renderPlot( {
   if (input$freight_mileage_stat_data) {
     cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
   }
-  cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  cw_p+ylab("货运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 output$f_car_output<-renderText({
