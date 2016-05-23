@@ -3389,7 +3389,7 @@ output$yssj.xghy.table<-DT::renderDataTable(
 colnames = c('时间','成品钢材产量（亿吨）','原油加工量（亿吨）','原煤产量（亿吨）','火力发电量（亿千瓦时）','工业增加值（增长率）'),
 rownames = TRUE))
 
-
+#yssj.ylxg-----------原始数据/运量相关
 output$yssj.ylxg.table<-DT::renderDataTable(
   DT::datatable(
 {  
