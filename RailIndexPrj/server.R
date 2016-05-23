@@ -1743,6 +1743,10 @@ rownames = TRUE)
 
 #---------------------------------------------------------------------
 #------------------客运量-客车车辆数适配性研究
+#PV-------客运量（PassengeVolume）简写
+#PassengeVolume-------客运量
+#CarriageNum-------客车数量
+#CarKm-------客车机车日行公里数
 PVdf<-read.csv("客运量.csv",head=T)
 PVolsRegModel<-lm(PassengeVolume~CarriageNum+CarKm,data=PVdf)
 PVdf$linearRegPred<-as.integer(predict(PVolsRegModel,newdata=PVdf))
@@ -1783,7 +1787,7 @@ output$car_passenger_linearplot <- renderPlot( {
   }
   if(input$mileage_predict_data){
     
-    PVp<-PVp+geom_line(aes(x=PVtm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=PVtm,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    PVp<-PVp+geom_line(aes(x=PVtm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=PVtm,y=linearRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     
   }
   
@@ -1861,7 +1865,7 @@ output$car_passenger_rfplot <- renderPlot( {
   }
   
   if(input$mileage_predict_data){
-    PVp<-PVp+geom_line(aes(x=PVtm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
+    PVp<-PVp+geom_line(aes(x=PVtm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=PVtm,y=frRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+stat_smooth(method=rfRegModel,color='black',level=0.95)
   }
   
   if (input$mileage_stat_data) {
@@ -1895,7 +1899,7 @@ output$car_passenger_svmplot <- renderPlot( {
     }
   }
   if(input$mileage_predict_data){
-    PVp<-PVp+geom_line(aes(x=PVtm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
+    PVp<-PVp+geom_line(aes(x=PVtm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=PVtm,y=svmRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
   }
   
   if (input$mileage_stat_data) {
@@ -2107,7 +2111,10 @@ rownames = TRUE)
   
 #-----------------------------------------------------------
 #--------------货车车辆-营业里程适配性研究------------------
-
+#truck----------------------货车辆数
+#distance-------------------营业里程
+#21----------------------——与前面程序的变量做区别
+#tm----------------------年份
 df_21<-read.csv("货车车辆预测.csv",head=T)
 #-------------olsRegModel为多元回归模型
 olsRegModel_21<-lm(truck~distance,data=df_21)
@@ -2161,7 +2168,7 @@ output$linearplot_21 <- renderPlot( {
   
   if(input$predict_data_21){
     
-    p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2242,7 +2249,7 @@ output$rfplot_21 <- renderPlot( {
   
   if(input$predict_data_21){
     
-    p<-p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    p<-p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2280,7 +2287,7 @@ output$svmplot_21 <- renderPlot( {
   
   if(input$predict_data_21){
     
-    p<-p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    p<-p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2305,7 +2312,8 @@ output$table_21<-DT::renderDataTable(
 
 #------------------------------------------------------------
 #---------客车车辆-营业里程适配性研究------------------------
-
+#Carriage----------------------客车辆数
+#distance----------------------营业里程
 Carriagedf<-read.csv("客车车辆预测.csv",head=T)
 
 CarriageolsRegModel<-lm(carriage~distance,data=Carriagedf)
@@ -2355,7 +2363,7 @@ output$ky_linearplot <- renderPlot( {
   
   if(input$predict_data_ky){
     
-    Carriagep<-Carriagep+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    Carriagep<-Carriagep+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2435,7 +2443,7 @@ output$ky_rfplot <- renderPlot( {
   }
   
   if(input$predict_data_ky){
-    Carriagep<-Carriagep+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
+    Carriagep<-Carriagep+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+stat_smooth(method=rfRegModel,color='black',level=0.95)
   }
   
   if (input$stat_data_ky) {
@@ -2471,7 +2479,7 @@ output$ky_svmplot <- renderPlot( {
   }
   
   if(input$predict_data_ky){
-    Carriagep<-Carriagep+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
+    Carriagep<-Carriagep+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
   }
   
   if (input$stat_data_ky) {
@@ -2896,6 +2904,7 @@ colnames = c('货运量',  '80%概率区间下限','80%概率区间上限','95%�
 
 #-------------------------------------------
 #--------成品钢材产量时间序列预测-----------
+#SteelTime-----------成品钢材产量时间序列预测
 SteelTimeind<-read.csv("成品钢材产量.csv",head=T)
 SteelTimeindus<-ts(SteelTimeind,start=c(2001,1),freq=12)
 SteelTimern<-auto.arima(SteelTimeindus,ic="bic")
@@ -2925,7 +2934,7 @@ colnames = c('成品钢材产量',  '80%概率区间下限','80%概率区间上�
 
 #----------------------------------
 #----货车车辆数时间序列预测--------
-
+#TRUCKTime-----------货车车辆数时间序列预测
 TruckTimeind<-read.csv("货车辆数.csv",head=T)
 TruckTimeindus<-ts(TruckTimeind,start=c(1993),freq=1)
 TruckTimern<-auto.arima(TruckTimeindus,ic="bic")
@@ -2954,7 +2963,7 @@ colnames = c('货车辆数',  '80%概率区间下限','80%概率区间上限','9
 
 #-----------------------------------
 #-----原煤产量时间序列预测----------
-
+#CoalTime-----------原煤产量时间序列预测
 CoalTimeind<-read.csv("原煤产量.csv",head=T)
 CoalTimeindus<-ts(CoalTimeind,start=c(2001,1),freq=12)
 CoalTimern<-auto.arima(CoalTimeindus,ic="bic")
@@ -2984,6 +2993,7 @@ colnames = c('原煤产量',  '80%概率区间下限','80%概率区间上限','9
 
 #----------------------------------------------
 #-----------原油加工量时间序列预测-------------
+#OilTime-----------原油加工量时间序列预测
 OilTimeind<-read.csv("原油加工量.csv",head=T)
 OilTimeindus<-ts(OilTimeind,start=c(2001,1),freq=12)
 OilTimern<-auto.arima(OilTimeindus,ic="bic")
@@ -3396,7 +3406,7 @@ output$yssj.yyxg.table<-DT::renderDataTable(
 colnames = c('时间','营业里程（km）','日均运用车（万辆）','日均现在车（万辆）','客运机车日车公里（km）','货运机车日车公里（km）','机车总行走里程（1000km）'),
 rownames = TRUE))
 
-
+#yssj.zcxg-------原始数据/资产相关
 output$yssj.zcxg.table<-DT::renderDataTable(
   DT::datatable(
 {  
