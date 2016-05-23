@@ -3406,7 +3406,7 @@ output$yssj.yyxg.table<-DT::renderDataTable(
 colnames = c('时间','营业里程（km）','日均运用车（万辆）','日均现在车（万辆）','客运机车日车公里（km）','货运机车日车公里（km）','机车总行走里程（1000km）'),
 rownames = TRUE))
 
-
+#yssj.zcxg-------原始数据/资产相关
 output$yssj.zcxg.table<-DT::renderDataTable(
   DT::datatable(
 {  
