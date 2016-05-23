@@ -44,7 +44,7 @@ shinyServer(function(input, output) {
   dftrans$tm<-as.Date.POSIXct(dftrans$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   trans.len<-length(dftrans$tm)
   
-  #-----运输----1. 权重计算--------------------
+  #-----运输----1. 权重计算函数--------------------
   quanzhong.1<- function(x)
   { xlen<- length(x)
     x<- x/max(x)
@@ -106,6 +106,7 @@ shinyServer(function(input, output) {
     return(a1)
   }
   
+  #默认权重计算得到的运输同步、先行、滞后指数
   trans.coor<- hecheng.trans.index(coor.trans.test,biaozhunhua.F.coor)
   trans.adv<- hecheng.trans.index(adv.trans.test,biaozhunhua.trans.F.adv)
   trans.delay<- hecheng.trans.index(delay.trans.test,biaozhunhua.trans.F.delay)
@@ -114,7 +115,7 @@ shinyServer(function(input, output) {
   dftrans$adv<- trans.adv
   dftrans$delay<- trans.delay
   
-  #-----------运输的算完了！！----3.画线和显示数据表--------
+  #-----------运输的算完了！！----3.运输画线和显示数据表--------
   
   qz.input<- function(a)
   {a<- as.numeric(a)/100}  #权重手动输入部分计算的函数们
@@ -148,7 +149,7 @@ shinyServer(function(input, output) {
     dftrans$adv.input<- trans.adv.input
     dftrans$delay.input<- trans.delay.input
     
-    #-----运输----3.1 默认权重计算的画线------------  
+    #-----运输----3.1 运输默认权重计算的画线------------  
     if(input$year_start_trans> input$year_end_trans)  {
       p<-ggplot(dftrans,x=c(dftrans$tm[1],dftrans$tm[trans.len]),aes(x=tm,y=100))}
     else{
@@ -335,19 +336,25 @@ output$equip_index<- renderPlot( {
     p<-ggplot(dfequipsub,x=c(dfequipsub$tm[1],dfequipsub$tm[equip.len]),aes(x=tm,y=100))    }
   
   if(input$equip_coor_Index){
-    p<-p+geom_line(aes(x=tm,y=dfequipsub$coor),color="black",size=0.6)}
+    p<-p+geom_line(aes(x=tm,y=dfequipsub$coor),color="black",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=dfequipsub$coor),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if (input$equip_advanced_Index) {
-    p<-p+geom_line(aes(x=tm,y=dfequipsub$adv),color="red",size=0.6)  }
+    p<-p+geom_line(aes(x=tm,y=dfequipsub$adv),color="red",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=dfequipsub$adv),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if (input$equip_delay_Index) {
-    p<-p+geom_line(aes(x=tm,y=dfequipsub$delay),color="blue",size=0.6)}
+    p<-p+geom_line(aes(x=tm,y=dfequipsub$delay),color="blue",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=dfequipsub$delay),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   
   #-----设备----3.2 权重手动输入后的画线------------      
   if(input$equip_qz_coor_input)#输入修改权重后算出来的新先行指数
-  { p<-p+geom_line(aes(x=tm,y=dfequipsub$coor.input),color="black",size=1,linetype=1)}
+  { p<-p+geom_line(aes(x=tm,y=dfequipsub$coor.input),color="black",size=1,linetype=1)
+  p<-p+geom_point(aes(x=tm,y=dfequipsub$coor.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if(input$equip_qz_adv_input)
-  {p<-p+geom_line(aes(x=tm,y=dfequipsub$adv.input),color="red",size=1,linetype=1)}
+  {p<-p+geom_line(aes(x=tm,y=dfequipsub$adv.input),color="red",size=1,linetype=1)
+  p<-p+geom_point(aes(x=tm,y=dfequipsub$adv.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if(input$equip_qz_delay_input)
-  {p<-p+geom_line(aes(x=tm,y=dfequipsub$delay.input),color="blue",size=1,linetype=1)} 
+  {p<-p+geom_line(aes(x=tm,y=dfequipsub$delay.input),color="blue",size=1,linetype=1)
+  p<-p+geom_point(aes(x=tm,y=dfequipsub$delay.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))} 
   
   
   p+ylab("设备合成指数")+xlab("时间")+geom_line()
@@ -491,19 +498,25 @@ output$scale_index<- renderPlot( {
   }
   
   if(input$scale_coor_Index){
-    p<-p+geom_line(aes(x=tm,y=dfscalesub$coor),color="black",size=0.6)}
+    p<-p+geom_line(aes(x=tm,y=dfscalesub$coor),color="black",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=dfscalesub$coor),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if (input$scale_advanced_Index) {
-    p<-p+geom_line(aes(x=tm,y=dfscalesub$adv),color="red",size=0.6)  }
+    p<-p+geom_line(aes(x=tm,y=dfscalesub$adv),color="red",size=0.6) 
+    p<-p+geom_point(aes(x=tm,y=dfscalesub$adv),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if (input$scale_delay_Index) {
-    p<-p+geom_line(aes(x=tm,y=dfscalesub$delay),color="blue",size=0.6)}
+    p<-p+geom_line(aes(x=tm,y=dfscalesub$delay),color="blue",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=dfscalesub$delay),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   
   #-----设备----3.2 权重手动输入后的画线------------      
   if(input$scale_qz_coor_input)#输入修改权重后算出来的新先行指数
-  { p<-p+geom_line(aes(x=tm,y=dfscalesub$coor.input),color="black",size=1,linetype=1)}
+  { p<-p+geom_line(aes(x=tm,y=dfscalesub$coor.input),color="black",size=1,linetype=1)
+  p<-p+geom_point(aes(x=tm,y=dfscalesub$coor.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if(input$scale_qz_adv_input)
-  {p<-p+geom_line(aes(x=tm,y=dfscalesub$adv.input),color="red",size=1,linetype=1)}
+  {p<-p+geom_line(aes(x=tm,y=dfscalesub$adv.input),color="red",size=1,linetype=1)
+  p<-p+geom_point(aes(x=tm,y=dfscalesub$adv.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   if(input$scale_qz_delay_input)
-  {p<-p+geom_line(aes(x=tm,y=dfscalesub$delay.input),color="blue",size=1,linetype=1)}    
+  {p<-p+geom_line(aes(x=tm,y=dfscalesub$delay.input),color="blue",size=1,linetype=1)
+  p<-p+geom_point(aes(x=tm,y=dfscalesub$delay.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}    
   
   p+ylab("规模合成指数")+xlab("时间")+geom_line()
 })
@@ -1072,13 +1085,13 @@ output$heihuo_index<- renderPlot( {
     p<-ggplot(dfsub,x=c(dfsub$tm[1],dfsub$tm[liaozili_len]),aes(x=tm,y=80))
   }
   
-<<<<<<< HEAD
+
   p<-p+geom_line(aes(x=tm,y=dfsub$heihuo_index),color="blue",size=0.6)#+geom_point(aes(x=tm,y=dfsub$heihuo_index),size=3,shape=22,colour="darkred",fill="pink",position="dodge")
   p+ylab("黑货指数")+xlab("时间")+geom_line()+ylim(70,105)
-=======
+
   p<-p+geom_line(aes(x=tm,y=dfsub$heihuo_index),color="blue",size=0.6)#+geom_point(aes(x=tm,y=dfsub$heihuo_index),size=3,shape=22,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   p+ylab("黑货指数")+xlab("时间")+geom_line()+ylim(70,110)
->>>>>>> refs/remotes/origin/master
+
 })
 
 # -----黑货指数：数据显示--------
@@ -1730,6 +1743,10 @@ rownames = TRUE)
 
 #---------------------------------------------------------------------
 #------------------客运量-客车车辆数适配性研究
+#PV-------客运量（PassengeVolume）简写
+#PassengeVolume-------客运量
+#CarriageNum-------客车数量
+#CarKm-------客车机车日行公里数
 PVdf<-read.csv("客运量.csv",head=T)
 PVolsRegModel<-lm(PassengeVolume~CarriageNum+CarKm,data=PVdf)
 PVdf$linearRegPred<-as.integer(predict(PVolsRegModel,newdata=PVdf))
@@ -1770,7 +1787,7 @@ output$car_passenger_linearplot <- renderPlot( {
   }
   if(input$mileage_predict_data){
     
-    PVp<-PVp+geom_line(aes(x=PVtm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=PVtm,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    PVp<-PVp+geom_line(aes(x=PVtm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=PVtm,y=linearRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     
   }
   
@@ -1848,7 +1865,7 @@ output$car_passenger_rfplot <- renderPlot( {
   }
   
   if(input$mileage_predict_data){
-    PVp<-PVp+geom_line(aes(x=PVtm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
+    PVp<-PVp+geom_line(aes(x=PVtm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=PVtm,y=frRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+stat_smooth(method=rfRegModel,color='black',level=0.95)
   }
   
   if (input$mileage_stat_data) {
@@ -1882,7 +1899,7 @@ output$car_passenger_svmplot <- renderPlot( {
     }
   }
   if(input$mileage_predict_data){
-    PVp<-PVp+geom_line(aes(x=PVtm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
+    PVp<-PVp+geom_line(aes(x=PVtm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=PVtm,y=svmRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
   }
   
   if (input$mileage_stat_data) {
@@ -2094,7 +2111,10 @@ rownames = TRUE)
   
 #-----------------------------------------------------------
 #--------------货车车辆-营业里程适配性研究------------------
-
+#truck----------------------货车辆数
+#distance-------------------营业里程
+#21----------------------——与前面程序的变量做区别
+#tm----------------------年份
 df_21<-read.csv("货车车辆预测.csv",head=T)
 #-------------olsRegModel为多元回归模型
 olsRegModel_21<-lm(truck~distance,data=df_21)
@@ -2148,7 +2168,7 @@ output$linearplot_21 <- renderPlot( {
   
   if(input$predict_data_21){
     
-    p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2229,7 +2249,7 @@ output$rfplot_21 <- renderPlot( {
   
   if(input$predict_data_21){
     
-    p<-p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    p<-p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2267,7 +2287,7 @@ output$svmplot_21 <- renderPlot( {
   
   if(input$predict_data_21){
     
-    p<-p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    p<-p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2292,7 +2312,8 @@ output$table_21<-DT::renderDataTable(
 
 #------------------------------------------------------------
 #---------客车车辆-营业里程适配性研究------------------------
-
+#Carriage----------------------客车辆数
+#distance----------------------营业里程
 Carriagedf<-read.csv("客车车辆预测.csv",head=T)
 
 CarriageolsRegModel<-lm(carriage~distance,data=Carriagedf)
@@ -2342,7 +2363,7 @@ output$ky_linearplot <- renderPlot( {
   
   if(input$predict_data_ky){
     
-    Carriagep<-Carriagep+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+    Carriagep<-Carriagep+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
@@ -2422,7 +2443,7 @@ output$ky_rfplot <- renderPlot( {
   }
   
   if(input$predict_data_ky){
-    Carriagep<-Carriagep+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
+    Carriagep<-Carriagep+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+stat_smooth(method=rfRegModel,color='black',level=0.95)
   }
   
   if (input$stat_data_ky) {
@@ -2458,7 +2479,7 @@ output$ky_svmplot <- renderPlot( {
   }
   
   if(input$predict_data_ky){
-    Carriagep<-Carriagep+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
+    Carriagep<-Carriagep+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
   }
   
   if (input$stat_data_ky) {
@@ -2482,80 +2503,60 @@ output$ky_table<-DT::renderDataTable(
 
 #----------------------------------------------------------
 #------------货运量-营业里程适配性研究--------------------
-freight_car_df<-read.csv("货运量-营业里程.csv",head=T)
-freight_car_df$tm<-as.Date.POSIXct(freight_car_df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
+#该部分对应报告中“货运量-营业里程适配性研究”一节，最终的回归模型中不仅包含货运量和营业里程，还包含货车车辆数
+#freight_olm_car_df表示本适配性研究用到的数据集，包含货运量、营业里程、货车车辆数三个变量
 
-f_car_olsRegModel<-lm(freight~freightcar+olm,data=freight_car_df)
-freight_car_df$linearRegPred<-as.integer(predict(f_car_olsRegModel,newdata=freight_car_df))
-f_car_rfRegModel<-randomForest(freight~freightcar+olm,data=freight_car_df,importance=T, ntree=100,type="regression")
-freight_car_df$frRegPred<-as.integer(predict(f_car_rfRegModel,freight_car_df))
-f_car_rfRegModel<-svm(freight~freightcar+olm,data=freight_car_df,type="eps-regression",cross=dim(freight_car_df)[1]/2)
-freight_car_df$svmRegPred<-as.integer(predict(f_car_rfRegModel,freight_car_df))
+freight_olm_car_df<-read.csv("货运量-营业里程.csv",head=T)  
+freight_olm_car_df$tm<-as.Date.POSIXct(freight_olm_car_df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
 
+f_car_olsRegModel<-lm(freight~freightcar+olm,data=freight_olm_car_df)
+freight_olm_car_df$linearRegPred<-as.integer(predict(f_car_olsRegModel,newdata=freight_olm_car_df))
+f_car_rfRegModel<-randomForest(freight~freightcar+olm,data=freight_olm_car_df,importance=T, ntree=100,type="regression")
+freight_olm_car_df$frRegPred<-as.integer(predict(f_car_rfRegModel,freight_olm_car_df))
+f_car_svmRegModel<-svm(freight~freightcar+olm,data=freight_olm_car_df,type="eps-regression",cross=dim(freight_olm_car_df)[1]/2)
+freight_olm_car_df$svmRegPred<-as.integer(predict(f_car_svmRegModel,freight_olm_car_df))
+pg_cw_len<-length(freight_olm_car_df$tm)
 
-
-
-
-
+plotCurve<-function(db,xdata,ydata)
+{
+  pg_cw_len=dim(xdata)[1]
+  cw_plt<-ggplot(db,x=c(xdata[1],xdata[pg_cw_len]),aes(x=xdata,y=ydata),color="red")
+  return(cw_plt)
+}
 output$f_car_linearplot <- renderPlot( {
   
-  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {      
+  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {
     
-    if(input$freight_mileage_stat_data){
-      freight_car_p<-ggplot(data=freight_car_df)+geom_line(aes(x=freight_car_df$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
-      
-      if(input$freight_mileage_predict_data){
-        
-        freight_car_p+geom_line(aes(x=freight_car_df$tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=linearRegPred),color="blue",size=3,shape=3)
-      } 
-      else{
-        freight_car_p
-      }
+    if (input$freight_mileage_stat_data) {
+      cw_p<-plotCurve(freight_olm_car_df,freight_olm_car_df$tm,freight_olm_car_df$freight)
     }
-    
-    else{
-      if(input$freight_mileage_predict_data){
-        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=linearRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
-      }
-      else{
-        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=linearRegPred))+xlab("日期")+ylab("货运量")
-      }
+    else
+    {
+      cw_p<-plotCurve(freight_olm_car_df,freight_olm_car_df$tm,freight_olm_car_df$linearRegPred)
     }
-    
   }
-  
   else{
-    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$freight_mileage_year_start) 
-    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$freight_mileage_year_end)
-    
-    if(input$freight_mileage_stat_data){
-      freight_car_p<-ggplot(data=freight_car_dfsub)+geom_line(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
-      
-      if(input$freight_mileage_predict_data){
-        
-        freight_car_p+geom_line(aes(x=freight_car_dfsub$tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=linearRegPred),color="blue",size=3,shape=3)
-      } 
-      else{
-        freight_car_p
-      }
+    freight_olm_car_dfsub<-subset(freight_olm_car_df,substr(freight_olm_car_df$tm,1,4)>=input$freight_mileage_year_start) 
+    freight_olm_car_dfsub<-subset(freight_olm_car_dfsub,substr(freight_olm_car_df$tm,1,4)<=input$freight_mileage_year_end)
+    if (input$freight_mileage_stat_data) {
+      cw_p<-plotCurve(freight_olm_car_dfsub,freight_olm_car_dfsub$tm,freight_olm_car_dfsub$freight)
     }
-    
-    else{
-      if(input$freight_mileage_predict_data){
-        ggplot(data=freight_car_dfsub,aes(x=freight_car_dfsub$tm,y=linearRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
-      }
-      else{
-        ggplot(data=freight_car_dfsub,aes(x=freight_car_df$tm,y=linearRegPred))+xlab("日期")+ylab("货运量")
-      }
+    else
+    {
+      cw_p<-plotCurve(freight_olm_car_dfsub,freight_olm_car_dfsub$tm,freight_olm_car_dfsub$linearRegPred)
     }
+  }
+  if(input$freight_mileage_predict_data){
     
-    
+    cw_p<-cw_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))
+    #+stat_smooth(method=lm,color='black',level=0.95)
   }
   
-  
-  
+  if (input$freight_mileage_stat_data) {
+    cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
+  }
+  cw_p+ylab("货运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
-
 
 output$f_car_output<-renderText({
   cw_x1<-as.numeric(input$freightcar_input)
@@ -2594,7 +2595,7 @@ output$f_car_zhi<-renderText({
   tm<-c(2016)
   freight<-c(0)
   inputdata<-data.frame(tm,freight,freightcar,olm)
-  cw_pred<-as.integer(predict(f_car_rfRegModel,inputdata))
+  cw_pred<-as.integer(predict(f_car_svmRegModel,inputdata))
   
   paste("支持向量机预测：",cw_pred)
   
@@ -2603,116 +2604,70 @@ output$f_car_zhi<-renderText({
 #-----------随机森林Tabset画线  
 output$f_car_rfplot <- renderPlot( {
   
-  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {      
+  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {
     
-    if(input$freight_mileage_stat_data){
-      freight_car_p<-ggplot(data=freight_car_df)+geom_line(aes(x=freight_car_df$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
-      
-      if(input$freight_mileage_predict_data){
-        
-        freight_car_p+geom_line(aes(x=freight_car_df$tm,y=frRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=svmRegPred),color="blue",size=3,shape=3)
-      } 
-      else{
-        freight_car_p
-      }
+    if (input$freight_mileage_stat_data) {
+      cw_p<-plotCurve(freight_olm_car_df,freight_olm_car_df$tm,freight_olm_car_df$freight)
     }
-    
-    else{
-      if(input$freight_mileage_predict_data){
-        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=frRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
-      }
-      else{
-        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=frRegPred))+xlab("日期")+ylab("货运量")
-      }
+    else
+    {
+      cw_p<-plotCurve(freight_olm_car_df,freight_olm_car_df$tm,freight_olm_car_df$frRegPred)
     }
-    
+  }
+  else{
+    freight_olm_car_dfsub<-subset(freight_olm_car_df,substr(freight_olm_car_df$tm,1,4)>=input$freight_mileage_year_start) 
+    freight_olm_car_dfsub<-subset(freight_olm_car_dfsub,substr(freight_olm_car_df$tm,1,4)<=input$freight_mileage_year_end)
+    if (input$freight_mileage_stat_data) {
+      cw_p<-plotCurve(freight_olm_car_dfsub,freight_olm_car_dfsub$tm,freight_olm_car_dfsub$freight)
+    }
+    else
+    {
+      cw_p<-plotCurve(freight_olm_car_dfsub,freight_olm_car_dfsub$tm,freight_olm_car_dfsub$frRegPred)
+    }
   }
   
-  else{
-    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$freight_mileage_year_start) 
-    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$freight_mileage_year_end)
-    
-    if(input$freight_mileage_stat_data){
-      freight_car_psub<-ggplot(data=freight_car_dfsub)+geom_line(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
-      
-      if(input$freight_mileage_predict_data){
-        
-        freight_car_psub+geom_line(aes(x=freight_car_dfsub$tm,y=frRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=svmRegPred),color="blue",size=3,shape=3)
-      } 
-      else{
-        freight_car_psub
-      }
-    }
-    
-    else{
-      if(input$freight_mileage_predict_data){
-        ggplot(data=freight_car_dfsub,aes(x=freight_car_dfsub$tm,y=frRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
-      }
-      else{
-        ggplot(data=freight_car_dfsub,aes(x=freight_car_df$tm,y=frRegPred))+xlab("日期")+ylab("货运量")
-      }
-    }
-    
-    
+  if(input$freight_mileage_predict_data){
+    cw_p<-cw_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))
   }
+  
+  if (input$freight_mileage_stat_data) {
+    cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
+  }
+  cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
-
 #----------------------------支持向量机Tabset画线
 
 output$f_car_svmplot <- renderPlot( {
   
-  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {      
+  if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {
     
-    if(input$freight_mileage_stat_data){
-      freight_car_p<-ggplot(data=freight_car_df)+geom_line(aes(x=freight_car_df$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
-      
-      if(input$freight_mileage_predict_data){
-        
-        freight_car_p+geom_line(aes(x=freight_car_df$tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=svmRegPred),color="blue",size=3,shape=3)
-      } 
-      else{
-        freight_car_p
-      }
+    if (input$freight_mileage_stat_data) {
+      cw_p<-plotCurve(freight_olm_car_df,freight_olm_car_df$tm,freight_olm_car_df$freight)
     }
-    
-    else{
-      if(input$freight_mileage_predict_data){
-        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=svmRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
-      }
-      else{
-        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=svmRegPred))+xlab("日期")+ylab("货运量")
-      }
+    else
+    {
+      cw_p<-plotCurve(freight_olm_car_df,freight_olm_car_df$tm,freight_olm_car_df$svmRegPred)
     }
-    
+  }
+  else{
+    freight_olm_car_dfsub<-subset(freight_olm_car_df,substr(freight_olm_car_df$tm,1,4)>=input$freight_mileage_year_start) 
+    freight_olm_car_dfsub<-subset(freight_olm_car_dfsub,substr(freight_olm_car_df$tm,1,4)<=input$freight_mileage_year_end)
+    if (input$freight_mileage_stat_data) {
+      cw_p<-plotCurve(freight_olm_car_dfsub,freight_olm_car_dfsub$tm,freight_olm_car_dfsub$freight)
+    }
+    else
+    {
+      cw_p<-plotCurve(freight_olm_car_dfsub,freight_olm_car_dfsub$tm,freight_olm_car_dfsub$svmRegPred)
+    }
+  }
+  if(input$freight_mileage_predict_data){
+    cw_p<-cw_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))
   }
   
-  else{
-    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$freight_mileage_year_start) 
-    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$freight_mileage_year_end)
-    
-    if(input$freight_mileage_stat_data){
-      freight_car_p<-ggplot(data=freight_car_dfsub)+geom_line(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
-      
-      if(input$freight_mileage_predict_data){
-        
-        freight_car_p+geom_line(aes(x=freight_car_dfsub$tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=svmRegPred),color="blue",size=3,shape=3)
-      } 
-      else{
-        freight_car_p
-      }
-    }
-    
-    else{
-      if(input$freight_mileage_predict_data){
-        ggplot(data=freight_car_dfsub,aes(x=freight_car_dfsub$tm,y=svmRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
-      }
-      else{
-        ggplot(data=freight_car_dfsub,aes(x=freight_car_df$tm,y=svmRegPred))+xlab("日期")+ylab("货运量")
-      }
-    }
-    
-    
+  if (input$freight_mileage_stat_data) {
+    cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
   }
+  cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 
@@ -2722,13 +2677,12 @@ output$f_car_table<-DT::renderDataTable(
   DT::datatable(
 {
   
-  mileage_data<-freight_car_df
+  pg_cw_data<-freight_olm_car_df
 } , 
 colnames = c('序号', '时间', '货运量','货车车辆数','营业里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
 rownames = TRUE)
 )
-  
- 
+
 
 #————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————
@@ -2736,10 +2690,10 @@ rownames = TRUE)
 #————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————
 
-df<-read.csv("freight.csv",head=T)
+df<-read.csv("freight.csv",head=T)      #freight为货运量数据集，包包含货运量（18个主要货运品类相加）、成品钢材和原煤产量
 df$tm<-as.Date.POSIXct(df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
 
-olsRegModel<-lm(freight~iron+coal,data=df)
+olsRegModel<-lm(freight~iron+coal,data=df)     #iron表示成品钢材产量，coal表示原煤产量
 df$linearRegPred<-as.integer(predict(olsRegModel,newdata=df))
 
 rfRegModel<-randomForest(freight~iron+coal,data=df,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
@@ -2749,62 +2703,47 @@ df$frRegPred<-as.integer(predict(rfRegModel,df))     #<-----------随机森林�
 svmRegModel<-svm(freight~iron+coal,data=df,type="eps-regression",cross=dim(df)[1]/2)
 df$svmRegPred<-as.integer(predict(svmRegModel,df))   #<-----------支持向量机的预测数据已经在这里计算得到
 
-
+len<-length(df$tm)
+plotCurve<-function(db,xdata,ydata)
+{
+  len=dim(xdata)[1]
+  plt<-ggplot(db,x=c(xdata[1],xdata[len]),aes(x=xdata,y=ydata),color="red")
+  return(plt)
+}
 #---------------------------多元回归画线
 output$linearplot <- renderPlot( {
   
-  if(input$year_start> input$year_end)  {      
+  if(input$year_start> input$year_end)  {
     
-    if(input$stat_data){
-      freight_car_p<-ggplot(data=freight_car_df)+geom_line(aes(x=freight_car_df$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
-      
-      if(input$predict_data){
-        
-        freight_car_p+geom_line(aes(x=freight_car_df$tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=linearRegPred),color="blue",size=3,shape=3)
-      } 
-      else{
-        freight_car_p
-      }
+    if (input$stat_data) {
+      p<-plotCurve(df,df$tm,df$freight)
     }
-    
-    else{
-      if(input$predict_data){
-        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=linearRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
-      }
-      else{
-        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=linearRegPred))+xlab("日期")+ylab("货运量")
-      }
+    else
+    {
+      p<-plotCurve(df,df$tm,df$linearRegPred)
     }
-    
+  }
+  else{
+    dfsub<-subset(df,substr(df$tm,1,4)>=input$year_start) 
+    dfsub<-subset(dfsub,substr(dfsub$tm,1,4)<=input$year_end)
+    if (input$stat_data) {
+      p<-plotCurve(dfsub,dfsub$tm,dfsub$freight)
+    }
+    else
+    {
+      p<-plotCurve(dfsub,dfsub$tm,dfsub$linearRegPred)
+    }
   }
   
-  else{
-    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$year_start) 
-    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$year_end)
+  if(input$predict_data){
     
-    if(input$stat_data){
-      freight_car_p<-ggplot(data=freight_car_dfsub)+geom_line(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
-      
-      if(input$predict_data){
-        
-        freight_car_p+geom_line(aes(x=freight_car_dfsub$tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=linearRegPred),color="blue",size=3,shape=3)
-      } 
-      else{
-        freight_car_p
-      }
-    }
-    
-    else{
-      if(input$predict_data){
-        ggplot(data=freight_car_dfsub,aes(x=freight_car_dfsub$tm,y=linearRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
-      }
-      else{
-        ggplot(data=freight_car_dfsub,aes(x=freight_car_df$tm,y=linearRegPred))+xlab("日期")+ylab("货运量")
-      }
-    }
-    
-    
+    p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))
   }
+  
+  if (input$stat_data) {
+    p<-p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
+  }
+  p+ylab("货运量(万吨)")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 #多元回归预测计算
@@ -2854,115 +2793,71 @@ output$freight_zhi<-renderText({
 
 output$rfplot <- renderPlot( {
   
-  if(input$year_start> input$year_end)  {      
+  if(input$year_start> input$year_end)  {
     
-    if(input$stat_data){
-      freight_car_p<-ggplot(data=freight_car_df)+geom_line(aes(x=freight_car_df$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
-      
-      if(input$predict_data){
-        
-        freight_car_p+geom_line(aes(x=freight_car_df$tm,y=frRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=frRegPred),color="blue",size=3,shape=3)
-      } 
-      else{
-        freight_car_p
-      }
+    if (input$stat_data) {
+      p<-plotCurve(df,df$tm,df$freight)
     }
-    
-    else{
-      if(input$predict_data){
-        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=frRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
-      }
-      else{
-        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=frRegPred))+xlab("日期")+ylab("货运量")
-      }
+    else
+    {
+      p<-plotCurve(df,df$tm,df$frRegPred)
     }
-    
+  }
+  else{
+    dfsub<-subset(df,substr(df$tm,1,4)>=input$year_start) 
+    dfsub<-subset(dfsub,substr(dfsub$tm,1,4)<=input$year_end)
+    if (input$stat_data) {
+      p<-plotCurve(dfsub,dfsub$tm,dfsub$freight)
+    }
+    else
+    {
+      p<-plotCurve(dfsub,dfsub$tm,dfsub$frRegPred)
+    }
   }
   
-  else{
-    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$year_start) 
-    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$year_end)
-    
-    if(input$stat_data){
-      freight_car_psub<-ggplot(data=freight_car_dfsub)+geom_line(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
-      
-      if(input$predict_data){
-        
-        freight_car_psub+geom_line(aes(x=freight_car_dfsub$tm,y=frRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=frRegPred),color="blue",size=3,shape=3)
-      } 
-      else{
-        freight_car_psub
-      }
-    }
-    
-    else{
-      if(input$predict_data){
-        ggplot(data=freight_car_dfsub,aes(x=freight_car_dfsub$tm,y=frRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
-      }
-      else{
-        ggplot(data=freight_car_dfsub,aes(x=freight_car_df$tm,y=freight))+xlab("日期")+ylab("货运量")
-      }
-    }
-    
-    
+  if(input$predict_data){
+    p<-p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)#+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))
   }
+  
+  if (input$stat_data) {
+    p<-p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
+  }
+  p+ylab("货运量(万吨)")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 
 output$svmplot <- renderPlot( {
   
-  if(input$year_start> input$year_end)  {      
+  if(input$year_start> input$year_end)  {
     
-    if(input$stat_data){
-      freight_car_p<-ggplot(data=freight_car_df)+geom_line(aes(x=freight_car_df$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
-      
-      if(input$predict_data){
-        
-        freight_car_p+geom_line(aes(x=freight_car_df$tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_df$tm,y=svmRegPred),color="blue",size=3,shape=3)
-      } 
-      else{
-        freight_car_p
-      }
+    if (input$stat_data) {
+      p<-plotCurve(df,df$tm,df$carriage)
     }
-    
-    else{
-      if(input$predict_data){
-        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=svmRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
-      }
-      else{
-        ggplot(data=freight_car_df,aes(x=freight_car_df$tm,y=svmRegPred))+xlab("日期")+ylab("货运量")
-      }
+    else
+    {
+      p<-plotCurve(df,df$tm,df$svmRegPred)
     }
-    
+  }
+  else{
+    dfsub<-subset(df,substr(df$tm,1,4)>=input$year_start) 
+    dfsub<-subset(dfsub,substr(dfsub$tm,1,4)<=input$year_end)
+    if (input$stat_data) {
+      p<-plotCurve(dfsub,dfsub$tm,dfsub$freight)
+    }
+    else
+    {
+      p<-plotCurve(dfsub,dfsub$tm,dfsub$svmRegPred)
+    }
   }
   
-  else{
-    freight_car_dfsub<-subset(freight_car_df,substr(freight_car_df$tm,1,4)>=input$year_start) 
-    freight_car_dfsub<-subset(freight_car_dfsub,substr(freight_car_df$tm,1,4)<=input$year_end)
-    
-    if(input$stat_data){
-      freight_car_psub<-ggplot(data=freight_car_dfsub)+geom_line(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=freight),color="red",size=3,shape=21)+xlab("日期")+ylab("货运量")
-      
-      if(input$predict_data){
-        
-        freight_car_psub+geom_line(aes(x=freight_car_dfsub$tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=freight_car_dfsub$tm,y=svmRegPred),color="blue",size=3,shape=3)
-      } 
-      else{
-        freight_car_psub
-      }
-    }
-    
-    else{
-      if(input$predict_data){
-        ggplot(data=freight_car_dfsub,aes(x=freight_car_dfsub$tm,y=svmRegPred))+geom_line(size=0.8,color="blue")+geom_point(size=3,color="blue",shape=3)+xlab("日期")+ylab("货运量")
-      }
-      else{
-        ggplot(data=freight_car_dfsub,aes(x=freight_car_df$tm,y=freight))+xlab("日期")+ylab("货运量")
-      }
-    }
-    
-    
+  if(input$predict_data){
+    p<-p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)
   }
+  
+  if (input$stat_data) {
+    p<-p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
+  }
+  p+ylab("货运量(万吨)")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 
@@ -2972,6 +2867,7 @@ output$table<-DT::renderDataTable(
     colnames = c('日期', '货运量(万吨)','成品钢材产量(万吨)','原煤产量(万吨)','多元回归预测(万吨)','随机森林回归预测(万吨)','支持向量机回归预测(万吨)'),
     rownames = TRUE)
 )
+
 
 
 #——————————————————————————————————————————————————————————————————————————————
@@ -3008,6 +2904,7 @@ colnames = c('货运量',  '80%概率区间下限','80%概率区间上限','95%�
 
 #-------------------------------------------
 #--------成品钢材产量时间序列预测-----------
+#SteelTime-----------成品钢材产量时间序列预测
 SteelTimeind<-read.csv("成品钢材产量.csv",head=T)
 SteelTimeindus<-ts(SteelTimeind,start=c(2001,1),freq=12)
 SteelTimern<-auto.arima(SteelTimeindus,ic="bic")
@@ -3037,7 +2934,7 @@ colnames = c('成品钢材产量',  '80%概率区间下限','80%概率区间上�
 
 #----------------------------------
 #----货车车辆数时间序列预测--------
-
+#TRUCKTime-----------货车车辆数时间序列预测
 TruckTimeind<-read.csv("货车辆数.csv",head=T)
 TruckTimeindus<-ts(TruckTimeind,start=c(1993),freq=1)
 TruckTimern<-auto.arima(TruckTimeindus,ic="bic")
@@ -3066,7 +2963,7 @@ colnames = c('货车辆数',  '80%概率区间下限','80%概率区间上限','9
 
 #-----------------------------------
 #-----原煤产量时间序列预测----------
-
+#CoalTime-----------原煤产量时间序列预测
 CoalTimeind<-read.csv("原煤产量.csv",head=T)
 CoalTimeindus<-ts(CoalTimeind,start=c(2001,1),freq=12)
 CoalTimern<-auto.arima(CoalTimeindus,ic="bic")
@@ -3096,6 +2993,7 @@ colnames = c('原煤产量',  '80%概率区间下限','80%概率区间上限','9
 
 #----------------------------------------------
 #-----------原油加工量时间序列预测-------------
+#OilTime-----------原油加工量时间序列预测
 OilTimeind<-read.csv("原油加工量.csv",head=T)
 OilTimeindus<-ts(OilTimeind,start=c(2001,1),freq=12)
 OilTimern<-auto.arima(OilTimeindus,ic="bic")
@@ -3386,63 +3284,101 @@ output$yssj.zcxg.plot <- renderPlot( {
   p+ylab("规模相关")+xlab("时间")+geom_line()
 })  
 
-#-------------黑货白货原始数据
-output$yssj.hhbh.plot <- renderPlot( {
+#----黑货运量原始数据---------------
+output$yssj.heihuo.plot <- renderPlot( {
   
   dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
   dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(dfyssj$tm)
   
+  if(input$year_start_heihuo.yssj>input$year_end_heihuo.yssj)  { 
+    p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0)) }
   
-  if(input$year_start_hhbh> input$year_end_hhbh)  {
-    p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0))
-  }
   else{
-    dfyssjsub<-subset(dfyssj,(substr(dfyssj$tm,1,4)>=input$year_start_hhbh) )
-    dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_hhbh))
-    p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))
+    dfyssjsub<-subset(dfyssj,(substr(dfyssj$tm,1,4)>=input$year_start_heihuo.yssj) )
+    dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_heihuo.yssj))
+    p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))   }
+  
+  #jsks------------金属矿石
+  if (input$heihuo.yssj=="jsks.yssj") {
+    p<-p+geom_line(aes(x=tm,y=jsks),color="red",size=0.6)+ylim(2000,4000)
+    p<-p+geom_point(aes(x=tm,y=jsks),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
+  #kuangjian---------矿建
+  if (input$heihuo.yssj=="kuangjian.yssj") {
+    p<-p+geom_line(aes(x=tm,y=kuangjian),color="red",size=0.6)+ylim(300,1600)
+    p<-p+geom_point(aes(x=tm,y=kuangjian),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+  
+  #gangcai------钢材的运量月度
+  if (input$heihuo.yssj=="gangcai.yssj") {
+    p<-p+geom_line(aes(x=tm,y=gangcai),color="blue",size=0.6)+ylim(1200,2200)
+    p<-p+geom_point(aes(x=tm,y=gangcai),size=4,shape=21,colour="darkblue",fill="blue",position=position_dodge(width=0.2))}
+  
+  #shiyou----------石油的运量月度
+  if (input$heihuo.yssj=="shiyou.yssj") {
+    p<-p+geom_line(aes(x=tm,y=shiyou),color="brown",size=0.6)+ylim(900,1200)
+    p<-p+geom_point(aes(x=tm,y=shiyou),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+  
+  #mei--------煤的运量月度
+  if (input$heihuo.yssj=="mei.yssj") {
+    p<-p+geom_line(aes(x=tm,y=mei),color="blue",size=0.6)+ylim(9000,16000)
+    p<-p+geom_point(aes(x=tm,y=mei),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+  
+  p+ylab("黑货运量")+xlab("时间")+geom_line()
+})  
+
+#----白货运量原始数据---------------
+output$yssj.baihuo.plot <- renderPlot( {
+  
+  dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
+  dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfyssj$tm)
+  
+  if(input$year_start_baihuo.yssj> input$year_end_baihuo.yssj)  { 
+    p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0)) }
+  
+  else{
+    dfyssjsub<-subset(dfyssj,(substr(dfyssj$tm,1,4)>=input$year_start_baihuo.yssj) )
+    dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_baihuo.yssj))
+    p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))   }
+  
   #gyjx--------------工业机械
-  if(input$hhbh.yssj=="gyjx.yssj"){
+  if(input$baihuo.yssj=="gyjx.yssj"){
     p<-p+geom_line(aes(x=tm,y=gyjx),color="black",size=0.6)+ylim(20,55)
     p<-p+geom_point(aes(x=tm,y=gyjx),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   #dzdq--------------电子电器
-  if (input$hhbh.yssj=="dzdq.yssj") {
+  if (input$baihuo.yssj=="dzdq.yssj") {
     p<-p+geom_line(aes(x=tm,y=dzdq),color="red",size=0.6)+geom_point(aes(x=tm,y=dzdq),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
-  
+    
   }
   #nfcp-------------农副产品
-  if (input$hhbh.yssj=="nfcp.yssj") {
+  if (input$baihuo.yssj=="nfcp.yssj") {
     p<-p+geom_line(aes(x=tm,y=nfcp),color="blue",size=0.6)
     p<-p+geom_point(aes(x=tm,y=nfcp),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   #ysyc------------饮食烟草
-  if (input$hhbh.yssj=="ysyc.yssj") {
+  if (input$baihuo.yssj=="ysyc.yssj") {
     p<-p+geom_line(aes(x=tm,y=ysyc),color="orange",size=0.6)+ylim(70,230)
     p<-p+geom_point(aes(x=tm,y=ysyc),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   #wjyp------------文教用品
-  if (input$hhbh.yssj=="wjyp.yssj") {
+  if (input$baihuo.yssj=="wjyp.yssj") {
     p<-p+geom_line(aes(x=tm,y=wjyp),color="darkgreen",size=0.6)+ylim(25,65)
     p<-p+geom_point(aes(x=tm,y=wjyp),size=4,shape=21,colour="darkblue",fill="lightgreen",position=position_dodge(width=0.2))
   }
   #ldld-------------零担
-  if (input$hhbh.yssj=="ldld.yssj") {
+  if (input$baihuo.yssj=="ldld.yssj") {
     p<-p+geom_line(aes(x=tm,y=ldld),color="red",size=0.6)
     p<-p+geom_point(aes(x=tm,y=ldld),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
   #jzx--------------集装箱
-  if (input$hhbh.yssj=="jzx.yssj") {
+  if (input$baihuo.yssj=="jzx.yssj") {
     p<-p+geom_line(aes(x=tm,y=jzx),color="brown",size=0.6)+ylim(300,1000)
     p<-p+geom_point(aes(x=tm,y=jzx),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #jsks------------
-  if (input$hhbh.yssj=="jsks.yssj") {
-    p<-p+geom_line(aes(x=tm,y=jsks),color="red",size=0.6)+ylim(2000,4000)
-    p<-p+geom_point(aes(x=tm,y=jsks),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
-  }
-  p+ylab("黑货白货")+xlab("时间")+geom_line()
+  
+  p+ylab("白货运量")+xlab("时间")+geom_line()
 })  
 
 output$yssj.xghy.table<-DT::renderDataTable(
@@ -3479,13 +3415,23 @@ output$yssj.zcxg.table<-DT::renderDataTable(
 colnames = c('时间','客车辆数(辆)','货车辆数(万辆)','机车台数(辆)','动车台数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
 rownames = TRUE))
 
-output$yssj.hhbh.table<-DT::renderDataTable(
+output$yssj.heihuo.table<-DT::renderDataTable(
   DT::datatable(
-{  
-  dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
-  data<-dfyssj},
-colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担','集装箱(万吨)','金属矿石(万吨)'),
-rownames = TRUE))
+    {  
+      dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
+      dfyssj<-data.frame(dfyssj[1],dfyssj[9:13])
+      data<-dfyssj},
+    colnames = c('时间','金属矿石(万吨)','矿建(万吨)','钢材(万吨)', '石油(万吨)','煤(万吨)'),
+    rownames = TRUE))
+
+output$yssj.baihuo.table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
+      dfyssj<-data.frame(dfyssj[1:8])
+      data<-dfyssj},
+    colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担(吨)','集装箱(万吨)'),
+    rownames = TRUE))
 
 }
 )
