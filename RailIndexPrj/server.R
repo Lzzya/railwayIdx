@@ -571,7 +571,7 @@ rownames = TRUE)}
 #-------------------------------------------------------------------------
 #----------------------------扩散指数------------------------------------
 
-dftrans_DI<-read.csv("Trans_DI.csv",head=T)
+dftrans_DI<-read.csv("Trans_DI.csv",head=T)  #读取"Trans_DI.csv"文件
 dftrans_DI$tm<-as.Date.POSIXct(dftrans_DI$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
 trans_DI.len<-length(dftrans_DI$tm)
 
@@ -586,6 +586,7 @@ scale_DI.len<-length(dfscale_DI$tm)
 #——————————————1.计算过程———————————————
 
 #-------------1.1 权重计算--------------
+#定义一个计算权重的函数，下面直接调用
 percent.1<- function(x)
 { xlen<- length(x)
   x<- x/max(x)
@@ -593,33 +594,41 @@ percent.1<- function(x)
   x<- 1-x}
 
 #------------(1) 运输先行指标的权重-----
-gc.trans.percent<- percent.1(dftrans_DI$gc)/(percent.1(dftrans_DI$gc)+percent.1(dftrans_DI$ym)+percent.1(dftrans_DI$yy)+percent.1(dftrans_DI$hlfdl))
+#命名规则：按材料的拼音首字母命名，XX.trans.percent，即XX的运输景气指标权重；
+# XX.equip.percent，即XX的设备景气指标权重；XX.scale.percent，即XX的规模景气指标权重；
+#以下依次为：钢材、原煤、原油、火力发电量的运输扩散先行指数的权重 
+gc.trans.percent<- percent.1(dftrans_DI$gc)/(percent.1(dftrans_DI$gc)+percent.1(dftrans_DI$ym)+percent.1(dftrans_DI$yy)+percent.1(dftrans_DI$hlfdl)) 
 ym.trans.percent<- percent.1(dftrans_DI$ym)/(percent.1(dftrans_DI$gc)+percent.1(dftrans_DI$ym)+percent.1(dftrans_DI$yy)+percent.1(dftrans_DI$hlfdl))
 yy.trans.percent<- percent.1(dftrans_DI$yy)/(percent.1(dftrans_DI$gc)+percent.1(dftrans_DI$ym)+percent.1(dftrans_DI$yy)+percent.1(dftrans_DI$hlfdl))
 hlfdl.trans.percent<- percent.1(dftrans_DI$hlfdl)/(percent.1(dftrans_DI$gc)+percent.1(dftrans_DI$ym)+percent.1(dftrans_DI$yy)+percent.1(dftrans_DI$hlfdl))
 
 #------------(2) 运输同步指标的权重---
+#以下依次为：货运量、工业增加值、货运周转量的运输扩散同步指数的权重 
 hyl.trans.percent<- percent.1(dftrans_DI$hyl)/(percent.1(dftrans_DI$hyl)+percent.1(dftrans_DI$gyzjz)+percent.1(dftrans_DI$hyzzl))
 gyzjz.trans.percent<- percent.1(dftrans_DI$gyzjz)/(percent.1(dftrans_DI$hyl)+percent.1(dftrans_DI$gyzjz)+percent.1(dftrans_DI$hyzzl))
 hyzzl.trans.percent<- percent.1(dftrans_DI$hyzzl)/(percent.1(dftrans_DI$hyl)+percent.1(dftrans_DI$gyzjz)+percent.1(dftrans_DI$hyzzl))
 
 #------------(3) 运输滞后指标的权重---
+#以下依次为：客运量、客运周转量、固定资产投资、营业里程的运输扩散滞后指数的权重 
 kyl.trans.percent<- percent.1(dftrans_DI$kyl)/(percent.1(dftrans_DI$kyl)+percent.1(dftrans_DI$kyzzl)+percent.1(dftrans_DI$gdzctz))
 kyzzl.trans.percent<- percent.1(dftrans_DI$kyzzl)/(percent.1(dftrans_DI$kyl)+percent.1(dftrans_DI$kyzzl)+percent.1(dftrans_DI$gdzctz))
 gdzctz.trans.percent<- percent.1(dftrans_DI$gdzctz)/(percent.1(dftrans_DI$kyl)+percent.1(dftrans_DI$kyzzl)+percent.1(dftrans_DI$gdzctz))
 yylc.trans.percent<- percent.1(dftrans_DI$yylc)/(percent.1(dftrans_DI$kyl)+percent.1(dftrans_DI$kyzzl)+percent.1(dftrans_DI$gdzctz))
 
-#------------(4) 设备先行指标的权----
+#------------(4) 设备先行指标的权重----
+#以下依次为：钢材、原煤、原油、火力发电量的设备扩散先行指数的权重 
 gc.equip.percent<- percent.1(dfequip_DI$gc)/(percent.1(dfequip_DI$gc)+percent.1(dfequip_DI$ym)+percent.1(dfequip_DI$yy)+percent.1(dfequip_DI$hlfdl))
 ym.equip.percent<- percent.1(dfequip_DI$ym)/(percent.1(dfequip_DI$gc)+percent.1(dfequip_DI$ym)+percent.1(dfequip_DI$yy)+percent.1(dfequip_DI$hlfdl))
 yy.equip.percent<- percent.1(dfequip_DI$yy)/(percent.1(dfequip_DI$gc)+percent.1(dfequip_DI$ym)+percent.1(dfequip_DI$yy)+percent.1(dfequip_DI$hlfdl))
 hlfdl.equip.percent<- percent.1(dfequip_DI$hlfdl)/(percent.1(dfequip_DI$gc)+percent.1(dfequip_DI$ym)+percent.1(dfequip_DI$yy)+percent.1(dfequip_DI$hlfdl))
 
 #------------(5) 设备同步指标的权重------------------------------------
+#以下依次为：机车总走行里程、日均运用车的设备扩散同步指数的权重 
 jczxzlc.equip.percent<- percent.1(dfequip_DI$jczxzlc)/(percent.1(dfequip_DI$jczxzlc)+percent.1(dfequip_DI$rjyyc))
 rjyyc.equip.percent<- percent.1(dfequip_DI$rjyyc)/(percent.1(dfequip_DI$jczxzlc)+percent.1(dfequip_DI$rjyyc))
 
-#------------(6) 设备滞后指标的权重------------------------------------ 
+#------------(6) 设备滞后指标的权重------------------------------------
+#以下依次为：日均现在车、客运机车里程、货运机车里程、客车辆数、货车辆数、机车台数的设备扩散滞后指数的权重 
 rjxzc.equip.percent<- percent.1(dfequip_DI$rjxzc)/(percent.1(dfequip_DI$rjxzc)+percent.1(dfequip_DI$kyjclc)+percent.1(dfequip_DI$hyjclc)+percent.1(dfequip_DI$kcls)+percent.1(dfequip_DI$hcls)+percent.1(dfequip_DI$jcts))
 kyjclc.equip.percent<- percent.1(dfequip_DI$kyjclc)/(percent.1(dfequip_DI$rjxzc)+percent.1(dfequip_DI$kyjclc)+percent.1(dfequip_DI$hyjclc)+percent.1(dfequip_DI$kcls)+percent.1(dfequip_DI$hcls)+percent.1(dfequip_DI$jcts))
 hyjclc.equip.percent<- percent.1(dfequip_DI$hyjclc)/(percent.1(dfequip_DI$rjxzc)+percent.1(dfequip_DI$kyjclc)+percent.1(dfequip_DI$hyjclc)+percent.1(dfequip_DI$kcls)+percent.1(dfequip_DI$hcls)+percent.1(dfequip_DI$jcts))
@@ -627,18 +636,21 @@ kcls.equip.percent<- percent.1(dfequip_DI$kcls)/(percent.1(dfequip_DI$rjxzc)+per
 hcls.equip.percent<- percent.1(dfequip_DI$hcls)/(percent.1(dfequip_DI$rjxzc)+percent.1(dfequip_DI$kyjclc)+percent.1(dfequip_DI$hyjclc)+percent.1(dfequip_DI$kcls)+percent.1(dfequip_DI$hcls)+percent.1(dfequip_DI$jcts))
 jcts.equip.percent<- percent.1(dfequip_DI$jcts)/(percent.1(dfequip_DI$rjxzc)+percent.1(dfequip_DI$kyjclc)+percent.1(dfequip_DI$hyjclc)+percent.1(dfequip_DI$kcls)+percent.1(dfequip_DI$hcls)+percent.1(dfequip_DI$jcts))
 
-#------------(7) 规模先行指标的权重------------------------------------ 
+#------------(7) 规模先行指标的权重------------------------------------
+#以下依次为：钢材、原煤、原油、火力发电量的规模扩散先行指数的权重 
 gc.scale.percent<- percent.1(dfscale_DI$gc)/(percent.1(dfscale_DI$gc)+percent.1(dfscale_DI$ym)+percent.1(dfscale_DI$yy)+percent.1(dfscale_DI$hlfdl))
 ym.scale.percent<- percent.1(dfscale_DI$ym)/(percent.1(dfscale_DI$gc)+percent.1(dfscale_DI$ym)+percent.1(dfscale_DI$yy)+percent.1(dfscale_DI$hlfdl))
 yy.scale.percent<- percent.1(dfscale_DI$yy)/(percent.1(dfscale_DI$gc)+percent.1(dfscale_DI$ym)+percent.1(dfscale_DI$yy)+percent.1(dfscale_DI$hlfdl))
 hlfdl.scale.percent<- percent.1(dfscale_DI$hlfdl)/(percent.1(dfscale_DI$gc)+percent.1(dfscale_DI$ym)+percent.1(dfscale_DI$yy)+percent.1(dfscale_DI$hlfdl))
 
 #------------(8) 规模同步指标的权重------------------------------------
+#以下依次为：货运量、工业增加值、货运周转量的规模同步指数的权重 
 hyl.scale.percent<- percent.1(dfscale_DI$hyl)/(percent.1(dfscale_DI$hyl)+percent.1(dfscale_DI$gyzjz)+percent.1(dfscale_DI$hyzzl))
 gyzjz.scale.percent<- percent.1(dfscale_DI$gyzjz)/(percent.1(dfscale_DI$hyl)+percent.1(dfscale_DI$gyzjz)+percent.1(dfscale_DI$hyzzl))
 hyzzl.scale.percent<- percent.1(dfscale_DI$hyzzl)/(percent.1(dfscale_DI$hyl)+percent.1(dfscale_DI$gyzjz)+percent.1(dfscale_DI$hyzzl))
 
 #------------(9) 规模滞后指标的权重------------------------------------
+#以下依次为：客车辆数、货车辆数、营业里程、从业人员数量、机车台数的规模扩散滞后指数的权重 
 kcls.scale.percent<- percent.1(dfscale_DI$kcls)/(percent.1(dfscale_DI$kcls)+percent.1(dfscale_DI$hcls)+percent.1(dfscale_DI$yylc)+percent.1(dfscale_DI$cyrysl)+percent.1(dfscale_DI$jcts))
 hcls.scale.percent<- percent.1(dfscale_DI$hcls)/(percent.1(dfscale_DI$kcls)+percent.1(dfscale_DI$hcls)+percent.1(dfscale_DI$yylc)+percent.1(dfscale_DI$cyrysl)+percent.1(dfscale_DI$jcts))
 yylc.scale.percent<- percent.1(dfscale_DI$yylc)/(percent.1(dfscale_DI$kcls)+percent.1(dfscale_DI$hcls)+percent.1(dfscale_DI$yylc)+percent.1(dfscale_DI$cyrysl)+percent.1(dfscale_DI$jcts))
@@ -647,7 +659,7 @@ jcts.scale.percent<- percent.1(dfscale_DI$jcts)/(percent.1(dfscale_DI$kcls)+perc
 
 
 #-------------1.2 扩散指数计算---------------------------------------------------------------------
-#自定义函数，输入为某量的时间序列数据，输出为1,0.5,0三个值
+#自定义扩散指数计算函数：输入为某量的时间序列数据，输出示性函数值（1,0.5,0），示性函数值与相应权重的乘积之和即为扩散指数结果
 function1<-function(v){
   vud<-(v[-1]-v[-length(v)])/v[-length(v)]#变化率
   t1<-mean(vud)+qt(1-0.3,length(vud))*sd(vud)/sqrt(length(vud))#求置信上线
@@ -656,75 +668,89 @@ function1<-function(v){
   return(ifelse(vud>t3,1,ifelse(vud>t2,0.5,0)))
 }
 
-#权重手动输入部分计算的函数们
+#权重手动输入部分计算的函数们，将输入的百分比数字除以100，直接作为权重参与计算
 percent.input<- function(a)
 {a<- as.numeric(a)/100} 
 
 #--------------(1) 运输扩散指数计算---------------------------
 trans<-read.csv("Trans_DI.csv",head=T)#计算运输扩散指数
-tm1<-trans$tm[2:length(trans$tm)]
-c1<-function1(trans$gc)
-c2<-function1(trans$ym)
-c3<-function1(trans$yy)
-c4<-function1(trans$hlfdl)
-c5<-function1(trans$hyzzl)
-c6<-function1(trans$hyl)
-c7<-function1(trans$gyzjz)
-c8<-function1(trans$kyl)
-c9<-function1(trans$kyzzl)
-c10<-function1(trans$gdzctz)
-c11<-function1(trans$yylc)
+tm1<-trans$tm[2:length(trans$tm)]#去掉原表格里的第一行（因为在计算过程中第一行为空值）
+c1<-function1(trans$gc)#钢材-示性函数值计算
+c2<-function1(trans$ym)#原煤-示性函数值计算
+c3<-function1(trans$yy)#原油-示性函数值计算
+c4<-function1(trans$hlfdl)#火力发电量-示性函数值计算
+c5<-function1(trans$hyzzl)#货运周转量-示性函数值计算
+c6<-function1(trans$hyl)#货运量-示性函数值计算
+c7<-function1(trans$gyzjz)#工业增加值-示性函数值计算
+c8<-function1(trans$kyl)#客运量-示性函数值计算
+c9<-function1(trans$kyzzl)#客运周转量-示性函数值计算
+c10<-function1(trans$gdzctz)#固定资产投资-示性函数值计算
+c11<-function1(trans$yylc)#营业里程-示性函数值计算
 
+#求运输扩散指数：根据公式，上述示性函数值与相应权重的乘积之和即为扩散指数值
+#  命名规则：DI是扩散指数，x/t/z分别是先行/同步/扩散/的拼音首字母，_trans代表运输扩散指数，
+#           即用“DI(x/t/z)_trans”分别表示运输扩散先行指数、运输扩散同步指数和运输扩散滞后指数
 DIx_trans<-gc.trans.percent*c1+ym.trans.percent*c2+yy.trans.percent*c3+hlfdl.trans.percent*c4#运输扩散先行指数
 DIt_trans<-hyzzl.trans.percent*c5+hyl.trans.percent*c6+gyzjz.trans.percent*c7#运输扩散同步指数
 DIz_trans<-kyl.trans.percent*c8+kyzzl.trans.percent*c9+gdzctz.trans.percent*c10+yylc.trans.percent*c11#运输扩散滞后指数
 
-DI_trans<-data.frame(tm1,DIx_trans,DIt_trans,DIz_trans)#存储所有指数计算结果的数据框
+#将运输先行、同步、滞后三个扩散指数存入"DI_trans"数据框，即运输扩散景气
+DI_trans<-data.frame(tm1,DIx_trans,DIt_trans,DIz_trans)#存储所有运输扩散指数计算结果的数据框
 DI_trans$tm1<-as.Date.POSIXct(DI_trans$tm1,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-write.csv(DI_trans,file="DI_Trans.csv",row.names = FALSE)
+write.csv(DI_trans,file="DI_Trans.csv",row.names = FALSE)#将运输扩散指数计算结果写入CSV文件："DI_Trans.csv"
 
 #-------------(2) 设备扩散指数计算-----------------------------
 equip<-read.csv("Equip_DI.csv",head=T)#计算设备扩散指数
 tm2<-equip$tm[2:length(equip$tm)]
-c12<-function1(equip$jczxzlc)
-c13<-function1(equip$rjyyc)
-c14<-function1(equip$rjxzc)
-c15<-function1(equip$kyjclc)
-c16<-function1(equip$hyjclc)
-c17<-function1(equip$kcls)
-c18<-function1(equip$hcls)
-c19<-function1(equip$jcts)
-c22<-function1(equip$gc)
-c23<-function1(equip$ym)
-c24<-function1(equip$yy)
-c25<-function1(equip$hlfdl)
+c12<-function1(equip$jczxzlc)#机车总走行里程-示性函数值计算
+c13<-function1(equip$rjyyc)#日均运用车-示性函数值计算
+c14<-function1(equip$rjxzc)#日均现在车-示性函数值计算
+c15<-function1(equip$kyjclc)#客运机车里程-示性函数值计算
+c16<-function1(equip$hyjclc)#货运机车里程-示性函数值计算
+c17<-function1(equip$kcls)#客车辆数-示性函数值计算
+c18<-function1(equip$hcls)#货车辆数-示性函数值计算
+c19<-function1(equip$jcts)#机车台数-示性函数值计算
+c22<-function1(equip$gc)#钢材-示性函数值计算
+c23<-function1(equip$ym)#原煤-示性函数值计算
+c24<-function1(equip$yy)#原油-示性函数值计算
+c25<-function1(equip$hlfdl)#火力发电量-示性函数值计算
+
+#求设备扩散指数：根据公式，上述示性函数值与相应权重的乘积之和即为扩散指数值
+#  命名规则：DI是扩散指数，x/t/z分别是先行/同步/扩散/的拼音首字母，_equip代表设备，
+#           即用“DI(x/t/z)_equip”分别表示设备扩散先行指数、设备扩散同步指数和设备扩散滞后指数
 DIx_equip<-gc.equip.percent*c22+ym.equip.percent*c23+yy.equip.percent*c24+hlfdl.equip.percent*c25 #设备扩散先行指数
 DIt_equip<-jczxzlc.equip.percent*c12+rjyyc.equip.percent*c13#设备扩散同步指数
 DIz_equip<-rjxzc.equip.percent*c14+kyjclc.equip.percent*c15+hyjclc.equip.percent*c16+kcls.equip.percent*c17+hcls.equip.percent*c18+jcts.equip.percent*c19#设备扩散滞后指数
 
+#将设备先行、同步、滞后三个扩散指数存入"DI_equip"数据框，即设备扩散景气
 DI_equip<-data.frame(tm2,DIx_equip,DIt_equip,DIz_equip)#存储所有指数计算结果的数据框
 DI_equip$tm2<-as.Date.POSIXct(DI_equip$tm2,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-write.csv(DI_equip,file="DI_Equip.csv",row.names = FALSE)
+write.csv(DI_equip,file="DI_Equip.csv",row.names = FALSE)#将设备扩散指数计算结果写入CSV文件："DI_Equip.csv"
 
 #-------------(3) 规模扩散指数计算-----------------------------
 scale<-read.csv("Scale_DI.csv",head=T)#计算规模扩散指数
 tm3<-scale$tm[2:length(scale$tm)]
-c20<-function1(scale$cyrysl)
-c21<-function1(scale$yylc)
-c26<-function1(scale$gc)
-c27<-function1(scale$ym)
-c28<-function1(scale$yy)
-c29<-function1(scale$hlfdl)
-c30<-function1(scale$hyzzl)
-c31<-function1(scale$hyl)
-c32<-function1(scale$gyzjz)
+c20<-function1(scale$cyrysl)#从业人员数量-示性函数值计算
+c21<-function1(scale$yylc)#营业里程-示性函数值计算
+c26<-function1(scale$gc)#钢材-示性函数值计算
+c27<-function1(scale$ym)#原煤-示性函数值计算
+c28<-function1(scale$yy)#原油-示性函数值计算
+c29<-function1(scale$hlfdl)#火力发电量-示性函数值计算
+c30<-function1(scale$hyzzl)#货运周转量-示性函数值计算
+c31<-function1(scale$hyl)#货运量-示性函数值计算
+c32<-function1(scale$gyzjz)#工业增加值-示性函数值计算
+
+#求规模扩散指数：根据公式，上述示性函数值与相应权重的乘积之和即为扩散指数值
+#  命名规则：DI是扩散指数，x/t/z分别是先行/同步/扩散/的拼音首字母，_scale代表规模，
+#           即用“DI(x/t/z)_scale”分别表示规模扩散先行指数、规模扩散同步指数和规模扩散滞后指数
 DIx_scale<-gc.scale.percent*c26+ym.scale.percent*c27+yy.scale.percent*c28+hlfdl.scale.percent*c29 #规模扩散先行指数
 DIt_scale<-hyzzl.scale.percent*c30+hyl.scale.percent*c31+gyzjz.scale.percent*c32#规模扩散同步指数
 DIz_scale<-kcls.scale.percent*c17+hcls.scale.percent*c18+yylc.scale.percent*c21+cyrysl.scale.percent*c20+jcts.scale.percent*c19#规模扩散滞后指数
 
+#将规模先行、同步、滞后三个扩散指数存入"DI_scale"数据框，即规模扩散景气
 DI_scale<-data.frame(tm3,DIx_scale,DIt_scale,DIz_scale)#存储所有指数计算结果的数据框
 DI_scale$tm3<-as.Date.POSIXct(DI_scale$tm3,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-write.csv(DI_scale,file="DI_Scale.csv",row.names = FALSE)
+write.csv(DI_scale,file="DI_Scale.csv",row.names = FALSE)#将规模扩散指数计算结果写入CSV文件："DI_Scale.csv"
 
 
 
@@ -732,57 +758,61 @@ write.csv(DI_scale,file="DI_Scale.csv",row.names = FALSE)
 #------------2.1运输扩散指数画图------------------------
 #----------(1)运输扩散指数计算--权重手动输入------------
 output$trans_DI_index<- renderPlot( {
+   
+  hyl.input<- percent.input(input$trans_hyl_percent_input)#货运量-手动输入的权重
+  gyzjz.input<- percent.input(input$trans_gyzjz_percent_input)#工业增加值-手动输入的权重
+  hyzzl.input<- percent.input(input$trans_hyzzl_percent_input)#货运周转量-手动输入的权重
+  gc.input<- percent.input(input$trans_gc_percent_input)#钢材-手动输入的权重
+  ym.input<- percent.input(input$trans_ym_percent_input)#原煤-手动输入的权重
+  yy.input<- percent.input(input$trans_yy_percent_input)#原油-手动输入的权重
+  hlfdl.input<- percent.input(input$trans_hlfdl_percent_input)#火力发电量-手动输入的权重
+  kyl.input<- percent.input(input$trans_kyl_percent_input)#客运量-手动输入的权重
+  gdzctz.input<- percent.input(input$trans_gdzctz_percent_input)#固定资产投资-手动输入的权重
+  kyzzl.input<- percent.input(input$trans_kyzzl_percent_input)#客运周转量-手动输入的权重
   
-  hyl.input<- percent.input(input$trans_hyl_percent_input)
-  gyzjz.input<- percent.input(input$trans_gyzjz_percent_input)
-  hyzzl.input<- percent.input(input$trans_hyzzl_percent_input)
-  gc.input<- percent.input(input$trans_gc_percent_input)
-  ym.input<- percent.input(input$trans_ym_percent_input)
-  yy.input<- percent.input(input$trans_yy_percent_input)
-  hlfdl.input<- percent.input(input$trans_hlfdl_percent_input)
-  kyl.input<- percent.input(input$trans_kyl_percent_input)
-  gdzctz.input<- percent.input(input$trans_gdzctz_percent_input)
-  kyzzl.input<- percent.input(input$trans_kyzzl_percent_input)
+  yylc.input<- percent.input(input$trans_yylc_percent_input)#营业里程-手动输入的权重
+  jczxzlc.input<- percent.input(input$trans_jczxzlc_percent_input)#机车总走行里程-手动输入的权重
+  rjyyc.input<- percent.input(input$trans_rjyyc_percent_input)#日均原有车-手动输入的权重
+  rjxzc.input<- percent.input(input$equip_rjxzc_percent_input)#日均现在车-手动输入的权重
   
-  yylc.input<- percent.input(input$trans_yylc_percent_input)
-  jczxzlc.input<- percent.input(input$trans_jczxzlc_percent_input)
-  rjyyc.input<- percent.input(input$trans_rjyyc_percent_input)
-  rjxzc.input<- percent.input(input$equip_rjxzc_percent_input)
+  #求运输扩散指数（权重手动输入情况下）：根据公式，上述示性函数值与相应权重的乘积之和即为扩散指数值
+  #  命名规则：DI是扩散指数，x/t/z分别是先行/同步/扩散/的拼音首字母，_trans代表运输，_input表示是手动改变权重时的计算（非默认权重下的计算）
+  #           即用“DI(x/t/z)_trans_input”分别表示手动输入权重时的运输扩散先行指数、运输扩散同步指数和运输扩散滞后指数  
+  DIx_trans_input<- gc.input*c1 + ym.input*c2+yy.input*c3+hlfdl.input*c4 #手动输入权重时的运输扩散先行指数
+  DIt_trans_input<- hyzzl.input*c5+hyl.input*c6+gyzjz.input*c7 #手动输入权重时的运输扩散同步指数
+  DIz_trans_input<- kyl.input*c8 + kyzzl.input*c9+gdzctz.input*c10+yylc.input*c11 #手动输入权重时的运输扩散滞后指数
   
-  DIx_trans_input<- gc.input*c1 + ym.input*c2+yy.input*c3+hlfdl.input*c4
-  DIt_trans_input<- hyzzl.input*c5+hyl.input*c6+gyzjz.input*c7
-  DIz_trans_input<- kyl.input*c8 + kyzzl.input*c9+gdzctz.input*c10+yylc.input*c11
-  
+  #将手动输入权重时的运输先行、同步、滞后三个扩散指数存入"DI_trans_input"数据框，即手动输入权重时的运输扩散景气
   DI_trans_input<-data.frame(tm1,DIx_trans_input, DIt_trans_input,DIz_trans_input)#存储所有指数计算结果的数据框
   DI_trans_input$tm1<-as.Date.POSIXct(DI_trans_input$tm1,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-  write.csv(DI_trans_input,file="DI_Trans_Input.csv",row.names = FALSE)    
+  write.csv(DI_trans_input,file="DI_Trans_Input.csv",row.names = FALSE)   #将运输扩散指数计算结果写入CSV文件："DI_Trans_Input.csv"  
   
   #----------(2)运输扩散指数--默认权重计算的画图--------------------------------- 
   DI_trans.len<-length(DI_trans_input$tm1)
   
-  if(input$year_start_trans_ID> input$year_end_trans_ID)  {
-    p<-ggplot(DI_trans,x=c(DI_trans$tm1[1],DI_trans$tm1[DI_trans.len]),aes(x=tm1,y=0.5))} else
+  if(input$year_start_trans_ID> input$year_end_trans_ID)  {    #ui中年份输入的起始值要大于终止值
+    p<-ggplot(DI_trans,x=c(DI_trans$tm1[1],DI_trans$tm1[DI_trans.len]),aes(x=tm1,y=0.5))} else  #按照运输扩散指数的计算结果“DI_trans”作图
     {
       dftranssub<-subset(DI_trans,(substr(DI_trans$tm1,1,4)>=input$year_start_trans_ID) )
       dftranssub<-subset(dftranssub,(substr(dftranssub$tm1,1,4)<=input$year_end_trans_ID))
       p<-ggplot(dftranssub,x=c(dftranssub$tm1[1],dftranssub$tm1[DI_trans.len]),aes(x=tm1,y=0.5))}
   
-  if(input$trans_DIt_Index){
+  if(input$trans_DIt_Index){  #在ui中，勾选同步指数，则出现同步指数的曲线图
     p<-p+geom_line(aes(x=tm1,y=dftranssub$DIt_trans),color="black",size=0.6)}
-  if (input$trans_DIx_Index) {
+  if (input$trans_DIx_Index) {  #在ui中，勾选先行指数，则出现先行指数的曲线图
     p<-p+geom_line(aes(x=tm1,y=dftranssub$DIx_trans),color="red",size=0.6) }
-  if (input$trans_DIz_Index) {
+  if (input$trans_DIz_Index) {  #在ui中，勾滞后步指数，则出现滞后指数的曲线图
     p<-p+geom_line(aes(x=tm1,y=dftranssub$DIz_trans),color="blue",size=0.6)}
   
   #----------(3)运输扩散指数--权重手动输入计算的画图---------------------------------
   dftransinputsub<-subset(DI_trans_input,(substr(DI_trans_input$tm1,1,4)>=input$year_start_trans_ID))
   dftransinputsub<-subset(dftransinputsub,(substr(dftransinputsub$tm1,1,4)<=input$year_end_trans_ID))
-  if(input$trans_percent_coor_input)#输入修改权重后算出来的新先行指数
+  if(input$trans_percent_coor_input) #在同步指数文本框中输入权重值后，画出新的输入修改权重后算出来的同步指数曲线图
   { 
     p<-p+geom_line(aes(x=tm1,y=dftransinputsub$DIt_trans_input),color="black",size=1,linetype=1)}
-  if(input$trans_percent_adv_input)
+  if(input$trans_percent_adv_input) #在先行指数文本框中输入权重值后，画出新的输入修改权重后算出来的先行指数曲线图
   {p<-p+geom_line(aes(x=tm1,y=dftransinputsub$DIx_trans_input),color="red",size=1,linetype=1)}
-  if(input$trans_percent_delay_input)
+  if(input$trans_percent_delay_input) #在滞后指数文本框中输入权重值后，画出新的输入修改权重后算出来的滞后指数曲线图
   {p<-p+geom_line(aes(x=tm1,y=dftransinputsub$DIz_trans_input),color="blue",size=1,linetype=1)} 
   
   p+ylab("运输扩散指数")+xlab("时间")+geom_line()
@@ -793,32 +823,36 @@ output$trans_DI_index<- renderPlot( {
 #----------(1)设备扩散指数计算--权重手动输入---------------------
 output$equip_DI_index<- renderPlot( {
   
-  rjyyc.input<- percent.input(input$equip_rjyyc_percent_input)
-  jczxzlc.input<- percent.input(input$equip_jczxzlc_percent_input)
-  gc.input<- percent.input(input$equip_gc_percent_input)
-  ym.input<- percent.input(input$equip_ym_percent_input)
-  yy.input<- percent.input(input$equip_yy_percent_input)
-  hlfdl.input<- percent.input(input$equip_hlfdl_percent_input)
-  rjxzc.input<- percent.input(input$equip_rjxzc_percent_input)
-  kyjclc.input<- percent.input(input$equip_kyjclc_percent_input)
-  hyjclc.input<- percent.input(input$equip_hyjclc_percent_input)
-  kcls.input<- percent.input(input$equip_kcls_percent_input)
-  hcls.input<- percent.input(input$equip_hcls_percent_input)
-  jcts.input<- percent.input(input$equip_jcts_percent_input)
+  rjyyc.input<- percent.input(input$equip_rjyyc_percent_input)#日均运用车-手动输入的权重
+  jczxzlc.input<- percent.input(input$equip_jczxzlc_percent_input)#机车总走行里程-手动输入的权重
+  gc.input<- percent.input(input$equip_gc_percent_input)#钢材-手动输入的权重
+  ym.input<- percent.input(input$equip_ym_percent_input)#原煤-手动输入的权重
+  yy.input<- percent.input(input$equip_yy_percent_input)#原油-手动输入的权重
+  hlfdl.input<- percent.input(input$equip_hlfdl_percent_input)#火力发电量-手动输入的权重
+  rjxzc.input<- percent.input(input$equip_rjxzc_percent_input)#日均现在车-手动输入的权重
+  kyjclc.input<- percent.input(input$equip_kyjclc_percent_input)#客运机车辆数-手动输入的权重
+  hyjclc.input<- percent.input(input$equip_hyjclc_percent_input)#货运机车辆数-手动输入的权重
+  kcls.input<- percent.input(input$equip_kcls_percent_input)#客车辆数-手动输入的权重
+  hcls.input<- percent.input(input$equip_hcls_percent_input)#货车辆数-手动输入的权重
+  jcts.input<- percent.input(input$equip_jcts_percent_input)#机车台数-手动输入的权重
   
+  #求设备扩散指数（权重手动输入情况下）：根据公式，上述示性函数值与相应权重的乘积之和即为扩散指数值
+  #  命名规则：DI是扩散指数，x/t/z分别是先行/同步/扩散/的拼音首字母，_equip代表设备，_input表示是手动改变权重时的计算（非默认权重下的计算）
+  #           即用“DI(x/t/z)_equip_input”分别表示手动输入权重时的设备扩散先行指数、设备扩散同步指数和设备扩散滞后指数  
   DIx_equip_input<- gc.input*c22 + ym.input*c23+yy.input*c24+hlfdl.input*c25
   DIt_equip_input<- jczxzlc.input*c12+rjyyc.input*c13
   DIz_equip_input<- rjxzc.input*c14+kyjclc.input*c15+hyjclc.input*c16+kcls.input*c17+hcls.input*c18+jcts.input*c19
   
+  #将手动输入权重时的设备先行、同步、滞后三个扩散指数存入"DI_equip_input"数据框，即手动输入权重时的设备扩散景气
   DI_equip_input<-data.frame(tm2,DIx_equip_input, DIt_equip_input,DIz_equip_input)#存储所有指数计算结果的数据框
   DI_equip_input$tm2<-as.Date.POSIXct(DI_equip_input$tm2,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-  write.csv(DI_equip_input,file="DI_Equip_Input.csv",row.names = FALSE) 
+  write.csv(DI_equip_input,file="DI_Equip_Input.csv",row.names = FALSE)  #将设备扩散指数计算结果写入CSV文件："DI_Equip_Input.csv" 
   
   #----------(2)设备扩散指数--默认权重计算的画图---------------------
   DI_equip.len<-length(DI_equip_input$tm2)
 
-  if(input$year_start_equip_ID> input$year_end_equip_ID)  {
-    p<-ggplot(DI_equip,x=c(DI_equip$tm2[1],DI_equip$tm2[DI_equip.len]),aes(x=tm2,y=0.5))}
+  if(input$year_start_equip_ID> input$year_end_equip_ID)  {  #ui中年份输入的起始值要大于终止值
+    p<-ggplot(DI_equip,x=c(DI_equip$tm2[1],DI_equip$tm2[DI_equip.len]),aes(x=tm2,y=0.5))} #按照设备扩散指数的计算结果“DI_equip”作图
   else{
     dfequipsub<-subset(DI_equip,(substr(DI_equip$tm2,1,4)>=input$year_start_equip_ID) )
     dfequipsub<-subset(dfequipsub,(substr(dfequipsub$tm2,1,4)<=input$year_end_equip_ID))
@@ -849,26 +883,30 @@ output$equip_DI_index<- renderPlot( {
 #----------(1)规模扩散指数计算--权重手动输入---------------------
 output$scale_DI_index<- renderPlot( {
   
-  hyl.input<- percent.input(input$scale_hyl_percent_input)
-  gyzjz.input<- percent.input(input$scale_gyzjz_percent_input)
-  hyzzl.input<- percent.input(input$scale_hyzzl_percent_input)
-  gc.input<- percent.input(input$scale_gc_percent_input)
-  ym.input<- percent.input(input$scale_ym_percent_input)
-  yy.input<- percent.input(input$scale_yy_percent_input)
-  hlfdl.input<- percent.input(input$scale_hlfdl_percent_input)
-  kcls.input<- percent.input(input$scale_kcls_percent_input)
-  hcls.input<- percent.input(input$scale_hcls_percent_input)
-  yylc.input<- percent.input(input$scale_yylc_percent_input)
-  cyrysl.input<- percent.input(input$scale_cyrysl_percent_input)
-  jcts.input<- percent.input(input$scale_jcts_percent_input)
+  hyl.input<- percent.input(input$scale_hyl_percent_input)#货运量
+  gyzjz.input<- percent.input(input$scale_gyzjz_percent_input)#工业增加值
+  hyzzl.input<- percent.input(input$scale_hyzzl_percent_input)#货运周转量
+  gc.input<- percent.input(input$scale_gc_percent_input)#钢材
+  ym.input<- percent.input(input$scale_ym_percent_input)#原煤
+  yy.input<- percent.input(input$scale_yy_percent_input)#原油
+  hlfdl.input<- percent.input(input$scale_hlfdl_percent_input)#火力发电量
+  kcls.input<- percent.input(input$scale_kcls_percent_input)#客车辆数
+  hcls.input<- percent.input(input$scale_hcls_percent_input)#货车辆数
+  yylc.input<- percent.input(input$scale_yylc_percent_input)#营业里程
+  cyrysl.input<- percent.input(input$scale_cyrysl_percent_input)#从业人员数量
+  jcts.input<- percent.input(input$scale_jcts_percent_input)#机车台数
   
+  #求规模扩散指数（权重手动输入情况下）：根据公式，上述示性函数值与相应权重的乘积之和即为扩散指数值
+  #  命名规则：DI是扩散指数，x/t/z分别是先行/同步/扩散/的拼音首字母，_scale代表规模，_input表示是手动改变权重时的计算（非默认权重下的计算）
+  #           即用“DI(x/t/z)_scale_input”分别表示手动输入权重时的规模扩散先行指数、规模扩散同步指数和规模扩散滞后指数  
   DIx_scale_input<- gc.input*c26 + ym.input*c27+yy.input*c28+hlfdl.input*c29
   DIt_scale_input<- hyzzl.input*c30+hyl.input*c31+gyzjz.input*c32
   DIz_scale_input<- kcls.input*c17+hcls.input*c18+yylc.input*c21+cyrysl.input*c20+jcts.input*c19
   
+  #将手动输入权重时的规模先行、同步、滞后三个扩散指数存入"DI_scale_input"数据框，即手动输入权重时的规模扩散景气
   DI_scale_input<-data.frame(tm3,DIx_scale_input, DIt_scale_input,DIz_scale_input)#存储所有指数计算结果的数据框
   DI_scale_input$tm3<-as.Date.POSIXct(DI_scale_input$tm3,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-  write.csv(DI_scale_input,file="DI_Scale_Input.csv",row.names = FALSE)    
+  write.csv(DI_scale_input,file="DI_Scale_Input.csv",row.names = FALSE)    #将规模扩散指数计算结果写入CSV文件："DI_Scale_Input.csv" 
   
   #----------(2)规模扩散指数--默认权重计算的画图---------------------
   DI_scale.len<-length(DI_scale_input$tm3)
@@ -904,26 +942,30 @@ output$scale_DI_index<- renderPlot( {
 
 #------------3.1运输扩散指数数据表显示-----------------
 output$table_trans_DI_index<-DT::renderDataTable({
-  hyl.input<- percent.input(input$trans_hyl_percent_input)
-  gyzjz.input<- percent.input(input$trans_gyzjz_percent_input)
-  hyzzl.input<- percent.input(input$trans_hyzzl_percent_input)
-  gc.input<- percent.input(input$trans_gc_percent_input)
-  ym.input<- percent.input(input$trans_ym_percent_input)
-  yy.input<- percent.input(input$trans_yy_percent_input)
-  hlfdl.input<- percent.input(input$trans_hlfdl_percent_input)
-  kyl.input<- percent.input(input$trans_kyl_percent_input)
-  gdzctz.input<- percent.input(input$trans_gdzctz_percent_input)
-  kyzzl.input<- percent.input(input$trans_kyzzl_percent_input)
+  hyl.input<- percent.input(input$trans_hyl_percent_input)#货运量
+  gyzjz.input<- percent.input(input$trans_gyzjz_percent_input)#工业增加值
+  hyzzl.input<- percent.input(input$trans_hyzzl_percent_input)#货运周转量
+  gc.input<- percent.input(input$trans_gc_percent_input)#钢材
+  ym.input<- percent.input(input$trans_ym_percent_input)#原煤
+  yy.input<- percent.input(input$trans_yy_percent_input)#原油
+  hlfdl.input<- percent.input(input$trans_hlfdl_percent_input)#火力发电量
+  kyl.input<- percent.input(input$trans_kyl_percent_input)#客运量
+  gdzctz.input<- percent.input(input$trans_gdzctz_percent_input)#固定资产投资
+  kyzzl.input<- percent.input(input$trans_kyzzl_percent_input)#客运周转量
   
-  yylc.input<- percent.input(input$trans_yylc_percent_input)
-  jczxzlc.input<- percent.input(input$trans_jczxzlc_percent_input)
-  rjyyc.input<- percent.input(input$trans_rjyyc_percent_input)
-  rjxzc.input<- percent.input(input$equip_rjxzc_percent_input)
+  yylc.input<- percent.input(input$trans_yylc_percent_input)#营运里程
+  jczxzlc.input<- percent.input(input$trans_jczxzlc_percent_input)#机车
+  rjyyc.input<- percent.input(input$trans_rjyyc_percent_input)#日均运用车
+  rjxzc.input<- percent.input(input$equip_rjxzc_percent_input)#日均现在车
   
+  #求运输扩散指数（权重手动输入情况下）：根据公式，上述示性函数值与相应权重的乘积之和即为扩散指数值
+  #  命名规则：DI是扩散指数，x/t/z分别是先行/同步/扩散/的拼音首字母，_trans代表运输，_input表示是手动改变权重时的计算（非默认权重下的计算）
+  #           即用“DI(x/t/z)_trans_input”分别表示手动输入权重时的运输扩散先行指数、运输扩散同步指数和运输扩散滞后指数  
   DIx_trans_input<- gc.input*c1 + ym.input*c2+yy.input*c3+hlfdl.input*c4
   DIt_trans_input<- hyzzl.input*c5+hyl.input*c6+gyzjz.input*c7
   DIz_trans_input<- kyl.input*c8 + kyzzl.input*c9+gdzctz.input*c10+yylc.input*c11
   
+  #将手动输入权重时的运输先行、同步、滞后三个扩散指数存入"DI_trans_input"数据框，即手动输入权重时的运输扩散景气
   DI_trans_input<-data.frame(tm1,DIx_trans_input, DIt_trans_input,DIz_trans_input)#存储所有指数计算结果的数据框
   DI_trans_input$tm1<-as.Date.POSIXct(DI_trans_input$tm1,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
   write.csv(DI_trans_input,file="DI_Trans_Input.csv",row.names = FALSE)
@@ -946,23 +988,27 @@ rownames = TRUE)
 #------------3.2设备扩散指数数据表显示----------
 
 output$table_equip_DI_index<-DT::renderDataTable({
-  rjyyc.input<- percent.input(input$equip_rjyyc_percent_input)
-  jczxzlc.input<- percent.input(input$equip_jczxzlc_percent_input)
-  gc.input<- percent.input(input$equip_gc_percent_input)
-  ym.input<- percent.input(input$equip_ym_percent_input)
-  yy.input<- percent.input(input$equip_yy_percent_input)
-  hlfdl.input<- percent.input(input$equip_hlfdl_percent_input)
-  rjxzc.input<- percent.input(input$equip_rjxzc_percent_input)
-  kyjclc.input<- percent.input(input$equip_kyjclc_percent_input)
-  hyjclc.input<- percent.input(input$equip_hyjclc_percent_input)
-  kcls.input<- percent.input(input$equip_kcls_percent_input)
-  hcls.input<- percent.input(input$equip_hcls_percent_input)
-  jcts.input<- percent.input(input$equip_jcts_percent_input)
+  rjyyc.input<- percent.input(input$equip_rjyyc_percent_input)#日均运用车
+  jczxzlc.input<- percent.input(input$equip_jczxzlc_percent_input)#机车总走行里程
+  gc.input<- percent.input(input$equip_gc_percent_input)#钢材
+  ym.input<- percent.input(input$equip_ym_percent_input)#原煤
+  yy.input<- percent.input(input$equip_yy_percent_input)#原油
+  hlfdl.input<- percent.input(input$equip_hlfdl_percent_input)#火力发电量
+  rjxzc.input<- percent.input(input$equip_rjxzc_percent_input)#日均现在车
+  kyjclc.input<- percent.input(input$equip_kyjclc_percent_input)#客运机车里程
+  hyjclc.input<- percent.input(input$equip_hyjclc_percent_input)#货运机车里程
+  kcls.input<- percent.input(input$equip_kcls_percent_input)#客车辆数
+  hcls.input<- percent.input(input$equip_hcls_percent_input)#货车辆数
+  jcts.input<- percent.input(input$equip_jcts_percent_input)#机车台数
   
+  #求设备扩散指数（权重手动输入情况下）：根据公式，上述示性函数值与相应权重的乘积之和即为扩散指数值
+  #  命名规则：DI是扩散指数，x/t/z分别是先行/同步/扩散/的拼音首字母，_equip代表设备，_input表示是手动改变权重时的计算（非默认权重下的计算）
+  #           即用“DI(x/t/z)_equip_input”分别表示手动输入权重时的设备扩散先行指数、设备扩散同步指数和设备扩散滞后指数  
   DIx_equip_input<- gc.input*c22 + ym.input*c23+yy.input*c24+hlfdl.input*c25
   DIt_equip_input<- jczxzlc.input*c12+rjyyc.input*c13
   DIz_equip_input<- rjxzc.input*c14+kyjclc.input*c15+hyjclc.input*c16+kcls.input*c17+hcls.input*c18+jcts.input*c19
   
+  #将手动输入权重时的设备先行、同步、滞后三个扩散指数存入"DI_equip_input"数据框，即手动输入权重时的设备扩散景气
   DI_equip_input<-data.frame(tm2,DIx_equip_input, DIt_equip_input,DIz_equip_input)#存储所有指数计算结果的数据框
   DI_equip_input$tm2<-as.Date.POSIXct(DI_equip_input$tm2,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
   write.csv(DI_equip_input,file="DI_Equip_Input.csv",row.names = FALSE)
@@ -982,23 +1028,27 @@ rownames = TRUE)}
 
 #------------3.3规模扩散指数数据表显示-------------------
 output$table_scale_DI_index<-DT::renderDataTable({
-  hyl.input<- percent.input(input$scale_hyl_percent_input)
-  gyzjz.input<- percent.input(input$scale_gyzjz_percent_input)
-  hyzzl.input<- percent.input(input$scale_hyzzl_percent_input)
-  gc.input<- percent.input(input$scale_gc_percent_input)
-  ym.input<- percent.input(input$scale_ym_percent_input)
-  yy.input<- percent.input(input$scale_yy_percent_input)
-  hlfdl.input<- percent.input(input$scale_hlfdl_percent_input)
-  kcls.input<- percent.input(input$scale_kcls_percent_input)
-  hcls.input<- percent.input(input$scale_hcls_percent_input)
-  yylc.input<- percent.input(input$scale_yylc_percent_input)
-  cyrysl.input<- percent.input(input$scale_cyrysl_percent_input)
-  jcts.input<- percent.input(input$scale_jcts_percent_input)
+  hyl.input<- percent.input(input$scale_hyl_percent_input)#货运量
+  gyzjz.input<- percent.input(input$scale_gyzjz_percent_input)#工业增加值
+  hyzzl.input<- percent.input(input$scale_hyzzl_percent_input)#货运周转量
+  gc.input<- percent.input(input$scale_gc_percent_input)#钢材
+  ym.input<- percent.input(input$scale_ym_percent_input)#原煤
+  yy.input<- percent.input(input$scale_yy_percent_input)#原油
+  hlfdl.input<- percent.input(input$scale_hlfdl_percent_input)火力发电量
+  kcls.input<- percent.input(input$scale_kcls_percent_input)#客车辆数
+  hcls.input<- percent.input(input$scale_hcls_percent_input)#货车辆数
+  yylc.input<- percent.input(input$scale_yylc_percent_input)#营业里程
+  cyrysl.input<- percent.input(input$scale_cyrysl_percent_input)#从业人员数量
+  jcts.input<- percent.input(input$scale_jcts_percent_input)#机车台数
   
+  #求规模扩散指数（权重手动输入情况下）：根据公式，上述示性函数值与相应权重的乘积之和即为扩散指数值
+  #  命名规则：DI是扩散指数，x/t/z分别是先行/同步/扩散/的拼音首字母，_scale代表规模，_input表示是手动改变权重时的计算（非默认权重下的计算）
+  #           即用“DI(x/t/z)_scale_input”分别表示手动输入权重时的规模扩散先行指数、规模扩散同步指数和规模扩散滞后指数  
   DIx_scale_input<- gc.input*c26 + ym.input*c27+yy.input*c28+hlfdl.input*c29
   DIt_scale_input<- hyzzl.input*c30+hyl.input*c31+gyzjz.input*c32
   DIz_scale_input<- kcls.input*c17+hcls.input*c18+yylc.input*c21+cyrysl.input*c20+jcts.input*c19
   
+  #将手动输入权重时的规模先行、同步、滞后三个扩散指数存入"DI_scale_input"数据框，即手动输入权重时的规模扩散景气
   DI_scale_input<-data.frame(tm3,DIx_scale_input, DIt_scale_input,DIz_scale_input)#存储所有指数计算结果的数据框
   DI_scale_input$tm3<-as.Date.POSIXct(DI_scale_input$tm3,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
   write.csv(DI_scale_input,file="DI_Scale_Input.csv",row.names = FALSE)  
