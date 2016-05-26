@@ -116,56 +116,56 @@ navbarMenu("铁路景气指数",
                                                                             sidebarLayout(
                                                                               sidebarPanel(
                                                                                 h4(strong("1.各要素权重默认"),style="color:black"),
-                                                                                checkboxInput(inputId="trans_coor_Index",
+                                                                                checkboxInput(inputId="trans_coor_Index", #trans_coor_Index默认的运输合成同步指数复选框
                                                                                               label=("同步指数"),
                                                                                               value=TRUE),
-                                                                                checkboxInput(inputId="trans_advanced_Index",
+                                                                                checkboxInput(inputId="trans_advanced_Index",#trans_advanced_Index默认的运输合成先行指数复选框
                                                                                               label=("先行指数"),
                                                                                               value=TRUE),
-                                                                                checkboxInput(inputId = "trans_delay_Index",
+                                                                                checkboxInput(inputId = "trans_delay_Index",#trans_cdelay_Index默认的运输合成滞后指数复选框
                                                                                               label = ("滞后指数"),
                                                                                               value = TRUE),
                                                                                 
                                                                                 h4(strong("2.各要素权重手动调整"),style="color:black"),
-                                                                                checkboxInput(inputId="trans_qz_coor_input",
+                                                                                checkboxInput(inputId="trans_qz_coor_input",#trans_qz_coor_input权重手动输入的运输合成同步指数复选框
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="trans_hyl_qz_input",
+                                                                                textInput(inputId="trans_hyl_qz_input",#trans_hyl_qz_input 货运量的权重输入框
                                                                                           label=h5("货运量%"),
                                                                                           value="38.66"),
-                                                                                textInput(inputId="trans_gyzjz_qz_input",
+                                                                                textInput(inputId="trans_gyzjz_qz_input",#trans_gyzjz_qz_input工业增加值的权重输入框
                                                                                           label=h5("工业增加值%"),
                                                                                           value="29.74"),
-                                                                                textInput(inputId="trans_hyzzl_qz_input",
+                                                                                textInput(inputId="trans_hyzzl_qz_input",#trans_hyzzl_qz_input货运的权重输入框
                                                                                           label=h5("货运周转量%"),
                                                                                           value="31.60"),
                                                                                 
-                                                                                checkboxInput(inputId="trans_qz_adv_input",
+                                                                                checkboxInput(inputId="trans_qz_adv_input",#trans_qz_adv_input权重手动输入的运输合成先行指数复选框
                                                                                               label = strong("2.2 先行指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="trans_gc_qz_input",
+                                                                                textInput(inputId="trans_gc_qz_input",#trans_gc_qz_input运输合成指数中的钢材的权重输入框
                                                                                           label=h5("成品钢材%"),
                                                                                           value="42.60"),
-                                                                                textInput(inputId="trans_ym_qz_input",
+                                                                                textInput(inputId="trans_ym_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
                                                                                           label=h5("原煤%"),
                                                                                           value="25.80"),
-                                                                                textInput(inputId="trans_yy_qz_input",
+                                                                                textInput(inputId="trans_yy_qz_input",#trans_yy_qz_input运输合成指数中的原油的权重输入框
                                                                                           label=h5("原油%"),
                                                                                           value="10.31"),
-                                                                                textInput(inputId="trans_hlfdl_qz_input",
+                                                                                textInput(inputId="trans_hlfdl_qz_input",#trans_hlfdl_qz_input运输合成指数中的火力发电量的权重输入框
                                                                                           label=h5("火力发电量%"),
                                                                                           value="21.29"),
                                                                                 
-                                                                                checkboxInput(inputId="trans_qz_delay_input",
+                                                                                checkboxInput(inputId="trans_qz_delay_input",#trans_qz_adv_input权重手动输入的运输合成滞后指数复选框
                                                                                               label = strong("2.3 滞后指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="trans_kyl_qz_input",
+                                                                                textInput(inputId="trans_kyl_qz_input",#trans_kyl_qz_input客运量的权重输入框
                                                                                           label=h5("客运量%"),
                                                                                           value="9.46"),
-                                                                                textInput(inputId="trans_kyzzl_qz_input",
+                                                                                textInput(inputId="trans_kyzzl_qz_input",#trans_kyzzl_qz_input客运周转量的权重输入框
                                                                                           label=h5("客运周转量%"),
                                                                                           value="10.06"),
-                                                                                textInput(inputId="trans_gdzctz_qz_input",
+                                                                                textInput(inputId="trans_gdzctz_qz_input",#trans_gdzctz_qz_input固定资产投资的权重输入框
                                                                                           label=h5("固定资产投资%"),
                                                                                           value="80.48"),
                                                                                 width=3
@@ -174,18 +174,18 @@ navbarMenu("铁路景气指数",
                                                                               
                                                                               mainPanel(
                                                                                 fluidRow(
-                                                                                  column(3,  selectInput(inputId = "year_start_trans",
+                                                                                  column(3,  selectInput(inputId = "year_start_trans",#year_start_trans运输合成指数中的起始年下拉框
                                                                                                          label = "自:", 
                                                                                                          choices = y_wenjing,
                                                                                                          selected = min(y_wenjing) )),
-                                                                                  column(3, selectInput(inputId="year_end_trans",
+                                                                                  column(3, selectInput(inputId="year_end_trans",#year_end_trans运输合成指数中的终止年下拉框
                                                                                                         label="至:",
                                                                                                         choice=y_wenjing,
                                                                                                         selected=max(y_wenjing)))
                                                                                 ),
-                                                                                plotOutput(outputId="trans_index", height = "400px"),
+                                                                                plotOutput(outputId="trans_index", height = "400px"), #trans_index 运输合成指数的画图
                                                                                 fluidRow(
-                                                                                  column(12,DT::dataTableOutput("table_trans_index"))  ),
+                                                                                  column(12,DT::dataTableOutput("table_trans_index"))  ),#table_trans_index 运输合成指数的数据表输出
                                                                                 width=9
                                                                               )#主显示区
                                                                               
@@ -196,62 +196,62 @@ navbarMenu("铁路景气指数",
                                                                             sidebarLayout(
                                                                               sidebarPanel(
                                                                                 h4(strong("1.各要素权重默认"),style="color:black"),
-                                                                                checkboxInput(inputId="equip_coor_Index",
+                                                                                checkboxInput(inputId="equip_coor_Index",#equip_coor_Index默认的设备合成同步指数复选框
                                                                                               label=("同步指数"),
                                                                                               value=TRUE),
-                                                                                checkboxInput(inputId = "equip_delay_Index",
+                                                                                checkboxInput(inputId = "equip_delay_Index",#equip_delay_Index默认的设备合成滞后指数复选框
                                                                                               label = ("滞后指数"),
                                                                                               value = TRUE),
-                                                                                checkboxInput(inputId="equip_advanced_Index",
+                                                                                checkboxInput(inputId="equip_advanced_Index",#equip_advanced_Index默认的设备合成先行指数复选框
                                                                                               label=("先行指数"),
                                                                                               value=TRUE),
                                                                                 
                                                                                 h4(strong("2.各要素权重手动调整"),style="color:black"),
-                                                                                checkboxInput(inputId="equip_qz_coor_input",
+                                                                                checkboxInput(inputId="equip_qz_coor_input",#equip_qz_adv_input权重手动输入的设备合成同步指数复选框
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="equip_jczxzlc_qz_input",
+                                                                                textInput(inputId="equip_jczxzlc_qz_input",#equip_jczxzlc_qz_input机车总行走里程的权重输入框
                                                                                           label=h5("机车总行走里程%"),
                                                                                           value="81.28"),
-                                                                                textInput(inputId="equip_rjyyc_qz_input",
+                                                                                textInput(inputId="equip_rjyyc_qz_input",#equip_rjyyc_qz_input日均运用车的权重输入框
                                                                                           label=h5("日均运用车%"),
                                                                                           value="18.72"),
                                                                                 
-                                                                                checkboxInput(inputId="equip_qz_adv_input",
+                                                                                checkboxInput(inputId="equip_qz_adv_input",#equip_qz_adv_input权重手动输入的设备合成先行指数复选框
                                                                                               label = strong("2.2 先行指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="equip_gc_qz_input",
+                                                                                textInput(inputId="equip_gc_qz_input",#equip_gc_qz_input设备合成指数中的成品钢材的权重输入框
                                                                                           label=h5("成品钢材%"),
                                                                                           value="43.39"),
-                                                                                textInput(inputId="equip_ym_qz_input",
+                                                                                textInput(inputId="equip_ym_qz_input",#equip_ym_qz_input设备合成指数中的原煤的权重输入框
                                                                                           label=h5("原煤%"),
                                                                                           value="26.53"),
-                                                                                textInput(inputId="equip_yy_qz_input",
+                                                                                textInput(inputId="equip_yy_qz_input",#equip_yy_qz_input设备合成指数中的原油的权重输入框
                                                                                           label=h5("原油%"),
                                                                                           value="10.56"),
-                                                                                textInput(inputId="equip_hlfdl_qz_input",
+                                                                                textInput(inputId="equip_hlfdl_qz_input",#equip_hlfdl_qz_input设备合成指数中的火力发电量的权重输入框
                                                                                           label=h5("火力发电量%"),
                                                                                           value="19.51"),
                                                                                 
-                                                                                checkboxInput(inputId="equip_qz_delay_input",
+                                                                                checkboxInput(inputId="equip_qz_delay_input",#equip_qz_delay_input权重手动输入的设备合成滞后指数复选框
                                                                                               label = strong("2.3 滞后指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="equip_rjxzc_qz_input",
+                                                                                textInput(inputId="equip_rjxzc_qz_input",#equip_rjxzc_qz_input设备合成指数中的日均现在车的权重输入框
                                                                                           label=h5("日均现在车%"),
                                                                                           value="15.44"),
-                                                                                textInput(inputId="equip_kyjclc_qz_input",
+                                                                                textInput(inputId="equip_kyjclc_qz_input",#equip_kyjclc_qz_input设备合成指数中的客运机车里程的权重输入框
                                                                                           label=h5("客运机车里程%"),
                                                                                           value="35.92"),
-                                                                                textInput(inputId="equip_hyjclc_qz_input",
+                                                                                textInput(inputId="equip_hyjclc_qz_input",#equip_hyjclc_qz_input设备合成指数中的货运机车里程的权重输入框
                                                                                           label=h5("货运机车里程%"),
                                                                                           value="1.80"),
-                                                                                textInput(inputId="equip_kcls_qz_input",
+                                                                                textInput(inputId="equip_kcls_qz_input",#equip_kcls_qz_input设备合成指数中的客车辆数的权重输入框
                                                                                           label=h5("客车辆数%"),
                                                                                           value="21.42"),
-                                                                                textInput(inputId="equip_hcls_qz_input",
+                                                                                textInput(inputId="equip_hcls_qz_input",#equip_hcls_qz_input设备合成指数中的货车辆数的权重输入框
                                                                                           label=h5("货车辆数%"),
                                                                                           value="16.34"),
-                                                                                textInput(inputId="equip_jcts_qz_input",
+                                                                                textInput(inputId="equip_jcts_qz_input",#equip_jcts_qz_input设备合成指数中的机车台数的权重输入框
                                                                                           label=h5("机车台数%"),
                                                                                           value="9.08"),
                                                                                 
@@ -260,18 +260,18 @@ navbarMenu("铁路景气指数",
                                                                               
                                                                               mainPanel(
                                                                                 fluidRow(
-                                                                                  column(3,  selectInput(inputId = "year_start_equip",
+                                                                                  column(3,  selectInput(inputId = "year_start_equip",#year_start_trans设备合成指数中的起始年下拉框
                                                                                                          label = "自:", 
                                                                                                          choices = y_wenjing,
                                                                                                          selected = min(y_wenjing) )),
-                                                                                  column(3, selectInput(inputId="year_end_equip",
+                                                                                  column(3, selectInput(inputId="year_end_equip",#year_start_trans设备合成指数中的终止年下拉框
                                                                                                         label="至:",
                                                                                                         choice=y_wenjing,
                                                                                                         selected=max(y_wenjing)))
                                                                                 ),
-                                                                                plotOutput(outputId="equip_index", height = "400px"),
+                                                                                plotOutput(outputId="equip_index", height = "400px"),#equip_index 设备合成指数的画图
                                                                                 fluidRow(
-                                                                                  column(12,DT::dataTableOutput("table_equip_index"))  ),
+                                                                                  column(12,DT::dataTableOutput("table_equip_index"))  ),#table_equip_index 设备合成指数的数据表输出
                                                                                 width=9
                                                                               )
                                                                               
@@ -282,62 +282,62 @@ navbarMenu("铁路景气指数",
                                                                             sidebarLayout(
                                                                               sidebarPanel(
                                                                                 h4(strong("1.各要素权重默认"),style="color:black"),
-                                                                                checkboxInput(inputId="scale_coor_Index",
+                                                                                checkboxInput(inputId="scale_coor_Index",#scale_coor_Index默认的规模合成同步指数复选框
                                                                                               label=strong("同步指数"),
                                                                                               value=TRUE),
-                                                                                checkboxInput(inputId="scale_advanced_Index",
+                                                                                checkboxInput(inputId="scale_advanced_Index",#scale_advanced_Index默认的规模合成先行指数复选框
                                                                                               label=strong("先行指数"),
                                                                                               value=TRUE),
-                                                                                checkboxInput(inputId = "scale_delay_Index",
+                                                                                checkboxInput(inputId = "scale_delay_Index",#scale_delay_Index默认的规模合成滞后指数复选框
                                                                                               label = strong("滞后指数"),
                                                                                               value = TRUE),
                                                                                 
                                                                                 h4(strong("2.各要素权重手动调整"),style="color:black"),
-                                                                                checkboxInput(inputId="scale_qz_coor_input",
+                                                                                checkboxInput(inputId="scale_qz_coor_input",#sacale_qz_coor_input权重手动输入的规模合成同步指数复选框
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="scale_hyl_qz_input",
+                                                                                textInput(inputId="scale_hyl_qz_input",#scale_hyl_qz_input设备合成指数中的货运量的权重输入框
                                                                                           label=h5("货运量%"),
                                                                                           value="17.87"),
-                                                                                textInput(inputId="scale_gyzjz_qz_input",
+                                                                                textInput(inputId="scale_gyzjz_qz_input",#scale_gyzjz_qz_input设备合成指数中的工业增加值的权重输入框
                                                                                           label=h5("工业增加值%"),
                                                                                           value="67.71"),
-                                                                                textInput(inputId="scale_hyzzl_qz_input",
+                                                                                textInput(inputId="scale_hyzzl_qz_input",#scale_hyzzl_qz_input设备合成指数中的货运周转量的权重输入框
                                                                                           label=h5("货运周转量%"),
                                                                                           value="14.42"),
                                                                                 
-                                                                                checkboxInput(inputId="scale_qz_adv_input",
+                                                                                checkboxInput(inputId="scale_qz_adv_input",#sacale_qz_adv_input权重手动输入的规模合成先行指数复选框
                                                                                               label = strong("2.2 先行指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="scale_gc_qz_input",
+                                                                                textInput(inputId="scale_gc_qz_input",#scale_gc_qz_input设备合成指数中的成品钢材产量的权重输入框
                                                                                           label=h5("成品钢材%"),
                                                                                           value="43.39"),
-                                                                                textInput(inputId="scale_ym_qz_input",
+                                                                                textInput(inputId="scale_ym_qz_input",#scale_ym_qz_input设备合成指数中的原煤产量的权重输入框
                                                                                           label=h5("原煤%"),
                                                                                           value="26.53"),
-                                                                                textInput(inputId="scale_yy_qz_input",
+                                                                                textInput(inputId="scale_yy_qz_input",#scale_yy_qz_input设备合成指数中的原油产量的权重输入框
                                                                                           label=h5("原油%"),
                                                                                           value="10.56"),
-                                                                                textInput(inputId="scale_hlfdl_qz_input",
+                                                                                textInput(inputId="scale_hlfdl_qz_input",#scale_hlfdl_qz_input设备合成指数中的火力发电量的权重输入框
                                                                                           label=h5("火力发电量%"),
                                                                                           value="19.51"),
                                                                                 
-                                                                                checkboxInput(inputId="scale_qz_delay_input",
+                                                                                checkboxInput(inputId="scale_qz_delay_input",#sacale_qz_delay_input权重手动输入的规模合成滞后指数复选框
                                                                                               label = strong("2.3 滞后指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="scale_yylc_qz_input",
+                                                                                textInput(inputId="scale_yylc_qz_input",#scale_yylc_qz_input设备合成指数中的营业里程的权重输入框
                                                                                           label=h5("营业里程%"),
                                                                                           value="23.62"),
-                                                                                textInput(inputId="scale_cyrysl_qz_input",
+                                                                                textInput(inputId="scale_cyrysl_qz_input",#scale_cyrysl_qz_input设备合成指数中的从业人员数量的权重输入框
                                                                                           label=h5("从业人员数量%"),
                                                                                           value="6.62"),
-                                                                                textInput(inputId="scale_kcls_qz_input",
+                                                                                textInput(inputId="scale_kcls_qz_input",#scale_kcls_qz_input设备合成指数中的客车辆数的权重输入框
                                                                                           label=h5("客车辆数%"),
                                                                                           value="31.90"),
-                                                                                textInput(inputId="scale_hcls_qz_input",
+                                                                                textInput(inputId="scale_hcls_qz_input",#scale_hcls_qz_input设备合成指数中的货车辆数的权重输入框
                                                                                           label=h5("货车辆数%"),
                                                                                           value="24.33"),
-                                                                                textInput(inputId="scale_jcts_qz_input",
+                                                                                textInput(inputId="scale_jcts_qz_input",#scale_jcts_qz_input设备合成指数中的机车台数的权重输入框
                                                                                           label=h5("机车台数%"),
                                                                                           value="13.53"),
                                                                                 
@@ -347,18 +347,18 @@ navbarMenu("铁路景气指数",
                                                                               
                                                                               mainPanel(
                                                                                 fluidRow(
-                                                                                  column(3,  selectInput(inputId = "year_start_scale",
+                                                                                  column(3,  selectInput(inputId = "year_start_scale",#year_start_scale规模合成指数中的起始年下拉框
                                                                                                          label = "自:", 
                                                                                                          choices = y_wenjing,
                                                                                                          selected = min(y_wenjing) )),
-                                                                                  column(3, selectInput(inputId="year_end_scale",
+                                                                                  column(3, selectInput(inputId="year_end_scale",#year_start_scale规模合成指数中的终止年下拉框
                                                                                                         label="至:",
                                                                                                         choice=y_wenjing,
                                                                                                         selected=max(y_wenjing)))
                                                                                 ),
-                                                                                plotOutput(outputId="scale_index", height = "400px"),
+                                                                                plotOutput(outputId="scale_index", height = "400px"),#scale_index 规模合成指数的画图
                                                                                 fluidRow(
-                                                                                  column(12,DT::dataTableOutput("table_scale_index")) ),
+                                                                                  column(12,DT::dataTableOutput("table_scale_index")) ),#table_scale_index 规模合成指数的数据表输出
                                                                                 width=9
                                                                               )
                                                                               
@@ -1319,7 +1319,7 @@ tabPanel("原始数据",
                                               sidebarLayout(
                                                 sidebarPanel(
                                                   
-                                                  radioButtons(inputId="xghysj.yssj",
+                                                  radioButtons(inputId="xghysj.yssj", #xghysj.yssj 原始数据显示中的相关行业数据页签的单选框，以下是5个类别的变量代码
                                                                label=NULL,
                                                                choices = c("成品钢材产量(亿吨)"="cpgccl.yssj",
                                                                            "原油加工量(亿吨)"="yyjgl.yssj",
@@ -1327,7 +1327,7 @@ tabPanel("原始数据",
                                                                            "火力发电量(亿千瓦时)"="hlfdl.yssj",
                                                                            "工业增加值(%)"="gyzjz.yssj") ),
                                                   hr(),
-                                                  selectInput(inputId = "year_start_xghy",
+                                                  selectInput(inputId = "year_start_xghy", #year_start_xghy 相关行业数据中的起始年下拉框，以下终止年雷同
                                                               label = "自:", 
                                                               choices = y.wenjing.yssj,
                                                               selected = min(y.wenjing.yssj) ),
@@ -1337,12 +1337,12 @@ tabPanel("原始数据",
                                                               selected=max(y.wenjing.yssj) ),
                                                   width=3
                                                 ),     #siderbarpanel
-                                                mainPanel(plotOutput(outputId = "yssj.xghy.plot", height = "400px"),width=9)
+                                                mainPanel(plotOutput(outputId = "yssj.xghy.plot", height = "400px"),width=9)#yssj.xghy.plot原始数据中相关行业的画图
                                               )  #mainpanel
                                             ),
                                             
                                             fluidRow(
-                                              column(12,DT::dataTableOutput("yssj.xghy.table"))
+                                              column(12,DT::dataTableOutput("yssj.xghy.table"))#yssj.xghy.table原始数据中相关行业的数据表输出
                                             )
                                   ), #第一个页签
                                   
@@ -1353,14 +1353,14 @@ tabPanel("原始数据",
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
-                                                 radioButtons(inputId="ylxg.yssj",
+                                                 radioButtons(inputId="ylxg.yssj",#ylxg.yssj 原始数据显示中的运量相关数据页签的单选框，以下是4个类别的变量代码
                                                               label=NULL,
                                                               choices = c("货运量(亿吨)"="hyl.yssj",
                                                                           "货运周转量(亿吨)"="hyzzl.yssj",
                                                                           "客运量(亿人)"="kyl.yssj",
                                                                           "客运周转量(亿人)"="kyzzl.yssj") ),
                                                  hr(),
-                                                 selectInput(inputId = "year_start_ylxg",
+                                                 selectInput(inputId = "year_start_ylxg",#year_start_xghy 运量相关数据中的起始年下拉框，以下终止年雷同
                                                              label = "自:", 
                                                              choices = y.wenjing.yssj,
                                                              selected = min(y.wenjing.yssj) ),
@@ -1371,11 +1371,11 @@ tabPanel("原始数据",
                                                  width=3
                                                ),
                                                
-                                               mainPanel(plotOutput(outputId = "yssj.ylxg.plot", height = "380px"),width=9)
+                                               mainPanel(plotOutput(outputId = "yssj.ylxg.plot", height = "380px"),width=9)#yssj.ylxg.plot原始数据中运量相关的画图
                                              )),
                                            
                                            fluidRow(
-                                             column(12,DT::dataTableOutput("yssj.ylxg.table"))
+                                             column(12,DT::dataTableOutput("yssj.ylxg.table")) #yssj.ylxg.table原始数据中运量相关的数据表输出
                                            )
                                   ), #第二个页签
                                   
@@ -1385,7 +1385,7 @@ tabPanel("原始数据",
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
-                                                 radioButtons(inputId="yyxg.yssj",
+                                                 radioButtons(inputId="yyxg.yssj",#与上雷同，yyxg:运营相关原始数据
                                                               label=NULL,
                                                               choices = c("营业里程(km)"="yylc.yssj",
                                                                           "日均运用车(万辆)"="rjyyc.yssj",
@@ -1419,7 +1419,7 @@ tabPanel("原始数据",
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
-                                                 radioButtons(inputId="zcxg.yssj",
+                                                 radioButtons(inputId="zcxg.yssj",#与上雷同，zcxg:资产相关原始数据
                                                               label=NULL,
                                                               choices = c("客车辆数(辆)"="kcls.yssj",
                                                                           "货车辆数(万辆)"="hcls.yssj",
@@ -1456,7 +1456,7 @@ tabPanel("原始数据",
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
-                                                 radioButtons(inputId="heihuo.yssj",
+                                                 radioButtons(inputId="heihuo.yssj",#与上雷同，heihuo:黑货种类的铁路货运量原始数据
                                                               label=NULL,
                                                               choices = c("矿建(万吨)"="kuangjian.yssj",
                                                                           "钢材(万吨)"="gangcai.yssj",
@@ -1489,7 +1489,7 @@ tabPanel("原始数据",
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
-                                                 radioButtons(inputId="baihuo.yssj",
+                                                 radioButtons(inputId="baihuo.yssj",#与上雷同，baihuo:白货种类的铁路货运量原始数据
                                                               label=NULL,
                                                               choices = c("工业机械(万吨)"="gyjx.yssj",
                                                                           "电子电气(万吨)"="dzdq.yssj",

@@ -40,7 +40,7 @@ shinyServer(function(input, output) {
   #----------------------------合成指数-------------------
   
   #运输合成指数计算------------------------------
-  dftrans<-read.csv("trans-coor.csv",head=T)
+  dftrans<-read.csv("trans-coor.csv",head=T) #读取运输合成指数所需数据数据框名字dftrans
   dftrans$tm<-as.Date.POSIXct(dftrans$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   trans.len<-length(dftrans$tm)
   
@@ -51,17 +51,17 @@ shinyServer(function(input, output) {
     x<- -(1/log(xlen))*sum( (x/sum(x))*log((x/sum(x))) )
     x<- 1-x}
   
-  #------运输---1.1 同步/一致指标的权重--------
+  #------运输---1.1 同步/一致指标的权重-----变量名称以汉语拼音的首字母组成，如hyl货运量，gyzjz工业增加值，hyzzl货运周转量---
   hyl.trans.qz<- quanzhong.1(dftrans$hyl)/(quanzhong.1(dftrans$hyl)+quanzhong.1(dftrans$gyzjz)+quanzhong.1(dftrans$hyzzl))
   gyzjz.trans.qz<- quanzhong.1(dftrans$gyzjz)/(quanzhong.1(dftrans$hyl)+quanzhong.1(dftrans$gyzjz)+quanzhong.1(dftrans$hyzzl))
   hyzzl.trans.qz<- quanzhong.1(dftrans$hyzzl)/(quanzhong.1(dftrans$hyl)+quanzhong.1(dftrans$gyzjz)+quanzhong.1(dftrans$hyzzl))
   
-  #------运输----1.2 滞后指标的权重--------------------------------------------------------------- 
+  #------运输----1.2 滞后指标的权重------------kyl客运量，kyzzl客运周转量，gdzctz固定资产投资--------------------------------------------------- 
   kyl.trans.qz<- quanzhong.1(dftrans$kyl)/(quanzhong.1(dftrans$kyl)+quanzhong.1(dftrans$kyzzl)+quanzhong.1(dftrans$gdzctz))
   kyzzl.trans.qz<- quanzhong.1(dftrans$kyzzl)/(quanzhong.1(dftrans$kyl)+quanzhong.1(dftrans$kyzzl)+quanzhong.1(dftrans$gdzctz))
   gdzctz.trans.qz<- quanzhong.1(dftrans$gdzctz)/(quanzhong.1(dftrans$kyl)+quanzhong.1(dftrans$kyzzl)+quanzhong.1(dftrans$gdzctz))
   
-  #----运输------1.3 先行指标的权重--------------------------------------------------------------- 
+  #----运输------1.3 先行指标的权重----------gc钢材，ym原煤，yy原油，hlfdl火力发电量----------------------------------------------------- 
   gc.trans.qz<- quanzhong.1(dftrans$gc)/(quanzhong.1(dftrans$gc)+quanzhong.1(dftrans$ym)+quanzhong.1(dftrans$yy)+quanzhong.1(dftrans$hlfdl))
   ym.trans.qz<- quanzhong.1(dftrans$ym)/(quanzhong.1(dftrans$gc)+quanzhong.1(dftrans$ym)+quanzhong.1(dftrans$yy)+quanzhong.1(dftrans$hlfdl))
   yy.trans.qz<- quanzhong.1(dftrans$yy)/(quanzhong.1(dftrans$gc)+quanzhong.1(dftrans$ym)+quanzhong.1(dftrans$yy)+quanzhong.1(dftrans$hlfdl))
@@ -69,7 +69,7 @@ shinyServer(function(input, output) {
   
   #-----运输----2. 合成指数计算------------------------  
   
-  #-----运输----2.1 标准化变化率计算--------
+  #-----运输----2.1 标准化变化率计算函数--------
   index.1<- function(z)
   { zlen<- length(z)
     z[3:zlen]<- 200*(z[3:zlen]-z[2:(zlen-1)])/(z[3:zlen]+z[2:(zlen-1)])
@@ -77,7 +77,7 @@ shinyServer(function(input, output) {
     z[1]<- 0
     z<- z/(sum(abs(z))/(zlen-2))}  #标准化变化率计算函数
   
-  #-----运输----2.2 平均变化率R----------------------------------------------------------------------------
+  #-----运输----2.2 平均变化率R------coor同步，adv先行，delay滞后----------------------------------------------------------------------
   coor.trans.test<- index.1(dftrans$x12hyl)*hyl.trans.qz + index.1(dftrans$x12hyzzl)*hyzzl.trans.qz+index.1(dftrans$x12gyzjz)*gyzjz.trans.qz
   #coor.test一致合成指数平均变化率R2
   
@@ -87,12 +87,12 @@ shinyServer(function(input, output) {
   delay.trans.test<- index.1(dftrans$x12kyl)*kyl.trans.qz + index.1(dftrans$x12kyzzl)*kyzzl.trans.qz+index.1(dftrans$x12gdzctz)*gdzctz.trans.qz
   #coor.trans.test滞后合成指数平均变化率R3
   
-  #-----运输----2.3 标准化因子F----------------------------------------------
+  #-----运输----2.3 标准化因子F---------biaozhunhua（拼音）标准化-------------------------------------
   biaozhunhua.F.coor<- 1  #同步的标准化因子是1
   biaozhunhua.trans.F.adv<- sum(abs(adv.trans.test))/sum(abs(coor.trans.test)) #先行的标准化因子
   biaozhunhua.trans.F.delay<- sum(abs(delay.trans.test))/sum(abs(coor.trans.test)) #滞后的标准化因子
   
-  #-----运输----2.4 合成指数计算---------------
+  #-----运输----2.4 合成指数计算公示---------------
   hecheng.trans.index<- function(a,b)
   {
     alen<- length(a)
@@ -106,45 +106,51 @@ shinyServer(function(input, output) {
     return(a1)
   }
   
-  #默认权重计算得到的运输同步、先行、滞后指数
+  #默认权重计算得到的运输同步trans.coor、先行trans.adv、滞后指数trans.delay
   trans.coor<- hecheng.trans.index(coor.trans.test,biaozhunhua.F.coor)
   trans.adv<- hecheng.trans.index(adv.trans.test,biaozhunhua.trans.F.adv)
   trans.delay<- hecheng.trans.index(delay.trans.test,biaozhunhua.trans.F.delay)
   
+  #将计算得到的默认权重下的运输同步先行滞后指数写到数据表dftrans中去----
   dftrans$coor<- trans.coor
   dftrans$adv<- trans.adv
   dftrans$delay<- trans.delay
   
   #-----------运输的算完了！！----3.运输画线和显示数据表--------
+  #所有input$即output$后跟着的变量，都在ui界面有注解，可参看ui界面----------------
   
   qz.input<- function(a)
-  {a<- as.numeric(a)/100}  #权重手动输入部分计算的函数们
+  {a<- as.numeric(a)/100}  #权重手动输入部分计算的函数，除以100并转换为数值化数据
   
   output$trans_index<- renderPlot( {
     
     #---权重手动输入的计算----------
-    hyl.qz.input<- qz.input(input$trans_hyl_qz_input)
-    gyzjz.qz.input<- qz.input(input$trans_gyzjz_qz_input)
-    hyzzl.qz.input<- qz.input(input$trans_hyzzl_qz_input)
-    gc.qz.input<- qz.input(input$trans_gc_qz_input)
-    ym.qz.input<- qz.input(input$trans_ym_qz_input)
-    yy.qz.input<- qz.input(input$trans_yy_qz_input)
-    hlfdl.qz.input<- qz.input(input$trans_hlfdl_qz_input)
-    kyl.qz.input<- qz.input(input$trans_kyl_qz_input)
-    gdzctz.qz.input<- qz.input(input$trans_gdzctz_qz_input)
-    kyzzl.qz.input<- qz.input(input$trans_kyzzl_qz_input)
+    hyl.qz.input<- qz.input(input$trans_hyl_qz_input) #hyl.qz.input 处理后的手动输入的货运量权重，以下雷同
+    gyzjz.qz.input<- qz.input(input$trans_gyzjz_qz_input) # gyzjz工业增加值
+    hyzzl.qz.input<- qz.input(input$trans_hyzzl_qz_input) #hyzzl货运周转量
+    gc.qz.input<- qz.input(input$trans_gc_qz_input) #gc钢材
+    ym.qz.input<- qz.input(input$trans_ym_qz_input)  #ym原煤
+    yy.qz.input<- qz.input(input$trans_yy_qz_input)  #yy原油
+    hlfdl.qz.input<- qz.input(input$trans_hlfdl_qz_input)  #hlfdl火力发电量
+    kyl.qz.input<- qz.input(input$trans_kyl_qz_input)   #kyl客运量
+    gdzctz.qz.input<- qz.input(input$trans_gdzctz_qz_input)   #gdzctz固定资产投资
+    kyzzl.qz.input<- qz.input(input$trans_kyzzl_qz_input)     #kyzzl客运周转量
     
+    #--权重输入的平均变化率R---coor同步，adv先行，delay滞后---------
     coor.test.input<- index.1(dftrans$x12hyl)*hyl.qz.input+index.1(dftrans$x12hyzzl)*hyzzl.qz.input+index.1(dftrans$x12gyzjz)*gyzjz.qz.input
     adv.test.input<- index.1(dftrans$x12gc)*gc.qz.input + index.1(dftrans$x12ym)*ym.qz.input+index.1(dftrans$x12yy)*yy.qz.input+index.1(dftrans$x12hlfdl)*hlfdl.qz.input
     delay.test.input<- index.1(dftrans$x12kyl)*kyl.qz.input + index.1(dftrans$x12kyzzl)*kyzzl.qz.input+index.1(dftrans$x12gdzctz)*gdzctz.qz.input
     
+    #---权重输入下的标准化因子F------
     biaozhunhua.F.adv.input<- sum(abs(adv.test.input))/sum(abs(coor.test.input)) 
     biaozhunhua.F.delay.input<- sum(abs(delay.test.input))/sum(abs(coor.test.input))
     
+    #---权重输入下的运输合成先行同步滞后指数-----
     trans.coor.input<- hecheng.trans.index(coor.test.input,biaozhunhua.F.coor)
     trans.adv.input<- hecheng.trans.index(adv.test.input,biaozhunhua.F.adv.input)
     trans.delay.input<- hecheng.trans.index(delay.test.input,biaozhunhua.F.delay.input)
     
+    #---将权重输入下的运输合成先行同步滞后指数写到数据表dftrans中去-----
     dftrans$coor.input<- trans.coor.input   
     dftrans$adv.input<- trans.adv.input
     dftrans$delay.input<- trans.delay.input
@@ -179,6 +185,7 @@ shinyServer(function(input, output) {
   #----运输-----4.数据表的显示------------------------------------ 
   output$table_trans_index<-DT::renderDataTable({
     
+    #此处计算同上output$trans_index中的前几步骤一样，同样为计算权重手动输入下的运输合成指数
     hyl.qz.input<- qz.input(input$trans_hyl_qz_input)
     gyzjz.qz.input<- qz.input(input$trans_gyzjz_qz_input)
     hyzzl.qz.input<- qz.input(input$trans_hyzzl_qz_input)
@@ -208,18 +215,19 @@ shinyServer(function(input, output) {
     #----运输----4.1 输入修改权重后算出来的三个指数------------------   
     if(input$trans_qz_coor_input|input$trans_qz_adv_input|input$trans_qz_delay_input){
       DT::datatable(
-{ dftrans<- data.frame(dftrans[1],dftrans[5],dftrans[6],dftrans[7])
-  data<-dftrans},
-colnames = c('时间', '先行指数',  '同步指数','滞后指数'),
-rownames = TRUE)}
-#----运输----4.2 默认权重计算下的三个指数------------------  
-else{ 
-  DT::datatable(
-{data<-dftrans[1:4]},
-colnames = c('时间', '运输合成先行指数',  '运输合成同步指数','运输合成滞后指数'),
-rownames = TRUE)
-}
-  })
+      { dftrans<- data.frame(dftrans[1],dftrans[5],dftrans[6],dftrans[7])
+        data<-dftrans},
+      colnames = c('时间', '先行指数',  '同步指数','滞后指数'),
+      rownames = TRUE)}
+    
+    #----运输----4.2 默认权重计算下的三个指数------------------  
+    else{ 
+      DT::datatable(
+      { data<-dftrans[1:4]},
+      colnames = c('时间', '运输合成先行指数',  '运输合成同步指数','运输合成滞后指数'),
+      rownames = TRUE)
+       }
+    })
 
 
 #-----设备合成指数计算-------------------------------
@@ -228,13 +236,13 @@ dfequip$tm<-as.Date.POSIXct(dfequip$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRU
 equip.len<-length(dfequip$tm)
 
 #---------设备 1. 权重计算------------------------
-#---函数公式同上，不用再写一遍
+#---函数公式同上运输合成指数的计算，不用再写一遍
 
-#---------设备 1.1 同步/一致指标的权重---------------------------------------------------------------
+#---------设备 1.1 同步/一致指标的权重------jczxzlc机车总行走里程，rjyyc日均运用车---------------------------------------------------------
 jczxzlc.equip.qz<- quanzhong.1(dfequip$jczxzlc)/(quanzhong.1(dfequip$jczxzlc)+quanzhong.1(dfequip$rjyyc))
 rjyyc.equip.qz<- quanzhong.1(dfequip$rjyyc)/(quanzhong.1(dfequip$jczxzlc)+quanzhong.1(dfequip$rjyyc))
 
-#----------设备 1.2 滞后指标的权重--------------------------------------------------------------- 
+#----------设备 1.2 滞后指标的权重-----rjxzc日均现在车，kyjclc客运机车里程，hyjclc货运机车里程，kcls客车辆数，hcls客车辆数，jcts机车台数---------------------------------------------------------- 
 rjxzc.equip.qz<- quanzhong.1(dfequip$rjxzc)/(quanzhong.1(dfequip$rjxzc)+quanzhong.1(dfequip$kyjclc)+quanzhong.1(dfequip$hyjclc)+quanzhong.1(dfequip$kcls)+quanzhong.1(dfequip$hcls)+quanzhong.1(dfequip$jcts))
 kyjclc.equip.qz<- quanzhong.1(dfequip$kyjclc)/(quanzhong.1(dfequip$rjxzc)+quanzhong.1(dfequip$kyjclc)+quanzhong.1(dfequip$hyjclc)+quanzhong.1(dfequip$kcls)+quanzhong.1(dfequip$hcls)+quanzhong.1(dfequip$jcts))
 hyjclc.equip.qz<- quanzhong.1(dfequip$hyjclc)/(quanzhong.1(dfequip$rjxzc)+quanzhong.1(dfequip$kyjclc)+quanzhong.1(dfequip$hyjclc)+quanzhong.1(dfequip$kcls)+quanzhong.1(dfequip$hcls)+quanzhong.1(dfequip$jcts))
@@ -242,7 +250,7 @@ kcls.equip.qz<- quanzhong.1(dfequip$kcls)/(quanzhong.1(dfequip$rjxzc)+quanzhong.
 hcls.equip.qz<- quanzhong.1(dfequip$hcls)/(quanzhong.1(dfequip$rjxzc)+quanzhong.1(dfequip$kyjclc)+quanzhong.1(dfequip$hyjclc)+quanzhong.1(dfequip$kcls)+quanzhong.1(dfequip$hcls)+quanzhong.1(dfequip$jcts))
 jcts.equip.qz<- quanzhong.1(dfequip$jcts)/(quanzhong.1(dfequip$rjxzc)+quanzhong.1(dfequip$kyjclc)+quanzhong.1(dfequip$hyjclc)+quanzhong.1(dfequip$kcls)+quanzhong.1(dfequip$hcls)+quanzhong.1(dfequip$jcts))
 
-#----------设备 1.3 先行指标的权重，计算出来同运输的不一样，所以变量标注2--------------------------------------------------------------- 
+#----------设备 1.3 先行指标的权重，计算出来同运输的不一样，命名中加入equip--gc钢材，ym原煤，yy原油，hlfdl火力发电量------------------------------------------------------------- 
 gc.equip.qz<- quanzhong.1(dfequip$gc)/(quanzhong.1(dfequip$gc)+quanzhong.1(dfequip$ym)+quanzhong.1(dfequip$yy)+quanzhong.1(dfequip$hlfdl))
 ym.equip.qz<- quanzhong.1(dfequip$ym)/(quanzhong.1(dfequip$gc)+quanzhong.1(dfequip$ym)+quanzhong.1(dfequip$yy)+quanzhong.1(dfequip$hlfdl))
 yy.equip.qz<- quanzhong.1(dfequip$yy)/(quanzhong.1(dfequip$gc)+quanzhong.1(dfequip$ym)+quanzhong.1(dfequip$yy)+quanzhong.1(dfequip$hlfdl))
@@ -287,6 +295,7 @@ hecheng.equip.index<- function(a,b)
   return(a1)
 }
 
+#设备的同步coor，先行adv，滞后delay合成指数-----
 equip.coor<- hecheng.equip.index(coor.equip.test,biaozhunhua.equip.F.coor)
 equip.adv<- hecheng.equip.index(adv.equip.test,biaozhunhua.equip.F.adv)
 equip.delay<- hecheng.equip.index(delay.equip.test,biaozhunhua.equip.F.delay)
@@ -296,33 +305,39 @@ dfequip$adv<- equip.adv
 dfequip$delay<- equip.delay
 
 #-----------设备的算完了！！----3.设备 画线和显示数据表--------
+#所有input$即output$后跟着的变量，都在ui界面有注解，可参看ui界面----------------
 
 output$equip_index<- renderPlot( {
   
-  rjyyc.qz.input<- qz.input(input$equip_rjyyc_qz_input)
-  jczxzlc.qz.input<- qz.input(input$equip_jczxzlc_qz_input)
-  gc.qz.input<- qz.input(input$equip_gc_qz_input)
-  ym.qz.input<- qz.input(input$equip_ym_qz_input)
-  yy.qz.input<- qz.input(input$equip_yy_qz_input)
-  hlfdl.qz.input<- qz.input(input$equip_hlfdl_qz_input)
-  rjxzc.qz.input<- qz.input(input$equip_rjxzc_qz_input)
-  kyjclc.qz.input<- qz.input(input$equip_kyjclc_qz_input)
-  hyjclc.qz.input<- qz.input(input$equip_hyjclc_qz_input)
-  kcls.qz.input<- qz.input(input$equip_kcls_qz_input)
-  hcls.qz.input<- qz.input(input$equip_hcls_qz_input)
-  jcts.qz.input<- qz.input(input$equip_jcts_qz_input)
+  #同运输合成指数中权重手动输入部分的计算和变量命名规则
+  rjyyc.qz.input<- qz.input(input$equip_rjyyc_qz_input) #rjyyc日均运用车
+  jczxzlc.qz.input<- qz.input(input$equip_jczxzlc_qz_input)  #jczxzlc机车总行走里程
+  gc.qz.input<- qz.input(input$equip_gc_qz_input) #  gc钢材
+  ym.qz.input<- qz.input(input$equip_ym_qz_input)    #ym原煤
+  yy.qz.input<- qz.input(input$equip_yy_qz_input)     #yy原油
+  hlfdl.qz.input<- qz.input(input$equip_hlfdl_qz_input)  #hlfdl火力发电量
+  rjxzc.qz.input<- qz.input(input$equip_rjxzc_qz_input)   #rjxzc日均现在车
+  kyjclc.qz.input<- qz.input(input$equip_kyjclc_qz_input)   #kyjclc客运机车里程
+  hyjclc.qz.input<- qz.input(input$equip_hyjclc_qz_input)   #hyjclc货运机车里程
+  kcls.qz.input<- qz.input(input$equip_kcls_qz_input)   #kcls客车辆数
+  hcls.qz.input<- qz.input(input$equip_hcls_qz_input)   #hcls货车辆数
+  jcts.qz.input<- qz.input(input$equip_jcts_qz_input)    #jcts机车台数
   
+  #--权重输入的平均变化率R---coor同步，adv先行，delay滞后---------
   equip.coor.test.input<- index.1(rate.1(dfequip$jczxzlc))*jczxzlc.qz.input + index.1(rate.1(dfequip$rjyyc))*rjyyc.qz.input
   equip.adv.test.input<- index.1(rate.1(dfequip$gc))*gc.qz.input + index.1(rate.1(dfequip$ym))*ym.qz.input+index.1(rate.1(dfequip$yy))*yy.qz.input+index.1(rate.1(dfequip$hlfdl))*hlfdl.qz.input
   equip.delay.test.input<- index.1(rate.1(dfequip$rjxzc))*rjxzc.qz.input+index.1(rate.1(dfequip$kyjclc))*kyjclc.qz.input+index.1(rate.1(dfequip$hyjclc))*hyjclc.qz.input+index.1(rate.1(dfequip$kcls))*kcls.qz.input+index.1(rate.1(dfequip$hcls))*hcls.qz.input+index.1(rate.1(dfequip$jcts))*jcts.qz.input
   
+  #---权重输入下的标准化因子F------
   equip.biaozhunhua.F.adv.input<- sum(abs(equip.adv.test.input))/sum(abs(equip.coor.test.input)) 
   equip.biaozhunhua.F.delay.input<- sum(abs(equip.delay.test.input))/sum(abs(equip.coor.test.input))
   
+  #---权重输入下的设备合成先行同步滞后指数-----
   equip.coor.input<- hecheng.equip.index(equip.coor.test.input,biaozhunhua.F.coor)
   equip.adv.input<- hecheng.equip.index(equip.adv.test.input,equip.biaozhunhua.F.adv.input)
   equip.delay.input<- hecheng.equip.index(equip.delay.test.input,equip.biaozhunhua.F.delay.input)
   
+  #---将权重输入下的设备合成先行同步滞后指数写到数据表dfequip中去-----
   dfequip$coor.input<- equip.coor.input   
   dfequip$adv.input<- equip.adv.input
   dfequip$delay.input<- equip.delay.input
@@ -362,6 +377,7 @@ output$equip_index<- renderPlot( {
 
 output$table_equip_index<-DT::renderDataTable({
   
+  #同上output$equip_index底下第一步，计算权重手动输入的设备合成先行同步滞后指数
   rjyyc.qz.input<- qz.input(input$equip_rjyyc_qz_input)
   jczxzlc.qz.input<- qz.input(input$equip_jczxzlc_qz_input)
   gc.qz.input<- qz.input(input$equip_gc_qz_input)
@@ -402,6 +418,7 @@ else{DT::datatable(
 colnames = c('时间', '设备合成先行指数',  '设备合成同步指数','设备合成滞后指数'),
 rownames = TRUE)}
 })
+
 #-----规模合成指数计算-------------------------------
 dfscale<-read.csv("scale-coor.csv",head=T)
 dfscale$tm<-as.Date.POSIXct(dfscale$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
@@ -410,11 +427,12 @@ scale.len<-length(dfscale$tm)
 #---------规模 1. 权重计算------------------------
 #---函数公式同上，不用再写一遍
 
-#---------规模 1.1 同步/一致指标的权重---------------------------------------------------------------
+#---------规模 1.1 同步/一致指标的权重------gyzjz工业增加值，hyl货运量，hyzzl货运周转量---------------------------------------------------------
 gyzjz.scale.qz<- quanzhong.1(dfscale$gyzjz)/(quanzhong.1(dfscale$gyzjz)+quanzhong.1(dfscale$hyl)+quanzhong.1(dfscale$hyzzl))
 hyl.scale.qz<- quanzhong.1(dfscale$hyl)/(quanzhong.1(dfscale$gyzjz)+quanzhong.1(dfscale$hyl)+quanzhong.1(dfscale$hyzzl))
 hyzzl.scale.qz<- quanzhong.1(dfscale$hyzzl)/(quanzhong.1(dfscale$gyzjz)+quanzhong.1(dfscale$hyl)+quanzhong.1(dfscale$hyzzl))
-#----------规模 1.2 滞后指标的权重--------------------------------------------------------------- 
+
+#----------规模 1.2 滞后指标的权重----kcls客车辆数，hcls客车辆数，yylc营业里程，cyrysl从业人员数量，jcts机车台数----------------------------------------------------------- 
 kcls.scale.qz<- quanzhong.1(dfscale$kcls)/(quanzhong.1(dfscale$kcls)+quanzhong.1(dfscale$hcls)+quanzhong.1(dfscale$yylc)+quanzhong.1(dfscale$cyrysl)+quanzhong.1(dfscale$jcts))
 hcls.scale.qz<- quanzhong.1(dfscale$hcls)/(quanzhong.1(dfscale$kcls)+quanzhong.1(dfscale$hcls)+quanzhong.1(dfscale$yylc)+quanzhong.1(dfscale$cyrysl)+quanzhong.1(dfscale$jcts))
 yylc.scale.qz<- quanzhong.1(dfscale$yylc)/(quanzhong.1(dfscale$kcls)+quanzhong.1(dfscale$hcls)+quanzhong.1(dfscale$yylc)+quanzhong.1(dfscale$cyrysl)+quanzhong.1(dfscale$jcts))
@@ -459,7 +477,8 @@ dfscale$delay<- scale.delay
 
 output$scale_index<- renderPlot( {
   
-  hyl.qz.input<- qz.input(input$scale_hyl_qz_input)
+  #权重手动输入下的规模合成先行同步滞后指数计算------
+  hyl.qz.input<- qz.input(input$scale_hyl_qz_input) 
   gyzjz.qz.input<- qz.input(input$scale_gyzjz_qz_input)
   hyzzl.qz.input<- qz.input(input$scale_hyzzl_qz_input)
   gc.qz.input<- qz.input(input$scale_gc_qz_input)
@@ -507,7 +526,7 @@ output$scale_index<- renderPlot( {
     p<-p+geom_line(aes(x=tm,y=dfscalesub$delay),color="blue",size=0.6)
     p<-p+geom_point(aes(x=tm,y=dfscalesub$delay),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   
-  #-----设备----3.2 权重手动输入后的画线------------      
+  #-----规模----3.2 权重手动输入后的画线------------      
   if(input$scale_qz_coor_input)#输入修改权重后算出来的新先行指数
   { p<-p+geom_line(aes(x=tm,y=dfscalesub$coor.input),color="black",size=1,linetype=1)
   p<-p+geom_point(aes(x=tm,y=dfscalesub$coor.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
@@ -522,8 +541,9 @@ output$scale_index<- renderPlot( {
 })
 
 
-output$table_scale_index<-DT::renderDataTable(
-{
+output$table_scale_index<-DT::renderDataTable({
+
+  #权重手动输入下的规模合成先行同步滞后指数计算------
   hyl.qz.input<- qz.input(input$scale_hyl_qz_input)
   gyzjz.qz.input<- qz.input(input$scale_gyzjz_qz_input)
   hyzzl.qz.input<- qz.input(input$scale_hyzzl_qz_input)
@@ -3186,7 +3206,6 @@ output$yssj.ylxg.plot <- renderPlot( {
   dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(dfyssj$tm)
 
-  
   if(input$year_start_ylxg> input$year_end_ylxg)  {
     p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0))
   }
@@ -3195,8 +3214,7 @@ output$yssj.ylxg.plot <- renderPlot( {
     dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_ylxg))
     p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))
   }
-  
-  
+
   #hyzzl.yssj -----------货运周转量(亿吨)
   
   if(input$ylxg.yssj=="hyzzl.yssj"){
@@ -3207,8 +3225,7 @@ output$yssj.ylxg.plot <- renderPlot( {
     p<-p+geom_line(aes(x=tm,y=hyl),color="red",size=0.6)+ylim(800,2500)
     p<-p+geom_point(aes(x=tm,y=hyl),size=2,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
-  
-  
+
   #kyl.yssj----------客运量(亿人)
   if (input$ylxg.yssj=="kyl.yssj") {
     p<-p+geom_line(aes(x=tm,y=kyl),color="blue",size=0.6)+ylim(0.5,3)
@@ -3231,8 +3248,7 @@ output$yssj.yyxg.plot <- renderPlot( {
   dfyssj<-read.csv("compidx-yunying.csv",head=T)
   dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(dfyssj$tm)
-  
-  
+
   if(input$year_start_yyxg> input$year_end_yyxg)  {
     p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0))
   }
@@ -3276,6 +3292,7 @@ output$yssj.yyxg.plot <- renderPlot( {
   p+ylab("运营相关")+xlab("时间")+geom_line()
 })
 
+#资产相关
 output$yssj.zcxg.plot <- renderPlot( {
   
   dfyssj<-read.csv("compidx-zichan.csv",head=T)
@@ -3431,6 +3448,7 @@ output$yssj.baihuo.plot <- renderPlot( {
   p+ylab("白货运量")+xlab("时间")+geom_line()
 })  
 
+#相关行业原始数据数据框显示
 output$yssj.xghy.table<-DT::renderDataTable(
   DT::datatable(
 {
@@ -3439,7 +3457,7 @@ output$yssj.xghy.table<-DT::renderDataTable(
 colnames = c('时间','成品钢材产量（亿吨）','原油加工量（亿吨）','原煤产量（亿吨）','火力发电量（亿千瓦时）','工业增加值（增长率）'),
 rownames = TRUE))
 
-#yssj.ylxg-----------原始数据/运量相关
+#yssj.ylxg.table-----------原始数据/运量相关数据框
 output$yssj.ylxg.table<-DT::renderDataTable(
   DT::datatable(
 {  
@@ -3448,6 +3466,7 @@ output$yssj.ylxg.table<-DT::renderDataTable(
 colnames = c('时间','货运量（亿吨）','货运周转量（亿吨）','客运量（亿人）','客运周转量（亿人）'),
 rownames = TRUE))
 
+#yssj.yyxg.table-----------原始数据/运营相关数据框
 output$yssj.yyxg.table<-DT::renderDataTable(
   DT::datatable(
 {  
@@ -3456,7 +3475,7 @@ output$yssj.yyxg.table<-DT::renderDataTable(
 colnames = c('时间','营业里程（km）','日均运用车（万辆）','日均现在车（万辆）','客运机车日车公里（km）','货运机车日车公里（km）','机车总行走里程（1000km）'),
 rownames = TRUE))
 
-#yssj.zcxg-------原始数据/资产相关
+#yssj.zcxg.table-------原始数据/资产相关数据框
 output$yssj.zcxg.table<-DT::renderDataTable(
   DT::datatable(
 {  
@@ -3465,6 +3484,7 @@ output$yssj.zcxg.table<-DT::renderDataTable(
 colnames = c('时间','客车辆数(辆)','货车辆数(万辆)','机车台数(辆)','动车台数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
 rownames = TRUE))
 
+#yssj.heihuo.table-------原始数据/黑货运量数据框
 output$yssj.heihuo.table<-DT::renderDataTable(
   DT::datatable(
     {  
@@ -3474,6 +3494,7 @@ output$yssj.heihuo.table<-DT::renderDataTable(
     colnames = c('时间','金属矿石(万吨)','矿建(万吨)','钢材(万吨)', '石油(万吨)','煤(万吨)'),
     rownames = TRUE))
 
+#yssj.baihuo.table-------原始数据/白货运量数据框
 output$yssj.baihuo.table<-DT::renderDataTable(
   DT::datatable(
     {  
