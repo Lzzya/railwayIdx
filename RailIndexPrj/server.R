@@ -1925,9 +1925,9 @@ rownames = TRUE)
 )
 
   #-----------------------适配性研究---------------------------------
-  #----------------------机车车辆-营业里程---------------------------
+  #----------------------机车-营业里程---------------------------
   
-  df_1<-read.csv("Locomotive-dis.csv",head=T)#读取机车车辆与营业里程原始表
+  df_1<-read.csv("Locomotive-dis.csv",head=T)#读取机车与营业里程原始表
   olsRegModel_1<-lm(locomotive~distance,data=df_1)# 多元回归计算
   
   df_1$linearRegPred<-as.integer(predict(olsRegModel_1,newdata=df_1))# 多元回归计算并写入表
@@ -1984,7 +1984,7 @@ rownames = TRUE)
     if (input$stat_data_1) {
       p<-p+geom_point(aes(x=tm,y=locomotive),color="red",size=3,shape=21)
     }
-    p+ylab("机车车辆数")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    p+ylab("机车台数")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
 
  #多元回归预测计算
@@ -2059,7 +2059,7 @@ rownames = TRUE)
     if (input$stat_data_1) {
       p<-p+geom_point(aes(x=tm,y=locomotive),color="red",size=3,shape=21)
     }
-    p+ylab("机车辆数")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    p+ylab("机车台数")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   #----------------------------支持向量机Tabset画线
@@ -2095,7 +2095,7 @@ rownames = TRUE)
     if (input$stat_data_1) {
       p<-p+geom_point(aes(x=tm,y=locomotive),color="red",size=3,shape=21)
     }
-    p+ylab("机车车辆数")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    p+ylab("机车台数")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   
@@ -3147,7 +3147,7 @@ output$yssj.ylxg.plot <- renderPlot( {
   }
   
   
-  #hyzzl.yssj -----------货运周转量(亿吨)
+  #hyzzl.yssj -----------货运周转量(亿吨公里)
   
   if(input$ylxg.yssj=="hyzzl.yssj"){
     p<-p+geom_line(aes(x=tm,y=hyzzl),color="black",size=0.6)+ylim(1,3)+geom_point(aes(x=tm,y=hyzzl),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
@@ -3165,7 +3165,7 @@ output$yssj.ylxg.plot <- renderPlot( {
     p<-p+geom_point(aes(x=tm,y=kyl),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   
-  # kyzzl.yssj---------------客运周转量(亿人)
+  # kyzzl.yssj---------------客运周转量(亿人公里)
   if (input$ylxg.yssj=="kyzzl.yssj") {
     p<-p+geom_line(aes(x=tm,y=kyzzl),color="purple",size=0.6)
     p<-p+geom_point(aes(x=tm,y=kyzzl),size=2,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
@@ -3395,7 +3395,7 @@ output$yssj.ylxg.table<-DT::renderDataTable(
 {  
   dfyssj<-read.csv("compidx-yunliang.csv",head=T)
   data<-dfyssj},
-colnames = c('时间','货运量（亿吨）','货运周转量（亿吨）','客运量（亿人）','客运周转量（亿人）'),
+colnames = c('时间','货运量（亿吨）','货运周转量（亿吨公里）','客运量（亿人）','客运周转量（亿人公里）'),
 rownames = TRUE))
 
 output$yssj.yyxg.table<-DT::renderDataTable(

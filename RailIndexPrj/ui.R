@@ -975,9 +975,9 @@ tabPanel("黑货白货指数",
                                 )
                               )
                               ),
-                     tabPanel("机车车辆-营业里程",
+                     tabPanel("机车台数-营业里程",
                  
-                              titlePanel("机车车辆-营业里程"),
+                              titlePanel("机车台数-营业里程"),
                               sidebarLayout(
                                 sidebarPanel(
                                   checkboxInput(inputId="stat_data_1",   #时间选择框
@@ -998,7 +998,7 @@ tabPanel("黑货白货指数",
                                   textInput(inputId="km_input_1",#输入营业里程
                                             label=strong("预测输入值——营业里程（公里）"),
                                             value=mean(locomotive_dis$distance)),
-                                  hr("预测结果—机车车辆数（辆）"),
+                                  hr("预测结果—机车台数（台）"),
                                   hr(),
                                   textOutput("locomotive_output_1") ,#多元回归预测值
                                   hr(),
