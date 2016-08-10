@@ -27,7 +27,11 @@ shinyServer(function(input, output) {
     p+theme_bw()+theme(panel.border=element_blank())+xlab("日期")+ylab("指数")
   })
   
-  
+  output$index_table<-DT::renderDataTable(
+    DT::datatable(
+      data<-df_index, 
+      colnames = c('日期','景气指数'),
+      rownames = TRUE))
   
   
   #————————————————————————————————————————————————————————————————————————————————————————————————
@@ -2693,9 +2697,192 @@ output$svmplot_21 <- renderPlot( {
 output$table_21<-DT::renderDataTable(
   DT::datatable(
     data<-df_21, 
-    colnames = c('序号', '年','货车辆数（辆）','营业里程（公里）','多元回归预测（辆）','随机森林回归预测（辆）','支持向量机回归预测（辆）'),
+    colnames = c('序号', '年','机车辆数（辆）','营业里程（公里）','多元回归预测（辆）','随机森林回归预测（辆）','支持向量机回归预测（辆）'),
     rownames = TRUE)
 )
+
+#---------------------------------------------------------------------
+#---------------机车数量-客运量---文静添加------------------------------
+#Locomotive_PV-----机车数量-客运量passenger vollum
+locomotivePV_df<-read.csv("locomotive-PV.csv",head=T)
+
+locomotivePV_olsRegModel<-lm(locomotive~PV,data=locomotivePV_df)
+
+locomotivePV_df$linearRegPred<-as.integer(predict(locomotivePV_olsRegModel,newdata=locomotivePV_df))
+locomotivePV_rfRegModel<-randomForest(locomotive~PV,data=locomotivePV_df,importance=T,ntree=100,type="regression")
+locomotivePV_df$frRegPred<-as.integer(predict(locomotivePV_rfRegModel,locomotivePV_df))
+locomotivePV_svmRegModel<-svm(locomotive~PV,data=locomotivePV_df,type="eps-regression",cross=dim(locomotivePV_df)[1]/2)
+locomotivePV_df$svmRegPred<-as.integer(predict(locomotivePV_svmRegModel,locomotivePV_df))
+locomotivePV_len<-length(locomotivePV_df$tm)
+
+plotCurve<-function(db,xdata,ydata)
+{
+  locomotivePV_len=dim(xdata)[1]
+  locomotivePV_plt<-ggplot(db,x=c(xdata[1],xdata[locomotivePV_len]),aes(x=xdata,y=ydata),color="red")
+  return(locomotivePV_plt)
+}
+
+#---------------------------多元回归画线
+output$locomotivePV_linearplot <- renderPlot( {
+  
+  if(input$locomotivePV_year_start> input$locomotivePV_year_end)  {
+    
+    if (input$locomotivePV_stat_data) {
+      locomotivePV_p<-plotCurve(locomotivePV_df,locomotivePV_df$tm,locomotivePV_df$locomotive)
+    }
+    else
+    {
+      locomotivePV_p<-plotCurve(locomotivePV_df,locomotivePV_df$tm,locomotivePV_df$linearRegPred)
+    }
+  }
+  else{
+    locomotivePV_dfsub<-subset(locomotivePV_df,substr(locomotivePV_df$tm,1,4)>=input$locomotivePV_year_start) 
+    locomotivePV_dfsub<-subset(locomotivePV_dfsub,substr(locomotivePV_dfsub$tm,1,4)<=input$locomotivePV_year_end)
+    if (input$locomotivePV_stat_data) {
+      locomotivePV_p<-plotCurve(locomotivePV_dfsub,locomotivePV_dfsub$tm,locomotivePV_dfsub$locomotive)
+    }
+    else
+    {
+      locomotivePV_p<-plotCurve(locomotivePV_dfsub,locomotivePV_dfsub$tm,locomotivePV_dfsub$linearRegPred)
+    }
+  }
+  if(input$locomotivePV_predict_data){
+    locomotivePV_p<-locomotivePV_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$locomotivePV_stat_data) {
+    locomotivePV_p<-locomotivePV_p+geom_point(aes(x=tm,y=locomotive),color="red",size=3,shape=21)
+  }
+    locomotivePV_p+ylab("机车台数")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+
+output$locomotivePV_locomotive_output<-renderText({
+  locomotivePV_x<-as.numeric(input$locomotivePV_PV_input)
+  PV<-c(locomotivePV_x)
+  tm<-c(2016)
+  locomotive<-c(0)
+  inputdata<-data.frame(tm,locomotive,PV)
+  locomotivePV_pred<-as.integer(predict(locomotivePV_olsRegModel,inputdata,interval="prediction",level=0.95))
+  paste("多元回归预测：",locomotivePV_pred[1],"预测区间95%：(",locomotivePV_pred[2],",",locomotivePV_pred[3],")" ) 
+}
+)
+#-------------------------------------------------
+#随机森林回归预测计算
+output$locomotivePV_locomotive_FRR<-renderText({
+  locomotivePV_x<-as.numeric(input$locomotivePV_PV_input)
+  PV<-c(locomotivePV_x)
+  tm<-c(2016)
+  locomotive<-c(0)
+  inputdata<-data.frame(tm,locomotive,PV)
+  locomotive<-predict(locomotivePV_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
+  paste("随机森林回归预测：",as.integer(locomotive[1])  ) 
+  
+}
+)
+#----------------------------------
+#支持向量机回归预测计算
+output$locomotivePV_locomotive_zhi<-renderText({
+  locomotivePV_x<-as.numeric(input$locomotivePV_PV_input)
+  PV<-c(locomotivePV_x)
+  tm<-c(2016)
+  locomotive<-c(0)
+  inputdata<-data.frame(tm,locomotive,PV)
+  locomotivePV_pred<-as.integer(predict(locomotivePV_svmRegModel,inputdata))
+  
+  paste("支持向量机预测：",locomotivePV_pred)
+  
+}
+)
+#-----------随机森林Tabset画线  
+output$locomotivePV_rfplot <- renderPlot( {
+  
+  if(input$locomotivePV_year_start> input$locomotivePV_year_end)  {
+    
+    if (input$locomotivePV_stat_data) {
+      locomotivePV_p<-plotCurve(locomotivePV_df,locomotivePV_df$tm,locomotivePV_df$locomotive)
+    }
+    else
+    {
+      locomotivePV_p<-plotCurve(locomotivePV_df,locomotivePV_df$tm,locomotivePV_df$frRegPred)
+    }
+  }
+  else{
+    locomotivePV_dfsub<-subset(locomotivePV_df,substr(locomotivePV_df$tm,1,4)>=input$locomotivePV_year_start) 
+    locomotivePV_dfsub<-subset(locomotivePV_dfsub,substr(locomotivePV_df$tm,1,4)<=input$locomotivePV_year_end)
+    if (input$locomotivePV_stat_data) {
+      locomotivePV_p<-plotCurve(locomotivePV_dfsub,locomotivePV_dfsub$tm,locomotivePV_dfsub$locomotive)
+    }
+    else
+    {
+      locomotivePV_p<-plotCurve(locomotivePV_dfsub,locomotivePV_dfsub$tm,locomotivePV_dfsub$frRegPred)
+    }
+  }
+  
+  if(input$locomotivePV_predict_data){
+    locomotivePV_p<-locomotivePV_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes
+                                                                                                                     (x=tm,y=frRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$locomotivePV_stat_data) {
+    locomotivePV_p<-locomotivePV_p+geom_point(aes(x=tm,y=locomotive),color="red",size=3,shape=21)
+  }
+    locomotivePV_p+ylab("机车数量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+#----------------------------支持向量机Tabset画线
+
+output$locomotivePV_svmplot <- renderPlot( {
+  
+  if(input$locomotivePV_year_start> input$locomotivePV_year_end)  {
+    
+    if (input$locomotivePV_stat_data) {
+      locomotivePV_p<-plotCurve(locomotivePV_df,locomotivePV_df$tm,locomotivePV_df$locomotive)
+    }
+    else
+    {
+      locomotivePV_p<-plotCurve(locomotivePV_df,locomotivePV_df$tm,locomotivePV_df$svmRegPred)
+    }
+  }
+  else{
+    locomotivePV_dfsub<-subset(locomotivePV_df,substr(locomotivePV_df$tm,1,4)>=input$locomotivePV_year_start) 
+    locomotivePV_dfsub<-subset(locomotivePV_dfsub,substr(locomotivePV_df$tm,1,4)<=input$locomotivePV_year_end)
+    if (input$locomotivePV_stat_data) {
+      locomotivePV_p<-plotCurve(locomotivePV_dfsub,locomotivePV_dfsub$tm,locomotivePV_dfsub$locomotive)
+    }
+    else
+    {
+      locomotivePV_p<-plotCurve(locomotivePV_dfsub,locomotivePV_dfsub$tm,locomotivePV_dfsub$svmRegPred)
+    }
+  }
+  if(input$locomotivePV_predict_data){
+    locomotivePV_p<-locomotivePV_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes
+                                                                                                      (x=tm,y=svmRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$locomotivePV_stat_data) {
+    locomotivePV_p<-locomotivePV_p+geom_point(aes(x=tm,y=locomotive),color="red",size=3,shape=21)
+  }
+   locomotivePV_p+ylab("机车数量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+
+#--------------------------------------
+
+#----------------------datatable显示数据
+#-----------------在df中，又增加了3列数据，存放预测结果,
+
+
+output$locomotivePV_table<-DT::renderDataTable(
+  DT::datatable(
+    {
+      
+      locomotivePV_data<-locomotivePV_df
+    } , 
+    colnames = c('序号', '时间', '机车台数（辆）', '客运量（亿人）','多元回归预测（辆）','随机森林回归预测（辆）','支持向量机回归预测（辆）'),
+    rownames = TRUE)
+)
+
+
+
+
 
 
 #------------------------------------------------------------
@@ -3255,6 +3442,228 @@ output$table<-DT::renderDataTable(
     colnames = c('日期', '货运量(万吨)','成品钢材产量(万吨)','原煤产量(万吨)','多元回归预测(万吨)','随机森林回归预测(万吨)','支持向量机回归预测(万吨)'),
     rownames = TRUE)
 )
+
+
+
+
+#————————————————————————————————————————————————————————————————————————————————————————
+#————————————————————————————————————————————————————————————————————————————————————————
+#客运量预测
+#————————————————————————————————————————————————————————————————————————————————————————
+#————————————————————————————————————————————————————————————————————————————————————————
+
+passagerpre_df<-read.csv("铁路客运量预测.csv",head=T)     
+passagerpre_df$Year<-as.Date.POSIXct(passagerpre_df$Year,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
+
+#olsRegModel<-lm(passager~iron+coal,data=passagerpre_df)     #iron表示成品钢材产量，coal表示原煤产量
+passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$population+
+  0.87*passagerpre_df$income+2569.27*passagerpre_df$third_industry+
+  0.65*passagerpre_df$aviation+11.27*passagerpre_df$EMU+
+  0.78*passagerpre_df$railcar-409634.8
+
+passagerpre_rfRegModel<-randomForest(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
+                                     data=passagerpre_df,importance=T, ntree=100,type="regression")   #ranpassagerpre_dfrstReg函数在randomForest.r文件中
+
+passagerpre_df$frRegPred<-as.integer(predict(passagerpre_rfRegModel,passagerpre_df))     #<-----------随机森林的预测数据已经在这里计算得到
+
+passagerpre_svmRegModel<-svm(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
+                             data=passagerpre_df,type="eps-regression",cross=dim(passagerpre_df)[1]/2)
+passagerpre_df$svmRegPred<-as.integer(predict(passagerpre_svmRegModel,passagerpre_df))   #<-----------支持向量机的预测数据已经在这里计算得到
+
+len<-length(passagerpre_df$Year)
+plotCurve<-function(db,xdata,ydata)
+{
+  len=dim(xdata)[1]
+  plt<-ggplot(db,x=c(xdata[1],xdata[len]),aes(x=xdata,y=ydata),color="red")
+  return(plt)
+}
+#---------------------------多元回归画线
+output$passagerpre_linearplot <- renderPlot( {
+  
+  if(input$passagerpre_year_start> input$passagerpre_year_end)  {
+    
+    if (input$passagerpre_stat_data) {
+      p<-plotCurve(passagerpre_df,passagerpre_df$Year,passagerpre_df$passager)
+    }
+    else
+    {
+      p<-plotCurve(passagerpre_df,passagerpre_df$Year,passagerpre_df$linearRegPred)
+    }
+  }
+  else{
+    passagerpre_dfsub<-subset(passagerpre_df,substr(passagerpre_df$Year,1,4)>=input$passagerpre_year_start) 
+    passagerpre_dfsub<-subset(passagerpre_dfsub,substr(passagerpre_dfsub$Year,1,4)<=input$passagerpre_year_end)
+    if (input$passagerpre_stat_data) {
+      p<-plotCurve(passagerpre_dfsub,passagerpre_dfsub$Year,passagerpre_dfsub$passager)
+    }
+    else
+    {
+      p<-plotCurve(passagerpre_dfsub,passagerpre_dfsub$Year,passagerpre_dfsub$linearRegPred)
+    }
+  }
+  
+  if(input$passagerpre_predict_data){
+    
+    p<-p+geom_line(aes(x=Year,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=Year,y=linearRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$passagerpre_stat_data) {
+    p<-p+geom_point(aes(x=Year,y=passager),color="red",size=3,shape=21)
+  }
+  p+ylab("货运量(万吨)")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+
+#多元回归预测计算
+output$passager_output<-renderText({
+  x1<-as.numeric(input$passagerpre_GDP_input)
+  x2<-as.numeric(input$passagerpre_population_input)
+  x3<-as.numeric(input$passsagerpre_income_input)
+  x4<-as.numeric(input$passagerpre_thirdindustry_input)
+  x5<-as.numeric(input$passagerpre_aviation_input)
+  x6<-as.numeric(input$passagerpre_EMU_input)
+  x7<-as.numeric(input$passagepre_railcar_input)
+  
+  pred<-0.04*x1+2.76*x2+0.87*x3+2569.27*x4+0.65*x5+11.27*x6+0.78*x7-409634.8
+  paste("多元回归预测：",pred ) 
+}
+)
+
+#随机森林回归预测计算
+output$passagerpre_FRR<-renderText({
+  x1<-as.numeric(input$passagerpre_GDP_input)
+  x2<-as.numeric(input$passagerpre_population_input)
+  x3<-as.numeric(input$passsagerpre_income_input)
+  x4<-as.numeric(input$passagerpre_thirdindustry_input)
+  x5<-as.numeric(input$passagerpre_aviation_input)
+  x6<-as.numeric(input$passagerpre_EMU_input)
+  x7<-as.numeric(input$passagepre_railcar_input)
+  
+  GDP<-c(x1)
+  population<-c(x2)
+  income<-c(x3)
+  third_industry<-c(x4)
+  aviation<-c(x5)
+  EMU<-c(x6)
+  railcar<-c(x7)
+  
+  Year<-c(2015)
+  passager<-c(0)
+  inputdata<-data.frame(Year,passager,GDP,population,income,third_industry,aviation,EMU,railcar)
+  #passagerpre_pred<-as.integer(predict(passagerpre_svmRegModel,inputdata))
+  passagerpre_FRR<-predict(passagerpre_rfRegModel,inputdata)   #passagerpre_rfRegModel随机森林在最初已经计算得到
+  paste("随机森林回归预测：",as.integer(passagerpre_FRR[1])  ) 
+  
+}
+)
+
+#支持向量机回归预测计算
+output$passagerpre_zhi<-renderText({
+  x1<-as.numeric(input$passagerpre_GDP_input)
+  x2<-as.numeric(input$passagerpre_population_input)
+  x3<-as.numeric(input$passsagerpre_income_input)
+  x4<-as.numeric(input$passagerpre_thirdindustry_input)
+  x5<-as.numeric(input$passagerpre_aviation_input)
+  x6<-as.numeric(input$passagerpre_EMU_input)
+  x7<-as.numeric(input$passagepre_railcar_input)
+  
+  GDP<-c(x1)
+  population<-c(x2)
+  income<-c(x3)
+  third_industry<-c(x4)
+  aviation<-c(x5)
+  EMU<-c(x6)
+  railcar<-c(x7)
+  
+  Year<-c(2015)
+  passager<-c(0)
+  inputdata<-data.frame(Year,passager,GDP,population,income,third_industry,aviation,EMU,railcar)
+  passagerpre_pred<-as.integer(predict(passagerpre_svmRegModel,inputdata))
+  
+  paste("支持向量机预测：",passagerpre_pred)
+  
+}
+)
+
+output$passagerpre_rfplot <- renderPlot( {
+  
+  if(input$passagerpre_year_start> input$passagerpre_year_end)  {
+    
+    if (input$passagerpre_stat_data) {
+      p<-plotCurve(passagerpre_df,passagerpre_df$Year,passagerpre_df$passager)
+    }
+    else
+    {
+      p<-plotCurve(passagerpre_df,passagerpre_df$Year,passagerpre_df$frRegPred)
+    }
+  }
+  else{
+    passagerpre_dfsub<-subset(passagerpre_df,substr(passagerpre_df$Year,1,4)>=input$passagerpre_year_start) 
+    passagerpre_dfsub<-subset(passagerpre_dfsub,substr(passagerpre_dfsub$Year,1,4)<=input$passagerpre_year_end)
+    if (input$passagerpre_stat_data) {
+      p<-plotCurve(passagerpre_dfsub,passagerpre_dfsub$Year,passagerpre_dfsub$passager)
+    }
+    else
+    {
+      p<-plotCurve(passagerpre_dfsub,passagerpre_dfsub$Year,passagerpre_dfsub$frRegPred)
+    }
+  }
+  
+  if(input$passagerpre_predict_data){
+    p<-p+geom_line(aes(x=Year,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=Year,y=frRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$passagerpre_stat_data) {
+    p<-p+geom_point(aes(x=Year,y=passager),color="red",size=3,shape=21)
+  }
+  p+ylab("货运量(万吨)")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+
+
+output$passagerpre_svmplot <- renderPlot( {
+  
+  if(input$passagerpre_year_start> input$passagerpre_year_end)  {
+    
+    if (input$passagerpre_stat_data) {
+      p<-plotCurve(passagerpre_df,passagerpre_df$Year,passagerpre_df$carriage)
+    }
+    else
+    {
+      p<-plotCurve(passagerpre_df,passagerpre_df$Year,passagerpre_df$svmRegPred)
+    }
+  }
+  else{
+    passagerpre_dfsub<-subset(passagerpre_df,substr(passagerpre_df$Year,1,4)>=input$passagerpre_year_start) 
+    passagerpre_dfsub<-subset(passagerpre_dfsub,substr(passagerpre_dfsub$Year,1,4)<=input$passagerpre_year_end)
+    if (input$passagerpre_stat_data) {
+      p<-plotCurve(passagerpre_dfsub,passagerpre_dfsub$Year,passagerpre_dfsub$passager)
+    }
+    else
+    {
+      p<-plotCurve(passagerpre_dfsub,passagerpre_dfsub$Year,passagerpre_dfsub$svmRegPred)
+    }
+  }
+  
+  if(input$passagerpre_predict_data){
+    p<-p+geom_line(aes(x=Year,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=Year,y=svmRegPred),size=4,shape=18,colour="blue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$passagerpre_stat_data) {
+    p<-p+geom_point(aes(x=Year,y=passager),color="red",size=3,shape=21)
+  }
+  p+ylab("货运量(万吨)")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+
+
+output$passagerpre_table<-DT::renderDataTable(
+  DT::datatable(
+    data<-passagerpre_df, 
+    colnames = c('日期', '铁路客运量(万人)','国内生产总值(亿元)','年末总人口(万人)','城镇居民家庭人均可支配收入(元)',
+                 '第三产业增加值%','民用航空客运量(万人)','动车组数量','客车辆数（辆）',
+                 '多元回归预测(万吨)','随机森林回归预测(万吨)','支持向量机回归预测(万吨)'),
+    rownames = TRUE)
+)
+
+
 
 
 
