@@ -49,6 +49,9 @@ cw_y<-unique(substr(cw_df$tm,1,4))
 investment_df<-read.csv("investment-passenger.csv",head=T)#固定资产-客车数量适配性研：读表
 investment_y<-unique(substr(investment_df$tm,1,4))
 
+cw_truck_df<-read.csv("truck-asset.csv",head=T)
+cw_truck_y<-unique(substr(cw_truck_df$tm,1,4))
+
 pg_cw_df<-read.csv("固定资产指标.csv",head=T)  #固定资产和铺轨里程（新线铺轨历程，旧线铺轨里程）
 pg_cw_y<-unique(substr(pg_cw_df$tm,1,4))
 
@@ -990,7 +993,51 @@ sidebarLayout(
   )
 )
 ),
-
+tabPanel("固定资产-货车车辆",
+         titlePanel("固定资产-货车车辆"),
+         
+         sidebarLayout(
+           sidebarPanel(
+             checkboxInput(inputId="cw_truck_stat_data",
+                           label=strong("历史统计值"),
+                           value=TRUE),
+             
+             checkboxInput(inputId = "cw_truck_predict_data",
+                           label = strong("回归预测值"),
+                           value = TRUE),
+             selectInput(inputId = "cw_truck_year_start",
+                         label = "自:", 
+                         choices = cw_truck_y,
+                         selected = min(cw_truck_y) ),
+             selectInput(inputId="cw_truck_year_end",
+                         label="至:",
+                         choice=cw_truck_y,
+                         selected=max(cw_truck_y) ),
+             textInput(inputId="cw_truck_input",
+                       label=strong("货车车辆"),
+                       value=round(mean(cw_truck_df$cw_truck),2)),
+             hr("预测结果—固定资产值（亿元）"),
+             hr(),
+             textOutput("cw_truck_asset_output") ,
+             hr(),
+             textOutput("cw_truck_asset_FRR"),
+             hr(),
+             textOutput("cw_truck_asset_zhi")
+             
+             # actionButton("predictFre","预测新货运量") 
+           ),                                                       #sidebarPanel
+           
+           mainPanel(
+             tabsetPanel(
+               tabPanel("多元线性回归", plotOutput("cw_truck_linearplot")), 
+               tabPanel("随机森林回归", plotOutput("cw_truck_rfplot")), 
+               tabPanel("支持向量机回归", plotOutput("cw_truck_svmplot"))
+             ),
+             
+             fluidRow(  DT::dataTableOutput("cw_truck_table")   )
+           )
+         )
+),
                      tabPanel("客运量-客车车辆数",
                               titlePanel("客运量-客车车辆数"),
                               

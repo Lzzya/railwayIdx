@@ -1936,7 +1936,177 @@ output$investmenttable<-DT::renderDataTable(
     colnames = c('序号', '年','固定资产投资额（万元）','客车车辆数（辆）','多元回归预测（万元）','随机森林回归预测（万元）','支持向量机回归预测（万元）'),
     rownames = TRUE)
 )
+#---------------固定资产投资-货车车辆---------------------------------
+#cw_truck-----货车车辆
+cw_truck_df<-read.csv("truck-asset.csv",head=T)
+cw_truck_olsRegModel<-lm(asset~cw_truck,data=cw_truck_df)
+cw_truck_df$linearRegPred<-as.integer(predict(cw_truck_olsRegModel,newdata=cw_truck_df))
+cw_truck_rfRegModel<-randomForest(asset~cw_truck,data=cw_truck_df,importance=T, ntree=100,type="regression")
+cw_truck_df$frRegPred<-as.integer(predict(cw_truck_rfRegModel,cw_truck_df))
+cw_truck_svmRegModel<-svm(asset~cw_truck,data=cw_truck_df,type="eps-regression",cross=dim(cw_truck_df)[1]/2)
+cw_truck_df$svmRegPred<-as.integer(predict(cw_truck_svmRegModel,cw_truck_df))
+cw_truck_len<-length(cw_truck_df$tm)
 
+plotCurve<-function(db,xdata,ydata)
+{
+  cw_truck_len=dim(xdata)[1]
+  cw_truck_plt<-ggplot(db,x=c(xdata[1],xdata[cw_truck_len]),aes(x=xdata,y=ydata),color="red")
+  return(cw_truck_plt)
+}
+output$cw_truck_linearplot <- renderPlot( {
+  
+  if(input$cw_truck_year_start> input$cw_truck_year_end)  {
+    
+    if (input$cw_truck_stat_data) {
+      cw_truck_p<-plotCurve(cw_truck_df,cw_truck_df$tm,cw_truck_df$asset)
+    }
+    else
+    {
+      cw_truck_p<-plotCurve(cw_truck_df,cw_truck_df$tm,cw_truck_df$linearRegPred)
+    }
+  }
+  else{
+    cw_truck_dfsub<-subset(cw_truck_df,substr(cw_truck_df$tm,1,4)>=input$cw_truck_year_start) 
+    cw_truck_dfsub<-subset(cw_truck_dfsub,substr(cw_truck_dfsub$tm,1,4)<=input$cw_truck_year_end)
+    if (input$cw_truck_stat_data) {
+      cw_truck_p<-plotCurve(cw_truck_dfsub,cw_truck_dfsub$tm,cw_truck_dfsub$asset)
+    }
+    else
+    {
+      cw_truck_p<-plotCurve(cw_truck_dfsub,cw_truck_dfsub$tm,cw_truck_dfsub$linearRegPred)
+    }
+  }
+  if(input$cw_truck_predict_data){
+    
+    cw_truck_p<-cw_truck_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$cw_truck_stat_data) {
+    cw_truck_p<-cw_truck_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+  }
+  cw_truck_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+output$cw_truck_asset_output<-renderText({
+  cw_truck_x<-as.numeric(input$cw_truck_input)
+  cw_truck<-c(cw_truck_x)
+  tm<-c(2016)
+  asset<-c(0)
+  inputdata<-data.frame(tm,asset,cw_truck)
+  cw_truck_pred<-as.integer(predict(cw_truck_olsRegModel,inputdata,interval="prediction",level=0.95))
+  paste("多元回归预测：",cw_truck_pred[1],"预测区间95%：(",cw_truck_pred[2],",",cw_truck_pred[3],")" ) 
+}
+)
+#-------------------------------------------------
+#随机森林回归预测计算
+output$cw_truck_asset_FRR<-renderText({
+  cw_truck_x<-as.numeric(input$cw_truck_input)
+  cw_truck<-c(cw_truck_x)
+  tm<-c(2016)
+  asset<-c(0)
+  inputdata<-data.frame(tm,asset,cw_truck)
+  truckasset<-predict(cw_truck_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
+  paste("随机森林回归预测：",as.integer(truckasset[1])  ) 
+  
+}
+)
+#----------------------------------
+#支持向量机回归预测计算
+output$cw_truck_asset_zhi<-renderText({
+  cw_truck_x<-as.numeric(input$cw_truck_input)
+  cw_truck<-c(cw_truck_x)
+  tm<-c(2016)
+  asset<-c(0)
+  inputdata<-data.frame(tm,asset,cw_truck)
+  cw_truck_pred<-as.integer(predict(cw_truck_svmRegModel,inputdata))
+  
+  paste("支持向量机预测：",cw_truck_pred)
+  
+}
+)
+#-----------随机森林Tabset画线  
+output$cw_truck_rfplot <- renderPlot( {
+  
+  if(input$cw_truck_year_start> input$cw_truck_year_end)  {
+    
+    if (input$cw_truck_stat_data) {
+      cw_truck_p<-plotCurve(cw_truck_df,cw_truck_df$tm,cw_truck_df$asset)
+    }
+    else
+    {
+      cw_truck_p<-plotCurve(cw_truck_df,cw_truck_df$tm,cw_truck_df$frRegPred)
+    }
+  }
+  else{
+    cw_truck_dfsub<-subset(cw_truck_df,substr(cw_truck_df$tm,1,4)>=input$cw_truck_year_start) 
+    cw_truck_dfsub<-subset(cw_truck_dfsub,substr(cw_truck_df$tm,1,4)<=input$cw_truck_year_end)
+    if (input$cw_truck_stat_data) {
+      cw_truck_p<-plotCurve(cw_truck_dfsub,cw_truck_dfsub$tm,cw_truck_dfsub$asset)
+    }
+    else
+    {
+      cw_truck_p<-plotCurve(cw_truck_dfsub,cw_truck_dfsub$tm,cw_truck_dfsub$frRegPred)
+    }
+  }
+  
+  if(input$cw_truck_predict_data){
+    cw_truck_p<-cw_truck_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$cw_truck_stat_data) {
+    cw_truck_p<-cw_truck_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+  }
+  cw_truck_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+#----------------------------支持向量机Tabset画线
+
+output$cw_truck_svmplot <- renderPlot( {
+  
+  if(input$cw_truck_year_start> input$cw_truck_year_end)  {
+    
+    if (input$cw_truck_stat_data) {
+      cw_truck_p<-plotCurve(cw_truck_df,cw_truck_df$tm,cw_truck_df$asset)
+    }
+    else
+    {
+      cw_truck_p<-plotCurve(cw_truck_df,cw_truck_df$tm,cw_truck_df$svmRegPred)
+    }
+  }
+  else{
+    cw_truck_dfsub<-subset(cw_truck_df,substr(cw_truck_df$tm,1,4)>=input$cw_truck_year_start) 
+    cw_truck_dfsub<-subset(cw_truck_dfsub,substr(cw_truck_dfsub$tm,1,4)<=input$cw_truck_year_end)
+    if (input$cw_truck_stat_data) {
+      cw_truck_p<-plotCurve(cw_truck_dfsub,cw_truck_dfsub$tm,cw_truck_dfsub$asset)
+    }
+    else
+    {
+      cw_truck_p<-plotCurve(cw_truck_dfsub,cw_truck_dfsub$tm,cw_truck_dfsub$svmRegPred)
+    }
+  }
+  if(input$cw_truck_predict_data){
+    cw_truck_p<-cw_truck_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$cw_truck_stat_data) {
+    cw_truck_p<-cw_truck_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+  }
+  cw_truck_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+
+#--------------------------------------
+
+#----------------------datatable显示数据
+#-----------------在df中，又增加了3列数据，存放预测结果,
+
+
+output$cw_truck_table<-DT::renderDataTable(
+  DT::datatable(
+{
+  
+  cw_truck_data<-cw_truck_df
+} , 
+colnames = c('序号', '时间', '固定资产投资（亿元）', '货车车辆','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
+rownames = TRUE)
+)
 
 
 #---------------------------------------------------------------------
