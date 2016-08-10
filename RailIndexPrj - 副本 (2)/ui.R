@@ -32,18 +32,8 @@ liaozili_y<-unique(substr(liaozili$tm,1,4))
 locomotive_dis<-read.csv("Locomotive-dis.csv",head=T)
 locomotive_dis_y<-unique(substr(locomotive_dis$tm,1,4))
 
-<<<<<<< HEAD
-locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
-locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
-=======
-#<<<<<<< HEAD
-locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
-locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
-#=======
 Locomotive_fre<-read.csv("Locomotive-freight.csv",head=T)#机车-货运量适配性研：读表
 Locomotive_tm<-unique(substr(Locomotive_fre$tm,1,4))
-#>>>>>>> liaozili
->>>>>>> refs/remotes/origin/develop
 
 freightcar_dis<-read.csv("货车车辆预测.csv",head=T)
 freightcar_dis_y<-unique(substr(freightcar_dis$tm,1,4))
@@ -53,9 +43,6 @@ cw_y<-unique(substr(cw_df$tm,1,4))
 
 investment_df<-read.csv("investment-passenger.csv",head=T)#固定资产-客车数量适配性研：读表
 investment_y<-unique(substr(investment_df$tm,1,4))
-
-cw_truck_df<-read.csv("truck-asset.csv",head=T)
-cw_truck_y<-unique(substr(cw_truck_df$tm,1,4))
 
 pg_cw_df<-read.csv("固定资产指标.csv",head=T)  #固定资产和铺轨里程（新线铺轨历程，旧线铺轨里程）
 pg_cw_y<-unique(substr(pg_cw_df$tm,1,4))
@@ -79,10 +66,6 @@ freight_forecast_df<-read.csv("freight.csv",head=T)
 freight_forecast_df$tm<-as.Date.POSIXct(freight_forecast_df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) 
 y<-as.numeric(unique(substr(freight_forecast_df$tm,1,4)))
 
-#-----------------------------------------
-#-------客运量预测------------------------
-passagerpre_df<-read.csv("铁路客运量预测.csv",head=T)
-passagerpre_y<-unique(substr(passagerpre_df$Year,1,4)) #提取年份
 
 #-----------------------------------------
 #---------原始数据------------------------
@@ -117,8 +100,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                               h4("蓝灯&浅蓝灯---运输市场景气偏热"),
                               h4("黄灯---铁路运输短期内有转稳和萎缩的可能"),
                               h4("红灯---铁路运输市场景气偏冷")
-                            ),
-                            fluidRow(  DT::dataTableOutput("index_table")   )
+                            )
                    ),
 
 
@@ -998,51 +980,7 @@ sidebarLayout(
   )
 )
 ),
-tabPanel("固定资产-货车车辆",
-         titlePanel("固定资产-货车车辆"),
-         
-         sidebarLayout(
-           sidebarPanel(
-             checkboxInput(inputId="cw_truck_stat_data",
-                           label=strong("历史统计值"),
-                           value=TRUE),
-             
-             checkboxInput(inputId = "cw_truck_predict_data",
-                           label = strong("回归预测值"),
-                           value = TRUE),
-             selectInput(inputId = "cw_truck_year_start",
-                         label = "自:", 
-                         choices = cw_truck_y,
-                         selected = min(cw_truck_y) ),
-             selectInput(inputId="cw_truck_year_end",
-                         label="至:",
-                         choice=cw_truck_y,
-                         selected=max(cw_truck_y) ),
-             textInput(inputId="cw_truck_input",
-                       label=strong("货车车辆"),
-                       value=round(mean(cw_truck_df$cw_truck),2)),
-             hr("预测结果—固定资产值（亿元）"),
-             hr(),
-             textOutput("cw_truck_asset_output") ,
-             hr(),
-             textOutput("cw_truck_asset_FRR"),
-             hr(),
-             textOutput("cw_truck_asset_zhi")
-             
-             # actionButton("predictFre","预测新货运量") 
-           ),                                                       #sidebarPanel
-           
-           mainPanel(
-             tabsetPanel(
-               tabPanel("多元线性回归", plotOutput("cw_truck_linearplot")), 
-               tabPanel("随机森林回归", plotOutput("cw_truck_rfplot")), 
-               tabPanel("支持向量机回归", plotOutput("cw_truck_svmplot"))
-             ),
-             
-             fluidRow(  DT::dataTableOutput("cw_truck_table")   )
-           )
-         )
-),
+
                      tabPanel("客运量-客车车辆数",
                               titlePanel("客运量-客车车辆数"),
                               
@@ -1137,59 +1075,6 @@ tabPanel("固定资产-货车车辆",
                               ) 
                               
                              ),
-<<<<<<< HEAD
-=======
-#<<<<<<< HEAD
->>>>>>> refs/remotes/origin/develop
-                     
-                     tabPanel("机车台数-客运量",
-                              
-                              titlePanel("机车台数-客运量"),
-                              sidebarLayout(
-                                sidebarPanel(
-                                  checkboxInput(inputId="locomotivePV_stat_data",   #时间选择框
-                                                label=strong("历史统计值"),
-                                                value=TRUE),
-                                  
-                                  checkboxInput(inputId = "locomotivePV_predict_data", #计算的回归预测值
-                                                label = strong("回归预测值"),
-                                                value = TRUE),
-                                  selectInput(inputId = "locomotivePV_year_start",
-                                              label = "自:", 
-                                              choices = locomotive_PV_y,
-                                              selected = min(locomotive_PV_y) ),
-                                  selectInput(inputId="locomotivePV_year_end",
-                                              label="至:",
-                                              choice=locomotive_PV_y,
-                                              selected=max(locomotive_PV_y) ),
-                                  textInput(inputId="locomotivePV_PV_input",#输入客运量
-                                            label=strong("预测输入值——客运量(亿人)"),
-                                            value=mean(locomotive_PV$PV)),
-                                  hr("预测结果—机车台数（台）"),
-                                  hr(),
-                                  textOutput("locomotivePV_locomotive_output") ,#多元回归预测值
-                                  hr(),
-                                  textOutput("locomotivePV_locomotive_FRR"),# 随机森林预测值
-                                  hr(),
-                                  textOutput("locomotivePV_locomotive_zhi")#支向量回归预测值
-                                   
-                                  
-                                ), 
-                                
-                                mainPanel(
-                                  tabsetPanel(
-                                    tabPanel("多元线性回归", plotOutput("locomotivePV_linearplot")), #多元线性回归图
-                                    tabPanel("随机森林回归", plotOutput("locomotivePV_rfplot")), #随机森林回归图
-                                    tabPanel("支持向量机回归", plotOutput("locomotivePV_svmplot"))#支持向量机回归图
-                                  ),
-                                  
-                                  fluidRow(  DT::dataTableOutput("locomotivePV_table")   )#将预测值放入locomotivePV_table_1
-                                )
-                              )
-                     ),
-<<<<<<< HEAD
-=======
-#=======
                      #----------------------------
                      #显示机车车辆-货运量适配性分析  
                      tabPanel("机车数量-货运量",
@@ -1239,8 +1124,6 @@ tabPanel("固定资产-货车车辆",
                      
                      
                      
-#>>>>>>> liaozili
->>>>>>> refs/remotes/origin/develop
     #----------------------------
     #显示货车车辆-营业里程适配性分析
                      tabPanel("货车车辆-营业里程",
@@ -1438,76 +1321,6 @@ tabPanel("固定资产-货车车辆",
              )
     ),
 
-#----------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------
-#铁路客运量预测
-
-tabPanel("客运量预测",
-         titlePanel("铁路客运量预测"),
-         hr(),
-         
-         sidebarLayout(
-           sidebarPanel(
-             checkboxInput(inputId="passagerpre_stat_data",
-                           label=strong("历史统计值"),
-                           value=TRUE),
-             
-             checkboxInput(inputId = "passagerpre_predict_data",
-                           label = strong("回归预测值"),
-                           value = TRUE),
-             selectInput(inputId = "passagerpre_year_start",
-                         label = "自:", 
-                         choices = passagerpre_y,
-                         selected = min(passagerpre_y) ),
-             selectInput(inputId="passagerpre_year_end",
-                         label="至:",
-                         choice=passagerpre_y,
-                         selected=max(passagerpre_y) ),
-             
-             numericInput(inputId="passagerpre_GDP_input",
-                          label=strong("预测输入值--国内生产总值(亿元)"),
-                          value=636138.7),
-             numericInput(inputId="passagerpre_population_input",
-                          label=strong("预测输入值--年末总人口(万人)"),
-                          value=136782),
-             numericInput(inputId="passsagerpre_income_input",
-                          label=strong("预测输入值--城镇居民家庭人均可支配收入(元)"),
-                          value=28843.85),                                                      
-             numericInput(inputId="passagerpre_thirdindustry_input",
-                          label=strong("预测输入值--第三产业增加值（%）"),
-                          value=48.1),
-             numericInput(inputId="passagerpre_aviation_input",
-                          label=strong("预测输入值--民用航空客运量(万人)"),
-                          value=39165.8),
-             numericInput(inputId="passagerpre_EMU_input",
-                          label=strong("预测输入值--动车组数量（组）"),
-                          value=1445),
-             numericInput(inputId="passagepre_railcar_input",
-                          label=strong("预测输入值--客车辆数（辆）"),
-                          value=60795),
-             
-             hr("预测结果——客运量（万人）"),
-             hr(),
-             textOutput("passagerpre_output") ,
-             hr(),
-             textOutput("passagerpre_FRR"),
-             hr(),
-             textOutput("passagerpre_zhi")
-             
-             
-           ), 
-           
-           mainPanel(
-             tabsetPanel(
-               tabPanel("多元线性回归", plotOutput("passagerpre_linearplot")), 
-               tabPanel("随机森林回归", plotOutput("passagerpre_rfplot")), 
-               tabPanel("支持向量机回归", plotOutput("passagerpre_svmplot"))
-             ),
-             
-             fluidRow(  DT::dataTableOutput("passagerpre_table")   )
-           )
-         )
-),
 
 #----------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------
