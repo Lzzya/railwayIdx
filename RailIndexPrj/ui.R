@@ -32,6 +32,9 @@ liaozili_y<-unique(substr(liaozili$tm,1,4))
 locomotive_dis<-read.csv("Locomotive-dis.csv",head=T)
 locomotive_dis_y<-unique(substr(locomotive_dis$tm,1,4))
 
+locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
+locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
+
 freightcar_dis<-read.csv("货车车辆预测.csv",head=T)
 freightcar_dis_y<-unique(substr(freightcar_dis$tm,1,4))
 
@@ -1021,6 +1024,52 @@ tabPanel("黑货白货指数",
                               ) 
                               
                              ),
+                     
+                     tabPanel("机车台数-客运量",
+                              
+                              titlePanel("机车台数-客运量"),
+                              sidebarLayout(
+                                sidebarPanel(
+                                  checkboxInput(inputId="locomotivePV_stat_data",   #时间选择框
+                                                label=strong("历史统计值"),
+                                                value=TRUE),
+                                  
+                                  checkboxInput(inputId = "locomotivePV_predict_data", #计算的回归预测值
+                                                label = strong("回归预测值"),
+                                                value = TRUE),
+                                  selectInput(inputId = "locomotivePV_year_start",
+                                              label = "自:", 
+                                              choices = locomotive_PV_y,
+                                              selected = min(locomotive_PV_y) ),
+                                  selectInput(inputId="locomotivePV_year_end",
+                                              label="至:",
+                                              choice=locomotive_PV_y,
+                                              selected=max(locomotive_PV_y) ),
+                                  textInput(inputId="locomotivePV_PV_input",#输入客运量
+                                            label=strong("预测输入值——客运量(亿人)"),
+                                            value=mean(locomotive_PV$PV)),
+                                  hr("预测结果—机车台数（台）"),
+                                  hr(),
+                                  textOutput("locomotivePV_locomotive_output") ,#多元回归预测值
+                                  hr(),
+                                  textOutput("locomotivePV_locomotive_FRR"),# 随机森林预测值
+                                  hr(),
+                                  textOutput("locomotivePV_locomotive_zhi")#支向量回归预测值
+                                   
+                                  
+                                ), 
+                                
+                                mainPanel(
+                                  tabsetPanel(
+                                    tabPanel("多元线性回归", plotOutput("locomotivePV_linearplot")), #多元线性回归图
+                                    tabPanel("随机森林回归", plotOutput("locomotivePV_rfplot")), #随机森林回归图
+                                    tabPanel("支持向量机回归", plotOutput("locomotivePV_svmplot"))#支持向量机回归图
+                                  ),
+                                  
+                                  fluidRow(  DT::dataTableOutput("locomotivePV_table")   )#将预测值放入locomotivePV_table_1
+                                )
+                              )
+                     ),
     #----------------------------
     #显示货车车辆-营业里程适配性分析
                      tabPanel("货车车辆-营业里程",
