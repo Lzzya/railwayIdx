@@ -2109,6 +2109,180 @@ rownames = TRUE)
 )
 
 
+#---------------固定资产投资-机车台数---------------------------------
+#JCNum-----机车台数
+#GDMoney-------固定资产投资
+#tm----------时间
+JCNum_df<-read.csv("固定资产-机车台数.csv",head=T)
+JCNum_olsRegModel<-lm(GDMoney~JCNum,data=JCNum_df)
+JCNum_df$linearRegPred<-as.integer(predict(JCNum_olsRegModel,newdata=JCNum_df))
+JCNum_rfRegModel<-randomForest(GDMoney~JCNum,data=JCNum_df,importance=T, ntree=100,type="regression")
+JCNum_df$frRegPred<-as.integer(predict(JCNum_rfRegModel,JCNum_df))
+JCNum_svmRegModel<-svm(GDMoney~JCNum,data=JCNum_df,type="eps-regression",cross=dim(JCNum_df)[1]/2)
+JCNum_df$svmRegPred<-as.integer(predict(JCNum_svmRegModel,JCNum_df))
+JCNum_len<-length(JCNum_df$tm)
+
+plotCurve<-function(db,xdata,ydata)
+{
+  JCNum_len=dim(xdata)[1]
+  JCNum_plt<-ggplot(db,x=c(xdata[1],xdata[JCNum_len]),aes(x=xdata,y=ydata),color="red")
+  return(JCNum_plt)
+}
+output$JCNum_linearplot <- renderPlot( {
+  
+  if(input$JCNum_year_start> input$JCNum_year_end)  {
+    
+    if (input$JCNum_stat_data) {
+      JCNum_p<-plotCurve(JCNum_df,JCNum_df$tm,JCNum_df$GDMoney)
+    }
+    else
+    {
+      JCNum_p<-plotCurve(JCNum_df,JCNum_df$tm,JCNum_df$linearRegPred)
+    }
+  }
+  else{
+    JCNum_dfsub<-subset(JCNum_df,substr(JCNum_df$tm,1,4)>=input$JCNum_year_start) 
+    JCNum_dfsub<-subset(JCNum_dfsub,substr(JCNum_dfsub$tm,1,4)<=input$JCNum_year_end)
+    if (input$JCNum_stat_data) {
+      JCNum_p<-plotCurve(JCNum_dfsub,JCNum_dfsub$tm,JCNum_dfsub$GDMoney)
+    }
+    else
+    {
+      JCNum_p<-plotCurve(JCNum_dfsub,JCNum_dfsub$tm,JCNum_dfsub$linearRegPred)
+    }
+  }
+  if(input$JCNum_predict_data){
+    
+    JCNum_p<-JCNum_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$JCNum_stat_data) {
+    JCNum_p<-JCNum_p+geom_point(aes(x=tm,y=GDMoney),color="red",size=3,shape=21)
+  }
+  JCNum_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+output$JCNum_GDMoney_output<-renderText({
+  JCNum_x<-as.numeric(input$JCNum_input)
+  JCNum<-c(JCNum_x)
+  tm<-c(2016)
+  GDMoney<-c(0)
+  inputdata<-data.frame(tm,GDMoney,JCNum)
+  JCNum_pred<-as.integer(predict(JCNum_olsRegModel,inputdata,interval="prediction",level=0.95))
+  paste("多元回归预测：",JCNum_pred[1],"预测区间95%：(",JCNum_pred[2],",",JCNum_pred[3],")" ) 
+}
+)
+#-------------------------------------------------
+#随机森林回归预测计算
+output$JCNum_GDMoney_FRR<-renderText({
+  JCNum_x<-as.numeric(input$JCNum_input)
+  JCNum<-c(JCNum_x)
+  tm<-c(2016)
+  GDMoney<-c(0)
+  inputdata<-data.frame(tm,GDMoney,JCNum)
+  GDMoney<-predict(JCNum_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
+  paste("随机森林回归预测：",as.integer(GDMoney[1])  ) 
+  
+}
+)
+#----------------------------------
+#支持向量机回归预测计算
+output$JCNum_GDMoney_zhi<-renderText({
+  JCNum_x<-as.numeric(input$JCNum_input)
+  JCNum<-c(JCNum_x)
+  tm<-c(2016)
+  GDMoney<-c(0)
+  inputdata<-data.frame(tm,GDMoney,JCNum)
+  JCNum_pred<-as.integer(predict(JCNum_svmRegModel,inputdata))
+  
+  paste("支持向量机预测：",JCNum_pred)
+  
+}
+)
+#-----------随机森林Tabset画线  
+output$JCNum_rfplot <- renderPlot( {
+  
+  if(input$JCNum_year_start> input$JCNum_year_end)  {
+    
+    if (input$JCNum_stat_data) {
+      JCNum_p<-plotCurve(JCNum_df,JCNum_df$tm,JCNum_df$GDMoney)
+    }
+    else
+    {
+      JCNum_p<-plotCurve(JCNum_df,JCNum_df$tm,JCNum_df$frRegPred)
+    }
+  }
+  else{
+    JCNum_dfsub<-subset(JCNum_df,substr(JCNum_df$tm,1,4)>=input$JCNum_year_start) 
+    JCNum_dfsub<-subset(JCNum_dfsub,substr(JCNum_df$tm,1,4)<=input$JCNum_year_end)
+    if (input$JCNum_stat_data) {
+      JCNum_p<-plotCurve(JCNum_dfsub,JCNum_dfsub$tm,JCNum_dfsub$GDMoney)
+    }
+    else
+    {
+      JCNum_p<-plotCurve(JCNum_dfsub,JCNum_dfsub$tm,JCNum_dfsub$frRegPred)
+    }
+  }
+  
+  if(input$JCNum_predict_data){
+    JCNum_p<-JCNum_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$JCNum_stat_data) {
+    JCNum_p<-JCNum_p+geom_point(aes(x=tm,y=GDMoney),color="red",size=3,shape=21)
+  }
+  JCNum_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+#----------------------------支持向量机Tabset画线
+
+output$JCNum_svmplot <- renderPlot( {
+  
+  if(input$JCNum_year_start> input$JCNum_year_end)  {
+    
+    if (input$JCNum_stat_data) {
+      JCNum_p<-plotCurve(JCNum_df,JCNum_df$tm,JCNum_df$GDMoney)
+    }
+    else
+    {
+      JCNum_p<-plotCurve(JCNum_df,JCNum_df$tm,JCNum_df$svmRegPred)
+    }
+  }
+  else{
+    JCNum_dfsub<-subset(JCNum_df,substr(JCNum_df$tm,1,4)>=input$JCNum_year_start) 
+    JCNum_dfsub<-subset(JCNum_dfsub,substr(JCNum_dfsub$tm,1,4)<=input$JCNum_year_end)
+    if (input$JCNum_stat_data) {
+      JCNum_p<-plotCurve(JCNum_dfsub,JCNum_dfsub$tm,JCNum_dfsub$GDMoney)
+    }
+    else
+    {
+      JCNum_p<-plotCurve(JCNum_dfsub,JCNum_dfsub$tm,JCNum_dfsub$svmRegPred)
+    }
+  }
+  if(input$JCNum_predict_data){
+    JCNum_p<-JCNum_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$JCNum_stat_data) {
+    JCNum_p<-JCNum_p+geom_point(aes(x=tm,y=GDMoney),color="red",size=3,shape=21)
+  }
+  JCNum_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+
+#--------------------------------------
+
+#----------------------datatable显示数据
+#-----------------在df中，又增加了3列数据，存放预测结果,
+
+
+output$JCNum_table<-DT::renderDataTable(
+  DT::datatable(
+{
+  
+  JCNum_data<-JCNum_df
+} , 
+colnames = c('序号', '时间', '固定资产投资（亿元）', '货车车辆','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
+rownames = TRUE)
+)
+
 #---------------------------------------------------------------------
 #------------------客运量-客车车辆数适配性研究
 #PV-------客运量（PassengeVolume）简写
