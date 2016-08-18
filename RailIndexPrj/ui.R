@@ -57,6 +57,9 @@ investment_y<-unique(substr(investment_df$tm,1,4))
 cw_truck_df<-read.csv("truck-asset.csv",head=T)
 cw_truck_y<-unique(substr(cw_truck_df$tm,1,4))
 
+JCNum_df<-read.csv("固定资产-机车台数.csv",head=T)#固定资产-机车台数适配性研究
+JCNum_y<-unique(substr(JCNum_df$tm,1,4))
+
 pg_cw_df<-read.csv("固定资产指标.csv",head=T)  #固定资产和铺轨里程（新线铺轨历程，旧线铺轨里程）
 pg_cw_y<-unique(substr(pg_cw_df$tm,1,4))
 
@@ -1043,6 +1046,53 @@ tabPanel("固定资产-货车车辆",
            )
          )
 ),
+tabPanel("固定资产-机车台数",
+         titlePanel("固定资产-机车台数"),
+         
+         sidebarLayout(
+           sidebarPanel(
+             checkboxInput(inputId="JCNum_stat_data",
+                           label=strong("历史统计值"),
+                           value=TRUE),
+             
+             checkboxInput(inputId = "JCNum_predict_data",
+                           label = strong("回归预测值"),
+                           value = TRUE),
+             selectInput(inputId = "JCNum_year_start",
+                         label = "自:", 
+                         choices = JCNum_y,
+                         selected = min(JCNum_y) ),
+             selectInput(inputId="JCNum_year_end",
+                         label="至:",
+                         choice=JCNum_y,
+                         selected=max(JCNum_y) ),
+             textInput(inputId="JCNum_input",
+                       label=strong("货车车辆"),
+                       value=round(mean(JCNum_df$JCNum),2)),
+             hr("预测结果—固定资产值（亿元）"),
+             hr(),
+             textOutput("JCNum_GDMoney_output") ,
+             hr(),
+             textOutput("JCNum_GDMoney_FRR"),
+             hr(),
+             textOutput("JCNum_GDMoney_zhi")
+             
+             # actionButton("predictFre","预测新货运量") 
+           ),                                                       #sidebarPanel
+           
+           mainPanel(
+             tabsetPanel(
+               tabPanel("多元线性回归", plotOutput("JCNum_linearplot")), 
+               tabPanel("随机森林回归", plotOutput("JCNum_rfplot")), 
+               tabPanel("支持向量机回归", plotOutput("JCNum_svmplot"))
+             ),
+             
+             fluidRow(  DT::dataTableOutput("JCNum_table")   )
+           )
+         )
+),
+
+
                      tabPanel("客运量-客车车辆数",
                               titlePanel("客运量-客车车辆数"),
                               
