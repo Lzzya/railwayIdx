@@ -3042,8 +3042,8 @@ output$table_21<-DT::renderDataTable(
   DT::datatable(
     data<-df_21, 
     colnames = c('序号', '年','机车辆数（辆）','营业里程（公里）','多元回归预测（辆）','随机森林回归预测（辆）','支持向量机回归预测（辆）'),
-<<<<<<< HEAD
-=======
+#<<<<<<< HEAD
+#=======
     rownames = TRUE)
 )
 
@@ -3223,7 +3223,7 @@ output$locomotivePV_table<-DT::renderDataTable(
       locomotivePV_data<-locomotivePV_df
     } , 
     colnames = c('序号', '时间', '机车台数（辆）', '客运量（亿人）','多元回归预测（辆）','随机森林回归预测（辆）','支持向量机回归预测（辆）'),
->>>>>>> refs/remotes/origin/develop
+#>>>>>>> refs/remotes/origin/develop
     rownames = TRUE)
 )
 
