@@ -3391,6 +3391,25 @@ output$locomotivePV_svmplot <- renderPlot( {
 
 #----------------------datatable显示数据
 #-----------------在df中，又增加了3列数据，存放预测结果,
+<<<<<<< HEAD
+=======
+
+
+output$locomotivePV_table<-DT::renderDataTable(
+  DT::datatable(
+    {
+      
+      locomotivePV_data<-locomotivePV_df
+    } , 
+    colnames = c('序号', '时间', '机车台数（辆）', '客运量（亿人）','多元回归预测（辆）','随机森林回归预测（辆）','支持向量机回归预测（辆）'),
+    rownames = TRUE)
+)
+
+
+
+
+
+>>>>>>> refs/remotes/origin/Wenjing3
 
 
 output$locomotivePV_table<-DT::renderDataTable(
