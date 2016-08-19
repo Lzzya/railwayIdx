@@ -32,18 +32,17 @@ liaozili_y<-unique(substr(liaozili$tm,1,4))
 locomotive_dis<-read.csv("Locomotive-dis.csv",head=T)
 locomotive_dis_y<-unique(substr(locomotive_dis$tm,1,4))
 
-<<<<<<< HEAD
+
 locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
 locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
-=======
-#<<<<<<< HEAD
+
+
 locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
 locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
-#=======
+
 Locomotive_fre<-read.csv("Locomotive-freight.csv",head=T)#机车-货运量适配性研：读表
 Locomotive_tm<-unique(substr(Locomotive_fre$tm,1,4))
-#>>>>>>> liaozili
->>>>>>> refs/remotes/origin/develop
+
 
 freightcar_dis<-read.csv("货车车辆预测.csv",head=T)
 freightcar_dis_y<-unique(substr(freightcar_dis$tm,1,4))
@@ -1187,10 +1186,7 @@ tabPanel("固定资产-机车台数",
                               ) 
                               
                              ),
-<<<<<<< HEAD
-=======
-#<<<<<<< HEAD
->>>>>>> refs/remotes/origin/develop
+
                      
                      tabPanel("机车台数-客运量",
                               
@@ -1237,9 +1233,7 @@ tabPanel("固定资产-机车台数",
                                 )
                               )
                      ),
-<<<<<<< HEAD
-=======
-#=======
+
                      #----------------------------
                      #显示机车车辆-货运量适配性分析  
                      tabPanel("机车数量-货运量",
@@ -1286,11 +1280,7 @@ tabPanel("固定资产-机车台数",
                        )
                      )
                    ),
-                     
-                     
-                     
-#>>>>>>> liaozili
->>>>>>> refs/remotes/origin/develop
+
     #----------------------------
     #显示货车车辆-营业里程适配性分析
                      tabPanel("货车车辆-营业里程",
