@@ -3391,8 +3391,7 @@ output$locomotivePV_svmplot <- renderPlot( {
 
 #----------------------datatable显示数据
 #-----------------在df中，又增加了3列数据，存放预测结果,
-<<<<<<< HEAD
-=======
+
 
 
 output$locomotivePV_table<-DT::renderDataTable(
@@ -3409,7 +3408,7 @@ output$locomotivePV_table<-DT::renderDataTable(
 
 
 
->>>>>>> refs/remotes/origin/Wenjing3
+
 
 
 output$locomotivePV_table<-DT::renderDataTable(
