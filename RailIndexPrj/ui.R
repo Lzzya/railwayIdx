@@ -37,8 +37,8 @@ locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
 locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
 
 #<<<<<<< HEAD
-locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
-locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
+#locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
+#locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
 #=======
 Locomotive_fre<-read.csv("Locomotive-freight.csv",head=T)#机车-货运量适配性研：读表
 Locomotive_tm<-unique(substr(Locomotive_fre$tm,1,4))
