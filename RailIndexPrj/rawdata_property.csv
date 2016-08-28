@@ -1,4 +1,4 @@
-tm,kcls,hcls,jcts,dcts,tlgdzctz,cyrysl,xxpglc,fxpglc
+tm,passenger_car,freight_car,locomotive_number,bullettrain_number,fixed_assets_investment,practitioner_number,newline_tracklaying_mileage,oldline_tracklaying_mileage
 2001/12/31,38780,45.362,15756,0,898.25,262.81,1522,889
 2002/12/31,39438,45.9017,16026,0,962.73,251,1952.8,858.7
 2003/12/31,40487,51.0327,16320,0,859.92,235.5,1574.8,222.6
