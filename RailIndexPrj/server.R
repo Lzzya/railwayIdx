@@ -4714,6 +4714,7 @@ output$rawdata_relevant_industry_table<-DT::renderDataTable(
   DT::datatable(
 {
   dfrawdata<-read.csv("rawdata_relevant_industry.csv",head=T)
+  dfrawdata<-data.frame(dfrawdata[1:6])
   data<-dfrawdata},
 colnames = c('时间','成品钢材产量（亿吨）','原油加工量（亿吨）','原煤产量（亿吨）','火力发电量（亿千瓦时）','工业增加值（增长率）'),
 rownames = TRUE))
