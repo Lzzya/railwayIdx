@@ -41,7 +41,7 @@ shinyServer(function(input, output) {
   #————————————————————————————————————————————————————————————————————————————————————————————————
   
   #-------------------------------------------------------
-  #----------------------------合成指数-------------------
+  #---------------合成指数------add a comments to make a change-------------
   
   #运输合成指数计算------------------------------
   dftrans<-read.csv("trans-coor.csv",head=T)
@@ -4362,24 +4362,24 @@ colnames = c('原油加工量',  '80%概率区间下限','80%概率区间上限'
 #-------------------------------------------
 #--------工业增加值增长量时间序列预测---------
 
-dfgyzjzzltimesery<-read.csv("gyzjzzzl.csv",head=T)
-dfgyzjzzltimesery1<-ts(dfgyzjzzltimesery,start=c(2001,1),freq=12)
-dfgyzjzzltimesery0<-arima(dfgyzjzzltimesery1,order=c(1,1,1),seasonal=c(2,0,2))
-dfgyzjzzltimesery2<-forecast(dfgyzjzzltimesery0,h=12)
-dfgyzjzzltimesery3<- data.frame(dfgyzjzzltimesery2)
-dfgyzjzzltimesery3$forecast<- data.frame(dfgyzjzzltimesery2)[1]
-dfgyzjzzltimesery3$low80<- data.frame(dfgyzjzzltimesery2)[2]
-dfgyzjzzltimesery3$upper80<- data.frame(dfgyzjzzltimesery2)[3]
-dfgyzjzzltimesery3$low95<- data.frame(dfgyzjzzltimesery2)[4]
-dfgyzjzzltimesery3$upper95<- data.frame(dfgyzjzzltimesery2)[5]
-dfgyzjzzltimesery4<- data.frame(dfgyzjzzltimesery3$forecast,dfgyzjzzltimesery3$low80,dfgyzjzzltimesery3$upper80,dfgyzjzzltimesery3$low95,dfgyzjzzltimesery3$upper95)
+dfIndustrial_Added_Value_Rate<-read.csv("Industrial_Added_Value_Rate.csv",head=T)
+dfIndustrial_Added_Value_Rate1<-ts(dfIndustrial_Added_Value_Rate,start=c(2001,1),freq=12)
+dfIndustrial_Added_Value_Rate0<-arima(dfIndustrial_Added_Value_Rate1,order=c(1,1,1),seasonal=c(2,0,2))
+dfIndustrial_Added_Value_Rate2<-forecast(dfIndustrial_Added_Value_Rate0,h=12)
+dfIndustrial_Added_Value_Rate3<- data.frame(dfIndustrial_Added_Value_Rate2)
+dfIndustrial_Added_Value_Rate3$forecast<- data.frame(dfIndustrial_Added_Value_Rate2)[1]
+dfIndustrial_Added_Value_Rate3$low80<- data.frame(dfIndustrial_Added_Value_Rate2)[2]
+dfIndustrial_Added_Value_Rate3$upper80<- data.frame(dfIndustrial_Added_Value_Rate2)[3]
+dfIndustrial_Added_Value_Rate3$low95<- data.frame(dfIndustrial_Added_Value_Rate2)[4]
+dfIndustrial_Added_Value_Rate3$upper95<- data.frame(dfIndustrial_Added_Value_Rate2)[5]
+dfIndustrial_Added_Value_Rate4<- data.frame(dfIndustrial_Added_Value_Rate3$forecast,dfIndustrial_Added_Value_Rate3$low80,dfIndustrial_Added_Value_Rate3$upper80,dfIndustrial_Added_Value_Rate3$low95,dfIndustrial_Added_Value_Rate3$upper95)
 
-output$gyzjz_forecast_timesery <- renderPlot( {
-  p<- plot(dfgyzjzzltimesery2,main="工业增加值增长率（预测未来一年）",ylab="增长率",xlab="年")})
+output$Industrial_Added_Value_Rate_forecast_timesery <- renderPlot( {
+  p<- plot(dfIndustrial_Added_Value_Rate2,main="工业增加值增长率（预测未来一年）",ylab="增长率",xlab="年")})
 
-output$gyzjz_forecast_table_timesery<-DT::renderDataTable(
+output$Industrial_Added_Value_Rate_forecast_timesery_table<-DT::renderDataTable(
   DT::datatable(
-{data<-dfgyzjzzltimesery4},
+{data<-dfIndustrial_Added_Value_Rate4},
 colnames = c('工业增加值增长率',  '80%置信区间下限','80%置信区间上限','95%置信区间下限','95%置信区间上限')
   )
 )
@@ -4388,24 +4388,24 @@ colnames = c('工业增加值增长率',  '80%置信区间下限','80%置信区�
 #---------------------------------------------
 #----------固定资产投资时间序列预测-----------
 
-dfgdzctz0<-read.csv("gdzctz.csv",head=T)
-dfgdzctz00<-ts(dfgdzctz0,start=c(2001,1),freq=12)
-dfgdzctz<-arima(dfgdzctz00,order=c(4,1,2),seasonal=c(0,0,1))
-dfgdzctz2<-forecast(dfgdzctz,h=12)
-dfgdzctz3<- data.frame(dfgdzctz2)
-dfgdzctz3$forecast<- data.frame(dfgdzctz2)[1]
-dfgdzctz3$low80<- data.frame(dfgdzctz2)[2]
-dfgdzctz3$upper80<- data.frame(dfgdzctz2)[3]
-dfgdzctz3$low95<- data.frame(dfgdzctz2)[4]
-dfgdzctz3$upper95<- data.frame(dfgdzctz2)[5]
-dfgdzctz4<- data.frame(dfgdzctz3$forecast,dfgdzctz3$low80,dfgdzctz3$upper80,dfgdzctz3$low95,dfgdzctz3$upper95)
+dfInvestment_in_Fixed_Assets0<-read.csv("Investment_in_Fixed_Assets.csv",head=T)
+dfInvestment_in_Fixed_Assets00<-ts(dfInvestment_in_Fixed_Assets0,start=c(2001,1),freq=12)
+dfInvestment_in_Fixed_Assets<-arima(dfInvestment_in_Fixed_Assets00,order=c(4,1,2),seasonal=c(0,0,1))
+dfInvestment_in_Fixed_Assets2<-forecast(dfInvestment_in_Fixed_Assets,h=12)
+dfInvestment_in_Fixed_Assets3<- data.frame(dfInvestment_in_Fixed_Assets2)
+dfInvestment_in_Fixed_Assets3$forecast<- data.frame(dfInvestment_in_Fixed_Assets2)[1]
+dfInvestment_in_Fixed_Assets3$low80<- data.frame(dfInvestment_in_Fixed_Assets2)[2]
+dfInvestment_in_Fixed_Assets3$upper80<- data.frame(dfInvestment_in_Fixed_Assets2)[3]
+dfInvestment_in_Fixed_Assets3$low95<- data.frame(dfInvestment_in_Fixed_Assets2)[4]
+dfInvestment_in_Fixed_Assets3$upper95<- data.frame(dfInvestment_in_Fixed_Assets2)[5]
+dfInvestment_in_Fixed_Assets4<- data.frame(dfInvestment_in_Fixed_Assets3$forecast,dfInvestment_in_Fixed_Assets3$low80,dfInvestment_in_Fixed_Assets3$upper80,dfInvestment_in_Fixed_Assets3$low95,dfInvestment_in_Fixed_Assets3$upper95)
 
-output$gdzctz_forecast_timesery <- renderPlot( {
-  p<- plot(dfgdzctz2,main="固定资产投资（预测未来一年）",ylab="增长率",xlab="年")})
+output$Investment_in_Fixed_Assets_forecast_timesery <- renderPlot( {
+  p<- plot(dfInvestment_in_Fixed_Assets2,main="固定资产投资（预测未来一年）",ylab="增长率",xlab="年")})
 
-output$gdzctz_forecast_table_timesery<-DT::renderDataTable(
+output$Investment_in_Fixed_Assets_forecast_table_timesery<-DT::renderDataTable(
   DT::datatable(
-{data<-dfgdzctz4},
+{data<-dfInvestment_in_Fixed_Assets4},
 colnames = c('固定资产投资',  '80%置信区间下限','80%置信区间上限','95%置信区间下限','95%置信区间上限')
   )
 )
@@ -4417,357 +4417,349 @@ colnames = c('固定资产投资',  '80%置信区间下限','80%置信区间上�
 #————————————————————————————————————————————————————————————————————————————————————————
 #原始数据显示，查询显示本程序用到的所有原始数据
 #————————————————————————————————————————————————————————————————————————————————————————
-#————————————————————————————————————————————————————————————————————————————————————————
-output$yssj.xghy.plot <- renderPlot( {
-dfyssj<-read.csv("compidx-qitahangye.csv",head=T)
-dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-len<-length(dfyssj$tm)
 
-if(input$year_start_xghy> input$year_end_xghy)  {
-  p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0))
+#——相关行业——————————————————————————————————————————————————————————————————————————————————————
+output$rawdata_relevant_industry_plot <- renderPlot( {
+dfrawdata<-read.csv("rawdata_relevant_industry.csv",head=T)
+dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+len<-length(dfrawdata$tm)
+
+if(input$year_start_relevant_industry> input$year_end_relevant_industry)  {
+  p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0))
 }
 else{
-  dfyssjsub<-subset(dfyssj,(substr(dfyssj$tm,1,4)>=input$year_start_xghy) )
-  dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_xghy))
-  p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))
-}
-#--------相关行业数据
-#cpgccl.yssj---------------成品钢材产量(亿吨)
-
-if(input$xghysj.yssj=="cpgccl.yssj"){
-  p<-p+geom_line(aes(x=tm,y=cpgccl),color="black",size=0.7)+geom_point(aes(x=tm,y=cpgccl),size=2,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_relevant_industry) )
+  dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_relevant_industry))
+  p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))
 }
 
-#yyjgl.yssj --------------原油加工量(亿吨) 
-
-if (input$xghysj.yssj=="yyjgl.yssj") {
-  p<-p+geom_line(aes(x=tm,y=yyjgl),color="red",size=0.6)+geom_point(aes(x=tm,y=yyjgl),size=2,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+#iron_output_rawdata---------------成品钢材产量(亿吨)
+if(input$relevant_industry_rawdata=="iron_output_rawdata"){
+  p<-p+geom_line(aes(x=tm,y=iron_output),color="black",size=0.7)+geom_point(aes(x=tm,y=iron_output),size=2,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+}
+#oil_processing_volume_rawdata --------------原油加工量(亿吨) 
+if (input$relevant_industry_rawdata=="oil_processing_volume_rawdata") {
+  p<-p+geom_line(aes(x=tm,y=oil_processing_volume),color="red",size=0.6)+geom_point(aes(x=tm,y=oil_processing_volume),size=2,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   
 }
-
-#ymcl.yssj-----------------原煤产量(亿吨)
-if (input$xghysj.yssj=="ymcl.yssj") {
-  p<-p+geom_line(aes(x=tm,y=ymcl),color="blue",size=0.6)+ylim(1000,6000)+geom_point(aes(x=tm,y=ymcl),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
-  
+#coal_output_rawdata-----------------原煤产量(亿吨)
+if (input$relevant_industry_rawdata=="coal_output_rawdata") {
+  p<-p+geom_line(aes(x=tm,y=coal_output),color="blue",size=0.6)+ylim(1000,6000)+geom_point(aes(x=tm,y=coal_output),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
 }
-#hlfdl.yssj----------------火力发电量(亿千瓦时)
-
-if (input$xghysj.yssj=="hlfdl.yssj") {
-  p<-p+geom_line(aes(x=tm,y=hlfdl),color="orange",size=0.6)+ylim(500,4500)+geom_point(aes(x=tm,y=hlfdl),size=2,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
-  
+#coalfired_power_generation_rawdata----------------火力发电量(亿千瓦时)
+if (input$relevant_industry_rawdata=="coalfired_power_generation_rawdata") {
+  p<-p+geom_line(aes(x=tm,y=coalfired_power_generation),color="orange",size=0.6)+ylim(500,4500)+geom_point(aes(x=tm,y=coalfired_power_generation),size=2,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+#industrial_added_value_rawdata-----------工业增加值
+if (input$relevant_industry_rawdata=="industrial_added_value_rawdata") {
+  p<-p+geom_line(aes(x=tm,y=industrial_added_value),color="purple",size=0.6)+ylim(3,25)
+  p<-p+geom_point(aes(x=tm,y=industrial_added_value),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
 }
 
-#gyzjz.yssj-----------工业增加值
-if (input$xghysj.yssj=="gyzjz.yssj") {
-  p<-p+geom_line(aes(x=tm,y=gyzjz),color="purple",size=0.6)+ylim(3,25)
-  p<-p+geom_point(aes(x=tm,y=gyzjz),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
-  
-}
 p+ylab("相关行业数据")+xlab("时间")+geom_line()
 
 })
 
-#-----------------运输原始数据
-output$yssj.ylxg.plot <- renderPlot( {
+#-运量相关原始数据
+output$rawdata_transport_plot <- renderPlot( {
   
-  dfyssj<-read.csv("compidx-yunliang.csv",head=T)
-  dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-  len<-length(dfyssj$tm)
+  dfrawdata<-read.csv("rawdata_transport.csv",head=T)
+  dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
 
   
-  if(input$year_start_ylxg> input$year_end_ylxg)  {
-    p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0))
+  if(input$year_start_rawdata_transport> input$year_end_rawdata_transport)  {
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0))
   }
   else{
-    dfyssjsub<-subset(dfyssj,(substr(dfyssj$tm,1,4)>=input$year_start_ylxg) )
-    dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_ylxg))
-    p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_rawdata_transport) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_rawdata_transport))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))
   }
   
-  
-  #hyzzl.yssj -----------货运周转量(亿吨公里)
-  
-  if(input$ylxg.yssj=="hyzzl.yssj"){
-    p<-p+geom_line(aes(x=tm,y=hyzzl),color="black",size=0.6)+ylim(1,3)+geom_point(aes(x=tm,y=hyzzl),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  #freight_rotation_volume_rawdata -----------货运周转量(亿吨公里)
+  if(input$transport_rawdata=="freight_rotation_volume_rawdata"){
+    p<-p+geom_line(aes(x=tm,y=freight_rotation_volume),color="black",size=0.6)+ylim(1,3)+geom_point(aes(x=tm,y=freight_rotation_volume),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #hyl.yssj  ------------货运量(亿吨)
-  if (input$ylxg.yssj=="hyl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=hyl),color="red",size=0.6)+ylim(800,2500)
-    p<-p+geom_point(aes(x=tm,y=hyl),size=2,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  #freight_volume_rawdata  ------------货运量(亿吨)
+  if (input$transport_rawdata=="freight_volume_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=freight_volume),color="red",size=0.6)+ylim(800,2500)
+    p<-p+geom_point(aes(x=tm,y=freight_volume),size=2,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
   
-  
-  #kyl.yssj----------客运量(亿人)
-  if (input$ylxg.yssj=="kyl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=kyl),color="blue",size=0.6)+ylim(0.5,3)
-    p<-p+geom_point(aes(x=tm,y=kyl),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  #passenger_volume_rawdata----------客运量(亿人)
+  if (input$transport_rawdata=="passenger_volume_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=passenger_volume),color="blue",size=0.6)+ylim(0.5,3)
+    p<-p+geom_point(aes(x=tm,y=passenger_volume),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   
-  # kyzzl.yssj---------------客运周转量(亿人公里)
-  if (input$ylxg.yssj=="kyzzl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=kyzzl),color="purple",size=0.6)
-    p<-p+geom_point(aes(x=tm,y=kyzzl),size=2,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  # passenger_person_km_rawdata---------------客运周转量(亿人公里)
+  if (input$transport_rawdata=="passenger_person_km_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=passenger_person_km),color="purple",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=passenger_person_km),size=2,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
   
   p+ylab("运量相关")+xlab("时间")+geom_line()
 })
 
-
 # 运营相关
-output$yssj.yyxg.plot <- renderPlot( {
+output$rawdata_operation_plot <- renderPlot( {
   
-  dfyssj<-read.csv("compidx-yunying.csv",head=T)
-  dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-  len<-length(dfyssj$tm)
+  dfrawdata<-read.csv("rawdata_operation.csv",head=T)
+  dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
   
   
-  if(input$year_start_yyxg> input$year_end_yyxg)  {
-    p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0))
+  if(input$year_start_operation> input$year_end_operation)  {
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0))
   }
   else{
-    dfyssjsub<-subset(dfyssj,(substr(dfyssj$tm,1,4)>=input$year_start_yyxg) )
-    dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_yyxg))
-    p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_operation) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_operation))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))
   }
-  #yylc-----------运营里程
-  if(input$yyxg.yssj=="yylc.yssj"){
-    p<-p+geom_line(aes(x=tm,y=yylc),color="black",size=0.6)+ylim(60000,120000)
-    p<-p+geom_point(aes(x=tm,y=yylc),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  #mileage-----------运营里程
+  if(input$operation_rawdata=="mileage_rawdata"){
+    p<-p+geom_line(aes(x=tm,y=mileage),color="black",size=0.6)+ylim(60000,120000)
+    p<-p+geom_point(aes(x=tm,y=mileage),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #rjyyc---------日均运用车
-  if (input$yyxg.yssj=="rjyyc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=rjyyc),color="red",size=0.6)+ylim(40,55)
-    p<-p+geom_point(aes(x=tm,y=rjyyc),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  #dailycar_run---------日均运用车
+  if (input$operation_rawdata=="dailycar_run_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=dailycar_run),color="red",size=0.6)+ylim(40,55)
+    p<-p+geom_point(aes(x=tm,y=dailycar_run),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
-  #rjxzc--------日均现在车
-  if (input$yyxg.yssj=="rjxzc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=rjxzc),color="purple",size=0.6)+ylim(40,90)
-    p<-p+geom_point(aes(x=tm,y=rjxzc),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  #dailycar_now--------日均现在车
+  if (input$operation_rawdata=="dailycar_now_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=dailycar_now),color="purple",size=0.6)+ylim(40,90)
+    p<-p+geom_point(aes(x=tm,y=dailycar_now),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #kyjcrcgl-----------客运机车日车公里
-  if (input$yyxg.yssj=="kyjcrcgl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=kyjcrcgl),color="blue",size=0.6)+ylim(500,1000)
-    p<-p+geom_point(aes(x=tm,y=kyjcrcgl),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  #locomotive_mileage_pcar-----------客运机车日车公里
+  if (input$operation_rawdata=="locomotive_mileage_pcar_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=locomotive_mileage_pcar),color="blue",size=0.6)+ylim(500,1000)
+    p<-p+geom_point(aes(x=tm,y=locomotive_mileage_pcar),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #hyjcrcgl-----------货运机车日车公里
-  if (input$yyxg.yssj=="hyjcrcgl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=hyjcrcgl),color="blue",size=0.6)+ylim(400,600)
-    p<-p+geom_point(aes(x=tm,y=hyjcrcgl),size=4,shape=21,colour="darkgreen",fill="cornsilk",position=position_dodge(width=0.2))
+  #locomotive_mileage_fcar-----------货运机车日车公里
+  if (input$operation_rawdata=="locomotive_mileage_fcar_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=locomotive_mileage_fcar),color="blue",size=0.6)+ylim(400,600)
+    p<-p+geom_point(aes(x=tm,y=locomotive_mileage_fcar),size=4,shape=21,colour="darkgreen",fill="cornsilk",position=position_dodge(width=0.2))
   }
   
-  #jczxzlc-------------机车总行走里程
-  if (input$yyxg.yssj=="jczxzlc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=jczxzlc),color="orange",size=0.6)+ylim(200,350)
-    p<-p+geom_point(aes(x=tm,y=jczxzlc),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  #locomotive_mileage_sum-------------机车总行走里程
+  if (input$operation_rawdata=="locomotive_mileage_sum_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=locomotive_mileage_sum),color="orange",size=0.6)+ylim(200,350)
+    p<-p+geom_point(aes(x=tm,y=locomotive_mileage_sum),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
   
   p+ylab("运营相关")+xlab("时间")+geom_line()
 })
 
-output$yssj.zcxg.plot <- renderPlot( {
+#资产相关
+output$rawdata_property_plot <- renderPlot( {
   
-  dfyssj<-read.csv("compidx-zichan.csv",head=T)
-  dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-  len<-length(dfyssj$tm)
+  dfrawdata<-read.csv("rawdata_property.csv",head=T)
+  dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
   
   
-  if(input$year_start_zcxg> input$year_end_zcxg)  {
-    p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0))
+  if(input$year_start_operation> input$year_end_property)  {
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0))
   }
   else{
-    dfyssjsub<-subset(dfyssj,(substr(dfyssj$tm,1,4)>=input$year_start_zcxg) )
-    dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_zcxg))
-    p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_property) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_property))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))
   }
-  #kcls------------客车辆数
-  if(input$zcxg.yssj=="kcls.yssj"){
-    p<-p+geom_line(aes(x=tm,y=kcls),color="black",size=0.6)+ylim(30000,70000)
-    p<-p+geom_point(aes(x=tm,y=kcls),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  #passenger_car------------客车辆数
+  if(input$property_rawdata=="passenger_car_rawdata"){
+    p<-p+geom_line(aes(x=tm,y=passenger_car),color="black",size=0.6)+ylim(30000,70000)
+    p<-p+geom_point(aes(x=tm,y=passenger_car),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #hcls-----------货车辆数
-  if (input$zcxg.yssj=="hcls.yssj") {
-    p<-p+geom_line(aes(x=tm,y=hcls),color="red",size=0.6)+ylim(40,80)
-    p<-p+geom_point(aes(x=tm,y=hcls),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  #freight_car-----------货车辆数
+  if (input$property_rawdata=="freight_car_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=freight_car),color="red",size=0.6)+ylim(40,80)
+    p<-p+geom_point(aes(x=tm,y=freight_car),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
-  #jcts---------- 机车台数
-  if (input$zcxg.yssj=="jcts.yssj") {
-    p<-p+geom_line(aes(x=tm,y=jcts),color="blue",size=0.6)+ylim(13000,25000)
-    p<-p+geom_point(aes(x=tm,y=jcts),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  #locomotive_number---------- 机车台数
+  if (input$property_rawdata=="locomotive_number_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=locomotive_number),color="blue",size=0.6)+ylim(13000,25000)
+    p<-p+geom_point(aes(x=tm,y=locomotive_number),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #dcts------------动车台数
-  if(input$zcxg.yssj=="dcts.yssj"){
-    p<-p+geom_line(aes(x=tm,y=dcts),color="purple",size=0.6)+ylim(500,1500)
-    p<-p+geom_point(aes(x=tm,y=dcts),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  #bullettrain_number------------动车台数
+  if(input$property_rawdata=="bullettrain_number_rawdata"){
+    p<-p+geom_line(aes(x=tm,y=bullettrain_number),color="purple",size=0.6)+ylim(500,1500)
+    p<-p+geom_point(aes(x=tm,y=bullettrain_number),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #cyrysl------------从业人员数量
-  if (input$zcxg.yssj=="cyrysl.yssj") {
-    p<-p+geom_line(aes(x=tm,y=cyrysl),color="orange",size=0.6)+ylim(180,320)
-    p<-p+geom_point(aes(x=tm,y=cyrysl),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  #practitioner_number------------从业人员数量
+  if (input$property_rawdata=="practitioner_number_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=practitioner_number),color="orange",size=0.6)+ylim(180,320)
+    p<-p+geom_point(aes(x=tm,y=practitioner_number),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #tlgdzctz------------铁路固定资产投资
-  if (input$zcxg.yssj=="tlgdzctz.yssj") {
-    p<-p+geom_line(aes(x=tm,y=tlgdzctz),color="darkgreen",size=0.6)
-    p<-p+geom_point(aes(x=tm,y=tlgdzctz),size=4,shape=21,colour="darkgreen",fill="cornsilk",position=position_dodge(width=0.2))
+  #fixed_assets_investment------------铁路固定资产投资
+  if (input$property_rawdata=="fixed_assets_investment_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=fixed_assets_investment),color="darkgreen",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=fixed_assets_investment),size=4,shape=21,colour="darkgreen",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #xxpglc-----------新线铺轨里程
-  if (input$zcxg.yssj=="xxpglc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=xxpglc),color="red",size=0.6)
-    p<-p+geom_point(aes(x=tm,y=xxpglc),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  #newline_tracklaying_mileage-----------新线铺轨里程
+  if (input$property_rawdata=="newline_tracklaying_mileage_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=newline_tracklaying_mileage),color="red",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=newline_tracklaying_mileage),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
-  #fxpglc------------复线铺轨里程
-  if (input$zcxg.yssj=="fxpglc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=fxpglc),color="brown",size=0.6)
-    p<-p+geom_point(aes(x=tm,y=fxpglc),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  #oldline_tracklaying_mileage------------复线铺轨里程
+  if (input$property_rawdata=="oldline_tracklaying_mileage_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=oldline_tracklaying_mileage),color="brown",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=oldline_tracklaying_mileage),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
   p+ylab("规模相关")+xlab("时间")+geom_line()
 })  
 
 #----黑货运量原始数据---------------
-output$yssj.heihuo.plot <- renderPlot( {
+output$rawdata_black_plot <- renderPlot( {
   
-  dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
-  dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-  len<-length(dfyssj$tm)
+  dfrawdata<-read.csv("rawdata_black_white.csv",head=T)
+  dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
   
-  if(input$year_start_heihuo.yssj>input$year_end_heihuo.yssj)  { 
-    p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0)) }
+  if(input$year_start_black_rawdata>input$year_end_black_rawdata)  { 
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0)) }
   
   else{
-    dfyssjsub<-subset(dfyssj,(substr(dfyssj$tm,1,4)>=input$year_start_heihuo.yssj) )
-    dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_heihuo.yssj))
-    p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))   }
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_black_rawdata) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_black_rawdata))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))   }
   
-  #jsks------------金属矿石
-  if (input$heihuo.yssj=="jsks.yssj") {
-    p<-p+geom_line(aes(x=tm,y=jsks),color="red",size=0.6)+ylim(2000,4000)
-    p<-p+geom_point(aes(x=tm,y=jsks),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  #metal------------金属矿石
+  if (input$black_rawdata=="metal_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=metal),color="red",size=0.6)+ylim(2000,4000)
+    p<-p+geom_point(aes(x=tm,y=metal),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
-  #kuangjian---------矿建
-  if (input$heihuo.yssj=="kuangjian.yssj") {
-    p<-p+geom_line(aes(x=tm,y=kuangjian),color="red",size=0.6)+ylim(300,1600)
-    p<-p+geom_point(aes(x=tm,y=kuangjian),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+  #mine---------矿建
+  if (input$black_rawdata=="mine_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=mine),color="red",size=0.6)+ylim(300,1600)
+    p<-p+geom_point(aes(x=tm,y=mine),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   
-  #gangcai------钢材的运量月度
-  if (input$heihuo.yssj=="gangcai.yssj") {
-    p<-p+geom_line(aes(x=tm,y=gangcai),color="blue",size=0.6)+ylim(1200,2200)
-    p<-p+geom_point(aes(x=tm,y=gangcai),size=4,shape=21,colour="darkblue",fill="blue",position=position_dodge(width=0.2))}
+  #iron------钢材的运量月度
+  if (input$black_rawdata=="iron_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=iron),color="blue",size=0.6)+ylim(1200,2200)
+    p<-p+geom_point(aes(x=tm,y=iron),size=4,shape=21,colour="darkblue",fill="blue",position=position_dodge(width=0.2))}
   
-  #shiyou----------石油的运量月度
-  if (input$heihuo.yssj=="shiyou.yssj") {
-    p<-p+geom_line(aes(x=tm,y=shiyou),color="brown",size=0.6)+ylim(900,1200)
-    p<-p+geom_point(aes(x=tm,y=shiyou),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+  #oil----------石油的运量月度
+  if (input$black_rawdata=="oil_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=oil),color="brown",size=0.6)+ylim(900,1200)
+    p<-p+geom_point(aes(x=tm,y=oil),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   
-  #mei--------煤的运量月度
-  if (input$heihuo.yssj=="mei.yssj") {
-    p<-p+geom_line(aes(x=tm,y=mei),color="blue",size=0.6)+ylim(9000,16000)
-    p<-p+geom_point(aes(x=tm,y=mei),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+  #coal--------煤的运量月度
+  if (input$black_rawdata=="coal_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=coal),color="blue",size=0.6)+ylim(9000,16000)
+    p<-p+geom_point(aes(x=tm,y=coal),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
   
   p+ylab("黑货运量")+xlab("时间")+geom_line()
 })  
 
 #----白货运量原始数据---------------
-output$yssj.baihuo.plot <- renderPlot( {
+output$rawdata_white_plot <- renderPlot( {
   
-  dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
-  dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-  len<-length(dfyssj$tm)
+  dfrawdata<-read.csv("rawdata_black_white.csv",head=T)
+  dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
   
-  if(input$year_start_baihuo.yssj> input$year_end_baihuo.yssj)  { 
-    p<-ggplot(dfyssj,x=c(dfyssj$tm[1],dfyssj$tm[len]),aes(x=tm[1],y=0)) }
+  if(input$year_start_white_rawdata> input$year_end_white_rawdata)  { 
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0)) }
   
   else{
-    dfyssjsub<-subset(dfyssj,(substr(dfyssj$tm,1,4)>=input$year_start_baihuo.yssj) )
-    dfyssjsub<-subset(dfyssjsub,(substr(dfyssjsub$tm,1,4)<=input$year_end_baihuo.yssj))
-    p<-ggplot(dfyssjsub,x=c(dfyssjsub$tm[1],dfyssjsub$tm[len]),aes(x=tm[1],y=0))   }
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_white_rawdata) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_white_rawdata))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))   }
   
-  #gyjx--------------工业机械
-  if(input$baihuo.yssj=="gyjx.yssj"){
-    p<-p+geom_line(aes(x=tm,y=gyjx),color="black",size=0.6)+ylim(20,55)
-    p<-p+geom_point(aes(x=tm,y=gyjx),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  #machinery--------------工业机械
+  if(input$white_rawdata=="machinery_rawdata"){
+    p<-p+geom_line(aes(x=tm,y=machinery),color="black",size=0.6)+ylim(20,55)
+    p<-p+geom_point(aes(x=tm,y=machinery),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #dzdq--------------电子电器
-  if (input$baihuo.yssj=="dzdq.yssj") {
-    p<-p+geom_line(aes(x=tm,y=dzdq),color="red",size=0.6)+geom_point(aes(x=tm,y=dzdq),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  #electronic--------------电子电器
+  if (input$white_rawdata=="electronic_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=electronic),color="red",size=0.6)+geom_point(aes(x=tm,y=electronic),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
     
   }
-  #nfcp-------------农副产品
-  if (input$baihuo.yssj=="nfcp.yssj") {
-    p<-p+geom_line(aes(x=tm,y=nfcp),color="blue",size=0.6)
-    p<-p+geom_point(aes(x=tm,y=nfcp),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  #agricultural-------------农副产品
+  if (input$white_rawdata=="agricultural_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=agricultural),color="blue",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=agricultural),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #ysyc------------饮食烟草
-  if (input$baihuo.yssj=="ysyc.yssj") {
-    p<-p+geom_line(aes(x=tm,y=ysyc),color="orange",size=0.6)+ylim(70,230)
-    p<-p+geom_point(aes(x=tm,y=ysyc),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  #food_tobacco------------饮食烟草
+  if (input$white_rawdata=="food_tobacco_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=food_tobacco),color="orange",size=0.6)+ylim(70,230)
+    p<-p+geom_point(aes(x=tm,y=food_tobacco),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
-  #wjyp------------文教用品
-  if (input$baihuo.yssj=="wjyp.yssj") {
-    p<-p+geom_line(aes(x=tm,y=wjyp),color="darkgreen",size=0.6)+ylim(25,65)
-    p<-p+geom_point(aes(x=tm,y=wjyp),size=4,shape=21,colour="darkblue",fill="lightgreen",position=position_dodge(width=0.2))
+  #education------------文教用品
+  if (input$white_rawdata=="education_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=education),color="darkgreen",size=0.6)+ylim(25,65)
+    p<-p+geom_point(aes(x=tm,y=education),size=4,shape=21,colour="darkblue",fill="lightgreen",position=position_dodge(width=0.2))
   }
-  #ldld-------------零担
-  if (input$baihuo.yssj=="ldld.yssj") {
-    p<-p+geom_line(aes(x=tm,y=ldld),color="red",size=0.6)
-    p<-p+geom_point(aes(x=tm,y=ldld),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  #ltl-------------零担
+  if (input$white_rawdata=="ltl_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=ltl),color="red",size=0.6)
+    p<-p+geom_point(aes(x=tm,y=ltl),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
-  #jzx--------------集装箱
-  if (input$baihuo.yssj=="jzx.yssj") {
-    p<-p+geom_line(aes(x=tm,y=jzx),color="brown",size=0.6)+ylim(300,1000)
-    p<-p+geom_point(aes(x=tm,y=jzx),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  #container--------------集装箱
+  if (input$white_rawdata=="container_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=container),color="brown",size=0.6)+ylim(300,1000)
+    p<-p+geom_point(aes(x=tm,y=container),size=4,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   
   p+ylab("白货运量")+xlab("时间")+geom_line()
 })  
 
-output$yssj.xghy.table<-DT::renderDataTable(
+#其他行业
+output$rawdata_relevant_industry_table<-DT::renderDataTable(
   DT::datatable(
 {
-  dfyssj<-read.csv("compidx-qitahangye.csv",head=T)
-  data<-dfyssj},
+  dfrawdata<-read.csv("rawdata_relevant_industry.csv",head=T)
+  dfrawdata<-data.frame(dfrawdata[1:6])
+  data<-dfrawdata},
 colnames = c('时间','成品钢材产量（亿吨）','原油加工量（亿吨）','原煤产量（亿吨）','火力发电量（亿千瓦时）','工业增加值（增长率）'),
 rownames = TRUE))
 
-#yssj.ylxg-----------原始数据/运量相关
-output$yssj.ylxg.table<-DT::renderDataTable(
+#rawdata_transport-----------原始数据/运量相关
+output$rawdata_transport_table<-DT::renderDataTable(
   DT::datatable(
 {  
-  dfyssj<-read.csv("compidx-yunliang.csv",head=T)
-  data<-dfyssj},
+  dfrawdata<-read.csv("rawdata_transport.csv",head=T)
+  data<-dfrawdata},
 colnames = c('时间','货运量（亿吨）','货运周转量（亿吨公里）','客运量（亿人）','客运周转量（亿人公里）'),
 rownames = TRUE))
 
-output$yssj.yyxg.table<-DT::renderDataTable(
+output$rawdata_operation_table<-DT::renderDataTable(
   DT::datatable(
 {  
-  dfyssj<-read.csv("compidx-yunying.csv",head=T)
-  data<-dfyssj},
+  dfrawdata<-read.csv("rawdata_operation.csv",head=T)
+  data<-dfrawdata},
 colnames = c('时间','营业里程（km）','日均运用车（万辆）','日均现在车（万辆）','客运机车日车公里（km）','货运机车日车公里（km）','机车总行走里程（1000km）'),
 rownames = TRUE))
 
-#yssj.zcxg-------原始数据/资产相关
-output$yssj.zcxg.table<-DT::renderDataTable(
+#rawdata_property-------原始数据/资产相关
+output$rawdata_property_table<-DT::renderDataTable(
   DT::datatable(
 {  
-  dfyssj<-read.csv("compidx-zichan.csv",head=T)
-  data<-dfyssj},
+  dfrawdata<-read.csv("rawdata_property.csv",head=T)
+  data<-dfrawdata},
 colnames = c('时间','客车辆数(辆)','货车辆数(万辆)','机车台数(辆)','动车台数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
 rownames = TRUE))
 
-output$yssj.heihuo.table<-DT::renderDataTable(
+output$rawdata_black_table<-DT::renderDataTable(
   DT::datatable(
     {  
-      dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
-      dfyssj<-data.frame(dfyssj[1],dfyssj[9:13])
-      data<-dfyssj},
+      dfrawdata<-read.csv("rawdata_black_white.csv",head=T)
+      dfrawdata<-data.frame(dfrawdata[1],dfrawdata[9:13])
+      data<-dfrawdata},
     colnames = c('时间','金属矿石(万吨)','矿建(万吨)','钢材(万吨)', '石油(万吨)','煤(万吨)'),
     rownames = TRUE))
 
-output$yssj.baihuo.table<-DT::renderDataTable(
+output$rawdata_white_table<-DT::renderDataTable(
   DT::datatable(
     {  
-      dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
-      dfyssj<-data.frame(dfyssj[1:8])
-      data<-dfyssj},
+      dfrawdata<-read.csv("rawdata_black_white.csv",head=T)
+      dfrawdata<-data.frame(dfrawdata[1:8])
+      data<-dfrawdata},
     colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担(吨)','集装箱(万吨)'),
     rownames = TRUE))
 
