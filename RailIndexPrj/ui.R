@@ -89,13 +89,13 @@ passagerpre_y<-unique(substr(passagerpre_df$Year,1,4)) #提取年份
 
 #-----------------------------------------
 #---------原始数据------------------------
-dfyssj<-read.csv("compidx-qitahangye.csv",head=T)
-dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  
-y.wenjing.yssj<-unique(substr(dfyssj$tm,1,4))
+dfrawdata<-read.csv("rawdata_relevant_industry.csv",head=T)
+dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  
+y_wenjing_rawdata<-unique(substr(dfrawdata$tm,1,4))
 
-dfyssj.hhbh<-read.csv("compidx-heihuobaihuo.csv",head=T)
-dfyssj.hhbh$tm<-as.Date.POSIXct(dfyssj.hhbh$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  
-y.wenjing.yssj.hhbh<-unique(substr(dfyssj.hhbh$tm,1,4))
+dfrawdata_black_white<-read.csv("rawdata_black_white.csv",head=T)
+dfrawdata_black_white$tm<-as.Date.POSIXct(dfrawdata_black_white$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  
+y_wenjing_rawdata_black_white<-unique(substr(dfrawdata_black_white$tm,1,4))
 
 #———————————————————————————————————————————————————————————————————————————————
 #-----------------------------------------主界面--------------------------------
@@ -588,10 +588,10 @@ navbarMenu("铁路景气指数",
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
                                                                                 textInput(inputId="scale_hyl_percent_input",
-                                                                                          label=h5("工业增加值%"),
+                                                                                          label=h5("货运量%"),
                                                                                           value="17.87"),
                                                                                 textInput(inputId="scale_gyzjz_percent_input",
-                                                                                          label=h5("货运量%"),
+                                                                                          label=h5("工业增加值量%"),
                                                                                           value="67.71"),
                                                                                 textInput(inputId="scale_hyzzl_percent_input",
                                                                                           label=h5("货运周转量%"),
@@ -1574,24 +1574,24 @@ tabPanel("客运量预测",
                           column(12,DT::dataTableOutput("freight_forecast_table"))
                         ) 
                         ),
-               tabPanel("工业增加值增长量",
-                        titlePanel("工业增加值增长量时间序列预测"),
+               tabPanel("工业增加值增长率",
+                        titlePanel("工业增加值增长率时间序列预测"),
                         
                         fluidRow(
-                          plotOutput(outputId = "gyzjz_forecast_timesery", height = "600px")
+                          plotOutput(outputId = "Industrial_Added_Value_Rate_forecast_timesery", height = "600px")
                         ), 
                         fluidRow(
-                          column(12,DT::dataTableOutput("gyzjz_forecast_table_timesery"))
+                          column(12,DT::dataTableOutput("Industrial_Added_Value_Rate_forecast_timesery_table"))
                         )
                         ),
                tabPanel("铁路固定资产",
                         titlePanel("铁路固定资产时间序列预测"),
                         
                         fluidRow(
-                          plotOutput(outputId = "gdzctz_forecast_timesery", height = "600px")
+                          plotOutput(outputId = "Investment_in_Fixed_Assets_forecast_timesery", height = "600px")
                         ), 
                         fluidRow(
-                          column(12,DT::dataTableOutput("gdzctz_forecast_table_timesery"))
+                          column(12,DT::dataTableOutput("Investment_in_Fixed_Assets_forecast_table_timesery"))
                         )
                         ),
                tabPanel("货车车辆数",
@@ -1659,30 +1659,30 @@ tabPanel("原始数据",
                                               sidebarLayout(
                                                 sidebarPanel(
                                                   
-                                                  radioButtons(inputId="xghysj.yssj", #xghysj.yssj 原始数据显示中的相关行业数据页签的单选框，以下是5个类别的变量代码
+                                                  radioButtons(inputId="relevant_industry_rawdata", #xghysj_rawdata 原始数据显示中的相关行业数据页签的单选框，以下是5个类别的变量代码
                                                                label=NULL,
-                                                               choices = c("成品钢材产量(亿吨)"="cpgccl.yssj",
-                                                                           "原油加工量(亿吨)"="yyjgl.yssj",
-                                                                           "原煤产量(亿吨)"="ymcl.yssj",
-                                                                           "火力发电量(亿千瓦时)"="hlfdl.yssj",
-                                                                           "工业增加值(%)"="gyzjz.yssj") ),
+                                                               choices = c("成品钢材产量(亿吨)"="iron_output_rawdata",
+                                                                           "原油加工量(亿吨)"="oil_processing_volume_rawdata",
+                                                                           "原煤产量(亿吨)"="coal_output_rawdata",
+                                                                           "火力发电量(亿千瓦时)"="coalfired_power_generation_rawdata",
+                                                                           "工业增加值(%)"="industrial_added_value_rawdata") ),
                                                   hr(),
-                                                  selectInput(inputId = "year_start_xghy", #year_start_xghy 相关行业数据中的起始年下拉框，以下终止年雷同
+                                                  selectInput(inputId = "year_start_relevant_industry", #year_start_xghy 相关行业数据中的起始年下拉框，以下终止年雷同
                                                               label = "自:", 
-                                                              choices = y.wenjing.yssj,
-                                                              selected = min(y.wenjing.yssj) ),
-                                                  selectInput(inputId="year_end_xghy",
+                                                              choices = y_wenjing_rawdata,
+                                                              selected = min(y_wenjing_rawdata) ),
+                                                  selectInput(inputId="year_end_relevant_industry",
                                                               label="至:",
-                                                              choice=y.wenjing.yssj,
-                                                              selected=max(y.wenjing.yssj) ),
+                                                              choice=y_wenjing_rawdata,
+                                                              selected=max(y_wenjing_rawdata) ),
                                                   width=3
                                                 ),     #siderbarpanel
-                                                mainPanel(plotOutput(outputId = "yssj.xghy.plot", height = "400px"),width=9)#yssj.xghy.plot原始数据中相关行业的画图
+                                                mainPanel(plotOutput(outputId = "rawdata_relevant_industry_plot", height = "400px"),width=9)#rawdata_relevant_industry_plot原始数据中相关行业的画图
                                               )  #mainpanel
                                             ),
                                             
                                             fluidRow(
-                                              column(12,DT::dataTableOutput("yssj.xghy.table"))#yssj.xghy.table原始数据中相关行业的数据表输出
+                                              column(12,DT::dataTableOutput("rawdata_relevant_industry_table"))#rawdata_relevant_industry_table原始数据中相关行业的数据表输出
                                             )
                                   ), #第一个页签
                                   
@@ -1693,29 +1693,29 @@ tabPanel("原始数据",
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
-                                                 radioButtons(inputId="ylxg.yssj",#ylxg.yssj 原始数据显示中的运量相关数据页签的单选框，以下是4个类别的变量代码
+                                                 radioButtons(inputId="transport_rawdata",#transport_rawdata 原始数据显示中的运量相关数据页签的单选框，以下是4个类别的变量代码
                                                               label=NULL,
-                                                              choices = c("货运量(亿吨)"="hyl.yssj",
-                                                                          "货运周转量(亿吨)"="hyzzl.yssj",
-                                                                          "客运量(亿人)"="kyl.yssj",
-                                                                          "客运周转量(亿人)"="kyzzl.yssj") ),
+                                                              choices = c("货运量(亿吨)"="freight_volume_rawdata",
+                                                                          "货运周转量(亿吨)"="freight_rotation_volume_rawdata",
+                                                                          "客运量(亿人)"="passenger_volume_rawdata",
+                                                                          "客运周转量(亿人)"="passenger_person_km_rawdata") ),
                                                  hr(),
-                                                 selectInput(inputId = "year_start_ylxg",#year_start_xghy 运量相关数据中的起始年下拉框，以下终止年雷同
+                                                 selectInput(inputId = "year_start_rawdata_transport",#year_start_xghy 运量相关数据中的起始年下拉框，以下终止年雷同
                                                              label = "自:", 
-                                                             choices = y.wenjing.yssj,
-                                                             selected = min(y.wenjing.yssj) ),
-                                                 selectInput(inputId="year_end_ylxg",
+                                                             choices = y_wenjing_rawdata,
+                                                             selected = min(y_wenjing_rawdata) ),
+                                                 selectInput(inputId="year_end_rawdata_transport",
                                                              label="至:",
-                                                             choice=y.wenjing.yssj,
-                                                             selected=max(y.wenjing.yssj) ),
+                                                             choice=y_wenjing_rawdata,
+                                                             selected=max(y_wenjing_rawdata) ),
                                                  width=3
                                                ),
                                                
-                                               mainPanel(plotOutput(outputId = "yssj.ylxg.plot", height = "380px"),width=9)#yssj.ylxg.plot原始数据中运量相关的画图
+                                               mainPanel(plotOutput(outputId = "rawdata_transport_plot", height = "380px"),width=9)#rawdata_transport_plot原始数据中运量相关的画图
                                              )),
                                            
                                            fluidRow(
-                                             column(12,DT::dataTableOutput("yssj.ylxg.table")) #yssj.ylxg.table原始数据中运量相关的数据表输出
+                                             column(12,DT::dataTableOutput("rawdata_transport_table")) #rawdata_transport_table原始数据中运量相关的数据表输出
                                            )
                                   ), #第二个页签
                                   
@@ -1725,68 +1725,68 @@ tabPanel("原始数据",
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
-                                                 radioButtons(inputId="yyxg.yssj",#与上雷同，yyxg:运营相关原始数据
+                                                 radioButtons(inputId="operation_rawdata",#与上雷同，operation:运营相关原始数据
                                                               label=NULL,
-                                                              choices = c("营业里程(km)"="yylc.yssj",
-                                                                          "日均运用车(万辆)"="rjyyc.yssj",
-                                                                          "日均现在车(万辆)"="rjxzc.yssj",
-                                                                          "客运机车日车公里(km)"="kyjcrcgl.yssj",
-                                                                          "货运机车日车公里(km)"="hyjcrcgl.yssj",
-                                                                          "机车总行走里程(1000km)"="jczxzlc.yssj") ),
+                                                              choices = c("营业里程(km)"="mileage_rawdata",
+                                                                          "日均运用车(万辆)"="dailycar_run_rawdata",
+                                                                          "日均现在车(万辆)"="dailycar_now_rawdata",
+                                                                          "客运机车日车公里(km)"="locomotive_mileage_pcar_rawdata",
+                                                                          "货运机车日车公里(km)"="locomotive_mileage_fcar_rawdata",
+                                                                          "机车总行走里程(1000km)"="locomotive_mileage_sum_rawdata") ),
                                                  hr(),     
-                                                 selectInput(inputId = "year_start_yyxg",
+                                                 selectInput(inputId = "year_start_operation",
                                                              label = "自:", 
-                                                             choices = y.wenjing.yssj,
-                                                             selected = min(y.wenjing.yssj) ),
-                                                 selectInput(inputId="year_end_yyxg",
+                                                             choices = y_wenjing_rawdata,
+                                                             selected = min(y_wenjing_rawdata) ),
+                                                 selectInput(inputId="year_end_operation",
                                                              label="至:",
-                                                             choice=y.wenjing.yssj,
-                                                             selected=max(y.wenjing.yssj) ),
+                                                             choice=y_wenjing_rawdata,
+                                                             selected=max(y_wenjing_rawdata) ),
                                                  width=3
                                                ),
-                                               mainPanel(plotOutput(outputId = "yssj.yyxg.plot", height = "440px"),width=9 ))
+                                               mainPanel(plotOutput(outputId = "rawdata_operation_plot", height = "440px"),width=9 ))
                                            ),
                                            
                                            
                                            fluidRow(
-                                             column(12,DT::dataTableOutput("yssj.yyxg.table"))
+                                             column(12,DT::dataTableOutput("rawdata_operation_table"))
                                            )
                                   ), #第三个页签
                                   
                                   
-                                  #-------------------页签：规模相关---------------------------------------------    
-                                  tabPanel("规模相关",           #第四个页签
+                                  #-------------------页签：资产相关---------------------------------------------    
+                                  tabPanel("资产相关",           #第四个页签
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
-                                                 radioButtons(inputId="zcxg.yssj",#与上雷同，zcxg:资产相关原始数据
+                                                 radioButtons(inputId="property_rawdata",#与上雷同，property:资产相关原始数据
                                                               label=NULL,
-                                                              choices = c("客车辆数(辆)"="kcls.yssj",
-                                                                          "货车辆数(万辆)"="hcls.yssj",
-                                                                          "机车台数(辆)"="jcts.yssj",
-                                                                          "动车台数(台)"="dcts.yssj",
-                                                                          "铁路固定资产投资(亿元)"="tlgdzctz.yssj",
-                                                                          "从业人员数量(万人)"="cyrysl.yssj",
-                                                                          "新线铺轨里程(km)"="xxpglc.yssj",
-                                                                          "复线铺轨里程(km)"="fxpglc.yssj") ),
+                                                              choices = c("客车辆数(辆)"="passenger_car_rawdata",
+                                                                          "货车辆数(万辆)"="freight_car_rawdata",
+                                                                          "机车台数(辆)"="locomotive_number_rawdata",
+                                                                          "动车台数(台)"="bullettrain_number_rawdata",
+                                                                          "铁路固定资产投资(亿元)"="fixed_assets_investment_rawdata",
+                                                                          "从业人员数量(万人)"="practitioner_number_rawdata",
+                                                                          "新线铺轨里程(km)"="newline_tracklaying_mileage_rawdata",
+                                                                          "复线铺轨里程(km)"="oldline_tracklaying_mileage_rawdata") ),
                                                  
                                                  hr(),   
-                                                 selectInput(inputId = "year_start_zcxg",
+                                                 selectInput(inputId = "year_start_property",
                                                              label = "自:", 
-                                                             choices = y.wenjing.yssj,
-                                                             selected = min(y.wenjing.yssj) ),
-                                                 selectInput(inputId="year_end_zcxg",
+                                                             choices = y_wenjing_rawdata,
+                                                             selected = min(y_wenjing_rawdata) ),
+                                                 selectInput(inputId="year_end_property",
                                                              label="至:",
-                                                             choice=y.wenjing.yssj,
-                                                             selected=max(y.wenjing.yssj) ),
+                                                             choice=y_wenjing_rawdata,
+                                                             selected=max(y_wenjing_rawdata) ),
                                                  width=3
                                                ),
-                                               mainPanel(plotOutput(outputId = "yssj.zcxg.plot", height = "400px"),width=9)
+                                               mainPanel(plotOutput(outputId = "rawdata_property_plot", height = "400px"),width=9)
                                              )),
                                            
                                            
                                            fluidRow(
-                                             column(12,DT::dataTableOutput("yssj.zcxg.table"))
+                                             column(12,DT::dataTableOutput("rawdata_property_table"))
                                            )
                                   ), #第四个页签
                                   
@@ -1796,30 +1796,30 @@ tabPanel("原始数据",
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
-                                                 radioButtons(inputId="heihuo.yssj",#与上雷同，heihuo:黑货种类的铁路货运量原始数据
+                                                 radioButtons(inputId="black_rawdata",#与上雷同，black_rawdata黑货种类的铁路货运量原始数据
                                                               label=NULL,
-                                                              choices = c("矿建(万吨)"="kuangjian.yssj",
-                                                                          "钢材(万吨)"="gangcai.yssj",
-                                                                          "石油(万吨)"="shiyou.yssj",
-                                                                          "煤(万吨)"="mei.yssj",
-                                                                          "金属矿石(万吨)"="jsks.yssj") ),
+                                                              choices = c("矿建(万吨)"="mine_rawdata",
+                                                                          "钢材(万吨)"="iron_rawdata",
+                                                                          "石油(万吨)"="oil_rawdata",
+                                                                          "煤(万吨)"="coal_rawdata",
+                                                                          "金属矿石(万吨)"="metal_rawdata") ),
                                                  
                                                  hr(),   
-                                                 selectInput(inputId = "year_start_heihuo.yssj",
+                                                 selectInput(inputId = "year_start_black_rawdata",
                                                              label = "自:", 
-                                                             choices = y.wenjing.yssj.hhbh,
-                                                             selected = min(y.wenjing.yssj.hhbh) ),
-                                                 selectInput(inputId="year_end_heihuo.yssj",
+                                                             choices = y_wenjing_rawdata_black_white,
+                                                             selected = min(y_wenjing_rawdata_black_white) ),
+                                                 selectInput(inputId="year_end_black_rawdata",
                                                              label="至:",
-                                                             choice=y.wenjing.yssj.hhbh,
-                                                             selected=max(y.wenjing.yssj.hhbh) ),
+                                                             choice=y_wenjing_rawdata_black_white,
+                                                             selected=max(y_wenjing_rawdata_black_white) ),
                                                  width=3
                                                ),
-                                               mainPanel(plotOutput(outputId = "yssj.heihuo.plot", height = "400px"),width=9)
+                                               mainPanel(plotOutput(outputId = "rawdata_black_plot", height = "400px"),width=9)
                                              )),
                                            
                                            fluidRow(
-                                             column(12,DT::dataTableOutput("yssj.heihuo.table"))
+                                             column(12,DT::dataTableOutput("rawdata_black_table"))
                                            )
                                   ), #第五个页签
                                   
@@ -1829,31 +1829,31 @@ tabPanel("原始数据",
                                            fluidRow(
                                              sidebarLayout(
                                                sidebarPanel(
-                                                 radioButtons(inputId="baihuo.yssj",#与上雷同，baihuo:白货种类的铁路货运量原始数据
+                                                 radioButtons(inputId="white_rawdata",#与上雷同，baihuo:白货种类的铁路货运量原始数据
                                                               label=NULL,
-                                                              choices = c("工业机械(万吨)"="gyjx.yssj",
-                                                                          "电子电气(万吨)"="dzdq.yssj",
-                                                                          "农副产品(万吨)"="nfcp.yssj",
-                                                                          "饮食烟草(万吨)"="ysyc.yssj",
-                                                                          "文教用品(万吨)"="wjyp.yssj", 
-                                                                          "零担(吨)"="ldld.yssj" ,
-                                                                          "集装箱(万吨)"="jzx.yssj" )),
+                                                              choices = c("工业机械(万吨)"="machinery_rawdata",
+                                                                          "电子电气(万吨)"="electronic_rawdata",
+                                                                          "农副产品(万吨)"="agricultural_rawdata",
+                                                                          "饮食烟草(万吨)"="food_tobacco_rawdata",
+                                                                          "文教用品(万吨)"="education_rawdata", 
+                                                                          "零担(吨)"="ltl_rawdata" ,
+                                                                          "集装箱(万吨)"="container_rawdata" )),
                                                  hr(),   
-                                                 selectInput(inputId = "year_start_baihuo.yssj",
+                                                 selectInput(inputId = "year_start_white_rawdata",
                                                              label = "自:", 
-                                                             choices = y.wenjing.yssj.hhbh,
-                                                             selected = min(y.wenjing.yssj.hhbh) ),
-                                                 selectInput(inputId="year_end_baihuo.yssj",
+                                                             choices = y_wenjing_rawdata_black_white,
+                                                             selected = min(y_wenjing_rawdata_black_white) ),
+                                                 selectInput(inputId="year_end_white_rawdata",
                                                              label="至:",
-                                                             choice=y.wenjing.yssj.hhbh,
-                                                             selected=max(y.wenjing.yssj.hhbh) ),
+                                                             choice=y_wenjing_rawdata_black_white,
+                                                             selected=max(y_wenjing_rawdata_black_white) ),
                                                  width=3
                                                ),
-                                               mainPanel(plotOutput(outputId = "yssj.baihuo.plot", height = "400px"),width=9)
+                                               mainPanel(plotOutput(outputId = "rawdata_white_plot", height = "400px"),width=9)
                                              )),
                                            
                                            fluidRow(
-                                             column(12,DT::dataTableOutput("yssj.baihuo.table"))
+                                             column(12,DT::dataTableOutput("rawdata_white_table"))
                                            )
                                   )
                                   
