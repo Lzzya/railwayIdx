@@ -6,6 +6,8 @@ shinyServer(function(input, output) {
   require(e1071)
   require(randomForest)
   require(forecast)
+  require(rJava)
+  require(xlsx)
   
   #--------------------------------------------------------------------------------------------------
   #--------------------------------------------------------------------------------------------------
@@ -14,7 +16,8 @@ shinyServer(function(input, output) {
   #--------------------------------------------------------------------------------------------------
   df_index<-read.csv("预警.csv",header=T)
   df_index$tm<-as.Date.POSIXct(df_index$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
-  
+  df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+  df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
   output$plot_index<-renderPlot({ 
     p<-ggplot(data=df_index,aes(x=tm,y=index))
     p<-p+ylim(0,1)+xlim(df_index[1,1],df_index[156,1])
@@ -4362,7 +4365,7 @@ colnames = c('原油加工量',  '80%概率区间下限','80%概率区间上限'
 #-------------------------------------------
 #--------工业增加值增长量时间序列预测---------
 
-dfIndustrial_Added_Value_Rate<-read.csv("Industrial_Added_Value_Rate.csv",head=T)
+dfIndustrial_Added_Value_Rate<-df_monthly$Industrial_Added_Value_Rate
 dfIndustrial_Added_Value_Rate1<-ts(dfIndustrial_Added_Value_Rate,start=c(2001,1),freq=12)
 dfIndustrial_Added_Value_Rate0<-arima(dfIndustrial_Added_Value_Rate1,order=c(1,1,1),seasonal=c(2,0,2))
 dfIndustrial_Added_Value_Rate2<-forecast(dfIndustrial_Added_Value_Rate0,h=12)
@@ -4387,8 +4390,7 @@ colnames = c('工业增加值增长率',  '80%置信区间下限','80%置信区�
 
 #---------------------------------------------
 #----------固定资产投资时间序列预测-----------
-
-dfInvestment_in_Fixed_Assets0<-read.csv("Investment_in_Fixed_Assets.csv",head=T)
+dfInvestment_in_Fixed_Assets0<-df_monthly$Investment_in_Fixed_Assets
 dfInvestment_in_Fixed_Assets00<-ts(dfInvestment_in_Fixed_Assets0,start=c(2001,1),freq=12)
 dfInvestment_in_Fixed_Assets<-arima(dfInvestment_in_Fixed_Assets00,order=c(4,1,2),seasonal=c(0,0,1))
 dfInvestment_in_Fixed_Assets2<-forecast(dfInvestment_in_Fixed_Assets,h=12)
@@ -4420,8 +4422,8 @@ colnames = c('固定资产投资',  '80%置信区间下限','80%置信区间上�
 
 #——相关行业——————————————————————————————————————————————————————————————————————————————————————
 output$rawdata_relevant_industry_plot <- renderPlot( {
-dfrawdata<-read.csv("rawdata_relevant_industry.csv",head=T)
-dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+dfrawdata<-df_monthly
+dfrawdata$tm<-as.Date.POSIXct(df_monthly$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
 len<-length(dfrawdata$tm)
 
 if(input$year_start_relevant_industry> input$year_end_relevant_industry)  {
@@ -4444,7 +4446,7 @@ if (input$relevant_industry_rawdata=="oil_processing_volume_rawdata") {
 }
 #coal_output_rawdata-----------------原煤产量(亿吨)
 if (input$relevant_industry_rawdata=="coal_output_rawdata") {
-  p<-p+geom_line(aes(x=tm,y=coal_output),color="blue",size=0.6)+ylim(1000,6000)+geom_point(aes(x=tm,y=coal_output),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  p<-p+geom_line(aes(x=tm,y=coal_output),color="blue",size=0.6)+ylim(6000,35000)+geom_point(aes(x=tm,y=coal_output),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
 }
 #coalfired_power_generation_rawdata----------------火力发电量(亿千瓦时)
 if (input$relevant_industry_rawdata=="coalfired_power_generation_rawdata") {
@@ -4452,8 +4454,8 @@ if (input$relevant_industry_rawdata=="coalfired_power_generation_rawdata") {
   }
 #industrial_added_value_rawdata-----------工业增加值
 if (input$relevant_industry_rawdata=="industrial_added_value_rawdata") {
-  p<-p+geom_line(aes(x=tm,y=industrial_added_value),color="purple",size=0.6)+ylim(3,25)
-  p<-p+geom_point(aes(x=tm,y=industrial_added_value),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  p<-p+geom_line(aes(x=tm,y=Industrial_Added_Value_Rate),color="purple",size=0.6)+ylim(3,25)
+  p<-p+geom_point(aes(x=tm,y=Industrial_Added_Value_Rate),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
 }
 
 p+ylab("相关行业数据")+xlab("时间")+geom_line()
@@ -4463,7 +4465,7 @@ p+ylab("相关行业数据")+xlab("时间")+geom_line()
 #-运量相关原始数据
 output$rawdata_transport_plot <- renderPlot( {
   
-  dfrawdata<-read.csv("rawdata_transport.csv",head=T)
+  dfrawdata<-df_monthly
   dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(dfrawdata$tm)
 
@@ -4479,11 +4481,11 @@ output$rawdata_transport_plot <- renderPlot( {
   
   #freight_rotation_volume_rawdata -----------货运周转量(亿吨公里)
   if(input$transport_rawdata=="freight_rotation_volume_rawdata"){
-    p<-p+geom_line(aes(x=tm,y=freight_rotation_volume),color="black",size=0.6)+ylim(1,3)+geom_point(aes(x=tm,y=freight_rotation_volume),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    p<-p+geom_line(aes(x=tm,y=freight_rotation_volume),color="black",size=0.6)+ylim(800,2300)+geom_point(aes(x=tm,y=freight_rotation_volume),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
   }
   #freight_volume_rawdata  ------------货运量(亿吨)
   if (input$transport_rawdata=="freight_volume_rawdata") {
-    p<-p+geom_line(aes(x=tm,y=freight_volume),color="red",size=0.6)+ylim(800,2500)
+    p<-p+geom_line(aes(x=tm,y=freight_volume),color="red",size=0.6)+ylim(10000,29000)
     p<-p+geom_point(aes(x=tm,y=freight_volume),size=2,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
   
@@ -4505,7 +4507,7 @@ output$rawdata_transport_plot <- renderPlot( {
 # 运营相关
 output$rawdata_operation_plot <- renderPlot( {
   
-  dfrawdata<-read.csv("rawdata_operation.csv",head=T)
+  dfrawdata<-df_yearly
   dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(dfrawdata$tm)
   
@@ -4525,12 +4527,12 @@ output$rawdata_operation_plot <- renderPlot( {
   }
   #dailycar_run---------日均运用车
   if (input$operation_rawdata=="dailycar_run_rawdata") {
-    p<-p+geom_line(aes(x=tm,y=dailycar_run),color="red",size=0.6)+ylim(40,55)
+    p<-p+geom_line(aes(x=tm,y=dailycar_run),color="red",size=0.6)+ylim(300000,680000)
     p<-p+geom_point(aes(x=tm,y=dailycar_run),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
   #dailycar_now--------日均现在车
   if (input$operation_rawdata=="dailycar_now_rawdata") {
-    p<-p+geom_line(aes(x=tm,y=dailycar_now),color="purple",size=0.6)+ylim(40,90)
+    p<-p+geom_line(aes(x=tm,y=dailycar_now),color="purple",size=0.6)+ylim(380000,820000)
     p<-p+geom_point(aes(x=tm,y=dailycar_now),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
   #locomotive_mileage_pcar-----------客运机车日车公里
@@ -4546,7 +4548,7 @@ output$rawdata_operation_plot <- renderPlot( {
   
   #locomotive_mileage_sum-------------机车总行走里程
   if (input$operation_rawdata=="locomotive_mileage_sum_rawdata") {
-    p<-p+geom_line(aes(x=tm,y=locomotive_mileage_sum),color="orange",size=0.6)+ylim(200,350)
+    p<-p+geom_line(aes(x=tm,y=locomotive_mileage_sum),color="orange",size=0.6)+ylim(1300,3000)
     p<-p+geom_point(aes(x=tm,y=locomotive_mileage_sum),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
   }
   
@@ -4556,7 +4558,7 @@ output$rawdata_operation_plot <- renderPlot( {
 #资产相关
 output$rawdata_property_plot <- renderPlot( {
   
-  dfrawdata<-read.csv("rawdata_property.csv",head=T)
+  dfrawdata<-df_yearly
   dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(dfrawdata$tm)
   
@@ -4576,7 +4578,7 @@ output$rawdata_property_plot <- renderPlot( {
   }
   #freight_car-----------货车辆数
   if (input$property_rawdata=="freight_car_rawdata") {
-    p<-p+geom_line(aes(x=tm,y=freight_car),color="red",size=0.6)+ylim(40,80)
+    p<-p+geom_line(aes(x=tm,y=freight_car),color="red",size=0.6)+ylim(13000,22000)
     p<-p+geom_point(aes(x=tm,y=freight_car),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
   }
   #locomotive_number---------- 机车台数
@@ -4615,7 +4617,7 @@ output$rawdata_property_plot <- renderPlot( {
 #----黑货运量原始数据---------------
 output$rawdata_black_plot <- renderPlot( {
   
-  dfrawdata<-read.csv("rawdata_black_white.csv",head=T)
+  dfrawdata<-subset(df_monthly,(substr(df_monthly$tm,1,4)>=2008))
   dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(dfrawdata$tm)
   
@@ -4658,7 +4660,7 @@ output$rawdata_black_plot <- renderPlot( {
 #----白货运量原始数据---------------
 output$rawdata_white_plot <- renderPlot( {
   
-  dfrawdata<-read.csv("rawdata_black_white.csv",head=T)
+  dfrawdata<-subset(df_monthly,(substr(df_monthly$tm,1,4)>=2008))
   dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(dfrawdata$tm)
   
@@ -4713,7 +4715,7 @@ output$rawdata_white_plot <- renderPlot( {
 output$rawdata_relevant_industry_table<-DT::renderDataTable(
   DT::datatable(
 {
-  dfrawdata<-read.csv("rawdata_relevant_industry.csv",head=T)
+  dfrawdata<-df_monthly
   dfrawdata<-data.frame(dfrawdata[1:6])
   data<-dfrawdata},
 colnames = c('时间','成品钢材产量（亿吨）','原油加工量（亿吨）','原煤产量（亿吨）','火力发电量（亿千瓦时）','工业增加值（增长率）'),
@@ -4723,7 +4725,8 @@ rownames = TRUE))
 output$rawdata_transport_table<-DT::renderDataTable(
   DT::datatable(
 {  
-  dfrawdata<-read.csv("rawdata_transport.csv",head=T)
+  dfrawdata<-df_monthly
+  dfrawdata<-data.frame(dfrawdata$tm,dfrawdata[7:10])
   data<-dfrawdata},
 colnames = c('时间','货运量（亿吨）','货运周转量（亿吨公里）','客运量（亿人）','客运周转量（亿人公里）'),
 rownames = TRUE))
@@ -4731,25 +4734,27 @@ rownames = TRUE))
 output$rawdata_operation_table<-DT::renderDataTable(
   DT::datatable(
 {  
-  dfrawdata<-read.csv("rawdata_operation.csv",head=T)
+  dfrawdata<-df_yearly
+  dfrawdata<-data.frame(dfrawdata$tm,dfrawdata[13:18])
   data<-dfrawdata},
-colnames = c('时间','营业里程（km）','日均运用车（万辆）','日均现在车（万辆）','客运机车日车公里（km）','货运机车日车公里（km）','机车总行走里程（1000km）'),
+colnames = c('时间','营业里程（km）','日均运用车（辆）','日均现在车（辆）','客运机车日车公里（km）','货运机车日车公里（km）','机车总行走里程（百万km）'),
 rownames = TRUE))
 
 #rawdata_property-------原始数据/资产相关
 output$rawdata_property_table<-DT::renderDataTable(
   DT::datatable(
 {  
-  dfrawdata<-read.csv("rawdata_property.csv",head=T)
+  dfrawdata<-df_yearly
+  dfrawdata<-data.frame(dfrawdata[1:9])
   data<-dfrawdata},
-colnames = c('时间','客车辆数(辆)','货车辆数(万辆)','机车台数(辆)','动车台数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
+colnames = c('时间','客车辆数(辆)','机车台数(辆)','货车辆数(万辆)','动车组数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
 rownames = TRUE))
 
 output$rawdata_black_table<-DT::renderDataTable(
   DT::datatable(
     {  
-      dfrawdata<-read.csv("rawdata_black_white.csv",head=T)
-      dfrawdata<-data.frame(dfrawdata[1],dfrawdata[9:13])
+      dfrawdata<-subset(df_monthly,(substr(df_monthly$tm,1,4)>=2008))
+      dfrawdata<-data.frame(dfrawdata$tm,dfrawdata[19:23])
       data<-dfrawdata},
     colnames = c('时间','金属矿石(万吨)','矿建(万吨)','钢材(万吨)', '石油(万吨)','煤(万吨)'),
     rownames = TRUE))
@@ -4757,8 +4762,8 @@ output$rawdata_black_table<-DT::renderDataTable(
 output$rawdata_white_table<-DT::renderDataTable(
   DT::datatable(
     {  
-      dfrawdata<-read.csv("rawdata_black_white.csv",head=T)
-      dfrawdata<-data.frame(dfrawdata[1:8])
+      dfrawdata<-subset(df_monthly,(substr(df_monthly$tm,1,4)>=2008))
+      dfrawdata<-data.frame(dfrawdata$tm,dfrawdata[13:18])
       data<-dfrawdata},
     colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担(吨)','集装箱(万吨)'),
     rownames = TRUE))
