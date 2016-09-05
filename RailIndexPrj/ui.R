@@ -2,10 +2,22 @@ require(shiny)
 require(ggplot2)
 require(DT)
 require(markdown)
-
+require(rJava)
+require(xlsx)
 
 
 #-----------------------------------界面所需数据集------------------------------
+#-----------------------------------------
+#---------原始数据------------------------
+df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+dfrawdata<-df_monthly
+dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  
+y_wenjing_rawdata_monthly<-unique(substr(dfrawdata$tm,1,4))
+
+y_wenjing_rawdata_black_white<-y_wenjing_rawdata_monthly
+
+df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+y_wenjing_rawdata_yearly<-substr(df_yearly$tm,1,4)
 #-----------------------------------------
 #-------预警信号系统----------------------
 df_index<-read.csv("预警.csv",header=T)
@@ -87,6 +99,7 @@ y<-as.numeric(unique(substr(freight_forecast_df$tm,1,4)))
 passagerpre_df<-read.csv("铁路客运量预测.csv",head=T)
 passagerpre_y<-unique(substr(passagerpre_df$Year,1,4)) #提取年份
 
+<<<<<<< HEAD
 #-----------------------------------------
 #---------原始数据------------------------
 dfrawdata<-read.csv("rawdata_relevant_industry.csv",head=T)
@@ -97,6 +110,8 @@ dfrawdata_black_white<-read.csv("rawdata_black_white.csv",head=T)
 dfrawdata_black_white$tm<-as.Date.POSIXct(dfrawdata_black_white$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  
 y_wenjing_rawdata_black_white<-unique(substr(dfrawdata_black_white$tm,1,4))
 
+=======
+>>>>>>> Wenjing3
 #———————————————————————————————————————————————————————————————————————————————
 #-----------------------------------------主界面--------------------------------
 
@@ -1669,12 +1684,21 @@ tabPanel("原始数据",
                                                   hr(),
                                                   selectInput(inputId = "year_start_relevant_industry", #year_start_xghy 相关行业数据中的起始年下拉框，以下终止年雷同
                                                               label = "自:", 
+<<<<<<< HEAD
                                                               choices = y_wenjing_rawdata,
                                                               selected = min(y_wenjing_rawdata) ),
                                                   selectInput(inputId="year_end_relevant_industry",
                                                               label="至:",
                                                               choice=y_wenjing_rawdata,
                                                               selected=max(y_wenjing_rawdata) ),
+=======
+                                                              choices = y_wenjing_rawdata_monthly,
+                                                              selected = min(y_wenjing_rawdata_monthly) ),
+                                                  selectInput(inputId="year_end_relevant_industry",
+                                                              label="至:",
+                                                              choice=y_wenjing_rawdata_monthly,
+                                                              selected=max(y_wenjing_rawdata_monthly) ),
+>>>>>>> Wenjing3
                                                   width=3
                                                 ),     #siderbarpanel
                                                 mainPanel(plotOutput(outputId = "rawdata_relevant_industry_plot", height = "400px"),width=9)#rawdata_relevant_industry_plot原始数据中相关行业的画图
@@ -1702,12 +1726,21 @@ tabPanel("原始数据",
                                                  hr(),
                                                  selectInput(inputId = "year_start_rawdata_transport",#year_start_xghy 运量相关数据中的起始年下拉框，以下终止年雷同
                                                              label = "自:", 
+<<<<<<< HEAD
                                                              choices = y_wenjing_rawdata,
                                                              selected = min(y_wenjing_rawdata) ),
                                                  selectInput(inputId="year_end_rawdata_transport",
                                                              label="至:",
                                                              choice=y_wenjing_rawdata,
                                                              selected=max(y_wenjing_rawdata) ),
+=======
+                                                             choices = y_wenjing_rawdata_monthly,
+                                                             selected = min(y_wenjing_rawdata_monthly) ),
+                                                 selectInput(inputId="year_end_rawdata_transport",
+                                                             label="至:",
+                                                             choice=y_wenjing_rawdata_monthly,
+                                                             selected=max(y_wenjing_rawdata_monthly) ),
+>>>>>>> Wenjing3
                                                  width=3
                                                ),
                                                
@@ -1736,12 +1769,21 @@ tabPanel("原始数据",
                                                  hr(),     
                                                  selectInput(inputId = "year_start_operation",
                                                              label = "自:", 
+<<<<<<< HEAD
                                                              choices = y_wenjing_rawdata,
                                                              selected = min(y_wenjing_rawdata) ),
                                                  selectInput(inputId="year_end_operation",
                                                              label="至:",
                                                              choice=y_wenjing_rawdata,
                                                              selected=max(y_wenjing_rawdata) ),
+=======
+                                                             choices = y_wenjing_rawdata_yearly,
+                                                             selected = min(y_wenjing_rawdata_yearly) ),
+                                                 selectInput(inputId="year_end_operation",
+                                                             label="至:",
+                                                             choice=y_wenjing_rawdata_yearly,
+                                                             selected=max(y_wenjing_rawdata_yearly) ),
+>>>>>>> Wenjing3
                                                  width=3
                                                ),
                                                mainPanel(plotOutput(outputId = "rawdata_operation_plot", height = "440px"),width=9 ))
@@ -1773,12 +1815,21 @@ tabPanel("原始数据",
                                                  hr(),   
                                                  selectInput(inputId = "year_start_property",
                                                              label = "自:", 
+<<<<<<< HEAD
                                                              choices = y_wenjing_rawdata,
                                                              selected = min(y_wenjing_rawdata) ),
                                                  selectInput(inputId="year_end_property",
                                                              label="至:",
                                                              choice=y_wenjing_rawdata,
                                                              selected=max(y_wenjing_rawdata) ),
+=======
+                                                             choices = y_wenjing_rawdata_yearly,
+                                                             selected = min(y_wenjing_rawdata_yearly) ),
+                                                 selectInput(inputId="year_end_property",
+                                                             label="至:",
+                                                             choice=y_wenjing_rawdata_yearly,
+                                                             selected=max(y_wenjing_rawdata_yearly) ),
+>>>>>>> Wenjing3
                                                  width=3
                                                ),
                                                mainPanel(plotOutput(outputId = "rawdata_property_plot", height = "400px"),width=9)
@@ -1808,7 +1859,11 @@ tabPanel("原始数据",
                                                  selectInput(inputId = "year_start_black_rawdata",
                                                              label = "自:", 
                                                              choices = y_wenjing_rawdata_black_white,
+<<<<<<< HEAD
                                                              selected = min(y_wenjing_rawdata_black_white) ),
+=======
+                                                             selected = "2008" ),
+>>>>>>> Wenjing3
                                                  selectInput(inputId="year_end_black_rawdata",
                                                              label="至:",
                                                              choice=y_wenjing_rawdata_black_white,
@@ -1842,7 +1897,11 @@ tabPanel("原始数据",
                                                  selectInput(inputId = "year_start_white_rawdata",
                                                              label = "自:", 
                                                              choices = y_wenjing_rawdata_black_white,
+<<<<<<< HEAD
                                                              selected = min(y_wenjing_rawdata_black_white) ),
+=======
+                                                             selected = "2008" ),
+>>>>>>> Wenjing3
                                                  selectInput(inputId="year_end_white_rawdata",
                                                              label="至:",
                                                              choice=y_wenjing_rawdata_black_white,
