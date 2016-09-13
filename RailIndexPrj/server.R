@@ -1400,181 +1400,181 @@ shinyServer(function(input, output) {
   
   #--------------------适配性研究-----------------------------
   #----------------固定资产-铺轨里程--------------------------
-  #tl_mileage-------铺轨里程 nim------新线铺轨里程  olm--------旧线铺轨里程
-  tl_mileage_df<-read.csv("固定资产指标.csv",head=T)
-  tl_mileage_olsRegModel<-lm(asset~nlm+olm,data=tl_mileage_df)
-  tl_mileage_df$linearRegPred<-as.integer(predict(tl_mileage_olsRegModel,newdata=tl_mileage_df))
-  tl_mileage_rfRegModel<-randomForest(asset~nlm+olm,data=tl_mileage_df,importance=T, ntree=100,type="regression")
-  tl_mileage_df$frRegPred<-as.integer(predict(tl_mileage_rfRegModel,tl_mileage_df))
-  tl_mileage_svmRegModel<-svm(asset~nlm+olm,data=tl_mileage_df,type="eps-regression",cross=dim(tl_mileage_df)[1]/2)
-  tl_mileage_df$svmRegPred<-as.integer(predict(tl_mileage_svmRegModel,tl_mileage_df))
-  tl_mileage_len<-length(tl_mileage_df$tm)
+  #tl_mileage-------铺轨里程 nim------新线铺轨里程  oldline_tracklaying_mileage--------旧线铺轨里程
+  tracklaying_mileage1_df<-read.csv("rawdata_property.csv",head=T)
+  tracklaying_mileage1_olsRegModel<-lm(fixed_assets_investment~I(newline_tracklaying_mileage+oldline_tracklaying_mileage)+0,data=tracklaying_mileage1_df)
+  tracklaying_mileage1_df$linearRegPred<-as.integer(predict(tracklaying_mileage1_olsRegModel,newdata=tracklaying_mileage1_df))
+  tracklaying_mileage1_rfRegModel<-randomForest(fixed_assets_investment~newline_tracklaying_mileage+oldline_tracklaying_mileage,data=tracklaying_mileage1_df,importance=T, ntree=100,type="regression")
+  tracklaying_mileage1_df$frRegPred<-as.integer(predict(tracklaying_mileage1_rfRegModel,tracklaying_mileage1_df))
+  tracklaying_mileage1_svmRegModel<-svm(fixed_assets_investment~newline_tracklaying_mileage+oldline_tracklaying_mileage,data=tracklaying_mileage1_df,type="eps-regression",cross=dim(tracklaying_mileage1_df)[1]/2)
+  tracklaying_mileage1_df$svmRegPred<-as.integer(predict(tracklaying_mileage1_svmRegModel,tracklaying_mileage1_df))
+  tracklaying_mileage1_len<-length(tracklaying_mileage1_df$tm)
   
   plotCurve<-function(db,xdata,ydata)
   {
-    tl_mileage_len=dim(xdata)[1]
-    tl_mileage_plt<-ggplot(db,x=c(xdata[1],xdata[tl_mileage_len]),aes(x=xdata,y=ydata),color="red")
-    return(tl_mileage_plt)
+    tracklaying_mileage1_len=dim(xdata)[1]
+    tracklaying_mileage1_plt<-ggplot(db,x=c(xdata[1],xdata[tracklaying_mileage1_len]),aes(x=xdata,y=ydata),color="red")
+    return(tracklaying_mileage1_plt)
   }
-  output$pg_asset_linearplot <- renderPlot( {
+  output$tracklaying_mileage1_linearplot <- renderPlot( {
     
-    if(input$mileage_year_start> input$mileage_year_end)  {
+    if(input$tracklaying_mileage1_year_start> input$tracklaying_mileage1_year_end)  {
       
-      if (input$mileage_stat_data) {
-        tl_mileage_p<-plotCurve(tl_mileage_df,tl_mileage_df$tm,tl_mileage_df$asset)
+      if (input$tracklaying_mileage1_stat_data) {
+        tracklaying_mileage1_p<-plotCurve(tracklaying_mileage1_df,tracklaying_mileage1_df$tm,tracklaying_mileage1_df$fixed_assets_investment)
       }
       else
       {
-        tl_mileage_p<-plotCurve(tl_mileage_df,tl_mileage_df$tm,tl_mileage_df$linearRegPred)
+        tracklaying_mileage1_p<-plotCurve(tracklaying_mileage1_df,tracklaying_mileage1_df$tm,tracklaying_mileage1_df$linearRegPred)
       }
     }
     else{
-      tl_mileage_dfsub<-subset(tl_mileage_df,tl_mileage_df$tm>=input$mileage_year_start) 
-      tl_mileage_dfsub<-subset(tl_mileage_dfsub,tl_mileage_dfsub$tm<=input$mileage_year_end)
-      if (input$mileage_stat_data) {
-        tl_mileage_p<-plotCurve(tl_mileage_dfsub,tl_mileage_dfsub$tm,tl_mileage_dfsub$asset)
+      tracklaying_mileage1_dfsub<-subset(tracklaying_mileage1_df,substr(tracklaying_mileage1_df$tm,1,4)>=input$tracklaying_mileage1_year_start) 
+      tracklaying_mileage1_dfsub<-subset(tracklaying_mileage1_dfsub,substr(tracklaying_mileage1_dfsub$tm,1,4)<=input$tracklaying_mileage1_year_end)
+      if (input$tracklaying_mileage1_stat_data) {
+        tracklaying_mileage1_p<-plotCurve(tracklaying_mileage1_dfsub,tracklaying_mileage1_dfsub$tm,tracklaying_mileage1_dfsub$fixed_assets_investment)
       }
       else
       {
-        tl_mileage_p<-plotCurve(tl_mileage_dfsub,tl_mileage_dfsub$tm,tl_mileage_dfsub$linearRegPred)
+        tracklaying_mileage1_p<-plotCurve(tracklaying_mileage1_dfsub,tracklaying_mileage1_dfsub$tm,tracklaying_mileage1_dfsub$linearRegPred)
       }
     }
-    if(input$mileage_predict_data){
+    if(input$tracklaying_mileage1_predict_data){
       
-      tl_mileage_p<-tl_mileage_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+      tracklaying_mileage1_p<-tracklaying_mileage1_p+geom_line(aes(x=tm,y=linearRegPred,group=1),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred,group=1),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
       #+stat_smooth(method=lm,color='black',level=0.95)
     }
     
-    if (input$mileage_stat_data) {
-      tl_mileage_p<-tl_mileage_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+    if (input$tracklaying_mileage1_stat_data) {
+      tracklaying_mileage1_p<-tracklaying_mileage1_p+geom_point(aes(x=tm,y=fixed_assets_investment,group=1),color="red",size=3,shape=21)
     }
-    tl_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    tracklaying_mileage1_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
-  output$pg_asset_output<-renderText({
-    tl_mileage_x1<-as.numeric(input$nlm_input)
-    tl_mileage_x2<-as.numeric(input$olm_input)
-    nlm<-c(tl_mileage_x1)
-    olm<-c(tl_mileage_x2)
+  output$tracklaying_mileage1_output<-renderText({
+    tracklaying_mileage1_x1<-as.numeric(input$newline_tracklaying_mileage1_input)
+    tracklaying_mileage1_x2<-as.numeric(input$oldline_tracklaying_mileage1_input)
+    newline_tracklaying_mileage<-c(tracklaying_mileage1_x1)
+    oldline_tracklaying_mileage<-c(tracklaying_mileage1_x2)
     tm<-c(2016)
-    asset<-c(0)
-    inputdata<-data.frame(tm,asset,nlm,olm)
-    tl_mileage_pred<-as.integer(predict(tl_mileage_olsRegModel,inputdata,interval="prediction",level=0.95))
-    paste("多元回归预测：",tl_mileage_pred[1],"预测区间95%：(",tl_mileage_pred[2],",",tl_mileage_pred[3],")" ) 
+    fixed_assets_investment<-c(0)
+    inputdata<-data.frame(tm,fixed_assets_investment,newline_tracklaying_mileage,oldline_tracklaying_mileage)
+    tracklaying_mileage1_pred<-as.integer(predict(tracklaying_mileage1_olsRegModel,inputdata,interval="prediction",level=0.95))
+    paste("多元回归预测：",tracklaying_mileage1_pred[1],"预测区间95%：(",tracklaying_mileage1_pred[2],",",tracklaying_mileage1_pred[3],")" ) 
   }
   )
   #-------------------------------------------------
   #随机森林回归预测计算
-  output$pg_asset_FRR<-renderText({
-    tl_mileage_x1<-as.numeric(input$nlm_input)
-    tl_mileage_x2<-as.numeric(input$olm_input)
-    nlm<-c(tl_mileage_x1)
-    olm<-c(tl_mileage_x2)
+  output$tracklaying_mileage1_FRR<-renderText({
+    tracklaying_mileage1_x1<-as.numeric(input$newline_tracklaying_mileage1_input)
+    tracklaying_mileage1_x2<-as.numeric(input$oldline_tracklaying_mileage1_input)
+    newline_tracklaying_mileage<-c(tracklaying_mileage1_x1)
+    oldline_tracklaying_mileage<-c(tracklaying_mileage1_x2)
     tm<-c(2016)
-    asset<-c(0)
-    inputdata<-data.frame(tm,asset,nlm,olm)
-    railasset<-predict(tl_mileage_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
-    paste("随机森林回归预测：",as.integer(railasset[1])  ) 
+    fixed_assets_investment<-c(0)
+    inputdata<-data.frame(tm,fixed_assets_investment,newline_tracklaying_mileage,oldline_tracklaying_mileage)
+    tracklaying_mileage1_pred<-predict(tracklaying_mileage1_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
+    paste("随机森林回归预测：",as.integer(tracklaying_mileage1_pred[1])  ) 
     
   }
   )
   #----------------------------------
   #支持向量机回归预测计算
-  output$pg_asset_zhi<-renderText({
-    tl_mileage_x1<-as.numeric(input$nlm_input)
-    tl_mileage_x2<-as.numeric(input$olm_input)
-    nlm<-c(tl_mileage_x1)
-    olm<-c(tl_mileage_x2)
+  output$tracklaying_mileage1_zhi<-renderText({
+    tracklaying_mileage1_x1<-as.numeric(input$newline_tracklaying_mileage1_input)
+    tracklaying_mileage1_x2<-as.numeric(input$oldline_tracklaying_mileage1_input)
+    newline_tracklaying_mileage<-c(tracklaying_mileage1_x1)
+    oldline_tracklaying_mileage<-c(tracklaying_mileage1_x2)
     tm<-c(2016)
-    asset<-c(0)
-    inputdata<-data.frame(tm,asset,nlm,olm)
-    tl_mileage_pred<-as.integer(predict(tl_mileage_svmRegModel,inputdata))
+    fixed_assets_investment<-c(0)
+    inputdata<-data.frame(tm,fixed_assets_investment,newline_tracklaying_mileage,oldline_tracklaying_mileage)
+    tracklaying_mileage1_pred<-as.integer(predict(tracklaying_mileage1_svmRegModel,inputdata))
     
-    paste("支持向量机预测：",tl_mileage_pred)
+    paste("支持向量机预测：",tracklaying_mileage1_pred)
     
   }
   )
   #-----------随机森林Tabset画线  
-  output$pg_asset_rfplot <- renderPlot( {
+  output$tracklaying_mileage1_rfplot <- renderPlot( {
     
-    if(input$mileage_year_start> input$mileage_year_end)  {
+    if(input$tracklaying_mileage1_year_start> input$tracklaying_mileage1_year_end)  {
       
-      if (input$mileage_stat_data) {
-        tl_mileage_p<-plotCurve(tl_mileage_df,tl_mileage_df$tm,tl_mileage_df$asset)
+      if (input$tracklaying_mileage1_stat_data) {
+        tracklaying_mileage1_p<-plotCurve(tracklaying_mileage1_df,tracklaying_mileage1_df$tm,tracklaying_mileage1_df$fixed_assets_investment)
       }
       else
       {
-        tl_mileage_p<-plotCurve(tl_mileage_df,tl_mileage_df$tm,tl_mileage_df$frRegPred)
+        tracklaying_mileage1_p<-plotCurve(tracklaying_mileage1_df,tracklaying_mileage1_df$tm,tracklaying_mileage1_df$frRegPred)
       }
     }
     else{
-      tl_mileage_dfsub<-subset(tl_mileage_df,tl_mileage_df$tm>=input$mileage_year_start) 
-      tl_mileage_dfsub<-subset(tl_mileage_dfsub,tl_mileage_dfsub$tm<=input$mileage_year_end)
-      if (input$mileage_stat_data) {
-        tl_mileage_p<-plotCurve(tl_mileage_dfsub,tl_mileage_dfsub$tm,tl_mileage_dfsub$asset)
+      tracklaying_mileage1_dfsub<-subset(tracklaying_mileage1_df,substr(tracklaying_mileage1_df$tm,1,4)>=input$tracklaying_mileage1_year_start) 
+      tracklaying_mileage1_dfsub<-subset(tracklaying_mileage1_dfsub,substr(tracklaying_mileage1_dfsub$tm,1,4)<=input$tracklaying_mileage1_year_end)
+      if (input$tracklaying_mileage1_stat_data) {
+        tracklaying_mileage1_p<-plotCurve(tracklaying_mileage1_dfsub,tracklaying_mileage1_dfsub$tm,tracklaying_mileage1_dfsub$fixed_assets_investment)
       }
       else
       {
-        tl_mileage_p<-plotCurve(tl_mileage_dfsub,tl_mileage_dfsub$tm,tl_mileage_dfsub$frRegPred)
+        tracklaying_mileage1_p<-plotCurve(tracklaying_mileage1_dfsub,tracklaying_mileage1_dfsub$tm,tracklaying_mileage1_dfsub$frRegPred)
       }
     }
     
-    if(input$mileage_predict_data){
-      tl_mileage_p<-tl_mileage_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+    if(input$tracklaying_mileage1_predict_data){
+      tracklaying_mileage1_p<-tracklaying_mileage1_p+geom_line(aes(x=tm,y=frRegPred,group=1),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred,group=1),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
     }
     
-    if (input$mileage_stat_data) {
-      tl_mileage_p<-tl_mileage_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+    if (input$tracklaying_mileage1_stat_data) {
+      tracklaying_mileage1_p<-tracklaying_mileage1_p+geom_point(aes(x=tm,y=fixed_assets_investment,group=1),color="red",size=3,shape=21)
     }
-    tl_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    tracklaying_mileage1_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   #----------------------------支持向量机Tabset画线
   
-  output$pg_asset_svmplot <- renderPlot( {
+  output$tracklaying_mileage1_svmplot <- renderPlot( {
     
-    if(input$mileage_year_start> input$mileage_year_end)  {
+    if(input$tracklaying_mileage1_year_start> input$tracklaying_mileage1_year_end)  {
       
-      if (input$mileage_stat_data) {
-        tl_mileage_p<-plotCurve(tl_mileage_df,tl_mileage_df$tm,tl_mileage_df$asset)
+      if (input$tracklaying_mileage1_stat_data) {
+        tracklaying_mileage1_p<-plotCurve(tracklaying_mileage1_df,tracklaying_mileage1_df$tm,tracklaying_mileage1_df$fixed_assets_investment)
       }
       else
       {
-        tl_mileage_p<-plotCurve(tl_mileage_df,tl_mileage_df$tm,tl_mileage_df$svmRegPred)
+        tracklaying_mileage1_p<-plotCurve(tracklaying_mileage1_df,tracklaying_mileage1_df$tm,tracklaying_mileage1_df$svmRegPred)
       }
     }
     else{
-      tl_mileage_dfsub<-subset(tl_mileage_df,tl_mileage_df$tm>=input$mileage_year_start) 
-      tl_mileage_dfsub<-subset(tl_mileage_dfsub,tl_mileage_dfsub$tm<=input$mileage_year_end)
-      if (input$mileage_stat_data) {
-        tl_mileage_p<-plotCurve(tl_mileage_dfsub,tl_mileage_dfsub$tm,tl_mileage_dfsub$asset)
+      tracklaying_mileage1_dfsub<-subset(tracklaying_mileage1_df,substr(tracklaying_mileage1_df$tm,1,4)>=input$tracklaying_mileage1_year_start) 
+      tracklaying_mileage1_dfsub<-subset(tracklaying_mileage1_dfsub,substr(tracklaying_mileage1_dfsub$tm,1,4)<=input$tracklaying_mileage1_year_end)
+      if (input$tracklaying_mileage1_stat_data) {
+        tracklaying_mileage1_p<-plotCurve(tracklaying_mileage1_dfsub,tracklaying_mileage1_dfsub$tm,tracklaying_mileage1_dfsub$fixed_assets_investment)
       }
       else
       {
-        tl_mileage_p<-plotCurve(tl_mileage_dfsub,tl_mileage_dfsub$tm,tl_mileage_dfsub$svmRegPred)
+        tracklaying_mileage1_p<-plotCurve(tracklaying_mileage1_dfsub,tracklaying_mileage1_dfsub$tm,tracklaying_mileage1_dfsub$svmRegPred)
       }
     }
-    if(input$mileage_predict_data){
-      tl_mileage_p<-tl_mileage_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+    if(input$tracklaying_mileage1_predict_data){
+      tracklaying_mileage1_p<-tracklaying_mileage1_p+geom_line(aes(x=tm,y=svmRegPred,group=1),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred,group=1),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
     }
     
-    if (input$mileage_stat_data) {
-      tl_mileage_p<-tl_mileage_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+    if (input$tracklaying_mileage1_stat_data) {
+      tracklaying_mileage1_p<-tracklaying_mileage1_p+geom_point(aes(x=tm,y=fixed_assets_investment,group=1),color="red",size=3,shape=21)
     }
-    tl_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    tracklaying_mileage1_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   
   
   
-  output$pg_asset_table<-DT::renderDataTable(
+  output$tracklaying_mileage1_table<-DT::renderDataTable(
     DT::datatable(
-      {
-        
-        tl_mileage_data<-tl_mileage_df
-      } , 
-      colnames = c('序号', '时间', '固定资产投资（亿元）','新线铺轨里程（公里）','复线铺轨里程（公里）','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
-      rownames = TRUE)
-  ) 
+{
   
+  tracklaying_mileage1_data<-tracklaying_mileage1_df
+} , 
+colnames = c('序号', '时间', '客车辆数', '货车车辆','机车台数','动车台数','铁路固定资产投资','从业人员数量','新线铺轨里程','复线铺轨里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
+rownames = TRUE)
+  ) 
+
   #--------------------------------------------------------------------------
   #----------------固定资产-动车组数量适配性研究----------------------------
   #emu-------动车组增加数量
@@ -1939,179 +1939,179 @@ shinyServer(function(input, output) {
       colnames = c('序号', '年','固定资产投资额（万元）','客车车辆数（辆）','多元回归预测（万元）','随机森林回归预测（万元）','支持向量机回归预测（万元）'),
       rownames = TRUE)
   )
-  #---------------固定资产投资-货车车辆---------------------------------
-  #cw_truck-----货车车辆
-  cw_truck_df<-read.csv("truck-asset.csv",head=T)
-  cw_truck_olsRegModel<-lm(asset~cw_truck,data=cw_truck_df)
-  cw_truck_df$linearRegPred<-as.integer(predict(cw_truck_olsRegModel,newdata=cw_truck_df))
-  cw_truck_rfRegModel<-randomForest(asset~cw_truck,data=cw_truck_df,importance=T, ntree=100,type="regression")
-  cw_truck_df$frRegPred<-as.integer(predict(cw_truck_rfRegModel,cw_truck_df))
-  cw_truck_svmRegModel<-svm(asset~cw_truck,data=cw_truck_df,type="eps-regression",cross=dim(cw_truck_df)[1]/2)
-  cw_truck_df$svmRegPred<-as.integer(predict(cw_truck_svmRegModel,cw_truck_df))
-  cw_truck_len<-length(cw_truck_df$tm)
+#---------------固定资产投资-货车车辆---------------------------------
+#freight_car-----货车车辆
+freight_car1_df<-read.csv("rawdata_property.csv",head=T)
+freight_car1_olsRegModel<-lm(fixed_assets_investment~freight_car,data=freight_car1_df)
+freight_car1_df$linearRegPred<-as.integer(predict(freight_car1_olsRegModel,newdata=freight_car1_df))
+freight_car1_rfRegModel<-randomForest(fixed_assets_investment~freight_car,data=freight_car1_df,importance=T, ntree=100,type="regression")
+freight_car1_df$frRegPred<-as.integer(predict(freight_car1_rfRegModel,freight_car1_df))
+freight_car1_svmRegModel<-svm(fixed_assets_investment~freight_car,data=freight_car1_df,type="eps-regression",cross=dim(freight_car1_df)[1]/2)
+freight_car1_df$svmRegPred<-as.integer(predict(freight_car1_svmRegModel,freight_car1_df))
+freight_car1_len<-length(freight_car1_df$tm)
+
+plotCurve<-function(db,xdata,ydata)
+{
+  freight_car1_len=dim(xdata)[1]
+  freight_car1_plt<-ggplot(db,x=c(xdata[1],xdata[freight_car1_len]),aes(x=xdata,y=ydata),color="red")
+  return(freight_car1_plt)
+}
+output$freight_car1_linearplot <- renderPlot( {
   
-  plotCurve<-function(db,xdata,ydata)
-  {
-    cw_truck_len=dim(xdata)[1]
-    cw_truck_plt<-ggplot(db,x=c(xdata[1],xdata[cw_truck_len]),aes(x=xdata,y=ydata),color="red")
-    return(cw_truck_plt)
+  if(input$freight_car1_year_start> input$freight_car1_year_end)  {
+    
+    if (input$freight_car1_stat_data) {
+      freight_car1_p<-plotCurve(freight_car1_df,freight_car1_df$tm,freight_car1_df$fixed_assets_investment)
+    }
+    else
+    {
+      freight_car1_p<-plotCurve(freight_car1_df,freight_car1_df$tm,freight_car1_df$linearRegPred)
+    }
   }
-  output$cw_truck_linearplot <- renderPlot( {
-    
-    if(input$cw_truck_year_start> input$cw_truck_year_end)  {
-      
-      if (input$cw_truck_stat_data) {
-        cw_truck_p<-plotCurve(cw_truck_df,cw_truck_df$tm,cw_truck_df$asset)
-      }
-      else
-      {
-        cw_truck_p<-plotCurve(cw_truck_df,cw_truck_df$tm,cw_truck_df$linearRegPred)
-      }
+  else{
+    freight_car1_dfsub<-subset(freight_car1_df,substr(freight_car1_df$tm,1,4)>=input$freight_car1_year_start) 
+    freight_car1_dfsub<-subset(freight_car1_dfsub,substr(freight_car1_dfsub$tm,1,4)<=input$freight_car1_year_end)
+    if (input$freight_car1_stat_data) {
+      freight_car1_p<-plotCurve(freight_car1_dfsub,freight_car1_dfsub$tm,freight_car1_dfsub$fixed_assets_investment)
     }
-    else{
-      cw_truck_dfsub<-subset(cw_truck_df,substr(cw_truck_df$tm,1,4)>=input$cw_truck_year_start) 
-      cw_truck_dfsub<-subset(cw_truck_dfsub,substr(cw_truck_dfsub$tm,1,4)<=input$cw_truck_year_end)
-      if (input$cw_truck_stat_data) {
-        cw_truck_p<-plotCurve(cw_truck_dfsub,cw_truck_dfsub$tm,cw_truck_dfsub$asset)
-      }
-      else
-      {
-        cw_truck_p<-plotCurve(cw_truck_dfsub,cw_truck_dfsub$tm,cw_truck_dfsub$linearRegPred)
-      }
+    else
+    {
+      freight_car1_p<-plotCurve(freight_car1_dfsub,freight_car1_dfsub$tm,freight_car1_dfsub$linearRegPred)
     }
-    if(input$cw_truck_predict_data){
-      
-      cw_truck_p<-cw_truck_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
-    }
-    
-    if (input$cw_truck_stat_data) {
-      cw_truck_p<-cw_truck_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
-    }
-    cw_truck_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
-  })
-  output$cw_truck_asset_output<-renderText({
-    cw_truck_x<-as.numeric(input$cw_truck_input)
-    cw_truck<-c(cw_truck_x)
-    tm<-c(2016)
-    asset<-c(0)
-    inputdata<-data.frame(tm,asset,cw_truck)
-    cw_truck_pred<-as.integer(predict(cw_truck_olsRegModel,inputdata,interval="prediction",level=0.95))
-    paste("多元回归预测：",cw_truck_pred[1],"预测区间95%：(",cw_truck_pred[2],",",cw_truck_pred[3],")" ) 
   }
-  )
-  #-------------------------------------------------
-  #随机森林回归预测计算
-  output$cw_truck_asset_FRR<-renderText({
-    cw_truck_x<-as.numeric(input$cw_truck_input)
-    cw_truck<-c(cw_truck_x)
-    tm<-c(2016)
-    asset<-c(0)
-    inputdata<-data.frame(tm,asset,cw_truck)
-    truckasset<-predict(cw_truck_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
-    paste("随机森林回归预测：",as.integer(truckasset[1])  ) 
+  if(input$freight_car1_predict_data){
     
+    freight_car1_p<-freight_car1_p+geom_line(aes(x=tm,y=linearRegPred,group=1),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
   }
-  )
-  #----------------------------------
-  #支持向量机回归预测计算
-  output$cw_truck_asset_zhi<-renderText({
-    cw_truck_x<-as.numeric(input$cw_truck_input)
-    cw_truck<-c(cw_truck_x)
-    tm<-c(2016)
-    asset<-c(0)
-    inputdata<-data.frame(tm,asset,cw_truck)
-    cw_truck_pred<-as.integer(predict(cw_truck_svmRegModel,inputdata))
-    
-    paste("支持向量机预测：",cw_truck_pred)
-    
+  
+  if (input$freight_car1_stat_data) {
+    freight_car1_p<-freight_car1_p+geom_point(aes(x=tm,y=fixed_assets_investment,group=1),color="red",size=3,shape=21)
   }
-  )
-  #-----------随机森林Tabset画线  
-  output$cw_truck_rfplot <- renderPlot( {
+  freight_car1_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+output$freight_car1_output<-renderText({
+  freight_car1_x<-as.numeric(input$freight_car1_input)
+  freight_car<-c(freight_car1_x)
+  tm<-c(2016)
+  fixed_assets_investment<-c(0)
+  inputdata<-data.frame(tm,fixed_assets_investment,freight_car)
+  freight_car1_pred<-as.integer(predict(freight_car1_olsRegModel,inputdata,interval="prediction",level=0.95))
+  paste("多元回归预测：",freight_car1_pred[1],"预测区间95%：(",freight_car1_pred[2],",",freight_car1_pred[3],")" ) 
+}
+)
+#-------------------------------------------------
+#随机森林回归预测计算
+output$freight_car1_FRR<-renderText({
+  freight_car1_x<-as.numeric(input$freight_car1_input)
+  freight_car<-c(freight_car1_x)
+  tm<-c(2016)
+  fixed_assets_investment<-c(0)
+  inputdata<-data.frame(tm,fixed_assets_investment,freight_car)
+  freight_car1_pred<-as.integer(predict(freight_car1_rfRegModel,inputdata,interval="prediction",level=0.95))  #rfRegModel随机森林在最初已经计算得到
+  paste("随机森林回归预测：",freight_car1_pred[1]) 
+  
+}
+)
+#----------------------------------
+#支持向量机回归预测计算
+output$freight_car1_zhi<-renderText({
+  freight_car1_x<-as.numeric(input$freight_car1_input)
+  freight_car<-c(freight_car1_x)
+  tm<-c(2016)
+  fixed_assets_investment<-c(0)
+  inputdata<-data.frame(tm,fixed_assets_investment,freight_car)
+  freight_car1_pred<-as.integer(predict(freight_car1_svmRegModel,inputdata))
+  
+  paste("支持向量机预测：",freight_car1_pred)
+  
+}
+)
+#-----------随机森林Tabset画线  
+output$freight_car1_rfplot <- renderPlot( {
+  
+  if(input$freight_car1_year_start> input$freight_car1_year_end)  {
     
-    if(input$cw_truck_year_start> input$cw_truck_year_end)  {
-      
-      if (input$cw_truck_stat_data) {
-        cw_truck_p<-plotCurve(cw_truck_df,cw_truck_df$tm,cw_truck_df$asset)
-      }
-      else
-      {
-        cw_truck_p<-plotCurve(cw_truck_df,cw_truck_df$tm,cw_truck_df$frRegPred)
-      }
+    if (input$freight_car1_stat_data) {
+      freight_car1_p<-plotCurve(freight_car1_df,freight_car1_df$tm,freight_car1_df$fixed_assets_investment)
     }
-    else{
-      cw_truck_dfsub<-subset(cw_truck_df,substr(cw_truck_df$tm,1,4)>=input$cw_truck_year_start) 
-      cw_truck_dfsub<-subset(cw_truck_dfsub,substr(cw_truck_df$tm,1,4)<=input$cw_truck_year_end)
-      if (input$cw_truck_stat_data) {
-        cw_truck_p<-plotCurve(cw_truck_dfsub,cw_truck_dfsub$tm,cw_truck_dfsub$asset)
-      }
-      else
-      {
-        cw_truck_p<-plotCurve(cw_truck_dfsub,cw_truck_dfsub$tm,cw_truck_dfsub$frRegPred)
-      }
+    else
+    {
+      freight_car1_p<-plotCurve(freight_car1_df,freight_car1_df$tm,freight_car1_df$frRegPred)
     }
+  }
+  else{
+    freight_car1_dfsub<-subset(freight_car1_df,substr(freight_car1_df$tm,1,4)>=input$freight_car1_year_start) 
+    freight_car1_dfsub<-subset(freight_car1_dfsub,substr(freight_car1_df$tm,1,4)<=input$freight_car1_year_end)
+    if (input$freight_car1_stat_data) {
+      freight_car1_p<-plotCurve(freight_car1_dfsub,freight_car1_dfsub$tm,freight_car1_dfsub$fixed_assets_investment)
+    }
+    else
+    {
+      freight_car1_p<-plotCurve(freight_car1_dfsub,freight_car1_dfsub$tm,freight_car1_dfsub$frRegPred)
+    }
+  }
+  
+  if(input$freight_car1_predict_data){
+    freight_car1_p<-freight_car1_p+geom_line(aes(x=tm,y=frRegPred,group=1),color="blue",size=0.8,show.legend =T)+geom_point(aes(x=tm,y=frRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$freight_car1_stat_data) {
+    freight_car1_p<-freight_car1_p+geom_point(aes(x=tm,y=fixed_assets_investment,group=1),color="red",size=3,shape=21)
+  }
+  freight_car1_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+#----------------------------支持向量机Tabset画线
+
+output$freight_car1_svmplot <- renderPlot( {
+  
+  if(input$freight_car1_year_start> input$freight_car1_year_end)  {
     
-    if(input$cw_truck_predict_data){
-      cw_truck_p<-cw_truck_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+    if (input$freight_car1_stat_data) {
+      freight_car1_p<-plotCurve(freight_car1_df,freight_car1_df$tm,freight_car1_df$fixed_assets_investment)
     }
-    
-    if (input$cw_truck_stat_data) {
-      cw_truck_p<-cw_truck_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
+    else
+    {
+      freight_car1_p<-plotCurve(freight_car1_df,freight_car1_df$tm,freight_car1_df$svmRegPred)
     }
-    cw_truck_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
-  })
-  #----------------------------支持向量机Tabset画线
-  
-  output$cw_truck_svmplot <- renderPlot( {
-    
-    if(input$cw_truck_year_start> input$cw_truck_year_end)  {
-      
-      if (input$cw_truck_stat_data) {
-        cw_truck_p<-plotCurve(cw_truck_df,cw_truck_df$tm,cw_truck_df$asset)
-      }
-      else
-      {
-        cw_truck_p<-plotCurve(cw_truck_df,cw_truck_df$tm,cw_truck_df$svmRegPred)
-      }
+  }
+  else{
+    freight_car1_dfsub<-subset(freight_car1_df,substr(freight_car1_df$tm,1,4)>=input$freight_car1_year_start) 
+    freight_car1_dfsub<-subset(freight_car1_dfsub,substr(freight_car1_dfsub$tm,1,4)<=input$freight_car1_year_end)
+    if (input$freight_car1_stat_data) {
+      freight_car1_p<-plotCurve(freight_car1_dfsub,freight_car1_dfsub$tm,freight_car1_dfsub$fixed_assets_investment)
     }
-    else{
-      cw_truck_dfsub<-subset(cw_truck_df,substr(cw_truck_df$tm,1,4)>=input$cw_truck_year_start) 
-      cw_truck_dfsub<-subset(cw_truck_dfsub,substr(cw_truck_dfsub$tm,1,4)<=input$cw_truck_year_end)
-      if (input$cw_truck_stat_data) {
-        cw_truck_p<-plotCurve(cw_truck_dfsub,cw_truck_dfsub$tm,cw_truck_dfsub$asset)
-      }
-      else
-      {
-        cw_truck_p<-plotCurve(cw_truck_dfsub,cw_truck_dfsub$tm,cw_truck_dfsub$svmRegPred)
-      }
+    else
+    {
+      freight_car1_p<-plotCurve(freight_car1_dfsub,freight_car1_dfsub$tm,freight_car1_dfsub$svmRegPred)
     }
-    if(input$cw_truck_predict_data){
-      cw_truck_p<-cw_truck_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
-    }
-    
-    if (input$cw_truck_stat_data) {
-      cw_truck_p<-cw_truck_p+geom_point(aes(x=tm,y=asset),color="red",size=3,shape=21)
-    }
-    cw_truck_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
-  })
+  }
+  if(input$freight_car1_predict_data){
+    freight_car1_p<-freight_car1_p+geom_line(aes(x=tm,y=svmRegPred,group=1),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
   
-  #--------------------------------------
+  if (input$freight_car1_stat_data) {
+    freight_car1_p<-freight_car1_p+geom_point(aes(x=tm,y=fixed_assets_investment,group=1),color="red",size=3,shape=21)
+  }
+  freight_car1_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+
+#--------------------------------------
+
+#----------------------datatable显示数据
+#-----------------在df中，又增加了3列数据，存放预测结果,
+
+
+output$freight_car1_table<-DT::renderDataTable(
+  DT::datatable(
+{
   
-  #----------------------datatable显示数据
-  #-----------------在df中，又增加了3列数据，存放预测结果,
-  
-  
-  output$cw_truck_table<-DT::renderDataTable(
-    DT::datatable(
-      {
-        
-        cw_truck_data<-cw_truck_df
-      } , 
-      colnames = c('序号', '时间', '固定资产投资（亿元）', '货车车辆','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
-      rownames = TRUE)
-  )
-  
-  
+  freight_car1_data<-freight_car1_df
+} , 
+colnames = c('序号', '时间', '客车辆数', '货车车辆','机车台数','动车台数','铁路固定资产投资','从业人员数量','新线铺轨里程','复线铺轨里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
+rownames = TRUE)
+)
+
+
   #---------------固定资产投资-机车台数---------------------------------
   #JCNum-----机车台数
   #GDMoney-------固定资产投资
@@ -4747,7 +4747,7 @@ shinyServer(function(input, output) {
         dfrawdata<-df_yearly
         dfrawdata<-data.frame(dfrawdata[1:9])
         data<-dfrawdata},
-      colnames = c('时间','客车辆数(辆)','机车台数(辆)','货车辆数(万辆)','动车组数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
+      colnames = c('时间','客车辆数(辆)','机车台数(辆)','货车辆数(万辆)','动车组数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线(km))'),
       rownames = TRUE))
   
   output$rawdata_black_table<-DT::renderDataTable(

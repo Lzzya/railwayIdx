@@ -66,14 +66,14 @@ cw_y<-unique(substr(cw_df$tm,1,4))
 investment_df<-read.csv("investment-passenger.csv",head=T)#固定资产-客车数量适配性研：读表
 investment_y<-unique(substr(investment_df$tm,1,4))
 
-cw_truck_df<-read.csv("truck-asset.csv",head=T)
-cw_truck_y<-unique(substr(cw_truck_df$tm,1,4))
+freight_car1_df<-read.csv("rawdata_property.csv",head=T)#固定资产和货车车辆
+freight_car1_y<-unique(substr(freight_car1_df$tm,1,4))
 
 JCNum_df<-read.csv("固定资产-机车台数.csv",head=T)#固定资产-机车台数适配性研究
 JCNum_y<-unique(substr(JCNum_df$tm,1,4))
 
-pg_cw_df<-read.csv("固定资产指标.csv",head=T)  #固定资产和铺轨里程（新线铺轨历程，旧线铺轨里程）
-pg_cw_y<-unique(substr(pg_cw_df$tm,1,4))
+tracklaying_mileage1_df<-read.csv("rawdata_property.csv",head=T)  #固定资产和铺轨里程（新线铺轨历程，旧线铺轨里程）
+tracklaying_mileage1_y<-unique(substr(tracklaying_mileage1_df$tm,1,4))
 
 Carriagedf<-read.csv("客车车辆预测.csv",head=T)
 Carriagey<-unique(substr(Carriagedf$tm,1,4))
@@ -868,45 +868,45 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                        
                                        sidebarLayout(
                                          sidebarPanel(
-                                           checkboxInput(inputId="mileage_stat_data",
+                                           checkboxInput(inputId="tracklaying_mileage1_stat_data",
                                                          label=strong("历史统计值"),
                                                          value=TRUE),
                                            
-                                           checkboxInput(inputId = "mileage_predict_data",
+                                           checkboxInput(inputId = "tracklaying_mileage1_predict_data",
                                                          label = strong("回归预测值"),
                                                          value = TRUE),
-                                           selectInput(inputId = "mileage_year_start",
+                                           selectInput(inputId = "tracklaying_mileage1_year_start",
                                                        label = "自:", 
-                                                       choices = pg_cw_y,
-                                                       selected = min(pg_cw_y) ),
-                                           selectInput(inputId="mileage_year_end",
+                                                       choices = tracklaying_mileage1_y,
+                                                       selected = min(tracklaying_mileage1_y) ),
+                                           selectInput(inputId="tracklaying_mileage1_year_end",
                                                        label="至:",
-                                                       choice=pg_cw_y,
-                                                       selected=max(pg_cw_y) ),
-                                           textInput(inputId="nlm_input",
+                                                       choice=tracklaying_mileage1_y,
+                                                       selected=max(tracklaying_mileage1_y) ),
+                                           textInput(inputId="newline_tracklaying_mileage1_input",
                                                      label=strong("新线铺轨里程（公里）"),
-                                                     value=round(mean(pg_cw_df$nlm),2)),
-                                           textInput(inputId="olm_input",
+                                                     value=round(mean(tracklaying_mileage1_df$newline_tracklaying_mileage),2)),
+                                           textInput(inputId="oldline_tracklaying_mileage1_input",
                                                      label=strong("复线铺轨里程（公里）"),
-                                                     value=round(mean(pg_cw_df$olm),2)),
+                                                     value=round(mean(tracklaying_mileage1_df$oldline_tracklaying_mileage),2)),
                                            hr("预测结果——固定资产值（亿元）"),
                                            hr(),
-                                           textOutput("pg_asset_output") ,
+                                           textOutput("tracklaying_mileage1_output") ,
                                            hr(),
-                                           textOutput("pg_asset_FRR"),
+                                           textOutput("tracklaying_mileage1_FRR"),
                                            hr(),
-                                           textOutput("pg_asset_zhi")
+                                           textOutput("tracklaying_mileage1_zhi")
                                            
                                          ),                                                    
                                          
                                          mainPanel(
                                            tabsetPanel(
-                                             tabPanel("多元线性回归", plotOutput("pg_asset_linearplot")), 
-                                             tabPanel("随机森林回归", plotOutput("pg_asset_rfplot")), 
-                                             tabPanel("支持向量机回归", plotOutput("pg_asset_svmplot"))
+                                             tabPanel("多元线性回归", plotOutput("tracklaying_mileage1_linearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("tracklaying_mileage1_rfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("tracklaying_mileage1_svmplot"))
                                            ),
                                            
-                                           fluidRow(  DT::dataTableOutput("pg_asset_table")   )
+                                           fluidRow(  DT::dataTableOutput("tracklaying_mileage1_table")   )
                                          )
                                        )
                               ),
@@ -1008,43 +1008,43 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                        
                                        sidebarLayout(
                                          sidebarPanel(
-                                           checkboxInput(inputId="cw_truck_stat_data",
+                                           checkboxInput(inputId="freight_car1_stat_data",
                                                          label=strong("历史统计值"),
                                                          value=TRUE),
                                            
-                                           checkboxInput(inputId = "cw_truck_predict_data",
+                                           checkboxInput(inputId = "freight_car1_predict_data",
                                                          label = strong("回归预测值"),
                                                          value = TRUE),
-                                           selectInput(inputId = "cw_truck_year_start",
+                                           selectInput(inputId = "freight_car1_year_start",
                                                        label = "自:", 
-                                                       choices = cw_truck_y,
-                                                       selected = min(cw_truck_y) ),
-                                           selectInput(inputId="cw_truck_year_end",
+                                                       choices = freight_car1_y,
+                                                       selected = min(freight_car1_y) ),
+                                           selectInput(inputId="freight_car1_year_end",
                                                        label="至:",
-                                                       choice=cw_truck_y,
-                                                       selected=max(cw_truck_y) ),
-                                           textInput(inputId="cw_truck_input",
+                                                       choice=freight_car1_y,
+                                                       selected=max(freight_car1_y) ),
+                                           textInput(inputId="freight_car1_input",
                                                      label=strong("货车车辆"),
-                                                     value=round(mean(cw_truck_df$cw_truck),2)),
+                                                     value=round(mean(freight_car1_df$freight_car),2)),
                                            hr("预测结果—固定资产值（亿元）"),
                                            hr(),
-                                           textOutput("cw_truck_asset_output") ,
+                                           textOutput("freight_car1_output") ,
                                            hr(),
-                                           textOutput("cw_truck_asset_FRR"),
+                                           textOutput("freight_car1_FRR"),
                                            hr(),
-                                           textOutput("cw_truck_asset_zhi")
+                                           textOutput("freight_car1_zhi")
                                            
                                            # actionButton("predictFre","预测新货运量") 
                                          ),                                                       #sidebarPanel
                                          
                                          mainPanel(
                                            tabsetPanel(
-                                             tabPanel("多元线性回归", plotOutput("cw_truck_linearplot")), 
-                                             tabPanel("随机森林回归", plotOutput("cw_truck_rfplot")), 
-                                             tabPanel("支持向量机回归", plotOutput("cw_truck_svmplot"))
+                                             tabPanel("多元线性回归", plotOutput("freight_car1_linearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("freight_car1_rfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("freight_car1_svmplot"))
                                            ),
                                            
-                                           fluidRow(  DT::dataTableOutput("cw_truck_table")   )
+                                           fluidRow(  DT::dataTableOutput("freight_car1_table")   )
                                          )
                                        )
                               ),
