@@ -4221,7 +4221,7 @@ shinyServer(function(input, output) {
   #--------------------------------------------
   #-----------货运量时间序列预测---------------
   #freight-----------货运量
-  freight_ind<-read.csv("货运量.csv",head=T)
+  freight_ind<-df_monthly$freight_volume
   freight_indus<-ts(freight_ind,start=c(2001,1),freq=12)
   freight_rn<-auto.arima(freight_indus,ic="bic")
   freight_rn<-arima(freight_indus,order=c(2,1,3),seasonal=c(0,1,2))
@@ -4246,7 +4246,7 @@ shinyServer(function(input, output) {
   #-------------------------------------------
   #--------成品钢材产量时间序列预测-----------
   #SteelTime-----------成品钢材产量时间序列预测
-  SteelTimeind<-read.csv("成品钢材产量.csv",head=T)
+  SteelTimeind<-df_monthly$iron_output
   SteelTimeindus<-ts(SteelTimeind,start=c(2001,1),freq=12)
   SteelTimern<-auto.arima(SteelTimeindus,ic="bic")
   SteelTimern<-arima(SteelTimeindus,order=c(2,1,3),seasonal=c(0,1,2))
@@ -4276,8 +4276,8 @@ shinyServer(function(input, output) {
   #----------------------------------
   #----货车车辆数时间序列预测--------
   #TRUCKTime-----------货车车辆数时间序列预测
-  TruckTimeind<-read.csv("货车辆数.csv",head=T)
-  TruckTimeindus<-ts(TruckTimeind,start=c(1993),freq=1)
+  TruckTimeind<-df_yearly$freight_car
+  TruckTimeindus<-ts(TruckTimeind,start=c(1990),freq=1)
   TruckTimern<-auto.arima(TruckTimeindus,ic="bic")
   TruckTimern<-arima(TruckTimeindus,order=c(2,1,3),seasonal=c(0,1,2))
   TruckTimern2<-forecast(TruckTimern,h=1)
@@ -4305,7 +4305,7 @@ shinyServer(function(input, output) {
   #-----------------------------------
   #-----原煤产量时间序列预测----------
   #CoalTime-----------原煤产量时间序列预测
-  CoalTimeind<-read.csv("原煤产量.csv",head=T)
+  CoalTimeind<-df_monthly$coal_output
   CoalTimeindus<-ts(CoalTimeind,start=c(2001,1),freq=12)
   CoalTimern<-auto.arima(CoalTimeindus,ic="bic")
   CoalTimern<-arima(CoalTimeindus,order=c(2,1,3),seasonal=c(0,1,2))
@@ -4335,7 +4335,7 @@ shinyServer(function(input, output) {
   #----------------------------------------------
   #-----------原油加工量时间序列预测-------------
   #OilTime-----------原油加工量时间序列预测
-  OilTimeind<-read.csv("原油加工量.csv",head=T)
+  OilTimeind<-df_monthly$oil_processing_volume
   OilTimeindus<-ts(OilTimeind,start=c(2001,1),freq=12)
   OilTimern<-auto.arima(OilTimeindus,ic="bic")
   OilTimern<-arima(OilTimeindus,order=c(2,1,3),seasonal=c(0,1,2))
