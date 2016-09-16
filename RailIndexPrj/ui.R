@@ -72,14 +72,14 @@ cw_truck_y<-unique(substr(cw_truck_df$tm,1,4))
 JCNum_df<-read.csv("固定资产-机车台数.csv",head=T)#固定资产-机车台数适配性研究
 JCNum_y<-unique(substr(JCNum_df$tm,1,4))
 
-pg_cw_df<-read.csv("固定资产指标.csv",head=T)  #固定资产和铺轨里程（新线铺轨历程，旧线铺轨里程）
-pg_cw_y<-unique(substr(pg_cw_df$tm,1,4))
+#pg_cw_df<-read.csv("固定资产指标.csv",head=T)  #固定资产和铺轨里程（新线铺轨历程，旧线铺轨里程）
+#pg_cw_y<-unique(substr(pg_cw_df$tm,1,4))
 
 Carriagedf<-read.csv("客车车辆预测.csv",head=T)
 Carriagey<-unique(substr(Carriagedf$tm,1,4))
 
-operatingmileage_df<-read.csv("营业里程.csv",head=T)
-operatingmileage_y<-unique(substr(operatingmileage_df$tm,1,4))
+#df_yearly<-read.csv("营业里程.csv",head=T)
+#y_wenjing_rawdata_yearly<-unique(substr(df_yearly$tm,1,4))
 
 PVdf<-read.csv("客运量.csv",head=T)
 PVy<-unique(substr(PVdf$PVtm,1,4))
@@ -822,43 +822,43 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                        
                                        sidebarLayout(
                                          sidebarPanel(
-                                           checkboxInput(inputId="operatingmileage_stat_data",
+                                           checkboxInput(inputId="mileage_stat_data",
                                                          label=strong("历史统计值"),
                                                          value=TRUE),
                                            
-                                           checkboxInput(inputId = "operatingmileage_predict_data",
+                                           checkboxInput(inputId = "mileage_predict_data",
                                                          label = strong("回归预测值"),
                                                          value = TRUE),
-                                           selectInput(inputId = "operatingmileage_year_start",
+                                           selectInput(inputId = "mileage_year_start",
                                                        label = "自:", 
-                                                       choices = operatingmileage_y,
-                                                       selected = min(operatingmileage_y) ),
-                                           selectInput(inputId="operatingmileage_year_end",
+                                                       choices = y_wenjing_rawdata_yearly,
+                                                       selected = min(y_wenjing_rawdata_yearly) ),
+                                           selectInput(inputId="mileage_year_end",
                                                        label="至:",
-                                                       choice=operatingmileage_y,
-                                                       selected=max(operatingmileage_y) ),
-                                           textInput(inputId="operatingmileage_input",
+                                                       choice=y_wenjing_rawdata_yearly,
+                                                       selected=max(y_wenjing_rawdata_yearly) ),
+                                           textInput(inputId="mileage_input",
                                                      label=strong("营业里程"),
-                                                     value=round(mean(operatingmileage_df$operatingmileage),2)),
+                                                     value=round(mean(df_yearly$mileage),2)),
                                            hr("预测结果—固定资产值（亿元）"),
                                            hr(),
-                                           textOutput("operatingmileage_asset_output") ,
+                                           textOutput("mileage_fixed_assets_investment_output") ,
                                            hr(),
-                                           textOutput("operatingmileage_asset_FRR"),
+                                           textOutput("mileage_fixed_assets_investment_FRR"),
                                            hr(),
-                                           textOutput("operatingmileage_asset_zhi")
+                                           textOutput("mileage_fixed_assets_investment_zhi")
                                            
                                            # actionButton("predictFre","预测新货运量") 
                                          ),                                                       #sidebarPanel
                                          
                                          mainPanel(
                                            tabsetPanel(
-                                             tabPanel("多元线性回归", plotOutput("operatingmileage_linearplot")), 
-                                             tabPanel("随机森林回归", plotOutput("operatingmileage_rfplot")), 
-                                             tabPanel("支持向量机回归", plotOutput("operatingmileage_svmplot"))
+                                             tabPanel("多元线性回归", plotOutput("mileage_linearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("mileage_rfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("mileage_svmplot"))
                                            ),
                                            
-                                           fluidRow(  DT::dataTableOutput("operatingmileage_table")   )
+                                           fluidRow(  DT::dataTableOutput("mileage_table")   )
                                          )
                                        )
                               ),
