@@ -2,10 +2,22 @@ require(shiny)
 require(ggplot2)
 require(DT)
 require(markdown)
-
+require(rJava)
+require(xlsx)
 
 
 #-----------------------------------界面所需数据集------------------------------
+#-----------------------------------------
+#---------原始数据------------------------
+df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+dfrawdata<-df_monthly
+dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  
+y_wenjing_rawdata_monthly<-unique(substr(dfrawdata$tm,1,4))
+
+y_wenjing_rawdata_black_white<-y_wenjing_rawdata_monthly
+
+df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+y_wenjing_rawdata_yearly<-substr(df_yearly$tm,1,4)
 #-----------------------------------------
 #-------预警信号系统----------------------
 df_index<-read.csv("预警.csv",header=T)
@@ -35,10 +47,15 @@ locomotive_dis_y<-unique(substr(locomotive_dis$tm,1,4))
 #<<<<<<< HEAD
 locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
 locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
+
+#<<<<<<< HEAD
+#locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
+#locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
 #=======
 Locomotive_fre<-read.csv("Locomotive-freight.csv",head=T)#机车-货运量适配性研：读表
 Locomotive_tm<-unique(substr(Locomotive_fre$tm,1,4))
 #>>>>>>> liaozili
+#>>>>>>> refs/remotes/origin/develop
 
 freightcar_dis<-read.csv("货车车辆预测.csv",head=T)
 freightcar_dis_y<-unique(substr(freightcar_dis$tm,1,4))
@@ -48,6 +65,12 @@ cw_y<-unique(substr(cw_df$tm,1,4))
 
 investment_df<-read.csv("investment-passenger.csv",head=T)#固定资产-客车数量适配性研：读表
 investment_y<-unique(substr(investment_df$tm,1,4))
+
+cw_truck_df<-read.csv("truck-asset.csv",head=T)
+cw_truck_y<-unique(substr(cw_truck_df$tm,1,4))
+
+JCNum_df<-read.csv("固定资产-机车台数.csv",head=T)#固定资产-机车台数适配性研究
+JCNum_y<-unique(substr(JCNum_df$tm,1,4))
 
 pg_cw_df<-read.csv("固定资产指标.csv",head=T)  #固定资产和铺轨里程（新线铺轨历程，旧线铺轨里程）
 pg_cw_y<-unique(substr(pg_cw_df$tm,1,4))
@@ -76,26 +99,16 @@ y<-as.numeric(unique(substr(freight_forecast_df$tm,1,4)))
 passagerpre_df<-read.csv("铁路客运量预测.csv",head=T)
 passagerpre_y<-unique(substr(passagerpre_df$Year,1,4)) #提取年份
 
-#-----------------------------------------
-#---------原始数据------------------------
-dfyssj<-read.csv("compidx-qitahangye.csv",head=T)
-dfyssj$tm<-as.Date.POSIXct(dfyssj$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  
-y.wenjing.yssj<-unique(substr(dfyssj$tm,1,4))
-
-dfyssj.hhbh<-read.csv("compidx-heihuobaihuo.csv",head=T)
-dfyssj.hhbh$tm<-as.Date.POSIXct(dfyssj.hhbh$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  
-y.wenjing.yssj.hhbh<-unique(substr(dfyssj.hhbh$tm,1,4))
-
 #———————————————————————————————————————————————————————————————————————————————
 #-----------------------------------------主界面--------------------------------
 
 shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
-
                    
-#-------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------
-#预警信号系统界面
-
+                   
+                   #-------------------------------------------------------------------------------
+                   #----------------------------------------------------------------------------------
+                   #预警信号系统界面
+                   
                    tabPanel("预警信号系统",
                             titlePanel("铁路预警信号灯"),
                             hr(),                          
@@ -112,20 +125,20 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                             ),
                             fluidRow(  DT::dataTableOutput("index_table")   )
                    ),
-
-
-
-
-
-#------------------------------------------------------------------------------
-#------------------------------------------------------------------------------
-#铁路景气指数界面，包括合成指数和扩散指数
-
-navbarMenu("铁路景气指数",
-              tabPanel("合成指数",
-                        titlePanel("铁路景气合成指数"),
-                           fluidRow(
-                               column(12, tabsetPanel(type="tabs",
+                   
+                   
+                   
+                   
+                   
+                   #------------------------------------------------------------------------------
+                   #------------------------------------------------------------------------------
+                   #铁路景气指数界面，包括合成指数和扩散指数
+                   
+                   navbarMenu("铁路景气指数",
+                              tabPanel("合成指数",
+                                       titlePanel("铁路景气合成指数"),
+                                       fluidRow(
+                                         column(12, tabsetPanel(type="tabs",
                                                                 
                                                                 tabPanel( "运输合成指数", 
                                                                           fluidRow(
@@ -383,7 +396,7 @@ navbarMenu("铁路景气指数",
                                                                 
                                          )))
                                        
-                                       ),
+                              ),
                               tabPanel("扩散指数",
                                        titlePanel("铁路扩散景气指数"),
                                        
@@ -468,7 +481,7 @@ navbarMenu("铁路景气指数",
                                                                               fluidRow(
                                                                                 column(12,DT::dataTableOutput("table_trans_DI_index")) ),
                                                                               width=9
-                                                                              )#主显示区
+                                                                            )#主显示区
                                                                           )), #运输指数的页签
                                                                 
                                                                 #------------------------------------------------------------  
@@ -577,10 +590,10 @@ navbarMenu("铁路景气指数",
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
                                                                                 textInput(inputId="scale_hyl_percent_input",
-                                                                                          label=h5("工业增加值%"),
+                                                                                          label=h5("货运量%"),
                                                                                           value="17.87"),
                                                                                 textInput(inputId="scale_gyzjz_percent_input",
-                                                                                          label=h5("货运量%"),
+                                                                                          label=h5("工业增加值量%"),
                                                                                           value="67.71"),
                                                                                 textInput(inputId="scale_hyzzl_percent_input",
                                                                                           label=h5("货运周转量%"),
@@ -646,1122 +659,1219 @@ navbarMenu("铁路景气指数",
                                                                 
                                                                 
                                          )))
-                                       )
+                              )
                    ),
-
-
-
-#-----------------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------------
-#黑白货指数界面
-
-tabPanel("黑货白货指数",
-         titlePanel("黑货白货指数"),
-         fluidRow(
-           column(12, tabsetPanel(type="tabs",
-                                  
-                                  
-#黑货指数数的页签-----------------------------------------------
-                                  
-                                  tabPanel( "黑货指数", 
-                                            fluidRow(
-                                              sidebarLayout(
-                                                sidebarPanel(
-                                                  selectInput(inputId = "liaozili_year_start",# 时间选项框
-                                                              label = "自:", 
-                                                              choices = liaozili_y,
-                                                              selected = min(liaozili_y),
-                                                              width =('100%')),
-                                                  selectInput(inputId="liaozili_year_end",
-                                                              label="至:",
-                                                              choice=liaozili_y,
-                                                              selected=max(liaozili_y),
-                                                              width =('100%')),
-                                                  
-                                                  numericInput(inputId="weightcoal_input",#原煤权重输入
-                                                               label=h6("原煤权重(%)"),
-                                                               value='66.93',
-                                                               min=0,
-                                                               max=100,
-                                                               step=0.1),
-                                                  numericInput(inputId="weightoil_input",#石油权重输入
-                                                               label=h6("石油权重(%)"),
-                                                               value='5.22',
-                                                               min=0,
-                                                               max=100,
-                                                               step=0.1),
-                                                  numericInput(inputId="weightmetal_input",#金属矿石权重
-                                                               label=h6("金属矿石权重(%)"),
-                                                               value='14.97',
-                                                               min=0,
-                                                               max=100,
-                                                               step=0.1),
-                                                  numericInput(inputId="weightiron_input",#钢铁权重输入
-                                                               label=h6("钢铁权重(%)"),
-                                                               value='8.02',
-                                                               min=0,
-                                                               max=100,
-                                                               step=0.1),
-                                                  numericInput(inputId="weightmine_input",#矿建权重输入
-                                                               label=h6("矿建权重(%)"),
-                                                               value= "4.84",
-                                                               min=0,
-                                                               max=100,
-                                                               step=0.1),
-                                                  width =3
-                                                ),
-                                                mainPanel(plotOutput(outputId="heihuo_index", height = "400px"),#heihuo_index 表示黑货指数
-                                                          fluidRow( DT::dataTableOutput("heihuotable",width = "100%", height = "auto")),#heihuotable 黑货指数数据显示
-                                                          width =8)
-                                                
-                                                # plotOutput(outputId="heihuo_index", height = "400px")
-                                                
-                                              )
-                                            )
-                                            
-                                  ),
- #白货指数数的页签-----------------------------------------------
-                                  tabPanel( "白货指数", 
-                                            fluidRow(
-                                              sidebarLayout(
-                                                sidebarPanel(
-                                                  selectInput(inputId = "liaozili_year2_start",#时间框
-                                                              label = "自:", 
-                                                              choices = liaozili_y,
-                                                              selected = min(liaozili_y),
-                                                              width =('100%')),
-                                                  selectInput(inputId="liaozili_year2_end",
-                                                              label="至:",
-                                                              choice=liaozili_y,
-                                                              selected=max(liaozili_y),
-                                                              width =('100%')),
-                                                  numericInput(inputId="weightmachinery_input",#工程机械权重输入
-                                                               label=h6("工程机械权重(%)"),
-                                                               value='18.10',
-                                                               min=0,
-                                                               max=100,
-                                                               step=0.1),
-                                                  numericInput(inputId="weightelectronic_input",#电子电器权重输入
-                                                               label=h6("电子电器权重(%)"),
-                                                               value='18.80',
-                                                               min=0,
-                                                               max=100,
-                                                               step=0.1),
-                                                  numericInput(inputId="weightagricultural_input",#农副产品权重输入
-                                                               label=h6("农副产品权重(%)"),
-                                                               value='11.10',
-                                                               min=0,
-                                                               max=100,
-                                                               step=0.1),
-                                                  numericInput(inputId="weightfood_input",#饮食烟草权重输入
-                                                               label=h6("饮食烟草权重(%)"),
-                                                               value='17.19',
-                                                               min=0,
-                                                               max=100,
-                                                               step=0.1),
-                                                  numericInput(inputId="weighteducation_input",#科教用品权重输入
-                                                               label=h6("科教用品权重(%)"),
-                                                               value='17.77',
-                                                               min=0,
-                                                               max=100,
-                                                               step=0.1),
-                                                  numericInput(inputId="weightltl_input",#零担权重输入
-                                                               label=h6("零担权重(%)"),
-                                                               value='4.29',
-                                                               min=0,
-                                                               max=100,
-                                                               step=0.1),
-                                                  numericInput(inputId="weightcontainer_input",#集装箱权重输入
-                                                               label=h6("集装箱权重(%)"),
-                                                               value='12.75',
-                                                               min=0,
-                                                               max=100,
-                                                               step=0.1),
-                                                  width = 3 
-                                                ),
-                                                mainPanel(
-                                                  plotOutput(outputId="baihuo_index", height = "400px"),#白货指数
-                                                  fluidRow(DT::dataTableOutput("baihuotable")),#白货数据显示
-                                                  width =8)
-                                                
-                                                #plotOutput(outputId="baihuo_index", height = "400px")
-                                                
-                                              )
-                                            )
-                                            
-                                  )
-                                  
-           )
-           )
-         )
-         ),
-
-
-
-#-------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------
-#适配性研究界面
-
-
+                   
+                   
+                   
+                   #-----------------------------------------------------------------------------------------
+                   #----------------------------------------------------------------------------------------
+                   #黑白货指数界面
+                   
+                   tabPanel("黑货白货指数",
+                            titlePanel("黑货白货指数"),
+                            fluidRow(
+                              column(12, tabsetPanel(type="tabs",
+                                                     
+                                                     
+                                                     #黑货指数数的页签-----------------------------------------------
+                                                     
+                                                     tabPanel( "黑货指数", 
+                                                               fluidRow(
+                                                                 sidebarLayout(
+                                                                   sidebarPanel(
+                                                                     selectInput(inputId = "liaozili_year_start",# 时间选项框
+                                                                                 label = "自:", 
+                                                                                 choices = liaozili_y,
+                                                                                 selected = min(liaozili_y),
+                                                                                 width =('100%')),
+                                                                     selectInput(inputId="liaozili_year_end",
+                                                                                 label="至:",
+                                                                                 choice=liaozili_y,
+                                                                                 selected=max(liaozili_y),
+                                                                                 width =('100%')),
+                                                                     
+                                                                     numericInput(inputId="weightcoal_input",#原煤权重输入
+                                                                                  label=h6("原煤权重(%)"),
+                                                                                  value='66.93',
+                                                                                  min=0,
+                                                                                  max=100,
+                                                                                  step=0.1),
+                                                                     numericInput(inputId="weightoil_input",#石油权重输入
+                                                                                  label=h6("石油权重(%)"),
+                                                                                  value='5.22',
+                                                                                  min=0,
+                                                                                  max=100,
+                                                                                  step=0.1),
+                                                                     numericInput(inputId="weightmetal_input",#金属矿石权重
+                                                                                  label=h6("金属矿石权重(%)"),
+                                                                                  value='14.97',
+                                                                                  min=0,
+                                                                                  max=100,
+                                                                                  step=0.1),
+                                                                     numericInput(inputId="weightiron_input",#钢铁权重输入
+                                                                                  label=h6("钢铁权重(%)"),
+                                                                                  value='8.02',
+                                                                                  min=0,
+                                                                                  max=100,
+                                                                                  step=0.1),
+                                                                     numericInput(inputId="weightmine_input",#矿建权重输入
+                                                                                  label=h6("矿建权重(%)"),
+                                                                                  value= "4.84",
+                                                                                  min=0,
+                                                                                  max=100,
+                                                                                  step=0.1),
+                                                                     width =3
+                                                                   ),
+                                                                   mainPanel(plotOutput(outputId="heihuo_index", height = "400px"),#heihuo_index 表示黑货指数
+                                                                             fluidRow( DT::dataTableOutput("heihuotable",width = "100%", height = "auto")),#heihuotable 黑货指数数据显示
+                                                                             width =8)
+                                                                   
+                                                                   # plotOutput(outputId="heihuo_index", height = "400px")
+                                                                   
+                                                                 )
+                                                               )
+                                                               
+                                                     ),
+                                                     #白货指数数的页签-----------------------------------------------
+                                                     tabPanel( "白货指数", 
+                                                               fluidRow(
+                                                                 sidebarLayout(
+                                                                   sidebarPanel(
+                                                                     selectInput(inputId = "liaozili_year2_start",#时间框
+                                                                                 label = "自:", 
+                                                                                 choices = liaozili_y,
+                                                                                 selected = min(liaozili_y),
+                                                                                 width =('100%')),
+                                                                     selectInput(inputId="liaozili_year2_end",
+                                                                                 label="至:",
+                                                                                 choice=liaozili_y,
+                                                                                 selected=max(liaozili_y),
+                                                                                 width =('100%')),
+                                                                     numericInput(inputId="weightmachinery_input",#工程机械权重输入
+                                                                                  label=h6("工程机械权重(%)"),
+                                                                                  value='18.10',
+                                                                                  min=0,
+                                                                                  max=100,
+                                                                                  step=0.1),
+                                                                     numericInput(inputId="weightelectronic_input",#电子电器权重输入
+                                                                                  label=h6("电子电器权重(%)"),
+                                                                                  value='18.80',
+                                                                                  min=0,
+                                                                                  max=100,
+                                                                                  step=0.1),
+                                                                     numericInput(inputId="weightagricultural_input",#农副产品权重输入
+                                                                                  label=h6("农副产品权重(%)"),
+                                                                                  value='11.10',
+                                                                                  min=0,
+                                                                                  max=100,
+                                                                                  step=0.1),
+                                                                     numericInput(inputId="weightfood_input",#饮食烟草权重输入
+                                                                                  label=h6("饮食烟草权重(%)"),
+                                                                                  value='17.19',
+                                                                                  min=0,
+                                                                                  max=100,
+                                                                                  step=0.1),
+                                                                     numericInput(inputId="weighteducation_input",#科教用品权重输入
+                                                                                  label=h6("科教用品权重(%)"),
+                                                                                  value='17.77',
+                                                                                  min=0,
+                                                                                  max=100,
+                                                                                  step=0.1),
+                                                                     numericInput(inputId="weightltl_input",#零担权重输入
+                                                                                  label=h6("零担权重(%)"),
+                                                                                  value='4.29',
+                                                                                  min=0,
+                                                                                  max=100,
+                                                                                  step=0.1),
+                                                                     numericInput(inputId="weightcontainer_input",#集装箱权重输入
+                                                                                  label=h6("集装箱权重(%)"),
+                                                                                  value='12.75',
+                                                                                  min=0,
+                                                                                  max=100,
+                                                                                  step=0.1),
+                                                                     width = 3 
+                                                                   ),
+                                                                   mainPanel(
+                                                                     plotOutput(outputId="baihuo_index", height = "400px"),#白货指数
+                                                                     fluidRow(DT::dataTableOutput("baihuotable")),#白货数据显示
+                                                                     width =8)
+                                                                   
+                                                                   #plotOutput(outputId="baihuo_index", height = "400px")
+                                                                   
+                                                                 )
+                                                               )
+                                                               
+                                                     )
+                                                     
+                              )
+                              )
+                            )
+                   ),
+                   
+                   
+                   
+                   #-------------------------------------------------------------------------------------
+                   #-------------------------------------------------------------------------------------
+                   #适配性研究界面
+                   
+                   
                    navbarMenu("适配性研究",
-                     tabPanel("固定资产-营业里程",
-                              titlePanel("固定资产-营业里程"),
-                              
-                              sidebarLayout(
-                                sidebarPanel(
-                                  checkboxInput(inputId="operatingmileage_stat_data",
-                                                label=strong("历史统计值"),
-                                                value=TRUE),
-                                  
-                                  checkboxInput(inputId = "operatingmileage_predict_data",
-                                                label = strong("回归预测值"),
-                                                value = TRUE),
-                                  selectInput(inputId = "operatingmileage_year_start",
-                                              label = "自:", 
-                                              choices = operatingmileage_y,
-                                              selected = min(operatingmileage_y) ),
-                                  selectInput(inputId="operatingmileage_year_end",
-                                              label="至:",
-                                              choice=operatingmileage_y,
-                                              selected=max(operatingmileage_y) ),
-                                  textInput(inputId="operatingmileage_input",
-                                            label=strong("营业里程"),
-                                            value=round(mean(operatingmileage_df$operatingmileage),2)),
-                                  hr("预测结果—固定资产值（亿元）"),
-                                  hr(),
-                                  textOutput("operatingmileage_asset_output") ,
-                                  hr(),
-                                  textOutput("operatingmileage_asset_FRR"),
-                                  hr(),
-                                  textOutput("operatingmileage_asset_zhi")
-                                  
-                                  # actionButton("predictFre","预测新货运量") 
-                                ),                                                       #sidebarPanel
-                                
-                                mainPanel(
-                                  tabsetPanel(
-                                    tabPanel("多元线性回归", plotOutput("operatingmileage_linearplot")), 
-                                    tabPanel("随机森林回归", plotOutput("operatingmileage_rfplot")), 
-                                    tabPanel("支持向量机回归", plotOutput("operatingmileage_svmplot"))
-                                  ),
-                                  
-                                  fluidRow(  DT::dataTableOutput("operatingmileage_table")   )
-                                )
-                              )
-                              ),
-                     
-                     tabPanel("固定资产-铺轨里程",
-                              titlePanel("固定资产投资-铺轨里程"),
-                              
-                              sidebarLayout(
-                                sidebarPanel(
-                                  checkboxInput(inputId="mileage_stat_data",
-                                                label=strong("历史统计值"),
-                                                value=TRUE),
-                                  
-                                  checkboxInput(inputId = "mileage_predict_data",
-                                                label = strong("回归预测值"),
-                                                value = TRUE),
-                                  selectInput(inputId = "mileage_year_start",
-                                              label = "自:", 
-                                              choices = pg_cw_y,
-                                              selected = min(pg_cw_y) ),
-                                  selectInput(inputId="mileage_year_end",
-                                              label="至:",
-                                              choice=pg_cw_y,
-                                              selected=max(pg_cw_y) ),
-                                  textInput(inputId="nlm_input",
-                                            label=strong("新线铺轨里程（公里）"),
-                                            value=round(mean(pg_cw_df$nlm),2)),
-                                  textInput(inputId="olm_input",
-                                            label=strong("复线铺轨里程（公里）"),
-                                            value=round(mean(pg_cw_df$olm),2)),
-                                  hr("预测结果——固定资产值（亿元）"),
-                                  hr(),
-                                  textOutput("pg_asset_output") ,
-                                  hr(),
-                                  textOutput("pg_asset_FRR"),
-                                  hr(),
-                                  textOutput("pg_asset_zhi")
-                                  
-                                ),                                                    
-                                
-                                mainPanel(
-                                  tabsetPanel(
-                                    tabPanel("多元线性回归", plotOutput("pg_asset_linearplot")), 
-                                    tabPanel("随机森林回归", plotOutput("pg_asset_rfplot")), 
-                                    tabPanel("支持向量机回归", plotOutput("pg_asset_svmplot"))
-                                  ),
-                                  
-                                  fluidRow(  DT::dataTableOutput("pg_asset_table")   )
-                                )
-                              )
-                              ),
-                     
-                     tabPanel("固定资产-动车组",
-                              titlePanel("固定资产投资-动车组"),
-                              
-                              sidebarLayout(
-                                sidebarPanel(
-                                  checkboxInput(inputId="emu_stat_data",
-                                                label=strong("历史统计值"),
-                                                value=TRUE),
-                                  
-                                  checkboxInput(inputId = "emu_predict_data",
-                                                label = strong("回归预测值"),
-                                                value = TRUE),
-                                  selectInput(inputId = "emu_year_start",
-                                              label = "自:", 
-                                              choices = cw_y,
-                                              selected = min(cw_y) ),
-                                  selectInput(inputId="emu_year_end",
-                                              label="至:",
-                                              choice=cw_y,
-                                              selected=max(cw_y) ),
-                                  textInput(inputId="emu_input",
-                                            label=strong("动车新增数量"),
-                                            value=round(mean(cw_df$emu),0)),
-                                  hr("预测结果——固定资产值（亿元）"),
-                                  hr(),
-                                  textOutput("emu_asset_output") ,
-                                  hr(),
-                                  textOutput("emu_asset_FRR"),
-                                  hr(),
-                                  textOutput("emu_asset_zhi")
-                                  
-                                  # actionButton("predictFre","预测新货运量") 
-                                ),                                                       #sidebarPanel
-                                
-                                mainPanel(
-                                  tabsetPanel(
-                                    tabPanel("多元线性回归", plotOutput("emu_asset_linearplot")), 
-                                    tabPanel("随机森林回归", plotOutput("emu_asset_rfplot")), 
-                                    tabPanel("支持向量机回归", plotOutput("emu_asset_svmplot"))
-                                  ),
-                                  
-                                  fluidRow(  DT::dataTableOutput("emu_asset_table")   )
-                                )
-                              )
-                              ),
-                     
-#——————————————————————————————————————————————————————————————————————————
-#————————————固定资产-客车数量适配性分析————————————
-tabPanel("固定资产-客车数量",
-titlePanel("固定资产-客车数量"),
-sidebarLayout(
-  sidebarPanel(
-    checkboxInput(inputId="investment_stat_data",
-                  label=strong("历史统计值"),
-                  value=TRUE),
-    
-    checkboxInput(inputId = "investment_predict_data",
-                  label = strong("回归预测值"),
-                  value = TRUE),
-    selectInput(inputId = "investment_year_start",
-                label = "自:", 
-                choices = investment_y,
-                selected = min(investment_y) ),
-    selectInput(inputId="investment_year_end",
-                label="至:",
-                choice=investment_y,
-                selected=max(investment_y) ),
-    textInput(inputId="ptrain_input",
-              label=strong("预测输入值——客车增加数量（辆）"),
-              value=mean(investment_df$ptrain)),
-    hr("预测结果——固定资产投资额（万元）"),
-    hr(),
-    textOutput("investment_output") ,
-    hr(),
-    textOutput("investment_FRR"),
-    hr(),
-    textOutput("investment_zhi")
-    # actionButton("predictCAR","预测新客车量") 
-    
-  ), 
-  
-  mainPanel(
-    tabsetPanel(
-      tabPanel("多元线性回归", plotOutput("investmentlinearplot")), 
-      tabPanel("随机森林回归", plotOutput("investmentrfplot")), 
-      tabPanel("支持向量机回归", plotOutput("investmentsvmplot"))
-    ),
-    
-    fluidRow(  DT::dataTableOutput("investmenttable")   )
-  )
-)
-),
-
-                     tabPanel("客运量-客车车辆数",
-                              titlePanel("客运量-客车车辆数"),
-                              
-                              sidebarLayout(
-                                sidebarPanel(
-                                  checkboxInput(inputId="mileage_stat_data",
-                                                label=strong("历史统计值"),
-                                                value=TRUE),
-                                  
-                                  checkboxInput(inputId = "mileage_predict_data",
-                                                label = strong("回归预测值"),
-                                                value = TRUE),
-                                  selectInput(inputId = "mileage_year_start",
-                                              label = "自:", 
-                                              choices = PVy,
-                                              selected = min(PVy) ),
-                                  selectInput(inputId="mileage_year_end",
-                                              label="至:",
-                                              choice=PVy,
-                                              selected=max(PVy) ),
-                                  textInput(inputId="CarriageNum_input",
-                                            label=strong("客车车辆数（辆）"),
-                                            value=round(mean(PVdf$CarriageNum),0)),
-                                  textInput(inputId="CarKm_input",
-                                            label=strong("客车机车日车公里（公里）"),
-                                            value=round(mean(PVdf$CarKm),2)),
-                                  hr("预测结果——客运量（万人）"),
-                                  hr(),
-                                  textOutput("PassengeVolume_output") ,
-                                  hr(),
-                                  textOutput("PassengeVolume_FRR"),
-                                  hr(),
-                                  textOutput("PassengeVolume_zhi")
-                                  
-                                  
-                                ),                                                     
-                                
-                                mainPanel(
-                                  tabsetPanel(
-                                    tabPanel("多元线性回归", plotOutput("car_passenger_linearplot")), 
-                                    tabPanel("随机森林回归", plotOutput("car_passenger_rfplot")), 
-                                    tabPanel("支持向量机回归", plotOutput("car_passenger_svmplot"))
-                                  ),
-                                  
-                                  fluidRow(  DT::dataTableOutput("car_passenger_table")   )
-                                )
-                              )
-                              ),
-                     tabPanel("机车台数-营业里程",
-                 
-                              titlePanel("机车台数-营业里程"),
-                              sidebarLayout(
-                                sidebarPanel(
-                                  checkboxInput(inputId="stat_data_1",   #时间选择框
-                                                label=strong("历史统计值"),
-                                                value=TRUE),
-                                  
-                                  checkboxInput(inputId = "predict_data_1", #计算的回归预测值
-                                                label = strong("回归预测值"),
-                                                value = TRUE),
-                                  selectInput(inputId = "year_start_1",
-                                              label = "自:", 
-                                              choices = locomotive_dis_y,
-                                              selected = min(locomotive_dis_y) ),
-                                  selectInput(inputId="year_end_1",
-                                              label="至:",
-                                              choice=locomotive_dis_y,
-                                              selected=max(locomotive_dis_y) ),
-                                  textInput(inputId="km_input_1",#输入营业里程
-                                            label=strong("预测输入值——营业里程（公里）"),
-                                            value=mean(locomotive_dis$distance)),
-                                  hr("预测结果—机车台数（台）"),
-                                  hr(),
-                                  textOutput("locomotive_output_1") ,#多元回归预测值
-                                  hr(),
-                                  textOutput("locomotive_FRR_1"),# 随机森林预测值
-                                  hr(),
-                                  textOutput("locomotive_zhi_1")#支向量回归预测值
-                                  # actionButton("predictCAR","预测新客车量") 
-                                  
-                                ), 
-                                
-                                mainPanel(
-                                  tabsetPanel(
-                                    tabPanel("多元线性回归", plotOutput("linearplot_1")), #多元线性回归图
-                                    tabPanel("随机森林回归", plotOutput("rfplot_1")), #随机森林回归图
-                                    tabPanel("支持向量机回归", plotOutput("svmplot_1"))#支持向量机回归图
-                                  ),
-                                  
-                                  fluidRow(  DT::dataTableOutput("table_1")   )#将预测值放入table_1
-                                )
-                              ) 
-                              
-                             ),
-#<<<<<<< HEAD
-                     
-                     tabPanel("机车台数-客运量",
-                              
-                              titlePanel("机车台数-客运量"),
-                              sidebarLayout(
-                                sidebarPanel(
-                                  checkboxInput(inputId="locomotivePV_stat_data",   #时间选择框
-                                                label=strong("历史统计值"),
-                                                value=TRUE),
-                                  
-                                  checkboxInput(inputId = "locomotivePV_predict_data", #计算的回归预测值
-                                                label = strong("回归预测值"),
-                                                value = TRUE),
-                                  selectInput(inputId = "locomotivePV_year_start",
-                                              label = "自:", 
-                                              choices = locomotive_PV_y,
-                                              selected = min(locomotive_PV_y) ),
-                                  selectInput(inputId="locomotivePV_year_end",
-                                              label="至:",
-                                              choice=locomotive_PV_y,
-                                              selected=max(locomotive_PV_y) ),
-                                  textInput(inputId="locomotivePV_PV_input",#输入客运量
-                                            label=strong("预测输入值——客运量(亿人)"),
-                                            value=mean(locomotive_PV$PV)),
-                                  hr("预测结果—机车台数（台）"),
-                                  hr(),
-                                  textOutput("locomotivePV_locomotive_output") ,#多元回归预测值
-                                  hr(),
-                                  textOutput("locomotivePV_locomotive_FRR"),# 随机森林预测值
-                                  hr(),
-                                  textOutput("locomotivePV_locomotive_zhi")#支向量回归预测值
-                                   
-                                  
-                                ), 
-                                
-                                mainPanel(
-                                  tabsetPanel(
-                                    tabPanel("多元线性回归", plotOutput("locomotivePV_linearplot")), #多元线性回归图
-                                    tabPanel("随机森林回归", plotOutput("locomotivePV_rfplot")), #随机森林回归图
-                                    tabPanel("支持向量机回归", plotOutput("locomotivePV_svmplot"))#支持向量机回归图
-                                  ),
-                                  
-                                  fluidRow(  DT::dataTableOutput("locomotivePV_table")   )#将预测值放入locomotivePV_table_1
-                                )
-                              )
-                     ),
-#=======
-                     #----------------------------
-                     #显示机车车辆-货运量适配性分析  
-                     tabPanel("机车数量-货运量",
-                     titlePanel("机车数量-货运量"),
-                     sidebarLayout(
-                       sidebarPanel(
-                         checkboxInput(inputId="Locomotive_stat_data1",
-                                       label=strong("历史统计值"),
-                                       value=TRUE),
-                         
-                         checkboxInput(inputId = "Locomotive_predict_data1",
-                                       label = strong("回归预测值"),
-                                       value = TRUE),
-                         selectInput(inputId = "Locomotive_year_start1",
-                                     label = "自:", 
-                                     choices = Locomotive_tm,
-                                     selected = min(Locomotive_tm) ),
-                         selectInput(inputId="Locomotive_year_end1",
-                                     label="至:",
-                                     choice=Locomotive_tm,
-                                     selected=max(Locomotive_tm) ),
-                         textInput(inputId="ton_input",
-                                   label=strong("预测输入值——货运量（万吨）"),
-                                   value=mean(Locomotive_fre$freight)),
-                         hr("预测结果——机车数量（辆）"),
-                         hr(),
-                         textOutput("locomotive_output1") ,
-                         hr(),
-                         textOutput("locomotive_FRR1"),
-                         hr(),
-                         textOutput("locomotive_zhi1")
-                         # actionButton("predictCAR","预测新客车量") 
-                         
-                       ), 
-                       
-                       mainPanel(
-                         tabsetPanel(
-                           tabPanel("多元线性回归", plotOutput("freightlinearplot")), 
-                           tabPanel("随机森林回归", plotOutput("freightrfplot")), 
-                           tabPanel("支持向量机回归", plotOutput("freightsvmplot"))
-                         ),
-                         
-                         fluidRow(  DT::dataTableOutput("freighttable")   )
-                       )
-                     )
-                   ),
-                     
-                     
-                     
-#>>>>>>> liaozili
-    #----------------------------
-    #显示货车车辆-营业里程适配性分析
-                     tabPanel("货车车辆-营业里程",
-                       titlePanel("货车车辆-营业里程"),
-                              sidebarLayout(
-                                sidebarPanel(
-                                  checkboxInput(inputId="stat_data_21",
-                                                label=strong("历史统计值"),
-                                                value=TRUE),
-                                  
-                                  checkboxInput(inputId = "predict_data_21",
-                                                label = strong("回归预测值"),
-                                                value = TRUE),
-                                  selectInput(inputId = "year_start_21",
-                                              label = "自:", 
-                                              choices = freightcar_dis_y,
-                                              selected = min(freightcar_dis_y) ),
-                                  selectInput(inputId="year_end_21",
-                                              label="至:",
-                                              choice=freightcar_dis_y,
-                                              selected=max(freightcar_dis_y) ),
-                                  textInput(inputId="km_input_21",
-                                            label=strong("预测输入值——营业里程（公里）"),
-                                            value=round(mean(freightcar_dis$distance),2)),
-                                  hr("预测结果——货车辆数（辆）"),
-                                  hr(),
-                                  textOutput("truck_output_21") ,
-                                  hr(),
-                                  textOutput("truck_FRR_21"),
-                                  hr(),
-                                  textOutput("truck_zhi_21")
-                                  
-                                  
-                                ), 
-                                
-                                mainPanel(
-                                  tabsetPanel(
-                                    tabPanel("多元线性回归", plotOutput("linearplot_21")), 
-                                    tabPanel("随机森林回归", plotOutput("rfplot_21")), 
-                                    tabPanel("支持向量机回归", plotOutput("svmplot_21"))
-                                  ),
-                                  
-                                  fluidRow(  DT::dataTableOutput("table_21")   )
-                                )
-                              )
-                              
-                              ),
-    tabPanel("客车车辆-营业里程",
-             titlePanel("客车车辆-营业里程"),
-             sidebarLayout(
-               sidebarPanel(
-                 checkboxInput(inputId="stat_data_ky",     #ky表示客运量和营业里程
-                               label=strong("历史统计值"),
-                               value=TRUE),
-                 
-                 checkboxInput(inputId = "predict_data_ky",
-                               label = strong("回归预测值"),
-                               value = TRUE),
-                 selectInput(inputId = "year_start_ky",
-                             label = "自:", 
-                             choices = Carriagey,
-                             selected = min(Carriagey) ),
-                 selectInput(inputId="year_end_ky",
-                             label="至:",
-                             choice=Carriagey,
-                             selected=max(Carriagey) ),
-                 textInput(inputId="km_input_ky",
-                           label=strong("预测输入值——营业里程（公里）"),
-                           value=round(mean(Carriagedf$distance),2)),
-                 hr("预测结果—客车辆数（辆）"),
-                 hr(),
-                 textOutput("ky_carriage_output") ,
-                 hr(),
-                 textOutput("ky_carriage_FRR"),
-                 hr(),
-                 textOutput("ky_carriage_zhi")
-                 
-               ), 
-               
-               mainPanel(
-                 tabsetPanel(
-                   tabPanel("多元线性回归", plotOutput("ky_linearplot")), 
-                   tabPanel("随机森林回归", plotOutput("ky_rfplot")), 
-                   tabPanel("支持向量机回归", plotOutput("ky_svmplot"))
-                 ),
-                 
-                 fluidRow(  DT::dataTableOutput("ky_table")   )
-               )
-             )
-             ),
-    
-    tabPanel("货运量-营业里程",
-             titlePanel("货运量-营业里程"),
-             
-             sidebarLayout(
-               sidebarPanel(
-                 checkboxInput(inputId="freight_mileage_stat_data",
-                               label=strong("历史统计值"),
-                               value=TRUE),
-                 
-                 checkboxInput(inputId = "freight_mileage_predict_data",
-                               label = strong("回归预测值"),
-                               value = TRUE),
-                 selectInput(inputId = "freight_mileage_year_start",
-                             label = "自:", 
-                             choices = freight_car_y,
-                             selected = min(freight_car_y) ),
-                 selectInput(inputId="freight_mileage_year_end",
-                             label="至:",
-                             choice=freight_car_y,
-                             selected=max(freight_car_y) ),
-                 textInput(inputId="freightcar_input",
-                           label=strong("货车车辆数"),
-                           value=round(mean(freight_car_df$freightcar),0)),
-                 textInput(inputId="freightolm_input",
-                           label=strong("营业里程"),
-                           value=round(mean(freight_car_df$olm),0)),
-                 hr("预测结果——货运量"),
-                 hr(),
-                 textOutput("f_car_output") ,
-                 hr(),
-                 textOutput("f_car_FRR"),
-                 hr(),
-                 textOutput("f_car_zhi")
-                 
-               ),                                                    
-               
-               mainPanel(
-                 tabsetPanel(
-                   tabPanel("多元线性回归", plotOutput("f_car_linearplot")), 
-                   tabPanel("随机森林回归", plotOutput("f_car_rfplot")), 
-                   tabPanel("支持向量机回归", plotOutput("f_car_svmplot"))
-                 ),
-                 
-                 fluidRow(  DT::dataTableOutput("f_car_table")   )
-               )
-             )
-             )
-                     
-                     ),
-
-
-#----------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------
-#铁路货运量预测
-
-    tabPanel("货运量预测",
-             titlePanel("铁路货运量预测"),
-             hr(),
-             
-             sidebarLayout(
-               sidebarPanel(
-                 checkboxInput(inputId="stat_data",
-                               label=strong("历史统计值"),
-                               value=TRUE),
-                 
-                 checkboxInput(inputId = "predict_data",
-                               label = strong("回归预测值"),
-                               value = TRUE),
-                 selectInput(inputId = "year_start",
-                             label = "自:", 
-                             choices = y,
-                             selected = min(y) ),
-                 selectInput(inputId="year_end",
-                             label="至:",
-                             choice=y,
-                             selected=max(y) ),
-                 numericInput(inputId="iron_input",
-                              label=strong("预测输入值--成品钢材产量(万吨)"),
-                              value=9822                                                      
-                 ),
-                 numericInput(inputId="coal_input",
-                              label=strong("预测输入值--原煤产量输入值（万吨）"),
-                              value=33000),
-                 hr("预测结果——货运量（万吨）"),
-                 hr(),
-                 textOutput("freight_output") ,
-                 hr(),
-                 textOutput("freight_FRR"),
-                 hr(),
-                 textOutput("freight_zhi")
-              
-                 
-               ), 
-               
-               mainPanel(
-                 tabsetPanel(
-                   tabPanel("多元线性回归", plotOutput("linearplot")), 
-                   tabPanel("随机森林回归", plotOutput("rfplot")), 
-                   tabPanel("支持向量机回归", plotOutput("svmplot"))
-                 ),
-                 
-                 fluidRow(  DT::dataTableOutput("table")   )
-               )
-             )
-    ),
-
-#----------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------
-#铁路客运量预测
-
-tabPanel("客运量预测",
-         titlePanel("铁路客运量预测"),
-         hr(),
-         
-         sidebarLayout(
-           sidebarPanel(
-             checkboxInput(inputId="passagerpre_stat_data",
-                           label=strong("历史统计值"),
-                           value=TRUE),
-             
-             checkboxInput(inputId = "passagerpre_predict_data",
-                           label = strong("回归预测值"),
-                           value = TRUE),
-             selectInput(inputId = "passagerpre_year_start",
-                         label = "自:", 
-                         choices = passagerpre_y,
-                         selected = min(passagerpre_y) ),
-             selectInput(inputId="passagerpre_year_end",
-                         label="至:",
-                         choice=passagerpre_y,
-                         selected=max(passagerpre_y) ),
-             
-             numericInput(inputId="passagerpre_GDP_input",
-                          label=strong("预测输入值--国内生产总值(亿元)"),
-                          value=636138.7),
-             numericInput(inputId="passagerpre_population_input",
-                          label=strong("预测输入值--年末总人口(万人)"),
-                          value=136782),
-             numericInput(inputId="passsagerpre_income_input",
-                          label=strong("预测输入值--城镇居民家庭人均可支配收入(元)"),
-                          value=28843.85),                                                      
-             numericInput(inputId="passagerpre_thirdindustry_input",
-                          label=strong("预测输入值--第三产业增加值（%）"),
-                          value=48.1),
-             numericInput(inputId="passagerpre_aviation_input",
-                          label=strong("预测输入值--民用航空客运量(万人)"),
-                          value=39165.8),
-             numericInput(inputId="passagerpre_EMU_input",
-                          label=strong("预测输入值--动车组数量（组）"),
-                          value=1445),
-             numericInput(inputId="passagepre_railcar_input",
-                          label=strong("预测输入值--客车辆数（辆）"),
-                          value=60795),
-             
-             hr("预测结果——客运量（万人）"),
-             hr(),
-             textOutput("passagerpre_output") ,
-             hr(),
-             textOutput("passagerpre_FRR"),
-             hr(),
-             textOutput("passagerpre_zhi")
-             
-             
-           ), 
-           
-           mainPanel(
-             tabsetPanel(
-               tabPanel("多元线性回归", plotOutput("passagerpre_linearplot")), 
-               tabPanel("随机森林回归", plotOutput("passagerpre_rfplot")), 
-               tabPanel("支持向量机回归", plotOutput("passagerpre_svmplot"))
-             ),
-             
-             fluidRow(  DT::dataTableOutput("passagerpre_table")   )
-           )
-         )
-),
-
-#----------------------------------------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------------------------------------
-#时间序列预测界面
-
-    navbarMenu("时间序列预测",
-               tabPanel("货运量",
-                        titlePanel("货运量时间序列预测"),
-                        
-                        fluidRow(
-                          plotOutput(outputId = "freight_forecast", height = "600px")
-                        ), 
-                        fluidRow(
-                          column(12,DT::dataTableOutput("freight_forecast_table"))
-                        ) 
-                        ),
-               tabPanel("工业增加值增长量",
-                        titlePanel("工业增加值增长量时间序列预测"),
-                        
-                        fluidRow(
-                          plotOutput(outputId = "gyzjz_forecast_timesery", height = "600px")
-                        ), 
-                        fluidRow(
-                          column(12,DT::dataTableOutput("gyzjz_forecast_table_timesery"))
-                        )
-                        ),
-               tabPanel("铁路固定资产",
-                        titlePanel("铁路固定资产时间序列预测"),
-                        
-                        fluidRow(
-                          plotOutput(outputId = "gdzctz_forecast_timesery", height = "600px")
-                        ), 
-                        fluidRow(
-                          column(12,DT::dataTableOutput("gdzctz_forecast_table_timesery"))
-                        )
-                        ),
-               tabPanel("货车车辆数",
-                        titlePanel("货车辆数时间序列预测"),
-                        
-                        fluidRow(
-                          plotOutput(outputId = "TruckTime_forecast", height = "600px")
-                        ), 
-                        fluidRow(
-                          column(12,DT::dataTableOutput("TruckTime_forecast_table"))
-                        )
-                        ),
-               tabPanel("原煤产量",
-                        titlePanel("原煤产量时间序列预测"),
-                        
-                        fluidRow(
-                          plotOutput(outputId = "CoalTime_forecast", height = "600px")
-                        ), 
-                        fluidRow(
-                          column(12,DT::dataTableOutput("CoalTime_forecast_table"))
-                        ) 
-                        ),
-               tabPanel("成品钢材产量",
-                        titlePanel("成品钢材量时间序列预测"),
-                        fluidRow(
-                          plotOutput(outputId = "SteelTime_forecast", height = "600px")
-                        ), 
-                        fluidRow(
-                          column(12,DT::dataTableOutput("SteelTime_forecast_table"))
-                        ) 
-                        ),
-               tabPanel("原油加工量",
-                        titlePanel("原油加工量时间序列预测"),
-                        
-                        fluidRow(
-                          plotOutput(outputId = "OilTime_forecast", height = "600px")
-                        ), 
-                        fluidRow(
-                          column(12,DT::dataTableOutput("OilTime_forecast_table"))
-                        )
-                        )
-               
-               
-    ),
-
-
-
-
-#-------------------------------------------------------------------------------------------------
-#------------------------------------------------------------------------------------------------
-#原始数据界面
-
-tabPanel("原始数据",
-         titlePanel("铁路景气指数原始数据"),
-         
-         
-         fluidRow(
-           column(12, tabsetPanel(type="tabs",
-                                  
-                                  #-------------------页签：相关行业数据
-                                  
-                                  tabPanel( "相关行业数据", 
-                                            fluidRow(
-                                              
-                                              sidebarLayout(
-                                                sidebarPanel(
-                                                  
-                                                  radioButtons(inputId="xghysj.yssj", #xghysj.yssj 原始数据显示中的相关行业数据页签的单选框，以下是5个类别的变量代码
-                                                               label=NULL,
-                                                               choices = c("成品钢材产量(亿吨)"="cpgccl.yssj",
-                                                                           "原油加工量(亿吨)"="yyjgl.yssj",
-                                                                           "原煤产量(亿吨)"="ymcl.yssj",
-                                                                           "火力发电量(亿千瓦时)"="hlfdl.yssj",
-                                                                           "工业增加值(%)"="gyzjz.yssj") ),
-                                                  hr(),
-                                                  selectInput(inputId = "year_start_xghy", #year_start_xghy 相关行业数据中的起始年下拉框，以下终止年雷同
-                                                              label = "自:", 
-                                                              choices = y.wenjing.yssj,
-                                                              selected = min(y.wenjing.yssj) ),
-                                                  selectInput(inputId="year_end_xghy",
-                                                              label="至:",
-                                                              choice=y.wenjing.yssj,
-                                                              selected=max(y.wenjing.yssj) ),
-                                                  width=3
-                                                ),     #siderbarpanel
-                                                mainPanel(plotOutput(outputId = "yssj.xghy.plot", height = "400px"),width=9)#yssj.xghy.plot原始数据中相关行业的画图
-                                              )  #mainpanel
-                                            ),
-                                            
-                                            fluidRow(
-                                              column(12,DT::dataTableOutput("yssj.xghy.table"))#yssj.xghy.table原始数据中相关行业的数据表输出
-                                            )
-                                  ), #第一个页签
-                                  
-                                  
-                                  #-------------------页签：运量相关 
-                                  
-                                  tabPanel("运量相关", 
-                                           fluidRow(
-                                             sidebarLayout(
-                                               sidebarPanel(
-                                                 radioButtons(inputId="ylxg.yssj",#ylxg.yssj 原始数据显示中的运量相关数据页签的单选框，以下是4个类别的变量代码
-                                                              label=NULL,
-                                                              choices = c("货运量(亿吨)"="hyl.yssj",
-                                                                          "货运周转量(亿吨)"="hyzzl.yssj",
-                                                                          "客运量(亿人)"="kyl.yssj",
-                                                                          "客运周转量(亿人)"="kyzzl.yssj") ),
-                                                 hr(),
-                                                 selectInput(inputId = "year_start_ylxg",#year_start_xghy 运量相关数据中的起始年下拉框，以下终止年雷同
-                                                             label = "自:", 
-                                                             choices = y.wenjing.yssj,
-                                                             selected = min(y.wenjing.yssj) ),
-                                                 selectInput(inputId="year_end_ylxg",
-                                                             label="至:",
-                                                             choice=y.wenjing.yssj,
-                                                             selected=max(y.wenjing.yssj) ),
-                                                 width=3
-                                               ),
-                                               
-                                               mainPanel(plotOutput(outputId = "yssj.ylxg.plot", height = "380px"),width=9)#yssj.ylxg.plot原始数据中运量相关的画图
-                                             )),
+                              tabPanel("固定资产-营业里程",
+                                       titlePanel("固定资产-营业里程"),
+                                       
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="operatingmileage_stat_data",
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
                                            
-                                           fluidRow(
-                                             column(12,DT::dataTableOutput("yssj.ylxg.table")) #yssj.ylxg.table原始数据中运量相关的数据表输出
-                                           )
-                                  ), #第二个页签
-                                  
-                                  #-------------------页签：运营相关 
-                                  
-                                  tabPanel("运营相关", 
-                                           fluidRow(
-                                             sidebarLayout(
-                                               sidebarPanel(
-                                                 radioButtons(inputId="yyxg.yssj",#与上雷同，yyxg:运营相关原始数据
-                                                              label=NULL,
-                                                              choices = c("营业里程(km)"="yylc.yssj",
-                                                                          "日均运用车(万辆)"="rjyyc.yssj",
-                                                                          "日均现在车(万辆)"="rjxzc.yssj",
-                                                                          "客运机车日车公里(km)"="kyjcrcgl.yssj",
-                                                                          "货运机车日车公里(km)"="hyjcrcgl.yssj",
-                                                                          "机车总行走里程(1000km)"="jczxzlc.yssj") ),
-                                                 hr(),     
-                                                 selectInput(inputId = "year_start_yyxg",
-                                                             label = "自:", 
-                                                             choices = y.wenjing.yssj,
-                                                             selected = min(y.wenjing.yssj) ),
-                                                 selectInput(inputId="year_end_yyxg",
-                                                             label="至:",
-                                                             choice=y.wenjing.yssj,
-                                                             selected=max(y.wenjing.yssj) ),
-                                                 width=3
-                                               ),
-                                               mainPanel(plotOutput(outputId = "yssj.yyxg.plot", height = "440px"),width=9 ))
+                                           checkboxInput(inputId = "operatingmileage_predict_data",
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "operatingmileage_year_start",
+                                                       label = "自:", 
+                                                       choices = operatingmileage_y,
+                                                       selected = min(operatingmileage_y) ),
+                                           selectInput(inputId="operatingmileage_year_end",
+                                                       label="至:",
+                                                       choice=operatingmileage_y,
+                                                       selected=max(operatingmileage_y) ),
+                                           textInput(inputId="operatingmileage_input",
+                                                     label=strong("营业里程"),
+                                                     value=round(mean(operatingmileage_df$operatingmileage),2)),
+                                           hr("预测结果—固定资产值（亿元）"),
+                                           hr(),
+                                           textOutput("operatingmileage_asset_output") ,
+                                           hr(),
+                                           textOutput("operatingmileage_asset_FRR"),
+                                           hr(),
+                                           textOutput("operatingmileage_asset_zhi")
+                                           
+                                           # actionButton("predictFre","预测新货运量") 
+                                         ),                                                       #sidebarPanel
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("operatingmileage_linearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("operatingmileage_rfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("operatingmileage_svmplot"))
                                            ),
                                            
+                                           fluidRow(  DT::dataTableOutput("operatingmileage_table")   )
+                                         )
+                                       )
+                              ),
+                              
+                              tabPanel("固定资产-铺轨里程",
+                                       titlePanel("固定资产投资-铺轨里程"),
+                                       
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="mileage_stat_data",
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
                                            
-                                           fluidRow(
-                                             column(12,DT::dataTableOutput("yssj.yyxg.table"))
-                                           )
-                                  ), #第三个页签
-                                  
-                                  
-                                  #-------------------页签：规模相关---------------------------------------------    
-                                  tabPanel("规模相关",           #第四个页签
-                                           fluidRow(
-                                             sidebarLayout(
-                                               sidebarPanel(
-                                                 radioButtons(inputId="zcxg.yssj",#与上雷同，zcxg:资产相关原始数据
-                                                              label=NULL,
-                                                              choices = c("客车辆数(辆)"="kcls.yssj",
-                                                                          "货车辆数(万辆)"="hcls.yssj",
-                                                                          "机车台数(辆)"="jcts.yssj",
-                                                                          "动车台数(台)"="dcts.yssj",
-                                                                          "铁路固定资产投资(亿元)"="tlgdzctz.yssj",
-                                                                          "从业人员数量(万人)"="cyrysl.yssj",
-                                                                          "新线铺轨里程(km)"="xxpglc.yssj",
-                                                                          "复线铺轨里程(km)"="fxpglc.yssj") ),
-                                                 
-                                                 hr(),   
-                                                 selectInput(inputId = "year_start_zcxg",
-                                                             label = "自:", 
-                                                             choices = y.wenjing.yssj,
-                                                             selected = min(y.wenjing.yssj) ),
-                                                 selectInput(inputId="year_end_zcxg",
-                                                             label="至:",
-                                                             choice=y.wenjing.yssj,
-                                                             selected=max(y.wenjing.yssj) ),
-                                                 width=3
-                                               ),
-                                               mainPanel(plotOutput(outputId = "yssj.zcxg.plot", height = "400px"),width=9)
-                                             )),
+                                           checkboxInput(inputId = "mileage_predict_data",
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "mileage_year_start",
+                                                       label = "自:", 
+                                                       choices = pg_cw_y,
+                                                       selected = min(pg_cw_y) ),
+                                           selectInput(inputId="mileage_year_end",
+                                                       label="至:",
+                                                       choice=pg_cw_y,
+                                                       selected=max(pg_cw_y) ),
+                                           textInput(inputId="nlm_input",
+                                                     label=strong("新线铺轨里程（公里）"),
+                                                     value=round(mean(pg_cw_df$nlm),2)),
+                                           textInput(inputId="olm_input",
+                                                     label=strong("复线铺轨里程（公里）"),
+                                                     value=round(mean(pg_cw_df$olm),2)),
+                                           hr("预测结果——固定资产值（亿元）"),
+                                           hr(),
+                                           textOutput("pg_asset_output") ,
+                                           hr(),
+                                           textOutput("pg_asset_FRR"),
+                                           hr(),
+                                           textOutput("pg_asset_zhi")
+                                           
+                                         ),                                                    
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("pg_asset_linearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("pg_asset_rfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("pg_asset_svmplot"))
+                                           ),
+                                           
+                                           fluidRow(  DT::dataTableOutput("pg_asset_table")   )
+                                         )
+                                       )
+                              ),
+                              
+                              tabPanel("固定资产-动车组",
+                                       titlePanel("固定资产投资-动车组"),
+                                       
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="emu_stat_data",
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
+                                           
+                                           checkboxInput(inputId = "emu_predict_data",
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "emu_year_start",
+                                                       label = "自:", 
+                                                       choices = cw_y,
+                                                       selected = min(cw_y) ),
+                                           selectInput(inputId="emu_year_end",
+                                                       label="至:",
+                                                       choice=cw_y,
+                                                       selected=max(cw_y) ),
+                                           textInput(inputId="emu_input",
+                                                     label=strong("动车新增数量"),
+                                                     value=round(mean(cw_df$emu),0)),
+                                           hr("预测结果——固定资产值（亿元）"),
+                                           hr(),
+                                           textOutput("emu_asset_output") ,
+                                           hr(),
+                                           textOutput("emu_asset_FRR"),
+                                           hr(),
+                                           textOutput("emu_asset_zhi")
+                                           
+                                           # actionButton("predictFre","预测新货运量") 
+                                         ),                                                       #sidebarPanel
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("emu_asset_linearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("emu_asset_rfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("emu_asset_svmplot"))
+                                           ),
+                                           
+                                           fluidRow(  DT::dataTableOutput("emu_asset_table")   )
+                                         )
+                                       )
+                              ),
+                              
+                              #——————————————————————————————————————————————————————————————————————————
+                              #————————————固定资产-客车数量适配性分析————————————
+                              tabPanel("固定资产-客车数量",
+                                       titlePanel("固定资产-客车数量"),
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="investment_stat_data",
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
+                                           
+                                           checkboxInput(inputId = "investment_predict_data",
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "investment_year_start",
+                                                       label = "自:", 
+                                                       choices = investment_y,
+                                                       selected = min(investment_y) ),
+                                           selectInput(inputId="investment_year_end",
+                                                       label="至:",
+                                                       choice=investment_y,
+                                                       selected=max(investment_y) ),
+                                           textInput(inputId="ptrain_input",
+                                                     label=strong("预测输入值——客车增加数量（辆）"),
+                                                     value=mean(investment_df$ptrain)),
+                                           hr("预测结果——固定资产投资额（万元）"),
+                                           hr(),
+                                           textOutput("investment_output") ,
+                                           hr(),
+                                           textOutput("investment_FRR"),
+                                           hr(),
+                                           textOutput("investment_zhi")
+                                           # actionButton("predictCAR","预测新客车量") 
+                                           
+                                         ), 
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("investmentlinearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("investmentrfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("investmentsvmplot"))
+                                           ),
+                                           
+                                           fluidRow(  DT::dataTableOutput("investmenttable")   )
+                                         )
+                                       )
+                              ),
+                              tabPanel("固定资产-货车车辆",
+                                       titlePanel("固定资产-货车车辆"),
+                                       
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="cw_truck_stat_data",
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
+                                           
+                                           checkboxInput(inputId = "cw_truck_predict_data",
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "cw_truck_year_start",
+                                                       label = "自:", 
+                                                       choices = cw_truck_y,
+                                                       selected = min(cw_truck_y) ),
+                                           selectInput(inputId="cw_truck_year_end",
+                                                       label="至:",
+                                                       choice=cw_truck_y,
+                                                       selected=max(cw_truck_y) ),
+                                           textInput(inputId="cw_truck_input",
+                                                     label=strong("货车车辆"),
+                                                     value=round(mean(cw_truck_df$cw_truck),2)),
+                                           hr("预测结果—固定资产值（亿元）"),
+                                           hr(),
+                                           textOutput("cw_truck_asset_output") ,
+                                           hr(),
+                                           textOutput("cw_truck_asset_FRR"),
+                                           hr(),
+                                           textOutput("cw_truck_asset_zhi")
+                                           
+                                           # actionButton("predictFre","预测新货运量") 
+                                         ),                                                       #sidebarPanel
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("cw_truck_linearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("cw_truck_rfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("cw_truck_svmplot"))
+                                           ),
+                                           
+                                           fluidRow(  DT::dataTableOutput("cw_truck_table")   )
+                                         )
+                                       )
+                              ),
+                              tabPanel("固定资产-机车台数",
+                                       titlePanel("固定资产-机车台数"),
+                                       
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="JCNum_stat_data",
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
+                                           
+                                           checkboxInput(inputId = "JCNum_predict_data",
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "JCNum_year_start",
+                                                       label = "自:", 
+                                                       choices = JCNum_y,
+                                                       selected = min(JCNum_y) ),
+                                           selectInput(inputId="JCNum_year_end",
+                                                       label="至:",
+                                                       choice=JCNum_y,
+                                                       selected=max(JCNum_y) ),
+                                           textInput(inputId="JCNum_input",
+                                                     label=strong("货车车辆"),
+                                                     value=round(mean(JCNum_df$JCNum),2)),
+                                           hr("预测结果—固定资产值（亿元）"),
+                                           hr(),
+                                           textOutput("JCNum_GDMoney_output") ,
+                                           hr(),
+                                           textOutput("JCNum_GDMoney_FRR"),
+                                           hr(),
+                                           textOutput("JCNum_GDMoney_zhi")
+                                           
+                                           # actionButton("predictFre","预测新货运量") 
+                                         ),                                                       #sidebarPanel
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("JCNum_linearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("JCNum_rfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("JCNum_svmplot"))
+                                           ),
+                                           
+                                           fluidRow(  DT::dataTableOutput("JCNum_table")   )
+                                         )
+                                       )
+                              ),
+                              
+                              
+                              tabPanel("客运量-客车车辆数",
+                                       titlePanel("客运量-客车车辆数"),
+                                       
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="mileage_stat_data",
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
+                                           
+                                           checkboxInput(inputId = "mileage_predict_data",
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "mileage_year_start",
+                                                       label = "自:", 
+                                                       choices = PVy,
+                                                       selected = min(PVy) ),
+                                           selectInput(inputId="mileage_year_end",
+                                                       label="至:",
+                                                       choice=PVy,
+                                                       selected=max(PVy) ),
+                                           textInput(inputId="CarriageNum_input",
+                                                     label=strong("客车车辆数（辆）"),
+                                                     value=round(mean(PVdf$CarriageNum),0)),
+                                           textInput(inputId="CarKm_input",
+                                                     label=strong("客车机车日车公里（公里）"),
+                                                     value=round(mean(PVdf$CarKm),2)),
+                                           hr("预测结果——客运量（万人）"),
+                                           hr(),
+                                           textOutput("PassengeVolume_output") ,
+                                           hr(),
+                                           textOutput("PassengeVolume_FRR"),
+                                           hr(),
+                                           textOutput("PassengeVolume_zhi")
                                            
                                            
-                                           fluidRow(
-                                             column(12,DT::dataTableOutput("yssj.zcxg.table"))
-                                           )
-                                  ), #第四个页签
-                                  
-                                  
-                                  #-------------------页签：黑货运量---------------------------------------------    
-                                  tabPanel("黑货运量",           #第五个页签
-                                           fluidRow(
-                                             sidebarLayout(
-                                               sidebarPanel(
-                                                 radioButtons(inputId="heihuo.yssj",#与上雷同，heihuo:黑货种类的铁路货运量原始数据
-                                                              label=NULL,
-                                                              choices = c("矿建(万吨)"="kuangjian.yssj",
-                                                                          "钢材(万吨)"="gangcai.yssj",
-                                                                          "石油(万吨)"="shiyou.yssj",
-                                                                          "煤(万吨)"="mei.yssj",
-                                                                          "金属矿石(万吨)"="jsks.yssj") ),
-                                                 
-                                                 hr(),   
-                                                 selectInput(inputId = "year_start_heihuo.yssj",
-                                                             label = "自:", 
-                                                             choices = y.wenjing.yssj.hhbh,
-                                                             selected = min(y.wenjing.yssj.hhbh) ),
-                                                 selectInput(inputId="year_end_heihuo.yssj",
-                                                             label="至:",
-                                                             choice=y.wenjing.yssj.hhbh,
-                                                             selected=max(y.wenjing.yssj.hhbh) ),
-                                                 width=3
-                                               ),
-                                               mainPanel(plotOutput(outputId = "yssj.heihuo.plot", height = "400px"),width=9)
-                                             )),
+                                         ),                                                     
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("car_passenger_linearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("car_passenger_rfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("car_passenger_svmplot"))
+                                           ),
                                            
-                                           fluidRow(
-                                             column(12,DT::dataTableOutput("yssj.heihuo.table"))
-                                           )
-                                  ), #第五个页签
-                                  
-                                  
-                                  #-------------------页签：白货运量---------------------------------------------    
-                                  tabPanel("白货运量",           #第六个页签
-                                           fluidRow(
-                                             sidebarLayout(
-                                               sidebarPanel(
-                                                 radioButtons(inputId="baihuo.yssj",#与上雷同，baihuo:白货种类的铁路货运量原始数据
-                                                              label=NULL,
-                                                              choices = c("工业机械(万吨)"="gyjx.yssj",
-                                                                          "电子电气(万吨)"="dzdq.yssj",
-                                                                          "农副产品(万吨)"="nfcp.yssj",
-                                                                          "饮食烟草(万吨)"="ysyc.yssj",
-                                                                          "文教用品(万吨)"="wjyp.yssj", 
-                                                                          "零担(吨)"="ldld.yssj" ,
-                                                                          "集装箱(万吨)"="jzx.yssj" )),
-                                                 hr(),   
-                                                 selectInput(inputId = "year_start_baihuo.yssj",
-                                                             label = "自:", 
-                                                             choices = y.wenjing.yssj.hhbh,
-                                                             selected = min(y.wenjing.yssj.hhbh) ),
-                                                 selectInput(inputId="year_end_baihuo.yssj",
-                                                             label="至:",
-                                                             choice=y.wenjing.yssj.hhbh,
-                                                             selected=max(y.wenjing.yssj.hhbh) ),
-                                                 width=3
-                                               ),
-                                               mainPanel(plotOutput(outputId = "yssj.baihuo.plot", height = "400px"),width=9)
-                                             )),
+                                           fluidRow(  DT::dataTableOutput("car_passenger_table")   )
+                                         )
+                                       )
+                              ),
+                              tabPanel("机车台数-营业里程",
+                                       
+                                       titlePanel("机车台数-营业里程"),
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="stat_data_1",   #时间选择框
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
                                            
-                                           fluidRow(
-                                             column(12,DT::dataTableOutput("yssj.baihuo.table"))
-                                           )
-                                  )
-                                  
-                                  
-                                  
-                                  
-           ) 
-           ))
-         )
-  )
- )
+                                           checkboxInput(inputId = "predict_data_1", #计算的回归预测值
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "year_start_1",
+                                                       label = "自:", 
+                                                       choices = locomotive_dis_y,
+                                                       selected = min(locomotive_dis_y) ),
+                                           selectInput(inputId="year_end_1",
+                                                       label="至:",
+                                                       choice=locomotive_dis_y,
+                                                       selected=max(locomotive_dis_y) ),
+                                           textInput(inputId="km_input_1",#输入营业里程
+                                                     label=strong("预测输入值——营业里程（公里）"),
+                                                     value=mean(locomotive_dis$distance)),
+                                           hr("预测结果—机车台数（台）"),
+                                           hr(),
+                                           textOutput("locomotive_output_1") ,#多元回归预测值
+                                           hr(),
+                                           textOutput("locomotive_FRR_1"),# 随机森林预测值
+                                           hr(),
+                                           textOutput("locomotive_zhi_1")#支向量回归预测值
+                                           # actionButton("predictCAR","预测新客车量") 
+                                           
+                                         ), 
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("linearplot_1")), #多元线性回归图
+                                             tabPanel("随机森林回归", plotOutput("rfplot_1")), #随机森林回归图
+                                             tabPanel("支持向量机回归", plotOutput("svmplot_1"))#支持向量机回归图
+                                           ),
+                                           
+                                           fluidRow(  DT::dataTableOutput("table_1")   )#将预测值放入table_1
+                                         )
+                                       ) 
+                                       
+                              ),
+                              #<<<<<<< HEAD
+                              #=======
+                              #<<<<<<< HEAD
+                              #>>>>>>> refs/remotes/origin/develop
+                              
+                              tabPanel("机车台数-客运量",
+                                       
+                                       titlePanel("机车台数-客运量"),
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="locomotivePV_stat_data",   #时间选择框
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
+                                           
+                                           checkboxInput(inputId = "locomotivePV_predict_data", #计算的回归预测值
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "locomotivePV_year_start",
+                                                       label = "自:", 
+                                                       choices = locomotive_PV_y,
+                                                       selected = min(locomotive_PV_y) ),
+                                           selectInput(inputId="locomotivePV_year_end",
+                                                       label="至:",
+                                                       choice=locomotive_PV_y,
+                                                       selected=max(locomotive_PV_y) ),
+                                           textInput(inputId="locomotivePV_PV_input",#输入客运量
+                                                     label=strong("预测输入值——客运量(亿人)"),
+                                                     value=mean(locomotive_PV$PV)),
+                                           hr("预测结果—机车台数（台）"),
+                                           hr(),
+                                           textOutput("locomotivePV_locomotive_output") ,#多元回归预测值
+                                           hr(),
+                                           textOutput("locomotivePV_locomotive_FRR"),# 随机森林预测值
+                                           hr(),
+                                           textOutput("locomotivePV_locomotive_zhi")#支向量回归预测值
+                                           
+                                           
+                                         ), 
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("locomotivePV_linearplot")), #多元线性回归图
+                                             tabPanel("随机森林回归", plotOutput("locomotivePV_rfplot")), #随机森林回归图
+                                             tabPanel("支持向量机回归", plotOutput("locomotivePV_svmplot"))#支持向量机回归图
+                                           ),
+                                           
+                                           fluidRow(  DT::dataTableOutput("locomotivePV_table")   )#将预测值放入locomotivePV_table_1
+                                         )
+                                       )
+                              ),
+                              #<<<<<<< HEAD
+                              #=======
+                              #=======
+                              #----------------------------
+                              #显示机车车辆-货运量适配性分析  
+                              tabPanel("机车数量-货运量",
+                                       titlePanel("机车数量-货运量"),
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="Locomotive_stat_data1",
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
+                                           
+                                           checkboxInput(inputId = "Locomotive_predict_data1",
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "Locomotive_year_start1",
+                                                       label = "自:", 
+                                                       choices = Locomotive_tm,
+                                                       selected = min(Locomotive_tm) ),
+                                           selectInput(inputId="Locomotive_year_end1",
+                                                       label="至:",
+                                                       choice=Locomotive_tm,
+                                                       selected=max(Locomotive_tm) ),
+                                           textInput(inputId="ton_input",
+                                                     label=strong("预测输入值——货运量（万吨）"),
+                                                     value=mean(Locomotive_fre$freight)),
+                                           hr("预测结果——机车数量（辆）"),
+                                           hr(),
+                                           textOutput("locomotive_output1") ,
+                                           hr(),
+                                           textOutput("locomotive_FRR1"),
+                                           hr(),
+                                           textOutput("locomotive_zhi1")
+                                           # actionButton("predictCAR","预测新客车量") 
+                                           
+                                         ), 
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("freightlinearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("freightrfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("freightsvmplot"))
+                                           ),
+                                           
+                                           fluidRow(  DT::dataTableOutput("freighttable")   )
+                                         )
+                                       )
+                              ),
+                              
+                              
+                              
+                              #>>>>>>> liaozili
+                              #>>>>>>> refs/remotes/origin/develop
+                              #----------------------------
+                              #显示货车车辆-营业里程适配性分析
+                              tabPanel("货车车辆-营业里程",
+                                       titlePanel("货车车辆-营业里程"),
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="stat_data_21",
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
+                                           
+                                           checkboxInput(inputId = "predict_data_21",
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "year_start_21",
+                                                       label = "自:", 
+                                                       choices = freightcar_dis_y,
+                                                       selected = min(freightcar_dis_y) ),
+                                           selectInput(inputId="year_end_21",
+                                                       label="至:",
+                                                       choice=freightcar_dis_y,
+                                                       selected=max(freightcar_dis_y) ),
+                                           textInput(inputId="km_input_21",
+                                                     label=strong("预测输入值——营业里程（公里）"),
+                                                     value=round(mean(freightcar_dis$distance),2)),
+                                           hr("预测结果——货车辆数（辆）"),
+                                           hr(),
+                                           textOutput("truck_output_21") ,
+                                           hr(),
+                                           textOutput("truck_FRR_21"),
+                                           hr(),
+                                           textOutput("truck_zhi_21")
+                                           
+                                           
+                                         ), 
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("linearplot_21")), 
+                                             tabPanel("随机森林回归", plotOutput("rfplot_21")), 
+                                             tabPanel("支持向量机回归", plotOutput("svmplot_21"))
+                                           ),
+                                           
+                                           fluidRow(  DT::dataTableOutput("table_21")   )
+                                         )
+                                       )
+                                       
+                              ),
+                              tabPanel("客车车辆-营业里程",
+                                       titlePanel("客车车辆-营业里程"),
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="stat_data_ky",     #ky表示客运量和营业里程
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
+                                           
+                                           checkboxInput(inputId = "predict_data_ky",
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "year_start_ky",
+                                                       label = "自:", 
+                                                       choices = Carriagey,
+                                                       selected = min(Carriagey) ),
+                                           selectInput(inputId="year_end_ky",
+                                                       label="至:",
+                                                       choice=Carriagey,
+                                                       selected=max(Carriagey) ),
+                                           textInput(inputId="km_input_ky",
+                                                     label=strong("预测输入值——营业里程（公里）"),
+                                                     value=round(mean(Carriagedf$distance),2)),
+                                           hr("预测结果—客车辆数（辆）"),
+                                           hr(),
+                                           textOutput("ky_carriage_output") ,
+                                           hr(),
+                                           textOutput("ky_carriage_FRR"),
+                                           hr(),
+                                           textOutput("ky_carriage_zhi")
+                                           
+                                         ), 
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("ky_linearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("ky_rfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("ky_svmplot"))
+                                           ),
+                                           
+                                           fluidRow(  DT::dataTableOutput("ky_table")   )
+                                         )
+                                       )
+                              ),
+                              
+                              tabPanel("货运量-营业里程",
+                                       titlePanel("货运量-营业里程"),
+                                       
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="freight_mileage_stat_data",
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
+                                           
+                                           checkboxInput(inputId = "freight_mileage_predict_data",
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "freight_mileage_year_start",
+                                                       label = "自:", 
+                                                       choices = freight_car_y,
+                                                       selected = min(freight_car_y) ),
+                                           selectInput(inputId="freight_mileage_year_end",
+                                                       label="至:",
+                                                       choice=freight_car_y,
+                                                       selected=max(freight_car_y) ),
+                                           textInput(inputId="freightcar_input",
+                                                     label=strong("货车车辆数"),
+                                                     value=round(mean(freight_car_df$freightcar),0)),
+                                           textInput(inputId="freightolm_input",
+                                                     label=strong("营业里程"),
+                                                     value=round(mean(freight_car_df$olm),0)),
+                                           hr("预测结果——货运量"),
+                                           hr(),
+                                           textOutput("f_car_output") ,
+                                           hr(),
+                                           textOutput("f_car_FRR"),
+                                           hr(),
+                                           textOutput("f_car_zhi")
+                                           
+                                         ),                                                    
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("f_car_linearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("f_car_rfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("f_car_svmplot"))
+                                           ),
+                                           
+                                           fluidRow(  DT::dataTableOutput("f_car_table")   )
+                                         )
+                                       )
+                              )
+                              
+                   ),
+                   
+                   
+                   #----------------------------------------------------------------------------------------------------
+                   #---------------------------------------------------------------------------------------------------
+                   #铁路货运量预测
+                   
+                   tabPanel("货运量预测",
+                            titlePanel("铁路货运量预测"),
+                            hr(),
+                            
+                            sidebarLayout(
+                              sidebarPanel(
+                                checkboxInput(inputId="stat_data",
+                                              label=strong("历史统计值"),
+                                              value=TRUE),
+                                
+                                checkboxInput(inputId = "predict_data",
+                                              label = strong("回归预测值"),
+                                              value = TRUE),
+                                selectInput(inputId = "year_start",
+                                            label = "自:", 
+                                            choices = y,
+                                            selected = min(y) ),
+                                selectInput(inputId="year_end",
+                                            label="至:",
+                                            choice=y,
+                                            selected=max(y) ),
+                                numericInput(inputId="iron_input",
+                                             label=strong("预测输入值--成品钢材产量(万吨)"),
+                                             value=9822                                                      
+                                ),
+                                numericInput(inputId="coal_input",
+                                             label=strong("预测输入值--原煤产量输入值（万吨）"),
+                                             value=33000),
+                                hr("预测结果——货运量（万吨）"),
+                                hr(),
+                                textOutput("freight_output") ,
+                                hr(),
+                                textOutput("freight_FRR"),
+                                hr(),
+                                textOutput("freight_zhi")
+                                
+                                
+                              ), 
+                              
+                              mainPanel(
+                                tabsetPanel(
+                                  tabPanel("多元线性回归", plotOutput("linearplot")), 
+                                  tabPanel("随机森林回归", plotOutput("rfplot")), 
+                                  tabPanel("支持向量机回归", plotOutput("svmplot"))
+                                ),
+                                
+                                fluidRow(  DT::dataTableOutput("table")   )
+                              )
+                            )
+                   ),
+                   
+                   #----------------------------------------------------------------------------------------------------
+                   #---------------------------------------------------------------------------------------------------
+                   #铁路客运量预测
+                   
+                   tabPanel("客运量预测",
+                            titlePanel("铁路客运量预测"),
+                            hr(),
+                            
+                            sidebarLayout(
+                              sidebarPanel(
+                                checkboxInput(inputId="passagerpre_stat_data",
+                                              label=strong("历史统计值"),
+                                              value=TRUE),
+                                
+                                checkboxInput(inputId = "passagerpre_predict_data",
+                                              label = strong("回归预测值"),
+                                              value = TRUE),
+                                selectInput(inputId = "passagerpre_year_start",
+                                            label = "自:", 
+                                            choices = passagerpre_y,
+                                            selected = min(passagerpre_y) ),
+                                selectInput(inputId="passagerpre_year_end",
+                                            label="至:",
+                                            choice=passagerpre_y,
+                                            selected=max(passagerpre_y) ),
+                                
+                                numericInput(inputId="passagerpre_GDP_input",
+                                             label=strong("预测输入值--国内生产总值(亿元)"),
+                                             value=636138.7),
+                                numericInput(inputId="passagerpre_population_input",
+                                             label=strong("预测输入值--年末总人口(万人)"),
+                                             value=136782),
+                                numericInput(inputId="passsagerpre_income_input",
+                                             label=strong("预测输入值--城镇居民家庭人均可支配收入(元)"),
+                                             value=28843.85),                                                      
+                                numericInput(inputId="passagerpre_thirdindustry_input",
+                                             label=strong("预测输入值--第三产业增加值（%）"),
+                                             value=48.1),
+                                numericInput(inputId="passagerpre_aviation_input",
+                                             label=strong("预测输入值--民用航空客运量(万人)"),
+                                             value=39165.8),
+                                numericInput(inputId="passagerpre_EMU_input",
+                                             label=strong("预测输入值--动车组数量（组）"),
+                                             value=1445),
+                                numericInput(inputId="passagepre_railcar_input",
+                                             label=strong("预测输入值--客车辆数（辆）"),
+                                             value=60795),
+                                
+                                hr("预测结果——客运量（万人）"),
+                                hr(),
+                                textOutput("passagerpre_output") ,
+                                hr(),
+                                textOutput("passagerpre_FRR"),
+                                hr(),
+                                textOutput("passagerpre_zhi")
+                                
+                                
+                              ), 
+                              
+                              mainPanel(
+                                tabsetPanel(
+                                  tabPanel("多元线性回归", plotOutput("passagerpre_linearplot")), 
+                                  tabPanel("随机森林回归", plotOutput("passagerpre_rfplot")), 
+                                  tabPanel("支持向量机回归", plotOutput("passagerpre_svmplot"))
+                                ),
+                                
+                                fluidRow(  DT::dataTableOutput("passagerpre_table")   )
+                              )
+                            )
+                   ),
+                   
+                   #----------------------------------------------------------------------------------------------------------------
+                   #----------------------------------------------------------------------------------------------------------------
+                   #时间序列预测界面
+                   
+                   navbarMenu("时间序列预测",
+                              tabPanel("货运量",
+                                       titlePanel("货运量时间序列预测"),
+                                       
+                                       fluidRow(
+                                         plotOutput(outputId = "freight_forecast", height = "600px")
+                                       ), 
+                                       fluidRow(
+                                         column(12,DT::dataTableOutput("freight_forecast_table"))
+                                       ) 
+                              ),
+                              tabPanel("工业增加值增长率",
+                                       titlePanel("工业增加值增长率时间序列预测"),
+                                       
+                                       fluidRow(
+                                         plotOutput(outputId = "Industrial_Added_Value_Rate_forecast_timesery", height = "600px")
+                                       ), 
+                                       fluidRow(
+                                         column(12,DT::dataTableOutput("Industrial_Added_Value_Rate_forecast_timesery_table"))
+                                       )
+                              ),
+                              tabPanel("铁路固定资产",
+                                       titlePanel("铁路固定资产时间序列预测"),
+                                       
+                                       fluidRow(
+                                         plotOutput(outputId = "Investment_in_Fixed_Assets_forecast_timesery", height = "600px")
+                                       ), 
+                                       fluidRow(
+                                         column(12,DT::dataTableOutput("Investment_in_Fixed_Assets_forecast_table_timesery"))
+                                       )
+                              ),
+                              tabPanel("货车车辆数",
+                                       titlePanel("货车辆数时间序列预测"),
+                                       
+                                       fluidRow(
+                                         plotOutput(outputId = "TruckTime_forecast", height = "600px")
+                                       ), 
+                                       fluidRow(
+                                         column(12,DT::dataTableOutput("TruckTime_forecast_table"))
+                                       )
+                              ),
+                              tabPanel("原煤产量",
+                                       titlePanel("原煤产量时间序列预测"),
+                                       
+                                       fluidRow(
+                                         plotOutput(outputId = "CoalTime_forecast", height = "600px")
+                                       ), 
+                                       fluidRow(
+                                         column(12,DT::dataTableOutput("CoalTime_forecast_table"))
+                                       ) 
+                              ),
+                              tabPanel("成品钢材产量",
+                                       titlePanel("成品钢材量时间序列预测"),
+                                       fluidRow(
+                                         plotOutput(outputId = "SteelTime_forecast", height = "600px")
+                                       ), 
+                                       fluidRow(
+                                         column(12,DT::dataTableOutput("SteelTime_forecast_table"))
+                                       ) 
+                              ),
+                              tabPanel("原油加工量",
+                                       titlePanel("原油加工量时间序列预测"),
+                                       
+                                       fluidRow(
+                                         plotOutput(outputId = "OilTime_forecast", height = "600px")
+                                       ), 
+                                       fluidRow(
+                                         column(12,DT::dataTableOutput("OilTime_forecast_table"))
+                                       )
+                              )
+                              
+                              
+                   ),
+                   
+                   
+                   
+                   
+                   #-------------------------------------------------------------------------------------------------
+                   #------------------------------------------------------------------------------------------------
+                   #原始数据界面
+                   
+                   tabPanel("原始数据",
+                            titlePanel("铁路景气指数原始数据"),
+                            
+                            
+                            fluidRow(
+                              column(12, tabsetPanel(type="tabs",
+                                                     
+                                                     #-------------------页签：相关行业数据
+                                                     
+                                                     tabPanel( "相关行业数据", 
+                                                               fluidRow(
+                                                                 
+                                                                 sidebarLayout(
+                                                                   sidebarPanel(
+                                                                     
+                                                                     radioButtons(inputId="relevant_industry_rawdata", #xghysj_rawdata 原始数据显示中的相关行业数据页签的单选框，以下是5个类别的变量代码
+                                                                                  label=NULL,
+                                                                                  choices = c("成品钢材产量(亿吨)"="iron_output_rawdata",
+                                                                                              "原油加工量(亿吨)"="oil_processing_volume_rawdata",
+                                                                                              "原煤产量(亿吨)"="coal_output_rawdata",
+                                                                                              "火力发电量(亿千瓦时)"="coalfired_power_generation_rawdata",
+                                                                                              "工业增加值(%)"="industrial_added_value_rawdata") ),
+                                                                     hr(),
+                                                                     selectInput(inputId = "year_start_relevant_industry", #year_start_xghy 相关行业数据中的起始年下拉框，以下终止年雷同
+                                                                                 label = "自:", 
+                                                                                 choices = y_wenjing_rawdata_monthly,
+                                                                                 selected = min(y_wenjing_rawdata_monthly) ),
+                                                                     selectInput(inputId="year_end_relevant_industry",
+                                                                                 label="至:",
+                                                                                 choice=y_wenjing_rawdata_monthly,
+                                                                                 selected=max(y_wenjing_rawdata_monthly) ),
+                                                                     width=3
+                                                                   ),     #siderbarpanel
+                                                                   mainPanel(plotOutput(outputId = "rawdata_relevant_industry_plot", height = "400px"),width=9)#rawdata_relevant_industry_plot原始数据中相关行业的画图
+                                                                 )  #mainpanel
+                                                               ),
+                                                               
+                                                               fluidRow(
+                                                                 column(12,DT::dataTableOutput("rawdata_relevant_industry_table"))#rawdata_relevant_industry_table原始数据中相关行业的数据表输出
+                                                               )
+                                                     ), #第一个页签
+                                                     
+                                                     
+                                                     #-------------------页签：运量相关 
+                                                     
+                                                     tabPanel("运量相关", 
+                                                              fluidRow(
+                                                                sidebarLayout(
+                                                                  sidebarPanel(
+                                                                    radioButtons(inputId="transport_rawdata",#transport_rawdata 原始数据显示中的运量相关数据页签的单选框，以下是4个类别的变量代码
+                                                                                 label=NULL,
+                                                                                 choices = c("货运量(亿吨)"="freight_volume_rawdata",
+                                                                                             "货运周转量(亿吨)"="freight_rotation_volume_rawdata",
+                                                                                             "客运量(亿人)"="passenger_volume_rawdata",
+                                                                                             "客运周转量(亿人)"="passenger_person_km_rawdata") ),
+                                                                    hr(),
+                                                                    selectInput(inputId = "year_start_rawdata_transport",#year_start_xghy 运量相关数据中的起始年下拉框，以下终止年雷同
+                                                                                label = "自:", 
+                                                                                choices = y_wenjing_rawdata_monthly,
+                                                                                selected = min(y_wenjing_rawdata_monthly) ),
+                                                                    selectInput(inputId="year_end_rawdata_transport",
+                                                                                label="至:",
+                                                                                choice=y_wenjing_rawdata_monthly,
+                                                                                selected=max(y_wenjing_rawdata_monthly) ),
+                                                                    width=3
+                                                                  ),
+                                                                  
+                                                                  mainPanel(plotOutput(outputId = "rawdata_transport_plot", height = "380px"),width=9)#rawdata_transport_plot原始数据中运量相关的画图
+                                                                )),
+                                                              
+                                                              fluidRow(
+                                                                column(12,DT::dataTableOutput("rawdata_transport_table")) #rawdata_transport_table原始数据中运量相关的数据表输出
+                                                              )
+                                                     ), #第二个页签
+                                                     
+                                                     #-------------------页签：运营相关 
+                                                     
+                                                     tabPanel("运营相关", 
+                                                              fluidRow(
+                                                                sidebarLayout(
+                                                                  sidebarPanel(
+                                                                    radioButtons(inputId="operation_rawdata",#与上雷同，operation:运营相关原始数据
+                                                                                 label=NULL,
+                                                                                 choices = c("营业里程(km)"="mileage_rawdata",
+                                                                                             "日均运用车(万辆)"="dailycar_run_rawdata",
+                                                                                             "日均现在车(万辆)"="dailycar_now_rawdata",
+                                                                                             "客运机车日车公里(km)"="locomotive_mileage_pcar_rawdata",
+                                                                                             "货运机车日车公里(km)"="locomotive_mileage_fcar_rawdata",
+                                                                                             "机车总行走里程(1000km)"="locomotive_mileage_sum_rawdata") ),
+                                                                    hr(),     
+                                                                    selectInput(inputId = "year_start_operation",
+                                                                                label = "自:", 
+                                                                                choices = y_wenjing_rawdata_yearly,
+                                                                                selected = min(y_wenjing_rawdata_yearly) ),
+                                                                    selectInput(inputId="year_end_operation",
+                                                                                label="至:",
+                                                                                choice=y_wenjing_rawdata_yearly,
+                                                                                selected=max(y_wenjing_rawdata_yearly) ),
+                                                                    width=3
+                                                                  ),
+                                                                  mainPanel(plotOutput(outputId = "rawdata_operation_plot", height = "440px"),width=9 ))
+                                                              ),
+                                                              
+                                                              
+                                                              fluidRow(
+                                                                column(12,DT::dataTableOutput("rawdata_operation_table"))
+                                                              )
+                                                     ), #第三个页签
+                                                     
+                                                     
+                                                     #-------------------页签：资产相关---------------------------------------------    
+                                                     tabPanel("资产相关",           #第四个页签
+                                                              fluidRow(
+                                                                sidebarLayout(
+                                                                  sidebarPanel(
+                                                                    radioButtons(inputId="property_rawdata",#与上雷同，property:资产相关原始数据
+                                                                                 label=NULL,
+                                                                                 choices = c("客车辆数(辆)"="passenger_car_rawdata",
+                                                                                             "货车辆数(万辆)"="freight_car_rawdata",
+                                                                                             "机车台数(辆)"="locomotive_number_rawdata",
+                                                                                             "动车台数(台)"="bullettrain_number_rawdata",
+                                                                                             "铁路固定资产投资(亿元)"="fixed_assets_investment_rawdata",
+                                                                                             "从业人员数量(万人)"="practitioner_number_rawdata",
+                                                                                             "新线铺轨里程(km)"="newline_tracklaying_mileage_rawdata",
+                                                                                             "复线铺轨里程(km)"="oldline_tracklaying_mileage_rawdata") ),
+                                                                    
+                                                                    hr(),   
+                                                                    selectInput(inputId = "year_start_property",
+                                                                                label = "自:", 
+                                                                                choices = y_wenjing_rawdata_yearly,
+                                                                                selected = min(y_wenjing_rawdata_yearly) ),
+                                                                    selectInput(inputId="year_end_property",
+                                                                                label="至:",
+                                                                                choice=y_wenjing_rawdata_yearly,
+                                                                                selected=max(y_wenjing_rawdata_yearly) ),
+                                                                    width=3
+                                                                  ),
+                                                                  mainPanel(plotOutput(outputId = "rawdata_property_plot", height = "400px"),width=9)
+                                                                )),
+                                                              
+                                                              
+                                                              fluidRow(
+                                                                column(12,DT::dataTableOutput("rawdata_property_table"))
+                                                              )
+                                                     ), #第四个页签
+                                                     
+                                                     
+                                                     #-------------------页签：黑货运量---------------------------------------------    
+                                                     tabPanel("黑货运量",           #第五个页签
+                                                              fluidRow(
+                                                                sidebarLayout(
+                                                                  sidebarPanel(
+                                                                    radioButtons(inputId="black_rawdata",#与上雷同，black_rawdata黑货种类的铁路货运量原始数据
+                                                                                 label=NULL,
+                                                                                 choices = c("矿建(万吨)"="mine_rawdata",
+                                                                                             "钢材(万吨)"="iron_rawdata",
+                                                                                             "石油(万吨)"="oil_rawdata",
+                                                                                             "煤(万吨)"="coal_rawdata",
+                                                                                             "金属矿石(万吨)"="metal_rawdata") ),
+                                                                    
+                                                                    hr(),   
+                                                                    selectInput(inputId = "year_start_black_rawdata",
+                                                                                label = "自:", 
+                                                                                choices = y_wenjing_rawdata_black_white,
+                                                                                selected = "2008" ),
+                                                                    selectInput(inputId="year_end_black_rawdata",
+                                                                                label="至:",
+                                                                                choice=y_wenjing_rawdata_black_white,
+                                                                                selected=max(y_wenjing_rawdata_black_white) ),
+                                                                    width=3
+                                                                  ),
+                                                                  mainPanel(plotOutput(outputId = "rawdata_black_plot", height = "400px"),width=9)
+                                                                )),
+                                                              
+                                                              fluidRow(
+                                                                column(12,DT::dataTableOutput("rawdata_black_table"))
+                                                              )
+                                                     ), #第五个页签
+                                                     
+                                                     
+                                                     #-------------------页签：白货运量---------------------------------------------    
+                                                     tabPanel("白货运量",           #第六个页签
+                                                              fluidRow(
+                                                                sidebarLayout(
+                                                                  sidebarPanel(
+                                                                    radioButtons(inputId="white_rawdata",#与上雷同，baihuo:白货种类的铁路货运量原始数据
+                                                                                 label=NULL,
+                                                                                 choices = c("工业机械(万吨)"="machinery_rawdata",
+                                                                                             "电子电气(万吨)"="electronic_rawdata",
+                                                                                             "农副产品(万吨)"="agricultural_rawdata",
+                                                                                             "饮食烟草(万吨)"="food_tobacco_rawdata",
+                                                                                             "文教用品(万吨)"="education_rawdata", 
+                                                                                             "零担(吨)"="ltl_rawdata" ,
+                                                                                             "集装箱(万吨)"="container_rawdata" )),
+                                                                    hr(),   
+                                                                    selectInput(inputId = "year_start_white_rawdata",
+                                                                                label = "自:", 
+                                                                                choices = y_wenjing_rawdata_black_white,
+                                                                                selected = "2008" ),
+                                                                    selectInput(inputId="year_end_white_rawdata",
+                                                                                label="至:",
+                                                                                choice=y_wenjing_rawdata_black_white,
+                                                                                selected=max(y_wenjing_rawdata_black_white) ),
+                                                                    width=3
+                                                                  ),
+                                                                  mainPanel(plotOutput(outputId = "rawdata_white_plot", height = "400px"),width=9)
+                                                                )),
+                                                              
+                                                              fluidRow(
+                                                                column(12,DT::dataTableOutput("rawdata_white_table"))
+                                                              )
+                                                     )
+                                                     
+                                                     
+                                                     
+                                                     
+                              ) 
+                              ))
+                   )
+)
+)
 
 
 
 
-  
+
 
 
 
