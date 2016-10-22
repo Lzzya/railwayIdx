@@ -942,7 +942,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                              tabPanel("多元线性回归", plotOutput("tracklaying_mileage_linearplot")), 
                                              tabPanel("随机森林回归", plotOutput("tracklaying_mileage_rfplot")), 
                                              tabPanel("支持向量机回归", plotOutput("tracklaying_mileage_svmplot"))
-<<<<<<< HEAD
+
                                            ),
                                            
                                            fluidRow(  DT::dataTableOutput("tracklaying_mileage_table")   )
@@ -989,8 +989,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                              tabPanel("多元线性回归", plotOutput("emu_asset_linearplot")), 
                                              tabPanel("随机森林回归", plotOutput("emu_asset_rfplot")), 
                                              tabPanel("支持向量机回归", plotOutput("emu_asset_svmplot"))
-=======
->>>>>>> refs/remotes/origin/develop
+
                                            ),
                                            
                                            fluidRow(  DT::dataTableOutput("tracklaying_mileage_table")   )
