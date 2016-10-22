@@ -61,11 +61,11 @@ index_tm<-unique(substr(wb_index$tm,1,4))
 locomotive_dis<-read.csv("Locomotive-dis.csv",head=T)
 locomotive_dis_y<-unique(substr(locomotive_dis$tm,1,4))
 
-#<<<<<<< HEAD
+
 locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
 locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
 
-#<<<<<<< HEAD
+
 #locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
 #locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
 #-------------------------------------------------------------------------------------------------
@@ -941,7 +941,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                          )
                                        )
                               ),
-                              
+                              #陈雯做的这段程序没用到，而且变量存在错误
                               tabPanel("固定资产-动车组",
                                        titlePanel("固定资产投资-动车组"),
                                        
@@ -984,7 +984,8 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
 
                                            ),
                                            
-                                           fluidRow(  DT::dataTableOutput("tracklaying_mileage_table")   )
+                                           fluidRow(  DT::dataTableOutput("tracklaying_mileage_table2")   ) #这个变量是错误的
+                                           
                                          )
                                        )
                               ),

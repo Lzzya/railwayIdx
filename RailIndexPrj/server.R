@@ -1299,7 +1299,7 @@ shinyServer(function(input, output) {
   mileage_svmRegModel<-svm(fixed_assets_investment~mileage,data=df_yearly,type="eps-regression",cross=dim(df_yearly)[1]/2)
   df_yearly$svmRegPred<-as.integer(predict(mileage_svmRegModel,df_yearly))
   mileage_len<-length(df_yearly$tm)
-<<<<<<< HEAD
+
   
   plotCurve<-function(db,xdata,ydata)
   {
@@ -1646,7 +1646,7 @@ shinyServer(function(input, output) {
   #-----------------在df中，又增加了3列数据，存放预测结果,
   
   
-<<<<<<< HEAD
+
   output$tracklaying_mileage_table<-DT::renderDataTable(
     DT::datatable(
   {  tracklaying_mileage_data<-df_yearly} , 
