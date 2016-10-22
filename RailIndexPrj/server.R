@@ -9,23 +9,85 @@ shinyServer(function(input, output) {
   require(rJava)
   require(xlsx)
   
+  df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+  df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+ 
+  
   #--------------------------------------------------------------------------------------------------
   #--------------------------------------------------------------------------------------------------
   #铁路预警信号灯
   #--------------------------------------------------------------------------------------------------
   #--------------------------------------------------------------------------------------------------
-  df_index<-read.csv("预警.csv",header=T)
-  df_index$tm<-as.Date.POSIXct(df_index$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
-  df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-  df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+  #-------------------------------------------------------------
+  #从x-12数据起计算预警指数
+  
+  index_x12data<-read.csv("预警 - from x-12.csv",head=T)
+  
+  n<-dim(index_x12data)[1]
+  index_x12data2<-index_x12data[13:n,]
+  index_x12data3<-index_x12data[1:12,]
+  index_x12data_trs<-rbind(index_x12data2,index_x12data3)
+  
+  #-----------------------------------
+  #时间列不能参与矩阵间的数字运算，把时间列单独取出来，需要的时候再合并到数据集
+  tm<-index_x12data_trs[1:(n-12),1]
+  tm<-as.data.frame(tm)
+  names(tm)[1]<-"date"
+  
+  #去除时间列
+  index_x12data_trs<-index_x12data_trs[,-1]
+  index_x12data_trs<-as.data.frame(index_x12data_trs)
+  
+  #---------------------------------------------------------------
+  #计算同比
+  index_x12data_tm<-index_x12data[,-1]
+  index_tongbi<-(index_x12data_trs-index_x12data_tm)/index_x12data_tm
+  m<-dim(index_tongbi)[2]
+  index_tongbi<-index_tongbi[1:(n-12),1:m]
+  #View(index_tongbi)
+  
+  #---------------------------------------------------------------
+  #计算指标分位数
+  index_mean<-apply(index_tongbi,2,mean)   #计算同比后各个指标的均值
+  index_sd<-apply(index_tongbi,2,sd)       #计算同比后各个指标的标准差
+  m<-dim(index_tongbi)[1]           #数据集的行数
+  n<-dim(index_tongbi)[2]           #数据集的列数 
+  
+  index_standard<-(index_tongbi[1,]-index_mean)/index_sd
+  for(i in 2:m){
+    index_forstandard<-(index_tongbi[i,]-index_mean)/index_sd
+    index_standard<-rbind(index_standard,index_forstandard)
+  }
+  
+  delete_data<-c(-m:-1)
+  index_tdata<-index_tongbi[delete_data,]  #建立一个空白数据集index_tdata,储存T分布累计概率密度
+  for(i in 1:m){
+    for(j in 1:n){
+      index_tdata[i,j]<-pt(index_standard[i,j],m-1)
+    }
+  }
+  
+  index_weights<-c(0.1572,0.1387,0.0563,0.1556,0.1922,0.1984,0.1016)  #各指标权重
+  
+  sum(index_weights*index_tdata[1,])
+  
+  index_data<-data.frame()
+  for(i in 1:m){
+    index_data[i,1]<-sum(index_weights*index_tdata[i,])
+  }
+  names(index_data)<-"index"
+  
+  index_data<-cbind(tm,index_data)
+  index_data$date<-as.Date.POSIXct(index_data$date,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
+  
   output$plot_index<-renderPlot({ 
-    p<-ggplot(data=df_index,aes(x=tm,y=index))
-    p<-p+ylim(0,1)+xlim(df_index[1,1],df_index[156,1])
-    p<-p+annotate("rect",xmin=df_index[1,1],xmax=df_index[156,1],ymin=0,ymax=0.15,fill="red",alpha=0.3)
-    p<-p+annotate("rect",xmin=df_index[1,1],xmax=df_index[156,1],ymin=0.15,ymax=0.35,fill="yellow",alpha=0.3)
-    p<-p+annotate("rect",xmin=df_index[1,1],xmax=df_index[156,1],ymin=0.35,ymax=0.65,fill="green",alpha=0.3)
-    p<-p+annotate("rect",xmin=df_index[1,1],xmax=df_index[156,1],ymin=0.65,ymax=0.85,fill="#56B4E9",alpha=0.3)
-    p<-p+annotate("rect",xmin=df_index[1,1],xmax=df_index[156,1],ymin=0.85,ymax=1,fill="blue",alpha=0.3)
+    p<-ggplot(data=index_data,aes(x=date,y=index))
+    p<-p+ylim(0,1)+xlim(index_data[1,1],index_data[156,1])
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[156,1],ymin=0,ymax=0.15,fill="red",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[156,1],ymin=0.15,ymax=0.35,fill="yellow",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[156,1],ymin=0.35,ymax=0.65,fill="green",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[156,1],ymin=0.65,ymax=0.85,fill="#56B4E9",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[156,1],ymin=0.85,ymax=1,fill="blue",alpha=0.7)
     p<-p+geom_line(size=1)
     p+theme_bw()+theme(panel.border=element_blank())+xlab("日期")+ylab("指数")
   })
@@ -2769,10 +2831,12 @@ rownames = TRUE)
   #————————————————————————————————————————————————————————————————————————————————————————
   #————————————————————————————————————————————————————————————————————————————————————————
   
-  df<-read.csv("freight.csv",head=T)      #freight为货运量数据集，包包含货运量（18个主要货运品类相加）、成品钢材和原煤产量
-  df$tm<-as.Date.POSIXct(df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
-  
-  olsRegModel<-lm(freight~iron+coal,data=df)     #iron表示成品钢材产量，coal表示原煤产量
+a<-c(1,2,3,8)
+df<-df_monthly[1:168,a]
+#变量重命名，tm-时间，iron—成品钢材产量，coal—原煤产量，freight-货运量
+names(df)<-c("tm","iron","coal","freight") #iron表示成品钢材产量，coal表示原煤产量
+
+  olsRegModel<-lm(freight~iron+coal,data=df)    
   df$linearRegPred<-as.integer(predict(olsRegModel,newdata=df))
   
   rfRegModel<-randomForest(freight~iron+coal,data=df,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
@@ -2956,14 +3020,15 @@ rownames = TRUE)
   #————————————————————————————————————————————————————————————————————————————————————————
   #————————————————————————————————————————————————————————————————————————————————————————
   
-  passagerpre_df<-read.csv("铁路客运量预测.csv",head=T)     
-  passagerpre_df$Year<-as.Date.POSIXct(passagerpre_df$Year,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
-  
-  #olsRegModel<-lm(passager~iron+coal,data=passagerpre_df)     #iron表示成品钢材产量，coal表示原煤产量
-  passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$population+
-    0.87*passagerpre_df$income+2569.27*passagerpre_df$third_industry+
-    0.65*passagerpre_df$aviation+11.27*passagerpre_df$EMU+
-    0.78*passagerpre_df$railcar-409634.8
+passenger_dataindex<-c(1,2,5,27,29,30,31,32,33)
+passagerpre_df<-df_yearly[16:25,passenger_dataindex]
+names(passagerpre_df)<-c("Year","railcar","EMU","passager","population","GDP","income","aviation","third_industry")
+
+
+passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$population+
+  0.87*passagerpre_df$income+2569.27*passagerpre_df$third_industry+
+  0.65*passagerpre_df$aviation+11.27*passagerpre_df$EMU+
+  0.78*passagerpre_df$railcar-409634.8
   
   passagerpre_rfRegModel<-randomForest(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
                                        data=passagerpre_df,importance=T, ntree=100,type="regression")   #ranpassagerpre_dfrstReg函数在randomForest.r文件中
@@ -3014,11 +3079,11 @@ rownames = TRUE)
     if (input$passagerpre_stat_data) {
       p<-p+geom_point(aes(x=Year,y=passager),color="red",size=3,shape=21)
     }
-    p+ylab("货运量(万吨)")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    p+ylab("客运量（万人）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   #多元回归预测计算
-  output$passager_output<-renderText({
+  output$passagerpre_output<-renderText({
     x1<-as.numeric(input$passagerpre_GDP_input)
     x2<-as.numeric(input$passagerpre_population_input)
     x3<-as.numeric(input$passsagerpre_income_input)
@@ -3119,7 +3184,7 @@ rownames = TRUE)
     if (input$passagerpre_stat_data) {
       p<-p+geom_point(aes(x=Year,y=passager),color="red",size=3,shape=21)
     }
-    p+ylab("货运量(万吨)")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    p+ylab("客运量（万人）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   
@@ -3154,7 +3219,7 @@ rownames = TRUE)
     if (input$passagerpre_stat_data) {
       p<-p+geom_point(aes(x=Year,y=passager),color="red",size=3,shape=21)
     }
-    p+ylab("货运量(万吨)")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    p+ylab("客运量（万人）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   

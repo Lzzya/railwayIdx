@@ -128,16 +128,8 @@ freight_car_df<-read.csv("货运量-营业里程.csv",head=T)
 freight_car_df$tm<-as.Date.POSIXct(freight_car_df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
 freight_car_y<-unique(substr(freight_car_df$tm,1,4))
 
-#-----------------------------------------
-#-------货运量预测------------------------
-freight_forecast_df<-read.csv("freight.csv",head=T)
-freight_forecast_df$tm<-as.Date.POSIXct(freight_forecast_df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) 
-y<-as.numeric(unique(substr(freight_forecast_df$tm,1,4)))
-
-#-----------------------------------------
-#-------客运量预测------------------------
-passagerpre_df<-read.csv("铁路客运量预测.csv",head=T)
-passagerpre_y<-unique(substr(passagerpre_df$Year,1,4)) #提取年份
+year_slection<-unique(substr(dfrawdata[1:168,]$tm,1,4))                     #2001-2014时间选取数据
+year_slection_passenger<-unique(substr(dfrawdata[49:168,]$tm,1,4))          #2005-2014时间选取数据
 
 #———————————————————————————————————————————————————————————————————————————————
 #-----------------------------------------主界面--------------------------------
@@ -1265,12 +1257,12 @@ tabPanel("货运量-营业里程",
                                               value = TRUE),
                                 selectInput(inputId = "year_start",
                                             label = "自:", 
-                                            choices = y,
-                                            selected = min(y) ),
+                                            choices = year_slection,
+                                            selected = min(year_slection) ),
                                 selectInput(inputId="year_end",
                                             label="至:",
-                                            choice=y,
-                                            selected=max(y) ),
+                                            choice=year_slection,
+                                            selected=max(year_slection) ),
                                 numericInput(inputId="iron_input",
                                              label=strong("预测输入值--成品钢材产量(万吨)"),
                                              value=9822                                                      
@@ -1320,12 +1312,12 @@ tabPanel("货运量-营业里程",
                                               value = TRUE),
                                 selectInput(inputId = "passagerpre_year_start",
                                             label = "自:", 
-                                            choices = passagerpre_y,
-                                            selected = min(passagerpre_y) ),
+                                            choices = year_slection_passenger,
+                                            selected = min(year_slection_passenger) ),
                                 selectInput(inputId="passagerpre_year_end",
                                             label="至:",
-                                            choice=passagerpre_y,
-                                            selected=max(passagerpre_y) ),
+                                            choice=year_slection_passenger,
+                                            selected=max(year_slection_passenger) ),
                                 
                                 numericInput(inputId="passagerpre_GDP_input",
                                              label=strong("预测输入值--国内生产总值(亿元)"),
@@ -1351,7 +1343,7 @@ tabPanel("货运量-营业里程",
                                 
                                 hr("预测结果——客运量（万人）"),
                                 hr(),
-                                textOutput("passagerpre_output") ,
+                                textOutput("passagerpre_output"),
                                 hr(),
                                 textOutput("passagerpre_FRR"),
                                 hr(),
