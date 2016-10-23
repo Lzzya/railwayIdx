@@ -25,13 +25,11 @@ df_index$tm<-as.Date.POSIXct(df_index$tm,"%Y-%m-%d",tz=Sys.timezone(location = T
 
 #-----------------------------------------
 #-------铁路景气指数----------------------
-dftrans<-read.csv("trans-coor.csv",head=T)
+dftrans<-read.xlsx("trans_index_x12.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 dftrans$tm<-as.Date.POSIXct(dftrans$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
 y_wenjing<-unique(substr(dftrans$tm,1,4))
 
-dftrans_DI<-read.csv("DI_Trans.csv",head=T)
-dftrans_DI$tm<-as.Date.POSIXct(dftrans_DI$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-y_yiheng<-unique(substr(dftrans_DI$tm,1,4))
+y_yiheng<-y_wenjing
 
 #-----------------------------------------
 #-------黑货白货指数----------------------
