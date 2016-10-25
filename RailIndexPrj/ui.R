@@ -119,8 +119,9 @@ Carriagey<-unique(substr(Carriagedf$tm,1,4))
 #df_yearly<-read.csv("营业里程.csv",head=T)
 #y_wenjing_rawdata_yearly<-unique(substr(df_yearly$tm,1,4))
 
-PVdf<-read.csv("客运量.csv",head=T)
-PVy<-unique(substr(PVdf$PVtm,1,4))
+PVdf<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+PVdf$tm<-as.Date.POSIXct(PVdf$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))
+PVy<-unique(substr(PVdf$tm,1,4))
 
 freight_car_df<-read.csv("货运量-营业里程.csv",head=T)  
 freight_car_df$tm<-as.Date.POSIXct(freight_car_df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
@@ -1039,54 +1040,55 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                        )
                                        ),
 
-                              tabPanel("客运量-客车车辆数",
-                                       titlePanel("客运量-客车车辆数"),
-                                       
-                                       sidebarLayout(
-                                         sidebarPanel(
-                                           checkboxInput(inputId="mileage_stat_data",
-                                                         label=strong("历史统计值"),
-                                                         value=TRUE),
-                                           
-                                           checkboxInput(inputId = "mileage_predict_data",
-                                                         label = strong("回归预测值"),
-                                                         value = TRUE),
-                                           selectInput(inputId = "mileage_year_start",
-                                                       label = "自:", 
-                                                       choices = PVy,
-                                                       selected = min(PVy) ),
-                                           selectInput(inputId="mileage_year_end",
-                                                       label="至:",
-                                                       choice=PVy,
-                                                       selected=max(PVy) ),
-                                           textInput(inputId="CarriageNum_input",
-                                                     label=strong("客车车辆数（辆）"),
-                                                     value=round(mean(PVdf$CarriageNum),0)),
-                                           textInput(inputId="CarKm_input",
-                                                     label=strong("客车机车日车公里（公里）"),
-                                                     value=round(mean(PVdf$CarKm),2)),
-                                           hr("预测结果——客运量（万人）"),
-                                           hr(),
-                                           textOutput("PassengeVolume_output") ,
-                                           hr(),
-                                           textOutput("PassengeVolume_FRR"),
-                                           hr(),
-                                           textOutput("PassengeVolume_zhi")
-                                           
-                                           
-                                         ),                                                     
-                                         
-                                         mainPanel(
-                                           tabsetPanel(
-                                             tabPanel("多元线性回归", plotOutput("car_passenger_linearplot")), 
-                                             tabPanel("随机森林回归", plotOutput("car_passenger_rfplot")), 
-                                             tabPanel("支持向量机回归", plotOutput("car_passenger_svmplot"))
-                                           ),
-                                           
-                                           fluidRow(  DT::dataTableOutput("car_passenger_table")   )
-                                         )
-                                       )
-                              ),
+tabPanel("客运量-动车组数+客运机车日行公里数",
+         titlePanel("客运量-动车组数+客运机车日行公里数"),
+         
+         sidebarLayout(
+           sidebarPanel(
+             checkboxInput(inputId="passenger_volume_stat_data",
+                           label=strong("历史统计值"),
+                           value=TRUE),
+             
+             checkboxInput(inputId = "passenger_volume_predict_data",
+                           label = strong("回归预测值"),
+                           value = TRUE),
+             selectInput(inputId = "passenger_volume_year_start",
+                         label = "自:", 
+                         choices = PVy,
+                         selected = min(PVy) ),
+             selectInput(inputId="passenger_volume_year_end",
+                         label="至:",
+                         choice=PVy,
+                         selected=max(PVy) ),
+             textInput(inputId="bullettrain_number_input",
+                       label=strong("动车组数（辆）"),
+                       value=round(mean(PVdf$bullettrain_number),0)),
+             textInput(inputId="locomotive_mileage_pcar_input",
+                       label=strong("客车机车日车公里（公里）"),
+                       value=round(mean(PVdf$locomotive_mileage_pcar),2)),
+             hr("预测结果——客运量（万人）"),
+             hr(),
+             textOutput("passenger_volume_output") ,
+             hr(),
+             textOutput("passenger_volume_FRR"),
+             hr(),
+             textOutput("passenger_volume_zhi")
+             
+             
+           ),                                                     
+           
+           mainPanel(
+             tabsetPanel(
+               tabPanel("多元线性回归", plotOutput("passenger_volume_linearplot")), 
+               tabPanel("随机森林回归", plotOutput("passenger_volume_rfplot")), 
+               tabPanel("支持向量机回归", plotOutput("passenger_volume_svmplot"))
+             ),
+             
+             fluidRow(  DT::dataTableOutput("passenger_volume_table")   )
+           )
+         )
+),
+
 #-----------------------------------------营业里程适配性研究----------------------------------------
 #-----------------------------------------营业里程适配性研究----------------------------------------
 
