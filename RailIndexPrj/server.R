@@ -2005,189 +2005,196 @@ rownames = TRUE)
   
   
   
-  #------------------------------------------------------------------------------------------
-  #------------------客运量-客车车辆数适配性研究--------------------------------------------
-  #PV-------客运量（PassengeVolume）简写
-  #PassengeVolume-------客运量
-  #CarriageNum-------客车数量
-  #CarKm-------客车机车日行公里数
-  PVdf<-read.csv("客运量.csv",head=T)
-  PVolsRegModel<-lm(PassengeVolume~CarriageNum+CarKm,data=PVdf)
-  PVdf$linearRegPred<-as.integer(predict(PVolsRegModel,newdata=PVdf))
-  PVrfRegModel<-randomForest(PassengeVolume~CarriageNum+CarKm,data=PVdf,importance=T, ntree=100,type="regression")
-  PVdf$frRegPred<-as.integer(predict(PVrfRegModel,PVdf))
-  PVsvmRegModel<-svm(PassengeVolume~CarriageNum+CarKm,data=PVdf,type="eps-regression",cross=dim(PVdf)[1]/2)
-  PVdf$svmRegPred<-as.integer(predict(PVsvmRegModel,PVdf))
-  PVlen<-length(PVdf$PVtm)
+#------------------------------------------------------------------------------------------
+#------------------客运量-客车车辆数适配性研究--------------------------------------------
+#PV-------客运量（passenger_volume）简写
+#passenger_volume-------客运量
+#bullettrain_number-------客车数量
+#locomotive_mileage_pcar-------客车机车日行公里数
+PVdf<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+PVolsRegModel<-lm(passenger_volume~bullettrain_number+locomotive_mileage_pcar,data=PVdf)
+PVdf$linearRegPred<-as.integer(predict(PVolsRegModel,newdata=PVdf))
+PVrfRegModel<-randomForest(passenger_volume~bullettrain_number+locomotive_mileage_pcar,data=PVdf,importance=T, ntree=100,type="regression")
+PVdf$frRegPred<-as.integer(predict(PVrfRegModel,PVdf))
+PVsvmRegModel<-svm(passenger_volume~bullettrain_number+locomotive_mileage_pcar,data=PVdf,type="eps-regression",cross=dim(PVdf)[1]/2)
+PVdf$svmRegPred<-as.integer(predict(PVsvmRegModel,PVdf))
+PVlen<-length(PVdf$tm)
+
+plotCurve<-function(db,xdata,ydata)
+{
+  PVlen=dim(xdata)[1]
+  PVplt<-ggplot(db,x=c(xdata[1],xdata[PVlen]),aes(x=xdata,y=ydata),color="red")
+  return(PVplt)
+}
+output$passenger_volume_linearplot <- renderPlot( {
   
-  plotCurve<-function(db,xdata,ydata)
-  {
-    PVlen=dim(xdata)[1]
-    PVplt<-ggplot(db,x=c(xdata[1],xdata[PVlen]),aes(x=xdata,y=ydata),color="red")
-    return(PVplt)
-  }
-  output$car_passenger_linearplot <- renderPlot( {
+  if(input$passenger_volume_year_start> input$passenger_volume_year_end)  {
     
-    if(input$mileage_year_start> input$mileage_year_end)  {
-      
-      if (input$mileage_stat_data) {
-        PVp<-plotCurve(PVdf,PVdf$PVtm,PVdf$PassengeVolume)
-      }
-      else
-      {
-        PVp<-plotCurve(PVdf,PVdf$PVtm,PVdf$linearRegPred)
-      }
+    if (input$passenger_volume_stat_data) {
+      PVp<-plotCurve(PVdf,PVdf$tm,PVdf$passenger_volume)
     }
-    else{
-      PVdfsub<-subset(PVdf,PVdf$PVtm>=input$mileage_year_start) 
-      PVdfsub<-subset(PVdfsub,PVdfsub$PVtm<=input$mileage_year_end)
-      if (input$mileage_stat_data) {
-        PVp<-plotCurve(PVdfsub,PVdfsub$PVtm,PVdfsub$PassengeVolume)
-      }
-      else
-      {
-        PVp<-plotCurve(PVdfsub,PVdfsub$PVtm,PVdfsub$linearRegPred)
-      }
+    else
+    {
+      PVp<-plotCurve(PVdf,PVdf$tm,PVdf$linearRegPred)
     }
-    if(input$mileage_predict_data){
-      
-      PVp<-PVp+geom_line(aes(x=PVtm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=PVtm,y=linearRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
-      
-    }
-    
-    if (input$mileage_stat_data) {
-      PVp<-PVp+geom_point(aes(x=PVtm,y=PassengeVolume),color="red",size=3,shape=21)
-    }
-    PVp+ylab("客运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
-  })
-  output$PassengeVolume_output<-renderText({
-    PVx1<-as.numeric(input$CarriageNum_input)
-    PVx2<-as.numeric(input$CarKm_input)
-    CarriageNum<-c(PVx1)
-    CarKm<-c(PVx2)
-    PVtm<-c(2016)
-    PassengeVolume<-c(0)
-    inputdata<-data.frame(PVtm,PassengeVolume,CarriageNum,CarKm)
-    PVpred<-as.integer(predict(PVolsRegModel,inputdata,interval="prediction",level=0.95))
-    paste("多元回归预测：",PVpred[1],"预测区间95%：(",PVpred[2],",",PVpred[3],")" ) 
   }
-  )
-  #-------------------------------------------------
-  #随机森林回归预测计算
-  output$PassengeVolume_FRR<-renderText({
-    PVx1<-as.numeric(input$CarriageNum_input)
-    PVx2<-as.numeric(input$CarKm_input)
-    CarriageNum<-c(PVx1)
-    CarKm<-c(PVx2)
-    PVtm<-c(2016)
-    PassengeVolume<-c(0)
-    inputdata<-data.frame(PVtm,PassengeVolume,CarriageNum,CarKm)
-    railPassengeVolume<-predict(PVrfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
-    paste("随机森林回归预测：",as.integer(railPassengeVolume[1])  ) 
+  else{
+    PVdfsub<-subset(PVdf,substr(PVdf$tm,1,4)>=input$passenger_volume_year_start) 
+    PVdfsub<-subset(PVdfsub,substr(PVdfsub$tm,1,4)<=input$passenger_volume_year_end)
+    if (input$passenger_volume_stat_data) {
+      PVp<-plotCurve(PVdfsub,PVdfsub$tm,PVdfsub$passenger_volume)
+    }
+    else
+    {
+      PVp<-plotCurve(PVdfsub,PVdfsub$tm,PVdfsub$linearRegPred)
+    }
+  }
+  if(input$passenger_volume_predict_data){
+    
+    PVp<-PVp+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=1)+geom_point(aes(x=tm,y=linearRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
     
   }
-  )
-  #----------------------------------
-  #支持向量机回归预测计算
-  output$PassengeVolume_zhi<-renderText({
-    PVx1<-as.numeric(input$CarriageNum_input)
-    PVx2<-as.numeric(input$CarKm_input)
-    CarriageNum<-c(PVx1)
-    CarKm<-c(PVx2)
-    PVtm<-c(2016)
-    PassengeVolume<-c(0)
-    inputdata<-data.frame(PVtm,PassengeVolume,CarriageNum,CarKm)
-    PVpred<-as.integer(predict(PVsvmRegModel,inputdata))
-    
-    paste("支持向量机预测：",PVpred)
-    
+  
+  if (input$passenger_volume_stat_data) {
+    PVp<-PVp+geom_point(aes(x=tm,y=passenger_volume),color="red",size=3,shape=21)
   }
-  )
-  #-----------随机森林Tabset画线  
-  output$car_passenger_rfplot <- renderPlot( {
+  PVp+ylab("客运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+output$passenger_volume_output<-renderText({
+  PVx1<-as.numeric(input$bullettrain_number_input)
+  PVx2<-as.numeric(input$locomotive_mileage_pcar_input)
+  bullettrain_number<-c(PVx1)
+  locomotive_mileage_pcar<-c(PVx2)
+  tm<-c(2016)
+  passenger_volume<-c(0)
+  inputdata<-data.frame(tm,passenger_volume,bullettrain_number,locomotive_mileage_pcar)
+  PVpred<-as.integer(predict(PVolsRegModel,inputdata,interval="prediction",level=0.95))
+  paste("多元回归预测：",PVpred[1],"预测区间95%：(",PVpred[2],",",PVpred[3],")" ) 
+}
+)
+#-------------------------------------------------
+#随机森林回归预测计算
+output$passenger_volume_FRR<-renderText({
+  PVx1<-as.numeric(input$bullettrain_number_input)
+  PVx2<-as.numeric(input$locomotive_mileage_pcar_input)
+  bullettrain_number<-c(PVx1)
+  locomotive_mileage_pcar<-c(PVx2)
+  tm<-c(2016)
+  passenger_volume<-c(0)
+  inputdata<-data.frame(tm,passenger_volume,bullettrain_number,locomotive_mileage_pcar)
+  railpassenger_volume<-predict(PVrfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
+  paste("随机森林回归预测：",as.integer(railpassenger_volume[1])  ) 
+  
+}
+)
+#----------------------------------
+#支持向量机回归预测计算
+output$passenger_volume_zhi<-renderText({
+  PVx1<-as.numeric(input$bullettrain_number_input)
+  PVx2<-as.numeric(input$locomotive_mileage_pcar_input)
+  bullettrain_number<-c(PVx1)
+  locomotive_mileage_pcar<-c(PVx2)
+  tm<-c(2016)
+  passenger_volume<-c(0)
+  inputdata<-data.frame(tm,passenger_volume,bullettrain_number,locomotive_mileage_pcar)
+  PVpred<-as.integer(predict(PVsvmRegModel,inputdata))
+  
+  paste("支持向量机预测：",PVpred)
+  
+}
+)
+#-----------随机森林Tabset画线  
+output$passenger_volume_rfplot <- renderPlot( {
+  
+  if(input$passenger_volume_year_start> input$passenger_volume_year_end)  {
     
-    if(input$mileage_year_start> input$mileage_year_end)  {
-      
-      if (input$mileage_stat_data) {
-        PVp<-plotCurve(PVdf,PVdf$PVtm,PVdf$PassengeVolume)
-      }
-      else
-      {
-        PVp<-plotCurve(PVdf,PVdf$PVtm,PVdf$frRegPred)
-      }
+    if (input$passenger_volume_stat_data) {
+      PVp<-plotCurve(PVdf,PVdf$tm,PVdf$passenger_volume)
     }
-    else{
-      PVdfsub<-subset(PVdf,PVdf$PVtm>=input$mileage_year_start) 
-      PVdfsub<-subset(PVdfsub,PVdfsub$PVtm<=input$mileage_year_end)
-      if (input$mileage_stat_data) {
-        PVp<-plotCurve(PVdfsub,PVdfsub$PVtm,PVdfsub$PassengeVolume)
-      }
-      else
-      {
-        PVp<-plotCurve(PVdfsub,PVdfsub$PVtm,PVdfsub$frRegPred)
-      }
+    else
+    {
+      PVp<-plotCurve(PVdf,PVdf$tm,PVdf$frRegPred)
     }
+  }
+  else{
+    PVdfsub<-subset(PVdf,substr(PVdf$tm,1,4)>=input$passenger_volume_year_start) 
+    PVdfsub<-subset(PVdfsub,substr(PVdfsub$tm,1,4)<=input$passenger_volume_year_end)
+    if (input$passenger_volume_stat_data) {
+      PVp<-plotCurve(PVdfsub,PVdfsub$tm,PVdfsub$passenger_volume)
+    }
+    else
+    {
+      PVp<-plotCurve(PVdfsub,PVdfsub$tm,PVdfsub$frRegPred)
+    }
+  }
+  
+  if(input$passenger_volume_predict_data){
+    PVp<-PVp+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+stat_smooth(method=rfRegModel,color='black',level=0.95)
+  }
+  
+  if (input$passenger_volume_stat_data) {
+    PVp<-PVp+geom_point(aes(x=tm,y=passenger_volume),color="red",size=3,shape=21)
+  }
+  PVp+ylab("客运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+#----------------------------支持向量机Tabset画线
+
+output$passenger_volume_svmplot <- renderPlot( {
+  
+  if(input$passenger_volume_year_start> input$passenger_volume_year_end)  {
     
-    if(input$mileage_predict_data){
-      PVp<-PVp+geom_line(aes(x=PVtm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=PVtm,y=frRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+stat_smooth(method=rfRegModel,color='black',level=0.95)
+    if (input$passenger_volume_stat_data) {
+      PVp<-plotCurve(PVdf,PVdf$tm,PVdf$passenger_volume)
     }
-    
-    if (input$mileage_stat_data) {
-      PVp<-PVp+geom_point(aes(x=PVtm,y=PassengeVolume),color="red",size=3,shape=21)
+    else
+    {
+      PVp<-plotCurve(PVdf,PVdf$tm,PVdf$svmRegPred)
     }
-    PVp+ylab("客运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
-  })
-  #----------------------------支持向量机Tabset画线
-  
-  output$car_passenger_svmplot <- renderPlot( {
-    
-    if(input$mileage_year_start> input$mileage_year_end)  {
-      
-      if (input$mileage_stat_data) {
-        PVp<-plotCurve(PVdf,PVdf$PVtm,PVdf$PassengeVolume)
-      }
-      else
-      {
-        PVp<-plotCurve(PVdf,PVdf$PVtm,PVdf$svmRegPred)
-      }
+  }
+  else{
+    PVdfsub<-subset(PVdf,substr(PVdf$tm,1,4)>=input$passenger_volume_year_start) 
+    PVdfsub<-subset(PVdfsub,substr(PVdfsub$tm,1,4)<=input$passenger_volume_year_end)
+    if (input$passenger_volume_stat_data) {
+      PVp<-plotCurve(PVdfsub,PVdfsub$tm,PVdfsub$passenger_volume)
     }
-    else{
-      PVdfsub<-subset(PVdf,PVdf$PVtm>=input$mileage_year_start) 
-      PVdfsub<-subset(PVdfsub,PVdfsub$PVtm<=input$mileage_year_end)
-      if (input$mileage_stat_data) {
-        PVp<-plotCurve(PVdfsub,PVdfsub$PVtm,PVdfsub$PassengeVolume)
-      }
-      else
-      {
-        PVp<-plotCurve(PVdfsub,PVdfsub$PVtm,PVdfsub$svmRegPred)
-      }
+    else
+    {
+      PVp<-plotCurve(PVdfsub,PVdfsub$tm,PVdfsub$svmRegPred)
     }
-    if(input$mileage_predict_data){
-      PVp<-PVp+geom_line(aes(x=PVtm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=PVtm,y=svmRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
-    }
-    
-    if (input$mileage_stat_data) {
-      PVp<-PVp+geom_point(aes(x=PVtm,y=PassengeVolume),color="red",size=3,shape=21)
-    }
-    PVp+ylab("客运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
-  })
+  }
+  if(input$passenger_volume_predict_data){
+    PVp<-PVp+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))#+stat_smooth(method=svmRegModel ,color='black',level=0.95)
+  }
   
-  #--------------------------------------
+  if (input$passenger_volume_stat_data) {
+    PVp<-PVp+geom_point(aes(x=tm,y=passenger_volume),color="red",size=3,shape=21)
+  }
+  PVp+ylab("客运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+
+#--------------------------------------
+
+#----------------------datatable显示数据
+#-----------------在df中，又增加了3列数据，存放预测结果,
+passenger_volume<-PVdf$passenger_volume
+bullettrain_number<-PVdf$bullettrain_number
+locomotive_mileage_pcar<-PVdf$locomotive_mileage_pcar
+linearRegPred<-PVdf$linearRegPred
+frRegPred<-PVdf$frRegPred
+svmRegPred<-PVdf$svmRegPred
+tm<-unique(substr(PVdf$tm,1,4))
+passenger_volume_data<-data.frame(tm,passenger_volume,bullettrain_number,locomotive_mileage_pcar,linearRegPred,frRegPred,svmRegPred)
+
+
+output$passenger_volume_table<-DT::renderDataTable(
+  DT::datatable(
+{
   
-  #----------------------datatable显示数据
-  #-----------------在df中，又增加了3列数据，存放预测结果,
-  
-  
-  output$car_passenger_table<-DT::renderDataTable(
-    DT::datatable(
-      {
-        
-        PVdata<-PVdf
-      } , 
-      colnames = c('序号', '时间', '客运量（万人）','客车车辆数（辆）','客车机车日行公里（公里）','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
-      rownames = TRUE)
-  )
-  
+  PVdata<-passenger_volume_data
+} , 
+colnames = c('序号', '时间', '客运量（万人）','动车组数（组）','客车机车日行公里（公里）','多元回归预测（亿万）','随机森林回归预测（亿万）','支持向量机回归预测（亿万）'),
+rownames = TRUE)
+)
   #--------------------------------------------------------------------
   #----------------------营业里程适配性研究---------------------------
   distance_fre<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
