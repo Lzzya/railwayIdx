@@ -1799,10 +1799,10 @@ rownames = TRUE)
   #----------------固定资产适配性研究----------------------------------------
   investment_fre<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
   a<-length(investment_fre$passenger_car_delta)-2
-  tm_delta<-investment_fre$tm[1:a]
-  fixed_assets_investment_delta<-investment_fre$fixed_assets_investment_delta[1:a]
-  passenger_car_delta<-investment_fre$passenger_car_delta[1:a]
-  bullettrain_number_delta<-investment_fre$bullettrain_number_delta[1:a]
+  tm_delta<-investment_fre$tm[11:a]
+  fixed_assets_investment_delta<-investment_fre$fixed_assets_investment_delta[11:a]
+  passenger_car_delta<-investment_fre$passenger_car_delta[11:a]
+  bullettrain_number_delta<-investment_fre$bullettrain_number_delta[11:a]
   investment_data<-data.frame(tm_delta,fixed_assets_investment_delta,passenger_car_delta,bullettrain_number_delta)
   investment_data$tm_delta<-as.Date.POSIXct(investment_data$tm_delta,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))
   investment_y<-unique(substr(investment_data$tm_delta,1,4))
@@ -1812,13 +1812,6 @@ rownames = TRUE)
   #bound<-(predict(olsRegModel,newdata=investment_data,interval = "prediction"))  #<-----------回归模型的预测数据已经计算得到
   #investment_data$linearRegPred<-as.integer(bound[,1])
   investment_data$linearRegPred<-as.integer(predict(ptrainolsRegModel,newdata=investment_data))
-  
-  
-  
-  #-------rfRegModel是随机森林得到的回归模型，后面用predict直接调用此模型即可,因数量少，不运行交叉验证
-  ptrainrfRegModel<-randomForest(fixed_assets_investment_delta~bullettrain_number_delta+passenger_car_delta,data=investment_data,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
-  
-  investment_data$frRegPred<-as.integer(predict(ptrainrfRegModel,investment_data))    #<-----------随机森林的预测数据已经在这里计算得到
   
   #-------svmRegModel是支持向量机得到的回归模型，后面也可以直接调用
   ptrainsvmRegModel<-svm(fixed_assets_investment_delta~bullettrain_number_delta+passenger_car_delta,data=investment_data,type="eps-regression",cross=dim(investment_data)[1]/2)
@@ -1887,20 +1880,6 @@ rownames = TRUE)
   }
   )
   #-------------------------------------------------
-  #随机森林回归预测计算
-  output$investment_FRR<-renderText({
-    ptrain_x1<-as.numeric(input$ptrain_input)
-    passenger_car_delta<-c(ptrain_x1)
-    htrain_x1<-as.numeric(input$htrain_input)
-    bullettrain_number_delta<-c(htrain_x1)   
-    tm<-c(2014)
-    fixed_assets_investment_delta<-c(0)
-    inputdata<-data.frame(tm,fixed_assets_investment_delta,passenger_car_delta,bullettrain_number_delta)
-    railinvestment<-predict(ptrainrfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
-    paste("随机森林回归预测：",as.integer(railinvestment[1])  ) 
-    
-  }
-  )
   #----------------------------------
   #支持向量机回归预测计算
   output$investment_zhi<-renderText({
@@ -1917,43 +1896,7 @@ rownames = TRUE)
   }
   )
   #-------------------------------------
-  
-  
-  #-----------随机森林Tabset画线  
-  output$investmentrfplot <- renderPlot( {
-    
-    if(input$investment_year_start> input$investment_year_end)  {
-      
-      if (input$investment_stat_data) {
-        p<-plotCurve(investment_data,investment_data$tm_delta,investment_data$fixed_assets_investment_delta)
-      }
-      else
-      {
-        p<-plotCurve(investment_data,investment_data$tm_delta,investment_data$frRegPred)
-      }
-    }
-    else{
-      dfsub<-subset(investment_data,substr(investment_data$tm_delta,1,4)>=input$investment_year_start) 
-      dfsub<-subset(dfsub,substr(dfsub$tm_delta,1,4)<=input$investment_year_end)
-      if (input$investment_stat_data) {
-        p<-plotCurve(dfsub,dfsub$tm_delta,dfsub$fixed_assets_investment_delta)
-      }
-      else
-      {
-        p<-plotCurve(dfsub,dfsub$tm_delta,dfsub$frRegPred)
-      }
-    }
-    
-    if(input$investment_predict_data){
-      p<-p+geom_line(aes(x=tm_delta,y=frRegPred),color="blue",size=0.8,show.legend = T)#+stat_smooth(method=rfRegModel,color='black',level=0.95)
-    }
-    
-    if (input$investment_stat_data) {
-      p<-p+geom_point(aes(x=tm_delta,y=fixed_assets_investment_delta),color="red",size=3,shape=21)
-    }
-    p+ylab("固定资产投资额")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
-  })
-  
+
   #----------------------------支持向量机Tabset画线
   
   output$investmentsvmplot <- renderPlot( {
@@ -1998,7 +1941,7 @@ rownames = TRUE)
   output$investmenttable<-DT::renderDataTable(
     DT::datatable(
       data<-investment_data, 
-      colnames = c('序号', '年','固定资产投资增加额（万元）','客车车辆数（辆）','动车组数量(组)','多元回归预测（万元）','随机森林回归预测（万元）','支持向量机回归预测（万元）'),
+      colnames = c('序号', '年','固定资产投资增加额（万元）','客车车辆数（辆）','动车组数量(组)','多元回归预测（万元）','支持向量机回归预测（万元）'),
       rownames = TRUE)
   )
   

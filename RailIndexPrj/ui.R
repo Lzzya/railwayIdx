@@ -82,14 +82,13 @@ freightcar_dis_y<-unique(substr(freightcar_dis$tm,1,4))
 
 investment_fre<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 a<-length(investment_fre$passenger_car_delta)-2
-tm_delta<-investment_fre$tm[1:a]
-fixed_assets_investment_delta<-investment_fre$fixed_assets_investment_delta[1:a]
-passenger_car_delta<-investment_fre$passenger_car_delta[1:a]
-bullettrain_number_delta<-investment_fre$bullettrain_number_delta[1:a]
+tm_delta<-investment_fre$tm[11:a]
+fixed_assets_investment_delta<-investment_fre$fixed_assets_investment_delta[11:a]
+passenger_car_delta<-investment_fre$passenger_car_delta[11:a]
+bullettrain_number_delta<-investment_fre$bullettrain_number_delta[11:a]
 investment_data<-data.frame(tm_delta,fixed_assets_investment_delta,passenger_car_delta,bullettrain_number_delta)
 investment_data$tm_delta<-as.Date.POSIXct(investment_data$tm_delta,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))
 investment_y<-unique(substr(investment_data$tm_delta,1,4))
-
 #---------------------------------------------------------------------------------------------------------
 #-----------------------营业里程适配性研究-----------------------------------------------------------------
 distance_fre<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
@@ -1021,8 +1020,6 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                            hr(),
                                            textOutput("investment_output") ,
                                            hr(),
-                                           textOutput("investment_FRR"),
-                                           hr(),
                                            textOutput("investment_zhi")
                                            # actionButton("predictCAR","预测新客车量") 
                                            
@@ -1031,7 +1028,6 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                          mainPanel(
                                            tabsetPanel(
                                              tabPanel("多元线性回归", plotOutput("investmentlinearplot")), 
-                                             tabPanel("随机森林回归", plotOutput("investmentrfplot")), 
                                              tabPanel("支持向量机回归", plotOutput("investmentsvmplot"))
                                            ),
                                            
