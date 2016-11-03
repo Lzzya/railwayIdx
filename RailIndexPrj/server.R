@@ -1411,15 +1411,22 @@ shinyServer(function(input, output) {
   
   #----------------------datatable显示数据
   #-----------------在df中，又增加了3列数据，存放预测结果,
+  fixed_assets_investment<-df_yearly$fixed_assets_investment
+  mileage<-df_yearly$mileage
+  linearRegPred<-df_yearly$linearRegPred
+  frRegPred<-df_yearly$frRegPred
+  svmRegPred<-df_yearly$svmRegPred
+  tm<-unique(substr(df_yearly$tm,1,4))
+  mileage1_data<-data.frame(tm,fixed_assets_investment,mileage,linearRegPred,frRegPred,svmRegPred)
   
   
   output$mileage_table<-DT::renderDataTable(
     DT::datatable(
       {
         
-        mileage_data<-df_yearly
+        mileage_data<-mileage1_data
       } , 
-      colnames = c('序号', '时间', '客车辆数', '机车台数','货车车辆','动车组数','固定资产投资','从业人员数量','新线铺轨里程','复线铺轨里程','客车车辆增加量','动车组增加量','固定资产投资增量','营业里程','日均运用车（辆）','日均现在车（辆）','客运机车日车里程（km）','货运机车日车里程（km）','机车总行走里程（百万km）','成品钢材产量','原煤产量','原油加工量','火力发电量','工业增加值','货运量_28个品类相加的','货运量（万吨）','货运周转量','客运量','铁路客运量(万人)','年末总人口(万人)','国内生产总值(亿元)','城镇居民家庭人均可支配收入(元)','民用航空客运量(万人)','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
+      colnames = c('序号', '时间', '固定资产投资','营业里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
       rownames = TRUE)
   ) 
   
@@ -1605,13 +1612,19 @@ shinyServer(function(input, output) {
   
   #----------------------datatable显示数据
   #-----------------在df中，又增加了3列数据，存放预测结果,
-  
+  fixed_assets_investment<-df_yearly$fixed_assets_investment
+  mileage<-df_yearly$mileage
+  linearRegPred<-df_yearly$linearRegPred
+  frRegPred<-df_yearly$frRegPred
+  svmRegPred<-df_yearly$svmRegPred
+  tm<-unique(substr(df_yearly$tm,1,4))
+  tracklaying_mileage1_data<-data.frame(tm,fixed_assets_investment,mileage,linearRegPred,frRegPred,svmRegPred)
   
 
   output$tracklaying_mileage_table<-DT::renderDataTable(
     DT::datatable(
-  {  tracklaying_mileage_data<-df_yearly} , 
-  colnames = c('序号', '时间', '客车辆数', '机车台数','货车车辆','动车组数','固定资产投资','从业人员数量','新线铺轨里程','复线铺轨里程','客车车辆增加量','动车组增加量','固定资产投资增量','营业里程','日均运用车（辆）','日均现在车（辆）','客运机车日车里程（km）','货运机车日车里程（km）','机车总行走里程（百万km）','成品钢材产量','原煤产量','原油加工量','火力发电量','工业增加值','货运量_28个品类相加的','货运量（万吨）','货运周转量','客运量','铁路客运量(万人)','年末总人口(万人)','国内生产总值(亿元)','城镇居民家庭人均可支配收入(元)','民用航空客运量(万人)','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
+  {  tracklaying_mileage_data<-tracklaying_mileage1_data} , 
+  colnames = c('序号', '时间', '固定资产投资','营业里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
   rownames = TRUE)
   ) 
 
@@ -1781,19 +1794,23 @@ shinyServer(function(input, output) {
     tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
-  
+  fixed_assets_investment<-df_yearly$fixed_assets_investment
+  newline_tracklaying_mileage<-df_yearly$newline_tracklaying_mileage
+  oldline_tracklaying_mileage<-df_yearly$oldline_tracklaying_mileage
+  linearRegPred<-df_yearly$linearRegPred
+  frRegPred<-df_yearly$frRegPred
+  svmRegPred<-df_yearly$svmRegPred
+  tm<-unique(substr(df_yearly$tm,1,4))
+  tracklaying_mileage2_data<-data.frame(tm,fixed_assets_investment,newline_tracklaying_mileage,oldline_tracklaying_mileage,linearRegPred,frRegPred,svmRegPred)
   
   
   output$tracklaying_mileage_table<-DT::renderDataTable(
     DT::datatable(
-{
-  
-  tracklaying_mileage_data<-df_yearly
-} , 
-colnames = c('序号', '时间', '客车辆数', '机车台数','货车车辆','动车组数','固定资产投资','从业人员数量','新线铺轨里程','复线铺轨里程','客车车辆增加量','动车组增加量','固定资产投资增量','营业里程','日均运用车（辆）','日均现在车（辆）','客运机车日车里程（km）','货运机车日车里程（km）','机车总行走里程（百万km）','成品钢材产量','原煤产量','原油加工量','火力发电量','工业增加值','货运量_28个品类相加的','货运量（万吨）','货运周转量','客运量','铁路客运量(万人)','年末总人口(万人)','国内生产总值(亿元)','城镇居民家庭人均可支配收入(元)','民用航空客运量(万人)','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
+{  tracklaying_mileage_data<-tracklaying_mileage2_data} , 
+colnames = c('序号', '时间', '固定资产投资','新线铺轨里程','复线铺轨里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
 rownames = TRUE)
   ) 
-
+  
   
   #--------------------------------------------------------------------------
   #----------------固定资产适配性研究----------------------------------------
