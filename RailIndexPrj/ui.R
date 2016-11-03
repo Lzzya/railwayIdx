@@ -25,13 +25,11 @@ df_index$tm<-as.Date.POSIXct(df_index$tm,"%Y-%m-%d",tz=Sys.timezone(location = T
 
 #-----------------------------------------
 #-------铁路景气指数----------------------
-dftrans<-read.csv("trans-coor.csv",head=T)
+dftrans<-read.xlsx("trans_index_x12.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 dftrans$tm<-as.Date.POSIXct(dftrans$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
 y_wenjing<-unique(substr(dftrans$tm,1,4))
 
-dftrans_DI<-read.csv("DI_Trans.csv",head=T)
-dftrans_DI$tm<-as.Date.POSIXct(dftrans_DI$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-y_yiheng<-unique(substr(dftrans_DI$tm,1,4))
+y_yiheng<-y_wenjing
 
 #-----------------------------------------
 #-------黑货白货指数----------------------
@@ -61,11 +59,11 @@ index_tm<-unique(substr(wb_index$tm,1,4))
 locomotive_dis<-read.csv("Locomotive-dis.csv",head=T)
 locomotive_dis_y<-unique(substr(locomotive_dis$tm,1,4))
 
-#<<<<<<< HEAD
+
 locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
 locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
 
-#<<<<<<< HEAD
+
 #locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
 #locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
 #-------------------------------------------------------------------------------------------------
@@ -84,14 +82,13 @@ freightcar_dis_y<-unique(substr(freightcar_dis$tm,1,4))
 
 investment_fre<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 a<-length(investment_fre$passenger_car_delta)-2
-tm_delta<-investment_fre$tm[1:a]
-fixed_assets_investment_delta<-investment_fre$fixed_assets_investment_delta[1:a]
-passenger_car_delta<-investment_fre$passenger_car_delta[1:a]
-bullettrain_number_delta<-investment_fre$bullettrain_number_delta[1:a]
+tm_delta<-investment_fre$tm[11:a]
+fixed_assets_investment_delta<-investment_fre$fixed_assets_investment_delta[11:a]
+passenger_car_delta<-investment_fre$passenger_car_delta[11:a]
+bullettrain_number_delta<-investment_fre$bullettrain_number_delta[11:a]
 investment_data<-data.frame(tm_delta,fixed_assets_investment_delta,passenger_car_delta,bullettrain_number_delta)
 investment_data$tm_delta<-as.Date.POSIXct(investment_data$tm_delta,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))
 investment_y<-unique(substr(investment_data$tm_delta,1,4))
-
 #---------------------------------------------------------------------------------------------------------
 #-----------------------营业里程适配性研究-----------------------------------------------------------------
 distance_fre<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
@@ -121,23 +118,16 @@ Carriagey<-unique(substr(Carriagedf$tm,1,4))
 #df_yearly<-read.csv("营业里程.csv",head=T)
 #y_wenjing_rawdata_yearly<-unique(substr(df_yearly$tm,1,4))
 
-PVdf<-read.csv("客运量.csv",head=T)
-PVy<-unique(substr(PVdf$PVtm,1,4))
+PVdf<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+PVdf$tm<-as.Date.POSIXct(PVdf$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))
+PVy<-unique(substr(PVdf$tm,1,4))
 
 freight_car_df<-read.csv("货运量-营业里程.csv",head=T)  
 freight_car_df$tm<-as.Date.POSIXct(freight_car_df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
 freight_car_y<-unique(substr(freight_car_df$tm,1,4))
 
-#-----------------------------------------
-#-------货运量预测------------------------
-freight_forecast_df<-read.csv("freight.csv",head=T)
-freight_forecast_df$tm<-as.Date.POSIXct(freight_forecast_df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) 
-y<-as.numeric(unique(substr(freight_forecast_df$tm,1,4)))
-
-#-----------------------------------------
-#-------客运量预测------------------------
-passagerpre_df<-read.csv("铁路客运量预测.csv",head=T)
-passagerpre_y<-unique(substr(passagerpre_df$Year,1,4)) #提取年份
+year_slection<-unique(substr(dfrawdata[1:168,]$tm,1,4))                     #2001-2014时间选取数据
+year_slection_passenger<-unique(substr(dfrawdata[49:168,]$tm,1,4))          #2005-2014时间选取数据
 
 #———————————————————————————————————————————————————————————————————————————————
 #-----------------------------------------主界面--------------------------------
@@ -942,9 +932,58 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                              tabPanel("多元线性回归", plotOutput("tracklaying_mileage_linearplot")), 
                                              tabPanel("随机森林回归", plotOutput("tracklaying_mileage_rfplot")), 
                                              tabPanel("支持向量机回归", plotOutput("tracklaying_mileage_svmplot"))
+
                                            ),
                                            
                                            fluidRow(  DT::dataTableOutput("tracklaying_mileage_table")   )
+                                         )
+                                       )
+                              ),
+                              #陈雯做的这段程序没用到，而且变量存在错误
+                              tabPanel("固定资产-动车组",
+                                       titlePanel("固定资产投资-动车组"),
+                                       
+                                       sidebarLayout(
+                                         sidebarPanel(
+                                           checkboxInput(inputId="emu_stat_data",
+                                                         label=strong("历史统计值"),
+                                                         value=TRUE),
+                                           
+                                           checkboxInput(inputId = "emu_predict_data",
+                                                         label = strong("回归预测值"),
+                                                         value = TRUE),
+                                           selectInput(inputId = "emu_year_start",
+                                                       label = "自:", 
+                                                       choices = cw_y,
+                                                       selected = min(cw_y) ),
+                                           selectInput(inputId="emu_year_end",
+                                                       label="至:",
+                                                       choice=cw_y,
+                                                       selected=max(cw_y) ),
+                                           textInput(inputId="emu_input",
+                                                     label=strong("动车新增数量"),
+                                                     value=round(mean(cw_df$emu),0)),
+                                           hr("预测结果——固定资产值（亿元）"),
+                                           hr(),
+                                           textOutput("emu_asset_output") ,
+                                           hr(),
+                                           textOutput("emu_asset_FRR"),
+                                           hr(),
+                                           textOutput("emu_asset_zhi")
+                                           
+                                           # actionButton("predictFre","预测新货运量") 
+                                         ),                                                       #sidebarPanel
+                                         
+                                         mainPanel(
+                                           tabsetPanel(
+                                             tabPanel("多元线性回归", plotOutput("emu_asset_linearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("emu_asset_rfplot")), 
+                                             tabPanel("支持向量机回归", plotOutput("emu_asset_svmplot"))
+
+                                           ),
+                                           
+                                           fluidRow(  DT::dataTableOutput("tracklaying_mileage_table2")   ) #这个变量是错误的
+                                           
                                          )
                                        )
                               ),
@@ -981,8 +1020,6 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                            hr(),
                                            textOutput("investment_output") ,
                                            hr(),
-                                           textOutput("investment_FRR"),
-                                           hr(),
                                            textOutput("investment_zhi")
                                            # actionButton("predictCAR","预测新客车量") 
                                            
@@ -991,7 +1028,6 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                          mainPanel(
                                            tabsetPanel(
                                              tabPanel("多元线性回归", plotOutput("investmentlinearplot")), 
-                                             tabPanel("随机森林回归", plotOutput("investmentrfplot")), 
                                              tabPanel("支持向量机回归", plotOutput("investmentsvmplot"))
                                            ),
                                            
@@ -1000,54 +1036,55 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                        )
                                        ),
 
-                              tabPanel("客运量-客车车辆数",
-                                       titlePanel("客运量-客车车辆数"),
-                                       
-                                       sidebarLayout(
-                                         sidebarPanel(
-                                           checkboxInput(inputId="mileage_stat_data",
-                                                         label=strong("历史统计值"),
-                                                         value=TRUE),
-                                           
-                                           checkboxInput(inputId = "mileage_predict_data",
-                                                         label = strong("回归预测值"),
-                                                         value = TRUE),
-                                           selectInput(inputId = "mileage_year_start",
-                                                       label = "自:", 
-                                                       choices = PVy,
-                                                       selected = min(PVy) ),
-                                           selectInput(inputId="mileage_year_end",
-                                                       label="至:",
-                                                       choice=PVy,
-                                                       selected=max(PVy) ),
-                                           textInput(inputId="CarriageNum_input",
-                                                     label=strong("客车车辆数（辆）"),
-                                                     value=round(mean(PVdf$CarriageNum),0)),
-                                           textInput(inputId="CarKm_input",
-                                                     label=strong("客车机车日车公里（公里）"),
-                                                     value=round(mean(PVdf$CarKm),2)),
-                                           hr("预测结果——客运量（万人）"),
-                                           hr(),
-                                           textOutput("PassengeVolume_output") ,
-                                           hr(),
-                                           textOutput("PassengeVolume_FRR"),
-                                           hr(),
-                                           textOutput("PassengeVolume_zhi")
-                                           
-                                           
-                                         ),                                                     
-                                         
-                                         mainPanel(
-                                           tabsetPanel(
-                                             tabPanel("多元线性回归", plotOutput("car_passenger_linearplot")), 
-                                             tabPanel("随机森林回归", plotOutput("car_passenger_rfplot")), 
-                                             tabPanel("支持向量机回归", plotOutput("car_passenger_svmplot"))
-                                           ),
-                                           
-                                           fluidRow(  DT::dataTableOutput("car_passenger_table")   )
-                                         )
-                                       )
-                              ),
+tabPanel("客运量-动车组数+客运机车日行公里数",
+         titlePanel("客运量-动车组数+客运机车日行公里数"),
+         
+         sidebarLayout(
+           sidebarPanel(
+             checkboxInput(inputId="passenger_volume_stat_data",
+                           label=strong("历史统计值"),
+                           value=TRUE),
+             
+             checkboxInput(inputId = "passenger_volume_predict_data",
+                           label = strong("回归预测值"),
+                           value = TRUE),
+             selectInput(inputId = "passenger_volume_year_start",
+                         label = "自:", 
+                         choices = PVy,
+                         selected = min(PVy) ),
+             selectInput(inputId="passenger_volume_year_end",
+                         label="至:",
+                         choice=PVy,
+                         selected=max(PVy) ),
+             textInput(inputId="bullettrain_number_input",
+                       label=strong("动车组数（辆）"),
+                       value=round(mean(PVdf$bullettrain_number),0)),
+             textInput(inputId="locomotive_mileage_pcar_input",
+                       label=strong("客车机车日车公里（公里）"),
+                       value=round(mean(PVdf$locomotive_mileage_pcar),2)),
+             hr("预测结果——客运量（万人）"),
+             hr(),
+             textOutput("passenger_volume_output") ,
+             hr(),
+             textOutput("passenger_volume_FRR"),
+             hr(),
+             textOutput("passenger_volume_zhi")
+             
+             
+           ),                                                     
+           
+           mainPanel(
+             tabsetPanel(
+               tabPanel("多元线性回归", plotOutput("passenger_volume_linearplot")), 
+               tabPanel("随机森林回归", plotOutput("passenger_volume_rfplot")), 
+               tabPanel("支持向量机回归", plotOutput("passenger_volume_svmplot"))
+             ),
+             
+             fluidRow(  DT::dataTableOutput("passenger_volume_table")   )
+           )
+         )
+),
+
 #-----------------------------------------营业里程适配性研究----------------------------------------
 #-----------------------------------------营业里程适配性研究----------------------------------------
 
@@ -1217,12 +1254,12 @@ tabPanel("货运量-营业里程",
                                               value = TRUE),
                                 selectInput(inputId = "year_start",
                                             label = "自:", 
-                                            choices = y,
-                                            selected = min(y) ),
+                                            choices = year_slection,
+                                            selected = min(year_slection) ),
                                 selectInput(inputId="year_end",
                                             label="至:",
-                                            choice=y,
-                                            selected=max(y) ),
+                                            choice=year_slection,
+                                            selected=max(year_slection) ),
                                 numericInput(inputId="iron_input",
                                              label=strong("预测输入值--成品钢材产量(万吨)"),
                                              value=9822                                                      
@@ -1272,12 +1309,12 @@ tabPanel("货运量-营业里程",
                                               value = TRUE),
                                 selectInput(inputId = "passagerpre_year_start",
                                             label = "自:", 
-                                            choices = passagerpre_y,
-                                            selected = min(passagerpre_y) ),
+                                            choices = year_slection_passenger,
+                                            selected = min(year_slection_passenger) ),
                                 selectInput(inputId="passagerpre_year_end",
                                             label="至:",
-                                            choice=passagerpre_y,
-                                            selected=max(passagerpre_y) ),
+                                            choice=year_slection_passenger,
+                                            selected=max(year_slection_passenger) ),
                                 
                                 numericInput(inputId="passagerpre_GDP_input",
                                              label=strong("预测输入值--国内生产总值(亿元)"),
@@ -1303,7 +1340,7 @@ tabPanel("货运量-营业里程",
                                 
                                 hr("预测结果——客运量（万人）"),
                                 hr(),
-                                textOutput("passagerpre_output") ,
+                                textOutput("passagerpre_output"),
                                 hr(),
                                 textOutput("passagerpre_FRR"),
                                 hr(),
