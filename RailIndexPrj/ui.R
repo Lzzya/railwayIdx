@@ -939,54 +939,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                          )
                                        )
                               ),
-                              #陈雯做的这段程序没用到，而且变量存在错误
-                              tabPanel("固定资产-动车组",
-                                       titlePanel("固定资产投资-动车组"),
-                                       
-                                       sidebarLayout(
-                                         sidebarPanel(
-                                           checkboxInput(inputId="emu_stat_data",
-                                                         label=strong("历史统计值"),
-                                                         value=TRUE),
-                                           
-                                           checkboxInput(inputId = "emu_predict_data",
-                                                         label = strong("回归预测值"),
-                                                         value = TRUE),
-                                           selectInput(inputId = "emu_year_start",
-                                                       label = "自:", 
-                                                       choices = cw_y,
-                                                       selected = min(cw_y) ),
-                                           selectInput(inputId="emu_year_end",
-                                                       label="至:",
-                                                       choice=cw_y,
-                                                       selected=max(cw_y) ),
-                                           textInput(inputId="emu_input",
-                                                     label=strong("动车新增数量"),
-                                                     value=round(mean(cw_df$emu),0)),
-                                           hr("预测结果——固定资产值（亿元）"),
-                                           hr(),
-                                           textOutput("emu_asset_output") ,
-                                           hr(),
-                                           textOutput("emu_asset_FRR"),
-                                           hr(),
-                                           textOutput("emu_asset_zhi")
-                                           
-                                           # actionButton("predictFre","预测新货运量") 
-                                         ),                                                       #sidebarPanel
-                                         
-                                         mainPanel(
-                                           tabsetPanel(
-                                             tabPanel("多元线性回归", plotOutput("emu_asset_linearplot")), 
-                                             tabPanel("随机森林回归", plotOutput("emu_asset_rfplot")), 
-                                             tabPanel("支持向量机回归", plotOutput("emu_asset_svmplot"))
-
-                                           ),
-                                           
-                                           fluidRow(  DT::dataTableOutput("tracklaying_mileage_table2")   ) #这个变量是错误的
-                                           
-                                         )
-                                       )
-                              ),
+                              
 #-----------------------------------------固定资产适配性研究----------------------------------------
 #-----------------------------------------固定资产适配性研究----------------------------------------
                               
