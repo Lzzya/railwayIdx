@@ -785,7 +785,7 @@ shinyServer(function(input, output) {
     
     DI_trans_input<-data.frame(tm1,DIx_trans_input, DIt_trans_input,DIz_trans_input)#存储所有指数计算结果的数据框
     DI_trans_input$tm1<-as.Date.POSIXct(DI_trans_input$tm1,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    write.csv(DI_trans_input,file="DI_Trans_Input.csv",row.names = FALSE)    
+    #write.csv(DI_trans_input,file="DI_Trans_Input.csv",row.names = FALSE)    
     
     #----------(2)运输扩散指数--默认权重计算的画图--------------------------------- 
     DI_trans.len<-length(DI_trans_input$tm1)
@@ -3242,7 +3242,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
     if(input$transport_rawdata=="freight_rotation_volume_rawdata"){
       p<-p+geom_line(aes(x=tm,y=freight_rotation_volume),color="black",size=0.6)+ylim(800,2300)+geom_point(aes(x=tm,y=freight_rotation_volume),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
     }
-    #freight_volume_rawdata  ------------货运量(亿吨)
+    #freight_volume_rawdata  ------------货运量(万吨)
     if (input$transport_rawdata=="freight_volume_rawdata") {
       p<-p+geom_line(aes(x=tm,y=freight_volume),color="red",size=0.6)+ylim(10000,29000)
       p<-p+geom_point(aes(x=tm,y=freight_volume),size=2,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
@@ -3337,7 +3337,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
     }
     #freight_car-----------货车辆数
     if (input$property_rawdata=="freight_car_rawdata") {
-      p<-p+geom_line(aes(x=tm,y=freight_car),color="red",size=0.6)+ylim(13000,22000)
+      p<-p+geom_line(aes(x=tm,y=freight_car),color="red",size=0.6)+ylim(360000,800000)
       p<-p+geom_point(aes(x=tm,y=freight_car),size=4,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
     }
     #locomotive_number---------- 机车台数
@@ -3347,7 +3347,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
     }
     #bullettrain_number------------动车台数
     if(input$property_rawdata=="bullettrain_number_rawdata"){
-      p<-p+geom_line(aes(x=tm,y=bullettrain_number),color="purple",size=0.6)+ylim(500,1500)
+      p<-p+geom_line(aes(x=tm,y=bullettrain_number),color="purple",size=0.6)+ylim(0,2300)
       p<-p+geom_point(aes(x=tm,y=bullettrain_number),size=4,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
     }
     #practitioner_number------------从业人员数量
@@ -3357,7 +3357,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
     }
     #fixed_assets_investment------------铁路固定资产投资
     if (input$property_rawdata=="fixed_assets_investment_rawdata") {
-      p<-p+geom_line(aes(x=tm,y=fixed_assets_investment),color="darkgreen",size=0.6)
+      p<-p+geom_line(aes(x=tm,y=fixed_assets_investment),color="darkgreen",size=0.6)+ylim(150,10000)
       p<-p+geom_point(aes(x=tm,y=fixed_assets_investment),size=4,shape=21,colour="darkgreen",fill="cornsilk",position=position_dodge(width=0.2))
     }
     #newline_tracklaying_mileage-----------新线铺轨里程
@@ -3477,7 +3477,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
         dfrawdata<-df_monthly
         dfrawdata<-data.frame(dfrawdata[1:6])
         data<-dfrawdata},
-      colnames = c('时间','成品钢材产量（亿吨）','原油加工量（亿吨）','原煤产量（亿吨）','火力发电量（亿千瓦时）','工业增加值（增长率）'),
+      colnames = c('时间','成品钢材产量（万吨）','原煤产量（万吨）','原油加工量（万吨）','火力发电量（亿千瓦时）','工业增加值（增长率）'),
       rownames = TRUE))
   
   #rawdata_transport-----------原始数据/运量相关
@@ -3485,9 +3485,9 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
     DT::datatable(
       {  
         dfrawdata<-df_monthly
-        dfrawdata<-data.frame(dfrawdata$tm,dfrawdata[7:10])
+        dfrawdata<-data.frame(dfrawdata$tm,dfrawdata[8:11])
         data<-dfrawdata},
-      colnames = c('时间','货运量（亿吨）','货运周转量（亿吨公里）','客运量（亿人）','客运周转量（亿人公里）'),
+      colnames = c('时间','货运量（万吨）','货运周转量（亿吨公里）','客运量（亿人）','客运周转量（亿人公里）'),
       rownames = TRUE))
   
   output$rawdata_operation_table<-DT::renderDataTable(
@@ -3506,7 +3506,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
         dfrawdata<-df_yearly
         dfrawdata<-data.frame(dfrawdata[1:9])
         data<-dfrawdata},
-      colnames = c('时间','客车辆数(辆)','机车台数(辆)','货车辆数(万辆)','动车组数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
+      colnames = c('时间','客车辆数(辆)','机车台数(辆)','货车辆数(辆)','动车组数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
       rownames = TRUE))
   
   output$rawdata_black_table<-DT::renderDataTable(
@@ -3522,7 +3522,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
     DT::datatable(
       {  
         dfrawdata<-subset(df_monthly,(substr(df_monthly$tm,1,4)>=2008))
-        dfrawdata<-data.frame(dfrawdata$tm,dfrawdata[13:18])
+        dfrawdata<-data.frame(dfrawdata$tm,dfrawdata[12:18])
         data<-dfrawdata},
       colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担(吨)','集装箱(万吨)'),
       rownames = TRUE))
