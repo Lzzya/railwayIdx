@@ -1620,7 +1620,7 @@ rownames = TRUE)
   #--------------------------------------------------------------------------
   #----------------固定资产适配性研究----------------------------------------
   investment_fre<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-  a<-length(investment_fre$passenger_car_delta)-2
+  a<-length(investment_fre$passenger_car_delta)
   tm_delta<-investment_fre$tm[11:a]
   fixed_assets_investment_delta<-investment_fre$fixed_assets_investment_delta[11:a]
   passenger_car_delta<-investment_fre$passenger_car_delta[11:a]
@@ -2363,7 +2363,7 @@ rownames = TRUE)
   freight<-Locomotive_fre$freight_volume_yearly
   locomotive<-Locomotive_fre$locomotive_number
   linearRegPred<-Locomotive_fre$linearRegPred
-  frRegPred<-Locomotive_fre$svmRegPred
+  frRegPred<-Locomotive_fre$frRegPred
   svmRegPred<-Locomotive_fre$svmRegPred
   tm<-unique(substr(Locomotive_fre$tm,1,4))
   locomotive_data<-data.frame(tm,locomotive,passenger,freight,linearRegPred,frRegPred,svmRegPred)
@@ -2565,7 +2565,7 @@ rownames = TRUE)
   #————————————————————————————————————————————————————————————————————————————————————————
   
 a<-c(1,2,3,8)
-df<-df_monthly[1:168,a]
+df<-df_monthly[1:180,a]
 #变量重命名，tm-时间，iron—成品钢材产量，coal—原煤产量，freight-货运量
 names(df)<-c("tm","iron","coal","freight") #iron表示成品钢材产量，coal表示原煤产量
 
@@ -2754,7 +2754,7 @@ names(df)<-c("tm","iron","coal","freight") #iron表示成品钢材产量，coal�
   #————————————————————————————————————————————————————————————————————————————————————————
   
 passenger_dataindex<-c(1,2,5,27,29,30,31,32,33)
-passagerpre_df<-df_yearly[16:25,passenger_dataindex]
+passagerpre_df<-df_yearly[16:26,passenger_dataindex]
 names(passagerpre_df)<-c("Year","railcar","EMU","passager","population","GDP","income","aviation","third_industry")
 
 
