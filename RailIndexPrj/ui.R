@@ -21,8 +21,7 @@ y_wenjing_rawdata_yearly<-substr(df_yearly$tm,1,4)
 
 #-----------------------------------------
 #-------铁路景气指数----------------------
-dftrans<-read.xlsx("trans_index_x12.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-dftrans$tm<-as.Date.POSIXct(dftrans$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+dftrans<-read.xlsx("trans_index_x12.xlsx",1,head=T,startRow=1,encoding = "UTF-8")
 y_wenjing<-c(2000:max(y_wenjing_rawdata_yearly))
 
 y_yiheng<-y_wenjing

@@ -8,6 +8,7 @@ shinyServer(function(input, output) {
   require(forecast)
   require(rJava)
   require(xlsx)
+  require(x12)
   
   df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
   df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
@@ -105,10 +106,71 @@ shinyServer(function(input, output) {
   #————————————————————————————————————————————————————————————————————————————————————————————————
   #-------------------------------------------------------
   #---------------合成指数--------------------------------
+  #x12季节调整得到trans_index_12.xlsx
+  df_monthly <- read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8") ## 2001年1月到今
+  df_monthly_sub <- df_monthly[,c(8, 6, 9, 10, 11, 7, 2, 3, 4, 5,24)]
+  df_monthly_sub1 <- df_monthly_sub #从out_monthly_sub获得相同的数据结构，作为辅助表
+  df_monthly_rate <- df_monthly_sub #从out_monthly_sub获得相同的数据结构，作为辅助表
   
+  temp_n <- nrow(df_monthly_sub)-1 #为了得到用于求增长率的辅助列是1行到nrow-1行
+  for (k in 1:11) {
+      df_monthly_sub1[,k] <- c(Inf,df_monthly_sub[,k][1:temp_n])
+      df_monthly_rate[,k] <- df_monthly_sub[,k]/df_monthly_sub1[,k]
+  } #获得增长率数据
+  
+  ## 对各量值做x12季节调整------------------------------------------------------------
+  for(i in 1:11)
+      df_monthly_sub1[,i] <- ts(df_monthly_sub[,i], start = c(2001,1), frequency = 12)
+  
+  my_x12BaseInfo <- new("x12BaseInfo","x13as.exe","x13as.exe","use",FALSE)
+  x12_monthly_sub1 <- new("x12Batch", list(df_monthly_sub1[,1], df_monthly_sub1[,2], df_monthly_sub1[,3], df_monthly_sub1[,4],
+                                           +df_monthly_sub1[,5], df_monthly_sub1[,6], df_monthly_sub1[,7], df_monthly_sub1[,8],
+                                           +df_monthly_sub1[,9], df_monthly_sub1[,10],df_monthly_sub1[,11]),x12BaseInfo=my_x12BaseInfo)  ##准备为x12需要的数据结构
+  
+  x12path("x13as.exe")
+  x12_monthly_sub2 <- x12(x12_monthly_sub1)
+  
+  
+  out_monthly_sub1 <- df_monthly_sub ## 借助df_monthly_sub1 创建一个用来存放输出数据的dataframe
+  
+  for (j in 1:11) {
+      out_monthly_sub1[,j] <- data.frame(x12_monthly_sub2@x12List[[j]]@x12Output@d12)
+  }   ## 将输出的数据调整后的数据d12以dataframe的格式存储
+  names(out_monthly_sub1) <- c("hyl","gyzjz","hyzzl","kyl","kyzzl","gdzctz","gc","ym","yy","hlfdl","yylc")
+  out_monthly_sub1 <- plyr::mutate(out_monthly_sub1, hyl=hyl/10000)
+  ## 对各量值进行x12季节调整完成---------------------------------------------||
+  ## 对各增加值进行x12季节调整------------------------------------------------
+  temp_m <- temp_n + 1
+  df_monthly_rate_sub <- df_monthly_rate[-1,]
+  for(i in 1:11)
+      df_monthly_rate_sub[,i] <- ts(df_monthly_rate_sub[,i], start = c(2001,1), frequency = 12)
+  
+  x12_monthly_rate_sub <- new("x12Batch", list(df_monthly_rate_sub[,1], df_monthly_rate_sub[,2], df_monthly_rate_sub[,3], df_monthly_rate_sub[,4],
+                                               +df_monthly_rate_sub[,5], df_monthly_rate_sub[,6], df_monthly_rate_sub[,7], df_monthly_rate_sub[,8],
+                                               +df_monthly_rate_sub[,9], df_monthly_rate_sub[,10],df_monthly_rate_sub[,11]),x12BaseInfo=my_x12BaseInfo)## 准备为x12需要的数据结构
+  x12_monthly_rate_sub <- x12(x12_monthly_rate_sub)
+  
+  out_monthly_rate_sub <- df_monthly_sub[-1,] ## 借助df_monthly_sub 创建一个用来存放输出数据的dataframe
+  for (j in 1:11) 
+      out_monthly_rate_sub[,j] <- data.frame(x12_monthly_rate_sub@x12List[[j]]@x12Output@d12)
+  
+  out_monthly_rate_sub<-data.frame(c(0,out_monthly_rate_sub[,1]),c(0,out_monthly_rate_sub[,2]),c(0,out_monthly_rate_sub[,3]),c(0,out_monthly_rate_sub[,4]),c(0,out_monthly_rate_sub[,5]),c(0,out_monthly_rate_sub[,6]),
+                                   +c(0,out_monthly_rate_sub[,7]),c(0,out_monthly_rate_sub[,8]),c(0,out_monthly_rate_sub[,9]),c(0,out_monthly_rate_sub[,10]),c(0,out_monthly_rate_sub[,11]))
+  names(out_monthly_rate_sub) <- c("x12hyl","x12gyzjz","x12hyzzl","x12kyl","x12kyzzl","x12gdzctz","x12gc","x12ym","x12yy","x12hlfdl","x12yylc")
+  ## 对各增加值进行x12季节调整完成-------------------------------------------||
+  
+  ##-------------------------------------------------------
+  ## 输出 excel 文件
+  trans_index_x12 <- data.frame(df_monthly$tm,out_monthly_sub1$hyl,out_monthly_sub1$gyzjz,out_monthly_sub1$hyzzl,out_monthly_rate_sub$x12hyl,out_monthly_rate_sub$x12gyzjz,out_monthly_rate_sub$x12hyzzl,
+                                +out_monthly_sub1$kyl,out_monthly_sub1$kyzzl,out_monthly_sub1$gdzctz,out_monthly_rate_sub$x12kyl,out_monthly_rate_sub$x12kyzzl,out_monthly_rate_sub$x12gdzctz,
+                                +out_monthly_sub1$gc,out_monthly_sub1$ym,out_monthly_sub1$yy,out_monthly_sub1$hlfdl,out_monthly_rate_sub$x12gc,out_monthly_rate_sub$x12ym,out_monthly_rate_sub$x12yy,out_monthly_rate_sub$x12hlfdl,out_monthly_sub1$yylc)
+  col_names <- c("tm","hyl","gyzjz","hyzzl","x12hyl","x12gyzjz","x12hyzzl","kyl","kyzzl","gdzctz","x12kyl","x12kyzzl","x12gdzctz","gc","ym","yy","hlfdl","x12gc","x12ym","x12yy","x12hlfdl","yylc")  
+  names(trans_index_x12) <- col_names
+  write.xlsx(trans_index_x12,"trans_index_x12.xlsx",row.names = FALSE)
+  saveObj <- c(list.files(pattern ="xlsx"),list.files(pattern ="csv"),list.files(pattern ="R"),list.files(pattern ="Rproj"),list.files(pattern ="exe"))
+  unlink(setdiff(dir(),saveObj),recursive = TRUE) #删除x12处理中产生的中间文件
   #运输合成指数计算------------------------------
-  dftrans<-read.xlsx("trans_index_x12.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-  dftrans$tm<-as.Date.POSIXct(dftrans$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  dftrans<-read.xlsx("trans_index_x12.xlsx",1,head=T,startRow=1,encoding = "UTF-8")
   trans.len<-length(dftrans$tm)
   
   #-----运输----1. 权重计算函数--------------------
