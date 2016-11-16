@@ -937,6 +937,8 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                            hr(),
                                            textOutput("investment_output") ,
                                            hr(),
+                                           textOutput("investment_FRR"),
+                                           hr(),
                                            textOutput("investment_zhi")
                                            # actionButton("predictCAR","预测新客车量") 
                                            
@@ -945,6 +947,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                          mainPanel(
                                            tabsetPanel(
                                              tabPanel("多元线性回归", plotOutput("investmentlinearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("investmentrfplot")), 
                                              tabPanel("支持向量机回归", plotOutput("investmentsvmplot"))
                                            ),
                                            
