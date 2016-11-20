@@ -81,13 +81,14 @@ shinyServer(function(input, output) {
   index_data$date<-as.Date.POSIXct(index_data$date,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
   
   output$plot_index<-renderPlot({ 
+    a<-length(index_data$date)
     p<-ggplot(data=index_data,aes(x=date,y=index))
-    p<-p+ylim(0,1)+xlim(index_data[1,1],index_data[156,1])
-    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[156,1],ymin=0,ymax=0.15,fill="red",alpha=0.7)
-    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[156,1],ymin=0.15,ymax=0.35,fill="yellow",alpha=0.7)
-    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[156,1],ymin=0.35,ymax=0.65,fill="green",alpha=0.7)
-    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[156,1],ymin=0.65,ymax=0.85,fill="#56B4E9",alpha=0.7)
-    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[156,1],ymin=0.85,ymax=1,fill="blue",alpha=0.7)
+    p<-p+ylim(0,1)+xlim(index_data[1,1],index_data[a,1])
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0,ymax=0.15,fill="red",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.15,ymax=0.35,fill="yellow",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.35,ymax=0.65,fill="green",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.65,ymax=0.85,fill="#56B4E9",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.85,ymax=1,fill="blue",alpha=0.7)
     p<-p+geom_line(size=1)
     p+theme_bw()+theme(panel.border=element_blank())+xlab("日期")+ylab("指数")
   })
