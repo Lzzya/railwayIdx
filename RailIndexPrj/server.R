@@ -40,6 +40,7 @@ shinyServer(function(input, output) {
   
   #---------------------------------------------------------------
   #计算同比
+  #
   index_x12data_tm<-index_x12data[,-1]
   index_tongbi<-(index_x12data_trs-index_x12data_tm)/index_x12data_tm
   m<-dim(index_tongbi)[2]
@@ -147,11 +148,18 @@ shinyServer(function(input, output) {
   z<- z/(sum(abs(z))/(zlen-2))}  #标准化变化率计算函数
   
   #-----运输----2.2 平均变化率R----------------------------------------------------------------------------
-  coor.trans.test<- index.1(dftrans$x12hyl)*hyl.trans.percent + index.1(dftrans$x12hyzzl)*hyzzl.trans.percent+index.1(dftrans$x12gyzjz)*gyzjz.trans.percent
+  coor.trans.test<- index.1(dftrans[dftrans$x12hyl!=0,'x12hyl'])*hyl.trans.percent +
+                    + index.1(dftrans[dftrans$x12hyzzl!=0,'x12hyzzl'])*hyzzl.trans.percent+
+                    +index.1(dftrans[dftrans$x12gyzjz!=0,'x12gyzjz'])*gyzjz.trans.percent
   #coor.test一致合成指数平均变化率R2
-  adv.trans.test<- index.1(dftrans$x12gc)*(gc.trans.percent-0.2)+ index.1(dftrans$x12ym)*ym.trans.percent+index.1(dftrans$x12yy)*(yy.trans.percent+0.1)+index.1(dftrans$x12hlfdl)*(hlfdl.trans.percent+0.1)
+  adv.trans.test<- index.1(dftrans[dftrans$x12gc!=0,'x12gc'])*(gc.trans.percent-0.2)+
+                  + index.1(dftrans[dftrans$x12ym!=0,'x12ym'])*ym.trans.percent+
+                  +index.1(dftrans[dftrans$x12yy!=0,'x12yy'])*(yy.trans.percent+0.1)+
+                  +index.1(dftrans[dftrans$x12hlfdl!=0,'x12hlfdl'])*(hlfdl.trans.percent+0.1)
   #adv.trans.test先行合成指数平均变化率R1
-  delay.trans.test<- index.1(dftrans$x12kyl)*kyl.trans.percent + index.1(dftrans$x12kyzzl)*kyzzl.trans.percent+index.1(dftrans$x12gdzctz)*gdzctz.trans.percent
+  delay.trans.test<- index.1(dftrans[dftrans$x12kyl!=0,'x12kyl'])*kyl.trans.percent +
+                  + index.1(dftrans[dftrans$x12kyzzl!=0,'x12kyzzl'])*kyzzl.trans.percent+
+                  +index.1(dftrans[dftrans$x12gdzctz!=0,'x12gdzctz'])*gdzctz.trans.percent
   #coor.trans.test滞后合成指数平均变化率R3
   
   #-----运输----2.3 标准化因子F----------------------------------------------
@@ -177,9 +185,12 @@ shinyServer(function(input, output) {
   trans.adv<- hecheng.trans.index(adv.trans.test,biaozhunhua.trans.F.adv)
   trans.delay<- hecheng.trans.index(delay.trans.test,biaozhunhua.trans.F.delay)
   
-  dftrans$coor<- trans.coor
-  dftrans$adv<- trans.adv
-  dftrans$delay<- trans.delay
+  dflen<-length(dftrans[,1])
+  idxlen<-length(trans.coor)
+  
+  dftrans$coor[(dflen-idxlen+1):dflen]<- trans.coor   #168行数据与180行数据对齐
+  dftrans$adv[(dflen-idxlen+1):dflen]<- trans.adv
+  dftrans$delay[(dflen-idxlen+1):dflen]<- trans.delay
   
   #-----------运输的算完了！！----3.运输画线和显示数据表--------
   percent.input<- function(a)
