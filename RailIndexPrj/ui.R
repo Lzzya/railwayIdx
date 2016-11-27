@@ -18,24 +18,18 @@ y_wenjing_rawdata_black_white<-y_wenjing_rawdata_monthly
 
 df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 y_wenjing_rawdata_yearly<-substr(df_yearly$tm,1,4)
-#-----------------------------------------
-#-------预警信号系统----------------------
-df_index<-read.csv("预警.csv",header=T)
-df_index$tm<-as.Date.POSIXct(df_index$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
 
 #-----------------------------------------
 #-------铁路景气指数----------------------
 dftrans<-read.xlsx("trans_index_x12.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 dftrans$tm<-as.Date.POSIXct(dftrans$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-y_wenjing<-unique(substr(dftrans$tm,1,4))
+y_wenjing<-c(2000:max(y_wenjing_rawdata_yearly))
 
 y_yiheng<-y_wenjing
 
 #-----------------------------------------
 #-------黑货白货指数----------------------
-# liaozili<-read.csv("index-black.csv",head=T)
-# liaozili$tm<-as.Date.POSIXct(liaozili$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-# liaozili_y<-unique(substr(liaozili$tm,1,4))
+
 wb<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 wb_len<-length(wb$coal)
 metal<-wb$metal[85:wb_len]
@@ -56,16 +50,7 @@ index_tm<-unique(substr(wb_index$tm,1,4))
 
 #-----------------------------------------
 #-------适配性研究----------------------
-locomotive_dis<-read.csv("Locomotive-dis.csv",head=T)
-locomotive_dis_y<-unique(substr(locomotive_dis$tm,1,4))
 
-
-locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
-locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
-
-
-#locomotive_PV<-read.csv("Locomotive-PV.csv",head=T)
-#locomotive_PV_y<-unique(substr(locomotive_PV$tm,1,4))
 #-------------------------------------------------------------------------------------------------
 #---------------机车数量适配性研究----------------------------------------------------------------
 
@@ -73,15 +58,13 @@ Locomotive_fre<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "
 Locomotive_fre$tm<-as.Date.POSIXct(Locomotive_fre$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))
 Locomotive_tm<-unique(substr(Locomotive_fre$tm,1,4))
 
-#-------------------------------------------------------------------------------------------------
 
-freightcar_dis<-read.csv("货车车辆预测.csv",head=T)
-freightcar_dis_y<-unique(substr(freightcar_dis$tm,1,4))
+
 #-------------------------------------------------------------------------------------------------
 #---------------固定资产适配性研究----------------------------------------------------------------
 
 investment_fre<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-a<-length(investment_fre$passenger_car_delta)-2
+a<-length(investment_fre$passenger_car_delta)
 tm_delta<-investment_fre$tm[11:a]
 fixed_assets_investment_delta<-investment_fre$fixed_assets_investment_delta[11:a]
 passenger_car_delta<-investment_fre$passenger_car_delta[11:a]
@@ -97,26 +80,7 @@ distance_tm<-unique(substr(distance_fre$tm,1,4))
 
 #---------------------------------------------------------------------------------------------------------
 
-cw_df<-read.csv("动车增加数量.csv",head=T)
-cw_y<-unique(substr(cw_df$tm,1,4))
 
-investment_df<-read.csv("investment-passenger.csv",head=T)#固定资产-客车数量适配性研：读表
-investment_y<-unique(substr(investment_df$tm,1,4))
-
-cw_truck_df<-read.csv("truck-asset.csv",head=T)
-cw_truck_y<-unique(substr(cw_truck_df$tm,1,4))
-
-JCNum_df<-read.csv("固定资产-机车台数.csv",head=T)#固定资产-机车台数适配性研究
-JCNum_y<-unique(substr(JCNum_df$tm,1,4))
-
-#pg_cw_df<-read.csv("固定资产指标.csv",head=T)  #固定资产和铺轨里程（新线铺轨历程，旧线铺轨里程）
-#pg_cw_y<-unique(substr(pg_cw_df$tm,1,4))
-
-Carriagedf<-read.csv("客车车辆预测.csv",head=T)
-Carriagey<-unique(substr(Carriagedf$tm,1,4))
-
-#df_yearly<-read.csv("营业里程.csv",head=T)
-#y_wenjing_rawdata_yearly<-unique(substr(df_yearly$tm,1,4))
 
 PVdf<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 PVdf$tm<-as.Date.POSIXct(PVdf$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))
@@ -124,10 +88,10 @@ PVy<-unique(substr(PVdf$tm,1,4))
 
 freight_car_df<-read.csv("货运量-营业里程.csv",head=T)  
 freight_car_df$tm<-as.Date.POSIXct(freight_car_df$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
-freight_car_y<-unique(substr(freight_car_df$tm,1,4))
+year_slection<-unique(substr(freight_car_df$tm,1,4))
 
-year_slection<-unique(substr(dfrawdata[1:168,]$tm,1,4))                     #2001-2014时间选取数据
-year_slection_passenger<-unique(substr(dfrawdata[49:168,]$tm,1,4))          #2005-2014时间选取数据
+year_slection<-unique(substr(dfrawdata[1:180,]$tm,1,4))                     #2001-2014时间选取数据
+year_slection_passenger<-unique(substr(dfrawdata[49:180,]$tm,1,4))          #2005-2014时间选取数据
 
 #———————————————————————————————————————————————————————————————————————————————
 #-----------------------------------------主界面--------------------------------
@@ -148,10 +112,10 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                               h4("铁路运输景气预警信号系统，是借助于相关计量经济分析方法，将多个指标进行数据处理，合并为一个综合性"),
                               h4("的指标，对这组指标和综合指标所代表的铁路运输波动状况发出预警信号，通过观察信号的变化情况，来判断"), 
                               h4("未来铁路运输增长的趋势。在本APP中，五种颜色信号的含义如下："),
-                              h4("绿灯---铁路运输发展很稳定"),
-                              h4("蓝灯&浅蓝灯---运输市场景气偏热"),
-                              h4("黄灯---铁路运输短期内有转稳和萎缩的可能"),
-                              h4("红灯---铁路运输市场景气偏冷")
+                              #h4("蓝灯&浅蓝灯---运输市场景气偏冷"),
+                              h4("绿灯---铁路运输发展稳定"),
+                              h4("黄灯---铁路运输短期内有转热和加速的可能"),
+                              h4("红灯---铁路运输市场景气较热")
                             ),
                             fluidRow(  DT::dataTableOutput("index_table")   )
                    ),
@@ -943,8 +907,8 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
 #-----------------------------------------固定资产适配性研究----------------------------------------
 #-----------------------------------------固定资产适配性研究----------------------------------------
                               
-                              tabPanel("固定资产适配性分析",
-                                       titlePanel("固定资产新增适配性分析"),
+                              tabPanel("固定资产-新增客车-新增动车",
+                                       titlePanel("固定资产-新增客车-新增动车"),
                                        sidebarLayout(
                                          sidebarPanel(
                                            checkboxInput(inputId="investment_stat_data",
@@ -973,6 +937,8 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                            hr(),
                                            textOutput("investment_output") ,
                                            hr(),
+                                           textOutput("investment_FRR"),
+                                           hr(),
                                            textOutput("investment_zhi")
                                            # actionButton("predictCAR","预测新客车量") 
                                            
@@ -981,6 +947,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                          mainPanel(
                                            tabsetPanel(
                                              tabPanel("多元线性回归", plotOutput("investmentlinearplot")), 
+                                             tabPanel("随机森林回归", plotOutput("investmentrfplot")), 
                                              tabPanel("支持向量机回归", plotOutput("investmentsvmplot"))
                                            ),
                                            
@@ -989,8 +956,8 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                        )
                                        ),
 
-tabPanel("客运量-动车组数+客运机车日行公里数",
-         titlePanel("客运量-动车组数+客运机车日行公里数"),
+tabPanel("客运量-动车组数-客运机车日行公里数",
+         titlePanel("客运量-动车组数-客运机车日行公里数"),
          
          sidebarLayout(
            sidebarPanel(
@@ -1041,8 +1008,8 @@ tabPanel("客运量-动车组数+客运机车日行公里数",
 #-----------------------------------------营业里程适配性研究----------------------------------------
 #-----------------------------------------营业里程适配性研究----------------------------------------
 
-                              tabPanel("营业里程适配性研究",
-                                       titlePanel("营业里程适配性分析"),
+                              tabPanel("营业里程-机车-动车",
+                                       titlePanel("营业里程-机车-动车"),
                                        sidebarLayout(
                                          sidebarPanel(
                                            checkboxInput(inputId="distance_stat_data1",
@@ -1090,8 +1057,8 @@ tabPanel("客运量-动车组数+客运机车日行公里数",
 #---------------------------------------------------------------------------------------------------------
 #-----------------------------------------机车数量适配性研究----------------------------------------------       
 
-                              tabPanel("机车数量适配性研究",
-                                       titlePanel("机车数量适配性分析"),
+                              tabPanel("机车数量-客运量-货运量",
+                                       titlePanel("机车数量-客运量-货运量"),
                                        sidebarLayout(
                                          sidebarPanel(
                                            checkboxInput(inputId="Locomotive_stat_data1",
@@ -1151,12 +1118,12 @@ tabPanel("货运量-营业里程",
                                                          value = TRUE),
                                            selectInput(inputId = "freight_mileage_year_start",
                                                        label = "自:", 
-                                                       choices = freight_car_y,
-                                                       selected = min(freight_car_y) ),
+                                                       choices = year_slection,
+                                                       selected = min(year_slection) ),
                                            selectInput(inputId="freight_mileage_year_end",
                                                        label="至:",
-                                                       choice=freight_car_y,
-                                                       selected=max(freight_car_y) ),
+                                                       choice=year_slection,
+                                                       selected=max(year_slection) ),
                                            textInput(inputId="freightcar_input",
                                                      label=strong("货车车辆数"),
                                                      value=round(mean(freight_car_df$freightcar),0)),
@@ -1398,8 +1365,9 @@ tabPanel("货运量-营业里程",
                    #-------------------------------------------------------------------------------------------------
                    #------------------------------------------------------------------------------------------------
                    #原始数据界面
-                   
-                   tabPanel("原始数据",
+
+                  navbarMenu("原始数据",                  
+                   tabPanel("景气指数相关原始数据",
                             titlePanel("铁路景气指数原始数据"),
                             
                             
@@ -1416,9 +1384,9 @@ tabPanel("货运量-营业里程",
                                                                      
                                                                      radioButtons(inputId="relevant_industry_rawdata", #xghysj_rawdata 原始数据显示中的相关行业数据页签的单选框，以下是5个类别的变量代码
                                                                                   label=NULL,
-                                                                                  choices = c("成品钢材产量(亿吨)"="iron_output_rawdata",
-                                                                                              "原油加工量(亿吨)"="oil_processing_volume_rawdata",
-                                                                                              "原煤产量(亿吨)"="coal_output_rawdata",
+                                                                                  choices = c("成品钢材产量(万吨)"="iron_output_rawdata",
+                                                                                              "原油加工量(万吨)"="oil_processing_volume_rawdata",
+                                                                                              "原煤产量(万吨)"="coal_output_rawdata",
                                                                                               "火力发电量(亿千瓦时)"="coalfired_power_generation_rawdata",
                                                                                               "工业增加值(%)"="industrial_added_value_rawdata") ),
                                                                      hr(),
@@ -1450,7 +1418,7 @@ tabPanel("货运量-营业里程",
                                                                   sidebarPanel(
                                                                     radioButtons(inputId="transport_rawdata",#transport_rawdata 原始数据显示中的运量相关数据页签的单选框，以下是4个类别的变量代码
                                                                                  label=NULL,
-                                                                                 choices = c("货运量(亿吨)"="freight_volume_rawdata",
+                                                                                 choices = c("货运量(万吨)"="freight_volume_rawdata",
                                                                                              "货运周转量(亿吨)"="freight_rotation_volume_rawdata",
                                                                                              "客运量(亿人)"="passenger_volume_rawdata",
                                                                                              "客运周转量(亿人)"="passenger_person_km_rawdata") ),
@@ -1483,11 +1451,11 @@ tabPanel("货运量-营业里程",
                                                                     radioButtons(inputId="operation_rawdata",#与上雷同，operation:运营相关原始数据
                                                                                  label=NULL,
                                                                                  choices = c("营业里程(km)"="mileage_rawdata",
-                                                                                             "日均运用车(万辆)"="dailycar_run_rawdata",
-                                                                                             "日均现在车(万辆)"="dailycar_now_rawdata",
+                                                                                             "日均运用车(辆)"="dailycar_run_rawdata",
+                                                                                             "日均现在车(辆)"="dailycar_now_rawdata",
                                                                                              "客运机车日车公里(km)"="locomotive_mileage_pcar_rawdata",
                                                                                              "货运机车日车公里(km)"="locomotive_mileage_fcar_rawdata",
-                                                                                             "机车总行走里程(1000km)"="locomotive_mileage_sum_rawdata") ),
+                                                                                             "机车总行走里程(百万km)"="locomotive_mileage_sum_rawdata") ),
                                                                     hr(),     
                                                                     selectInput(inputId = "year_start_operation",
                                                                                 label = "自:", 
@@ -1517,7 +1485,7 @@ tabPanel("货运量-营业里程",
                                                                     radioButtons(inputId="property_rawdata",#与上雷同，property:资产相关原始数据
                                                                                  label=NULL,
                                                                                  choices = c("客车辆数(辆)"="passenger_car_rawdata",
-                                                                                             "货车辆数(万辆)"="freight_car_rawdata",
+                                                                                             "货车辆数(辆)"="freight_car_rawdata",
                                                                                              "机车台数(辆)"="locomotive_number_rawdata",
                                                                                              "动车台数(台)"="bullettrain_number_rawdata",
                                                                                              "铁路固定资产投资(亿元)"="fixed_assets_investment_rawdata",
@@ -1617,7 +1585,9 @@ tabPanel("货运量-营业里程",
                                                      
                               ) 
                               ))
-                   )
+                   ),
+
+                   tabPanel("其它原始数据"))
 )
 )
 
