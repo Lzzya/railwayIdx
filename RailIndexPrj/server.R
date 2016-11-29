@@ -1839,7 +1839,7 @@ rownames = TRUE)
 #------------------客运量-客车车辆数适配性研究--------------------------------------------
 #PV-------客运量（passenger_volume）简写
 #passenger_volume-------客运量
-#bullettrain_number-------客车数量
+#bullettrain_number-------动车组数
 #locomotive_mileage_pcar-------客车机车日行公里数
 PVdf<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 PVolsRegModel<-lm(passenger_volume~bullettrain_number+locomotive_mileage_pcar,data=PVdf)
@@ -3076,7 +3076,31 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
       colnames = c('货运量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
-  
+#--------------------------------------------
+#-----------客运量时间序列预测---------------
+#passenger_volume-----------客运量
+passenger_volume_ind<-df_monthly$passenger_volume
+passenger_volume_indus<-ts(passenger_volume_ind,start=c(2001,1),freq=12)
+passenger_volume_rn<-auto.arima(passenger_volume_indus,ic="bic")
+passenger_volume_rn<-arima(passenger_volume_indus,order=c(0,1,1),seasonal=c(0,1,1))
+passenger_volume_rn2<-forecast(passenger_volume_rn,h=12)
+passenger_volume_rn3<- data.frame(passenger_volume_rn2)
+passenger_volume_rn3$forecast<- data.frame(passenger_volume_rn2)[1]
+passenger_volume_rn3$low80<- data.frame(passenger_volume_rn2)[2]
+passenger_volume_rn3$upper80<- data.frame(passenger_volume_rn2)[3]
+passenger_volume_rn3$low90<- data.frame(passenger_volume_rn2)[4]
+passenger_volume_rn3$upper90<- data.frame(passenger_volume_rn2)[5]
+passenger_volume_rn4<- data.frame(passenger_volume_rn3$forecast,passenger_volume_rn3$low80,passenger_volume_rn3$upper80,passenger_volume_rn3$low90,passenger_volume_rn3$upper90)
+
+output$passenger_volume_forecast <- renderPlot( {
+  passenger_volume_p<- plot(passenger_volume_rn2,main="客运量（预测未来一年）",ylab="客运量",xlab="年")})
+output$passenger_volume_forecast_table<-DT::renderDataTable(
+  DT::datatable(
+{passenger_volume_data<-passenger_volume_rn4},
+colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
+  )
+)
+
   #-------------------------------------------
   #--------成品钢材产量时间序列预测-----------
   #SteelTime-----------成品钢材产量时间序列预测
