@@ -1296,6 +1296,16 @@ tabPanel("货运量-营业里程",
                                          column(12,DT::dataTableOutput("freight_forecast_table"))
                                        ) 
                               ),
+                              tabPanel("客运量",
+                                       titlePanel("客运量时间序列预测"),
+                                       
+                                       fluidRow(
+                                         plotOutput(outputId = "passenger_volume_forecast", height = "600px")
+                                       ), 
+                                       fluidRow(
+                                         column(12,DT::dataTableOutput("passenger_volume_forecast_table"))
+                                       ) 
+                              ),
                               tabPanel("工业增加值增长率",
                                        titlePanel("工业增加值增长率时间序列预测"),
                                        
