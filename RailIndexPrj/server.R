@@ -1264,18 +1264,23 @@ shinyServer(function(input, output) {
   #————————————————————————————————————————————————————————————————————————————————————————————————————————
   
   #---------------------------------------------------------------------
-  #---------------固定资产投资-营业里程---------------------------------
-  #mileage-----营业里程（陈雯）
+  #---------------基本建设投资-营业里程---------------------------------
+  #mileage_delta-----新增营业里程（陈雯）construct_investment----基本建设投资
   #df_yearly<-read.csv("营业里程.csv",head=T)
-  df_yearly1<-df_yearly
-  mileage_olsRegModel<-lm(fixed_assets_investment~mileage,data=df_yearly1)
+  a<-length(df_yearly$construct_investment)
+  tm1<-df_yearly$tm[2:a]
+  construct_investment1<-df_yearly$construct_investment[2:a]
+  mileage_delta<-round(df_yearly$mileage_delta[2:a],2)
+  df_yearly1<-data.frame(tm1,construct_investment1,mileage_delta)
+  
+  mileage_olsRegModel<-lm(construct_investment1~mileage_delta,data=df_yearly1)
   df_yearly1$linearRegPred<-as.integer(predict(mileage_olsRegModel,newdata=df_yearly1))
-  mileage_rfRegModel<-randomForest(fixed_assets_investment~mileage,data=df_yearly1,importance=T, ntree=100,type="regression")
+  mileage_rfRegModel<-randomForest(construct_investment1~mileage_delta,data=df_yearly1,importance=T, ntree=100,type="regression")
   df_yearly1$frRegPred<-as.integer(predict(mileage_rfRegModel,df_yearly1))
-  mileage_svmRegModel<-svm(fixed_assets_investment~mileage,data=df_yearly1,type="eps-regression",cross=dim(df_yearly1)[1]/2)
+  mileage_svmRegModel<-svm(construct_investment1~mileage_delta,data=df_yearly1,type="eps-regression",cross=dim(df_yearly1)[1]/2)
   df_yearly1$svmRegPred<-as.integer(predict(mileage_svmRegModel,df_yearly1))
-  mileage_len<-length(df_yearly1$tm)
-
+  mileage_len<-length(df_yearly1$tm1)
+  
   
   plotCurve<-function(db,xdata,ydata)
   {
@@ -1288,40 +1293,40 @@ shinyServer(function(input, output) {
     if(input$mileage_year_start> input$mileage_year_end)  {
       
       if (input$mileage_stat_data) {
-        mileage_p<-plotCurve(df_yearly1,df_yearly1$tm,df_yearly1$fixed_assets_investment)
+        mileage_p<-plotCurve(df_yearly1,df_yearly1$tm1,df_yearly1$construct_investment1)
       }
       else
       {
-        mileage_p<-plotCurve(df_yearly1,df_yearly1$tm,df_yearly1$linearRegPred)
+        mileage_p<-plotCurve(df_yearly1,df_yearly1$tm1,df_yearly1$linearRegPred)
       }
     }
     else{
-      df_yearly1sub<-subset(df_yearly1,substr(df_yearly1$tm,1,4)>=input$mileage_year_start) 
-      df_yearly1sub<-subset(df_yearly1sub,substr(df_yearly1sub$tm,1,4)<=input$mileage_year_end)
+      df_yearly1sub<-subset(df_yearly1,substr(df_yearly1$tm1,1,4)>=input$mileage_year_start) 
+      df_yearly1sub<-subset(df_yearly1sub,substr(df_yearly1sub$tm1,1,4)<=input$mileage_year_end)
       if (input$mileage_stat_data) {
-        mileage_p<-plotCurve(df_yearly1sub,df_yearly1sub$tm,df_yearly1sub$fixed_assets_investment)
+        mileage_p<-plotCurve(df_yearly1sub,df_yearly1sub$tm1,df_yearly1sub$construct_investment1)
       }
       else
       {
-        mileage_p<-plotCurve(df_yearly1sub,df_yearly1sub$tm,df_yearly1sub$linearRegPred)
+        mileage_p<-plotCurve(df_yearly1sub,df_yearly1sub$tm1,df_yearly1sub$linearRegPred)
       }
     }
     if(input$mileage_predict_data){
       
-      mileage_p<-mileage_p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+      mileage_p<-mileage_p+geom_line(aes(x=tm1,y=linearRegPred),color="blue",size=0.8)+geom_point(aes(x=tm1,y=linearRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
     }
     
     if (input$mileage_stat_data) {
-      mileage_p<-mileage_p+geom_point(aes(x=tm,y=fixed_assets_investment),color="red",size=3,shape=21)
+      mileage_p<-mileage_p+geom_point(aes(x=tm1,y=construct_investment1),color="red",size=3,shape=21)
     }
     mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   output$mileage_fixed_assets_investment_output<-renderText({
     mileage_x<-as.numeric(input$mileage_input)
-    mileage<-c(mileage_x)
-    tm<-c(2016)
-    fixed_assets_investment<-c(0)
-    inputdata<-data.frame(tm,fixed_assets_investment,mileage)
+    mileage_delta<-c(mileage_x)
+    tm1<-c(2016)
+    construct_investment1<-c(0)
+    inputdata<-data.frame(tm1,construct_investment1,mileage_delta)
     mileage_pred<-as.integer(predict(mileage_olsRegModel,inputdata,interval="prediction",level=0.95))
     paste("多元回归预测：",mileage_pred[1],"预测区间95%：(",mileage_pred[2],",",mileage_pred[3],")" ) 
   }
@@ -1330,10 +1335,10 @@ shinyServer(function(input, output) {
   #随机森林回归预测计算
   output$mileage_fixed_assets_investment_FRR<-renderText({
     mileage_x<-as.numeric(input$mileage_input)
-    mileage<-c(mileage_x)
-    tm<-c(2016)
-    fixed_assets_investment<-c(0)
-    inputdata<-data.frame(tm,fixed_assets_investment,mileage)
+    mileage_delta<-c(mileage_x)
+    tm1<-c(2016)
+    construct_investment1<-c(0)
+    inputdata<-data.frame(tm1,construct_investment1,mileage_delta)
     railfixed_assets_investment<-predict(mileage_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
     paste("随机森林回归预测：",as.integer(railfixed_assets_investment[1])  ) 
     
@@ -1343,10 +1348,10 @@ shinyServer(function(input, output) {
   #支持向量机回归预测计算
   output$mileage_fixed_assets_investment_zhi<-renderText({
     mileage_x<-as.numeric(input$mileage_input)
-    mileage<-c(mileage_x)
-    tm<-c(2016)
-    fixed_assets_investment<-c(0)
-    inputdata<-data.frame(tm,fixed_assets_investment,mileage)
+    mileage_delta<-c(mileage_x)
+    tm1<-c(2016)
+    construct_investment1<-c(0)
+    inputdata<-data.frame(tm1,construct_investment1,mileage_delta)
     mileage_pred<-as.integer(predict(mileage_svmRegModel,inputdata))
     
     paste("支持向量机预测：",mileage_pred)
@@ -1359,279 +1364,279 @@ shinyServer(function(input, output) {
     if(input$mileage_year_start> input$mileage_year_end)  {
       
       if (input$mileage_stat_data) {
-        mileage_p<-plotCurve(df_yearly1,df_yearly1$tm,df_yearly1$fixed_assets_investment)
+        mileage_p<-plotCurve(df_yearly1,df_yearly1$tm1,df_yearly1$construct_investment1)
       }
       else
       {
-        mileage_p<-plotCurve(df_yearly1,df_yearly1$tm,df_yearly1$frRegPred)
+        mileage_p<-plotCurve(df_yearly1,df_yearly1$tm1,df_yearly1$frRegPred)
       }
     }
     else{
-      df_yearly1sub<-subset(df_yearly1,substr(df_yearly1$tm,1,4)>=input$mileage_year_start) 
-      df_yearly1sub<-subset(df_yearly1sub,substr(df_yearly1$tm,1,4)<=input$mileage_year_end)
+      df_yearly1sub<-subset(df_yearly1,substr(df_yearly1$tm1,1,4)>=input$mileage_year_start) 
+      df_yearly1sub<-subset(df_yearly1sub,substr(df_yearly1$tm1,1,4)<=input$mileage_year_end)
       if (input$mileage_stat_data) {
-        mileage_p<-plotCurve(df_yearly1sub,df_yearly1sub$tm,df_yearly1sub$fixed_assets_investment)
+        mileage_p<-plotCurve(df_yearly1sub,df_yearly1sub$tm1,df_yearly1sub$construct_investment1)
       }
       else
       {
-        mileage_p<-plotCurve(df_yearly1sub,df_yearly1sub$tm,df_yearly1sub$frRegPred)
+        mileage_p<-plotCurve(df_yearly1sub,df_yearly1sub$tm1,df_yearly1sub$frRegPred)
       }
     }
     
     if(input$mileage_predict_data){
-      mileage_p<-mileage_p+geom_line(aes(x=tm,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+      mileage_p<-mileage_p+geom_line(aes(x=tm1,y=frRegPred),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm1,y=frRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
     }
     
     if (input$mileage_stat_data) {
-      mileage_p<-mileage_p+geom_point(aes(x=tm,y=fixed_assets_investment),color="red",size=3,shape=21)
+      mileage_p<-mileage_p+geom_point(aes(x=tm1,y=construct_investment1),color="red",size=3,shape=21)
     }
     mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   #----------------------------支持向量机Tabset画线
   
   output$mileage_svmplot <- renderPlot( {
-
+    
     if(input$mileage_year_start> input$mileage_year_end)  {
       
       if (input$mileage_stat_data) {
-        mileage_p<-plotCurve(df_yearly1,df_yearly1$tm,df_yearly1$fixed_assets_investment)
+        mileage_p<-plotCurve(df_yearly1,df_yearly1$tm1,df_yearly1$construct_investment1)
       }
       else
       {
-
-        mileage_p<-plotCurve(df_yearly1,df_yearly1$tm,df_yearly1$svmRegPred)
-
+        
+        mileage_p<-plotCurve(df_yearly1,df_yearly1$tm1,df_yearly1$svmRegPred)
+        
       }
     }
     else{
-      df_yearly1sub<-subset(df_yearly1,substr(df_yearly1$tm,1,4)>=input$mileage_year_start) 
-      df_yearly1sub<-subset(df_yearly1sub,substr(df_yearly1sub$tm,1,4)<=input$mileage_year_end)
+      df_yearly1sub<-subset(df_yearly1,substr(df_yearly1$tm1,1,4)>=input$mileage_year_start) 
+      df_yearly1sub<-subset(df_yearly1sub,substr(df_yearly1sub$tm1,1,4)<=input$mileage_year_end)
       if (input$mileage_stat_data) {
-        mileage_p<-plotCurve(df_yearly1sub,df_yearly1sub$tm,df_yearly1sub$fixed_assets_investment)
+        mileage_p<-plotCurve(df_yearly1sub,df_yearly1sub$tm1,df_yearly1sub$construct_investment1)
       }
       else
       {
-        mileage_p<-plotCurve(df_yearly1sub,df_yearly1sub$tm,df_yearly1sub$svmRegPred)
+        mileage_p<-plotCurve(df_yearly1sub,df_yearly1sub$tm1,df_yearly1sub$svmRegPred)
       }
     }
     if(input$mileage_predict_data){
-      mileage_p<-mileage_p+geom_line(aes(x=tm,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
-
+      mileage_p<-mileage_p+geom_line(aes(x=tm1,y=svmRegPred),color="blue",size=0.8)+geom_point(aes(x=tm1,y=svmRegPred),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+      
     }
     
     if (input$mileage_stat_data) {
-      mileage_p<-mileage_p+geom_point(aes(x=tm,y=fixed_assets_investment),color="red",size=3,shape=21)
+      mileage_p<-mileage_p+geom_point(aes(x=tm1,y=construct_investment1),color="red",size=3,shape=21)
     }
     mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
-
+  
   
   #--------------------------------------
   
   #----------------------datatable显示数据
   #-----------------在df中，又增加了3列数据，存放预测结果,
-  fixed_assets_investment<-df_yearly1$fixed_assets_investment
-  mileage<-df_yearly1$mileage
+  construct_investment1<-df_yearly1$construct_investment1
+  mileage_delta<-df_yearly1$mileage_delta
   linearRegPred<-df_yearly1$linearRegPred
   frRegPred<-df_yearly1$frRegPred
   svmRegPred<-df_yearly1$svmRegPred
-  tm<-unique(substr(df_yearly1$tm,1,4))
-  mileage1_data<-data.frame(tm,fixed_assets_investment,mileage,linearRegPred,frRegPred,svmRegPred)
- 
+  tm1<-unique(substr(df_yearly1$tm1,1,4))
+  mileage1_data<-data.frame(tm1,construct_investment1,mileage_delta,linearRegPred,frRegPred,svmRegPred)
+  
   output$mileage_table<-DT::renderDataTable(
     DT::datatable(
-      {
-        mileage_data<-mileage1_data
-      } , 
-      colnames = c('序号', '时间', '固定资产投资','营业里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
-      rownames = TRUE)
-  ) 
-  
-
-  
-  #--------------------适配性研究-----------------------------
-  #----------------固定资产-铺轨里程（陈雯）--------------------------
-  #tl_mileage-------铺轨里程 newline_tracklaying_mileage------新线铺轨里程  oldline_tracklaying_mileage--------旧线铺轨里程
-  #df_yearly<-read.csv("rawdata_property.csv",head=T)
-  df_yearly2<-df_yearly
-  tracklaying_mileage_olsRegModel<-lm(fixed_assets_investment~I(newline_tracklaying_mileage+oldline_tracklaying_mileage)+0,data=df_yearly2)
-  df_yearly2$linearRegPred<-as.integer(predict(tracklaying_mileage_olsRegModel,newdata=df_yearly2))
-  tracklaying_mileage_rfRegModel<-randomForest(fixed_assets_investment~newline_tracklaying_mileage+oldline_tracklaying_mileage,data=df_yearly2,importance=T, ntree=100,type="regression")
-  df_yearly2$frRegPred<-as.integer(predict(tracklaying_mileage_rfRegModel,df_yearly2))
-  tracklaying_mileage_svmRegModel<-svm(fixed_assets_investment~newline_tracklaying_mileage+oldline_tracklaying_mileage,data=df_yearly2,type="eps-regression",cross=dim(df_yearly2)[1]/2)
-  df_yearly2$svmRegPred<-as.integer(predict(tracklaying_mileage_svmRegModel,df_yearly2))
-  tracklaying_mileage_len<-length(df_yearly2$tm)
-  
-  plotCurve<-function(db,xdata,ydata)
-  {
-    tracklaying_mileage_len=dim(xdata)[1]
-    tracklaying_mileage_plt<-ggplot(db,x=c(xdata[1],xdata[tracklaying_mileage_len]),aes(x=xdata,y=ydata,group=1),color="red")
-    return(tracklaying_mileage_plt)
-  }
-  output$tracklaying_mileage_linearplot <- renderPlot( {
-    
-    if(input$tracklaying_mileage_year_start> input$tracklaying_mileage_year_end)  {
-      
-      if (input$tracklaying_mileage_stat_data) {
-        tracklaying_mileage_p<-plotCurve(df_yearly2,df_yearly2$tm,df_yearly2$fixed_assets_investment)
-      }
-      else
-      {
-        tracklaying_mileage_p<-plotCurve(df_yearly2,df_yearly2$tm,df_yearly2$linearRegPred)
-      }
-    }
-    else{
-      df_yearly2sub<-subset(df_yearly2,substr(df_yearly2$tm,1,4)>=input$tracklaying_mileage_year_start) 
-      df_yearly2sub<-subset(df_yearly2sub,substr(df_yearly2sub$tm,1,4)<=input$tracklaying_mileage_year_end)
-      if (input$tracklaying_mileage_stat_data) {
-        tracklaying_mileage_p<-plotCurve(df_yearly2sub,df_yearly2sub$tm,df_yearly2sub$fixed_assets_investment)
-      }
-      else
-      {
-        tracklaying_mileage_p<-plotCurve(df_yearly2sub,df_yearly2sub$tm,df_yearly2sub$linearRegPred)
-      }
-    }
-    if(input$tracklaying_mileage_predict_data){
-      
-      tracklaying_mileage_p<-tracklaying_mileage_p+geom_line(aes(x=tm,y=linearRegPred,group=1),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred,group=1),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
-      #+stat_smooth(method=lm,color='black',level=0.95)
-    }
-    
-    if (input$tracklaying_mileage_stat_data) {
-      tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=fixed_assets_investment,group=1),color="red",size=3,shape=21)
-    }
-    tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
-  })
-  output$tracklaying_mileage_output<-renderText({
-    tracklaying_mileage_x1<-as.numeric(input$newline_tracklaying_mileage_input)
-    tracklaying_mileage_x2<-as.numeric(input$oldline_tracklaying_mileage_input)
-    newline_tracklaying_mileage<-c(tracklaying_mileage_x1)
-    oldline_tracklaying_mileage<-c(tracklaying_mileage_x2)
-    tm<-c(2016)
-    fixed_assets_investment<-c(0)
-    inputdata<-data.frame(tm,fixed_assets_investment,newline_tracklaying_mileage,oldline_tracklaying_mileage)
-    tracklaying_mileage_pred<-as.integer(predict(tracklaying_mileage_olsRegModel,inputdata,interval="prediction",level=0.95))
-    paste("多元回归预测：",tracklaying_mileage_pred[1],"预测区间95%：(",tracklaying_mileage_pred[2],",",tracklaying_mileage_pred[3],")" ) 
-  }
-  )
-  #-------------------------------------------------
-  #随机森林回归预测计算
-  output$tracklaying_mileage_FRR<-renderText({
-    tracklaying_mileage_x1<-as.numeric(input$newline_tracklaying_mileage_input)
-    tracklaying_mileage_x2<-as.numeric(input$oldline_tracklaying_mileage_input)
-    newline_tracklaying_mileage<-c(tracklaying_mileage_x1)
-    oldline_tracklaying_mileage<-c(tracklaying_mileage_x2)
-    tm<-c(2016)
-    fixed_assets_investment<-c(0)
-    inputdata<-data.frame(tm,fixed_assets_investment,newline_tracklaying_mileage,oldline_tracklaying_mileage)
-    tracklaying_mileage_pred<-predict(tracklaying_mileage_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
-    paste("随机森林回归预测：",as.integer(tracklaying_mileage_pred[1])  ) 
-    
-  }
-  )
-  #----------------------------------
-  #支持向量机回归预测计算
-  output$tracklaying_mileage_zhi<-renderText({
-    tracklaying_mileage_x1<-as.numeric(input$newline_tracklaying_mileage_input)
-    tracklaying_mileage_x2<-as.numeric(input$oldline_tracklaying_mileage_input)
-    newline_tracklaying_mileage<-c(tracklaying_mileage_x1)
-    oldline_tracklaying_mileage<-c(tracklaying_mileage_x2)
-    tm<-c(2016)
-    fixed_assets_investment<-c(0)
-    inputdata<-data.frame(tm,fixed_assets_investment,newline_tracklaying_mileage,oldline_tracklaying_mileage)
-    tracklaying_mileage_pred<-as.integer(predict(tracklaying_mileage_svmRegModel,inputdata))
-    
-    paste("支持向量机预测：",tracklaying_mileage_pred)
-    
-  }
-  )
-  #-----------随机森林Tabset画线  
-  output$tracklaying_mileage_rfplot <- renderPlot( {
-    
-    if(input$tracklaying_mileage_year_start> input$tracklaying_mileage_year_end)  {
-      
-      if (input$tracklaying_mileage_stat_data) {
-        tracklaying_mileage_p<-plotCurve(df_yearly2,df_yearly2$tm,df_yearly2$fixed_assets_investment)
-      }
-      else
-      {
-        tracklaying_mileage_p<-plotCurve(df_yearly2,df_yearly2$tm,df_yearly2$frRegPred)
-      }
-    }
-    else{
-      df_yearly2sub<-subset(df_yearly2,substr(df_yearly2$tm,1,4)>=input$tracklaying_mileage_year_start) 
-      df_yearly2sub<-subset(df_yearly2sub,substr(df_yearly2sub$tm,1,4)<=input$tracklaying_mileage_year_end)
-      if (input$tracklaying_mileage_stat_data) {
-        tracklaying_mileage_p<-plotCurve(df_yearly2sub,df_yearly2sub$tm,df_yearly2sub$fixed_assets_investment)
-      }
-      else
-      {
-        tracklaying_mileage_p<-plotCurve(df_yearly2sub,df_yearly2sub$tm,df_yearly2sub$frRegPred)
-      }
-    }
-    
-    if(input$tracklaying_mileage_predict_data){
-      tracklaying_mileage_p<-tracklaying_mileage_p+geom_line(aes(x=tm,y=frRegPred,group=1),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred,group=1),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
-    }
-    
-    if (input$tracklaying_mileage_stat_data) {
-      tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=fixed_assets_investment,group=1),color="red",size=3,shape=21)
-    }
-    tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
-  })
-  #----------------------------支持向量机Tabset画线
-  
-  output$tracklaying_mileage_svmplot <- renderPlot( {
-    
-    if(input$tracklaying_mileage_year_start> input$tracklaying_mileage_year_end)  {
-      
-      if (input$tracklaying_mileage_stat_data) {
-        tracklaying_mileage_p<-plotCurve(df_yearly2,df_yearly2$tm,df_yearly2$fixed_assets_investment)
-      }
-      else
-      {
-        tracklaying_mileage_p<-plotCurve(df_yearly2,df_yearly2$tm,df_yearly2$svmRegPred)
-      }
-    }
-    else{
-      df_yearly2sub<-subset(df_yearly2,substr(df_yearly2$tm,1,4)>=input$tracklaying_mileage_year_start) 
-      df_yearly2sub<-subset(df_yearly2sub,substr(df_yearly2sub$tm,1,4)<=input$tracklaying_mileage_year_end)
-      if (input$tracklaying_mileage_stat_data) {
-        tracklaying_mileage_p<-plotCurve(df_yearly2sub,df_yearly2sub$tm,df_yearly2sub$fixed_assets_investment)
-      }
-      else
-      {
-        tracklaying_mileage_p<-plotCurve(df_yearly2sub,df_yearly2sub$tm,df_yearly2sub$svmRegPred)
-      }
-    }
-    if(input$tracklaying_mileage_predict_data){
-      tracklaying_mileage_p<-tracklaying_mileage_p+geom_line(aes(x=tm,y=svmRegPred,group=1),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred,group=1),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
-    }
-    
-    if (input$tracklaying_mileage_stat_data) {
-      tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=fixed_assets_investment,group=1),color="red",size=3,shape=21)
-    }
-    tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
-  })
-  
-  fixed_assets_investment<-df_yearly2$fixed_assets_investment
-  newline_tracklaying_mileage<-df_yearly2$newline_tracklaying_mileage
-  oldline_tracklaying_mileage<-df_yearly2$oldline_tracklaying_mileage
-  linearRegPred<-df_yearly2$linearRegPred
-  frRegPred<-df_yearly2$frRegPred
-  svmRegPred<-df_yearly2$svmRegPred
-  tm<-unique(substr(df_yearly2$tm,1,4))
-  tracklaying_mileage2_data<-data.frame(tm,fixed_assets_investment,newline_tracklaying_mileage,oldline_tracklaying_mileage,linearRegPred,frRegPred,svmRegPred)
-  
-  
-  output$tracklaying_mileage_table<-DT::renderDataTable(
-    DT::datatable(
-{  tracklaying_mileage_data<-tracklaying_mileage2_data} , 
-colnames = c('序号', '时间', '固定资产投资','新线铺轨里程','复线铺轨里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
+{
+  mileage_data<-mileage1_data
+} , 
+colnames = c('序号', '时间', '基本建设投资','新增营业里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
 rownames = TRUE)
   ) 
+
+
+
+#--------------------适配性研究-----------------------------
+#----------------基本建设投资-新线铺轨里程（陈雯）--------------------------
+#tl_mileage-------铺轨里程 newline_tracklaying_mileage------新线铺轨里程  oldline_tracklaying_mileage--------旧线铺轨里程
+#df_yearly<-read.csv("rawdata_property.csv",head=T)
+df_yearly2<-df_yearly
+tracklaying_mileage_olsRegModel<-lm(construct_investment~newline_tracklaying_mileage+0,data=df_yearly2)
+df_yearly2$linearRegPred<-as.integer(predict(tracklaying_mileage_olsRegModel,newdata=df_yearly2))
+tracklaying_mileage_rfRegModel<-randomForest(construct_investment~newline_tracklaying_mileage,data=df_yearly2,importance=T, ntree=100,type="regression")
+df_yearly2$frRegPred<-as.integer(predict(tracklaying_mileage_rfRegModel,df_yearly2))
+tracklaying_mileage_svmRegModel<-svm(construct_investment~newline_tracklaying_mileage,data=df_yearly2,type="eps-regression",cross=dim(df_yearly2)[1]/2)
+df_yearly2$svmRegPred<-as.integer(predict(tracklaying_mileage_svmRegModel,df_yearly2))
+tracklaying_mileage_len<-length(df_yearly2$tm)
+
+plotCurve<-function(db,xdata,ydata)
+{
+  tracklaying_mileage_len=dim(xdata)[1]
+  tracklaying_mileage_plt<-ggplot(db,x=c(xdata[1],xdata[tracklaying_mileage_len]),aes(x=xdata,y=ydata,group=1),color="red")
+  return(tracklaying_mileage_plt)
+}
+output$tracklaying_mileage_linearplot <- renderPlot( {
   
+  if(input$tracklaying_mileage_year_start> input$tracklaying_mileage_year_end)  {
+    
+    if (input$tracklaying_mileage_stat_data) {
+      tracklaying_mileage_p<-plotCurve(df_yearly2,df_yearly2$tm,df_yearly2$construct_investment)
+    }
+    else
+    {
+      tracklaying_mileage_p<-plotCurve(df_yearly2,df_yearly2$tm,df_yearly2$linearRegPred)
+    }
+  }
+  else{
+    df_yearly2sub<-subset(df_yearly2,substr(df_yearly2$tm,1,4)>=input$tracklaying_mileage_year_start) 
+    df_yearly2sub<-subset(df_yearly2sub,substr(df_yearly2sub$tm,1,4)<=input$tracklaying_mileage_year_end)
+    if (input$tracklaying_mileage_stat_data) {
+      tracklaying_mileage_p<-plotCurve(df_yearly2sub,df_yearly2sub$tm,df_yearly2sub$construct_investment)
+    }
+    else
+    {
+      tracklaying_mileage_p<-plotCurve(df_yearly2sub,df_yearly2sub$tm,df_yearly2sub$linearRegPred)
+    }
+  }
+  if(input$tracklaying_mileage_predict_data){
+    
+    tracklaying_mileage_p<-tracklaying_mileage_p+geom_line(aes(x=tm,y=linearRegPred,group=1),color="blue",size=0.8)+geom_point(aes(x=tm,y=linearRegPred,group=1),fill='cornsilk',size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+    #+stat_smooth(method=lm,color='black',level=0.95)
+  }
   
+  if (input$tracklaying_mileage_stat_data) {
+    tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=construct_investment,group=1),color="red",size=3,shape=21)
+  }
+  tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+output$tracklaying_mileage_output<-renderText({
+  tracklaying_mileage_x1<-as.numeric(input$newline_tracklaying_mileage_input)
+  #tracklaying_mileage_x2<-as.numeric(input$oldline_tracklaying_mileage_input)
+  newline_tracklaying_mileage<-c(tracklaying_mileage_x1)
+  #oldline_tracklaying_mileage<-c(tracklaying_mileage_x2)
+  tm<-c(2016)
+  construct_investment<-c(0)
+  inputdata<-data.frame(tm,construct_investment,newline_tracklaying_mileage)
+  tracklaying_mileage_pred<-as.integer(predict(tracklaying_mileage_olsRegModel,inputdata,interval="prediction",level=0.95))
+  paste("多元回归预测：",tracklaying_mileage_pred[1],"预测区间95%：(",tracklaying_mileage_pred[2],",",tracklaying_mileage_pred[3],")" ) 
+}
+)
+#-------------------------------------------------
+#随机森林回归预测计算
+output$tracklaying_mileage_FRR<-renderText({
+  tracklaying_mileage_x1<-as.numeric(input$newline_tracklaying_mileage_input)
+  #tracklaying_mileage_x2<-as.numeric(input$oldline_tracklaying_mileage_input)
+  newline_tracklaying_mileage<-c(tracklaying_mileage_x1)
+  #oldline_tracklaying_mileage<-c(tracklaying_mileage_x2)
+  tm<-c(2016)
+  construct_investment<-c(0)
+  inputdata<-data.frame(tm,construct_investment,newline_tracklaying_mileage)
+  tracklaying_mileage_pred<-predict(tracklaying_mileage_rfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
+  paste("随机森林回归预测：",as.integer(tracklaying_mileage_pred[1])  ) 
+  
+}
+)
+#----------------------------------
+#支持向量机回归预测计算
+output$tracklaying_mileage_zhi<-renderText({
+  tracklaying_mileage_x1<-as.numeric(input$newline_tracklaying_mileage_input)
+  #tracklaying_mileage_x2<-as.numeric(input$oldline_tracklaying_mileage_input)
+  newline_tracklaying_mileage<-c(tracklaying_mileage_x1)
+  #oldline_tracklaying_mileage<-c(tracklaying_mileage_x2)
+  tm<-c(2016)
+  construct_investment<-c(0)
+  inputdata<-data.frame(tm,construct_investment,newline_tracklaying_mileage)
+  tracklaying_mileage_pred<-as.integer(predict(tracklaying_mileage_svmRegModel,inputdata))
+  
+  paste("支持向量机预测：",tracklaying_mileage_pred)
+  
+}
+)
+#-----------随机森林Tabset画线  
+output$tracklaying_mileage_rfplot <- renderPlot( {
+  
+  if(input$tracklaying_mileage_year_start> input$tracklaying_mileage_year_end)  {
+    
+    if (input$tracklaying_mileage_stat_data) {
+      tracklaying_mileage_p<-plotCurve(df_yearly2,df_yearly2$tm,df_yearly2$construct_investment)
+    }
+    else
+    {
+      tracklaying_mileage_p<-plotCurve(df_yearly2,df_yearly2$tm,df_yearly2$frRegPred)
+    }
+  }
+  else{
+    df_yearly2sub<-subset(df_yearly2,substr(df_yearly2$tm,1,4)>=input$tracklaying_mileage_year_start) 
+    df_yearly2sub<-subset(df_yearly2sub,substr(df_yearly2sub$tm,1,4)<=input$tracklaying_mileage_year_end)
+    if (input$tracklaying_mileage_stat_data) {
+      tracklaying_mileage_p<-plotCurve(df_yearly2sub,df_yearly2sub$tm,df_yearly2sub$construct_investment)
+    }
+    else
+    {
+      tracklaying_mileage_p<-plotCurve(df_yearly2sub,df_yearly2sub$tm,df_yearly2sub$frRegPred)
+    }
+  }
+  
+  if(input$tracklaying_mileage_predict_data){
+    tracklaying_mileage_p<-tracklaying_mileage_p+geom_line(aes(x=tm,y=frRegPred,group=1),color="blue",size=0.8,show.legend = T)+geom_point(aes(x=tm,y=frRegPred,group=1),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$tracklaying_mileage_stat_data) {
+    tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=construct_investment,group=1),color="red",size=3,shape=21)
+  }
+  tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+#----------------------------支持向量机Tabset画线
+
+output$tracklaying_mileage_svmplot <- renderPlot( {
+  
+  if(input$tracklaying_mileage_year_start> input$tracklaying_mileage_year_end)  {
+    
+    if (input$tracklaying_mileage_stat_data) {
+      tracklaying_mileage_p<-plotCurve(df_yearly2,df_yearly2$tm,df_yearly2$construct_investment)
+    }
+    else
+    {
+      tracklaying_mileage_p<-plotCurve(df_yearly2,df_yearly2$tm,df_yearly2$svmRegPred)
+    }
+  }
+  else{
+    df_yearly2sub<-subset(df_yearly2,substr(df_yearly2$tm,1,4)>=input$tracklaying_mileage_year_start) 
+    df_yearly2sub<-subset(df_yearly2sub,substr(df_yearly2sub$tm,1,4)<=input$tracklaying_mileage_year_end)
+    if (input$tracklaying_mileage_stat_data) {
+      tracklaying_mileage_p<-plotCurve(df_yearly2sub,df_yearly2sub$tm,df_yearly2sub$construct_investment)
+    }
+    else
+    {
+      tracklaying_mileage_p<-plotCurve(df_yearly2sub,df_yearly2sub$tm,df_yearly2sub$svmRegPred)
+    }
+  }
+  if(input$tracklaying_mileage_predict_data){
+    tracklaying_mileage_p<-tracklaying_mileage_p+geom_line(aes(x=tm,y=svmRegPred,group=1),color="blue",size=0.8)+geom_point(aes(x=tm,y=svmRegPred,group=1),size=4,shape=21,colour="darkblue",position=position_dodge(width=0.2))
+  }
+  
+  if (input$tracklaying_mileage_stat_data) {
+    tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=construct_investment,group=1),color="red",size=3,shape=21)
+  }
+  tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+})
+
+construct_investment<-df_yearly2$construct_investment
+newline_tracklaying_mileage<-df_yearly2$newline_tracklaying_mileage
+#oldline_tracklaying_mileage<-df_yearly2$oldline_tracklaying_mileage
+linearRegPred<-df_yearly2$linearRegPred
+frRegPred<-df_yearly2$frRegPred
+svmRegPred<-df_yearly2$svmRegPred
+tm<-unique(substr(df_yearly2$tm,1,4))
+tracklaying_mileage2_data<-data.frame(tm,construct_investment,newline_tracklaying_mileage,linearRegPred,frRegPred,svmRegPred)
+
+
+output$tracklaying_mileage_table<-DT::renderDataTable(
+  DT::datatable(
+{  tracklaying_mileage_data<-tracklaying_mileage2_data} , 
+colnames = c('序号', '时间', '基本建设投资','新线铺轨里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
+rownames = TRUE)
+) 
+
+
   #--------------------------------------------------------------------------
   #----------------固定资产适配性研究----------------------------------------
   investment_fre<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
