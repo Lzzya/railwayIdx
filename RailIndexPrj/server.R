@@ -230,19 +230,19 @@ shinyServer(function(input, output) {
       p<-ggplot(dftranssub,x=c(dftranssub$tm[1],dftranssub$tm[trans.len]),aes(x=tm,y=100))}
     
     if(input$trans_coor_Index){
-      p<-p+geom_line(aes(x=tm,y=dftranssub$coor),color="black",size=0.6)}
+      p<-p+geom_line(aes(x=tm,y=dftranssub$coor),color="black",size=1)}
     if (input$trans_advanced_Index) {
-      p<-p+geom_line(aes(x=tm,y=dftranssub$adv),color="red",size=0.6) }
+      p<-p+geom_line(aes(x=tm,y=dftranssub$adv),color="red",size=1) }
     if (input$trans_delay_Index) {
-      p<-p+geom_line(aes(x=tm,y=dftranssub$delay),color="blue",size=0.6)}
+      p<-p+geom_line(aes(x=tm,y=dftranssub$delay),color="blue",size=1)}
     
     #----运输----3.2 输入修改权重后算出来的新先行指数------------------
     if(input$trans_qz_coor_input)#输入修改权重后算出来的新先行指数
-    { p<-p+geom_line(aes(x=tm,y=dftranssub$coor.input),color="black",size=1,linetype=1)}
+    { p<-p+geom_line(aes(x=tm,y=dftranssub$coor.input),color="black",size=1.6,linetype=1)}
     if(input$trans_qz_adv_input)
-    {p<-p+geom_line(aes(x=tm,y=dftranssub$adv.input),color="red",size=1,linetype=1)}
+    {p<-p+geom_line(aes(x=tm,y=dftranssub$adv.input),color="red",size=1.6,linetype=1)}
     if(input$trans_qz_delay_input)
-    {p<-p+geom_line(aes(x=tm,y=dftranssub$delay.input),color="blue",size=1,linetype=1)}  
+    {p<-p+geom_line(aes(x=tm,y=dftranssub$delay.input),color="blue",size=1.6,linetype=1)}  
     
     p+ylab("运输合成指数")+xlab("时间")+geom_line()
   })
