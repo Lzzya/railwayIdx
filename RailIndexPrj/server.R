@@ -26,7 +26,7 @@ shinyServer(function(input, output) {
   n<-dim(index_x12data)[1]
   index_x12data2<-index_x12data[13:n,]
   index_x12data3<-index_x12data[1:12,]
-  index_x12data_trs<-rbind(index_x12data2,index_x12data3)
+  index_x12data_trs<-rbind(index_x12data2,index_x12data3)  #把第一年的数据放到最后形成新的数据集
   
   #-----------------------------------
   #时间列不能参与矩阵间的数字运算，把时间列单独取出来，需要的时候再合并到数据集
@@ -62,28 +62,34 @@ shinyServer(function(input, output) {
   
   delete_data<-c(-m:-1)
   index_tdata<-index_tongbi[delete_data,]  #建立一个空白数据集index_tdata,储存T分布累计概率密度
+  
   for(i in 1:m){
     for(j in 1:n){
       index_tdata[i,j]<-pt(index_standard[i,j],m-1)
     }
   }
   
-  index_weights<-c(0.1572,0.1387,0.0563,0.1556,0.1922,0.1984,0.1016)  #各指标权重
+  index_weights_freight<-c(0.1572,0.1387,0.0563,0.1556,0.1922,0.1984,0.1016)  #货运各指标权重
+  index_weights_passenger<-c(0.4668,0.5332)
   
-  sum(index_weights*index_tdata[1,])
+  #sum(index_weights*index_tdata[1,])
   
-  index_data<-data.frame()
+  index_data_freight<-data.frame()
+  index_data_passenger<-data.frame()
   for(i in 1:m){
-    index_data[i,1]<-sum(index_weights*index_tdata[i,])
+    index_data_freight[i,1]<-sum(index_weights_freight*index_tdata[i,1:(n-2)])
+    index_data_passenger[i,1]<-sum(index_weights_passenger*index_tdata[i,(n-1):n])
   }
-  names(index_data)<-"index"
   
-  index_data<-cbind(tm,index_data)
+  names(index_data_freight)<-"freight_index"
+  names(index_data_passenger)<-"passenger_index"
+  
+  index_data<-cbind(tm,index_data_freight,index_data_passenger)
   index_data$date<-as.Date.POSIXct(index_data$date,"%Y-%m-%d",tz=Sys.timezone(location = TRUE)) #转化为日期型数据
   
   output$plot_index<-renderPlot({ 
     a<-length(index_data$date)
-    p<-ggplot(data=index_data,aes(x=date,y=index))
+    p<-ggplot(data=index_data,aes(x=date,y=freight_index))
     p<-p+ylim(0,1)+xlim(index_data[1,1],index_data[a,1])
     p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0,ymax=0.15,fill="green",alpha=0.7)
     p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.15,ymax=0.35,fill="green",alpha=0.7)
@@ -91,14 +97,14 @@ shinyServer(function(input, output) {
     p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.65,ymax=0.85,fill="red",alpha=0.7)
     p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.85,ymax=1,fill="red",alpha=0.7)
 
-    p<-p+geom_line(size=1)
+    p<-p+geom_line(size=1)+geom_line(aes(x=date,y=passenger_index),color="blue",size=1)
     p+theme_bw()+theme(panel.border=element_blank())+xlab("日期")+ylab("指数")
   })
   
   output$index_table<-DT::renderDataTable(
     DT::datatable(
       data<-index_data, 
-      colnames = c('日期','景气指数'),
+      colnames = c('日期','货运景气指数','客运景气指数'),
       rownames = TRUE))
   
   
