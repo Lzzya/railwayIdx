@@ -11,7 +11,54 @@ shinyServer(function(input, output) {
   
   df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
   df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
- 
+ #-------------------其它铁路原始数据----------------------
+  #---------------------mashaomeng--------------------------
+mengmeng_yearly<-read.xlsx("3-1 全国铁路线路、铁路复线、电气化、内燃牵引里程.xlsx",1,head=T,startRow=2,encoding = "UTF-8")#--------表3-1是3-1和3-6的合并
+railway_mileage_yearly<-substr(mengmeng_yearly$tm,1,4)
+
+mengmeng1_yearly<-read.xlsx("3-9 全国铁路机车拥有量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+Locomotive_ownership_yearly<-substr(mengmeng1_yearly$tm,1,4)
+
+mengmeng2_yearly<-read.xlsx("3-2 全国铁路分地区营业里程.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+sub_regional_mileage_yearly<-substr(mengmeng2_yearly$tm,1,4)
+
+mengmeng3_yearly<-read.xlsx("3-10 国家铁路分机型机车拥有量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+model_locomotive_ownership_yearly<-substr(mengmeng3_yearly$tm,1,4)
+
+#---------------------mashaomeng--------------------------
+#-------------聪聪-----------------------------
+fcc_holding<-read.xlsx("3-13 全国铁路客、货车拥有量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")##聪聪3.13，全国客车货车拥有量情况
+fcc_availability<-read.xlsx("3-12 国家铁路机、客、货车利用率.xlsx",1,head=T,startRow=2,encoding = "UTF-8")##聪聪3.12,合并进了3.17
+fcc_kecheholding<-read.xlsx("3-14 国家铁路客车拥有量（分座次）.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+fcc_huocheholding<-read.xlsx("3-15 国家铁路分车型货车拥有量（分车辆种类）.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+fcc_sheshishebei<-read.xlsx("3-22 国家铁路车站主要客货运设施、设备.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+
+#景钊，4-1，4-2，4-3，4-4合并
+df_yslzzl_yearly<-read.xlsx("4-1 全国铁路运营量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+lxy1_yearly<-read.xlsx("4_16国家铁路省、市、自治区货运量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+lxy2_yearly<-read.xlsx("4_17国家铁路省、市、自治区货运周转量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+lxy3_yearly<-read.xlsx("4_18国家铁路省、市、自治区客运量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+lxy4_yearly<-read.xlsx("4_19国家铁路省、市、自治区客运周转量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+
+##国家铁路指标
+lxy5_yearly<-read.xlsx("5_1国家铁路机车运用指标.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+#-------李亚芳------------#
+#-------读取铁路列车正点率原始数据--------
+df_yearly_55<-read.xlsx("5-5 国家铁路列车正点率.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+#-------读取国家铁路机车能源消耗原始数据---------------
+df_yearly_52<-read.xlsx("5-2 国家铁路机车能源消耗.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+#-------读取国家铁路机车工作量原始数据-----------------
+df_yearly_53<-read.xlsx("5-3 国家铁路机车工作量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+#-------读取国家铁路货车运用指标原始数据---------------
+df_yearly_54<-read.xlsx("5-4 国家铁路货车运用指标.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+#-------读取国家铁路固定资产投资原始数据---------------
+df_yearly_61<-read.xlsx("6-1 全国铁路固定资产投资.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+#-------读取国家铁路基本建设投资原始数据---------------
+df_yearly_62<-read.xlsx("6-2 全国铁路基本建设投资.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+table6.3 <- read.xlsx("6-3 铁道部基本建设投资的资金来源.xls",1,header = T,startRow=2,encoding = "UTF-8") 
+table6.4 <- read.xlsx("6-4 全国铁路基本建设铺轨及投产里程.xls",1,header = T,startRow=2,encoding = "UTF-8")
+table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,startRow=2,encoding = "UTF-8")
+    
   
   #--------------------------------------------------------------------------------------------------
   #--------------------------------------------------------------------------------------------------
@@ -3683,6 +3730,2247 @@ output$yssj.baihuo.table<-DT::renderDataTable(
       data<-dfyssj},
     colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担(吨)','集装箱(万吨)'),
     rownames = TRUE))
+#-------------------mashaomeng---START-----------------------------------------------------------------
+#——--------------------里程相关——————————————————————————————————————————————————————————————————————————————————————
+output$rawdata_relevant_mileage_plot <- renderPlot( {
+  
+  dfrawdata<-mengmeng_yearly
+  dfrawdata$tm<-as.Date.POSIXct(mengmeng_yearly$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
+  
+  if(input$year_start_mileage> input$year_end_mileage)  {
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_mileage) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_mileage))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  
+  if(input$total_railway_mileage){
+    p<-p+geom_line(aes(x=tm,y=total_railway_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=total_railway_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$national_railway1){
+    p<-p+geom_line(aes(x=tm,y=national_railway1),color="red",size=0.7)+geom_point(aes(x=tm,y=national_railway1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$joint_investment_railway1){
+    p<-p+geom_line(aes(x=tm,y=joint_investment_railway1),color="orange",size=0.7)+geom_point(aes(x=tm,y=joint_investment_railway1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$local_railway1){
+    p<-p+geom_line(aes(x=tm,y=local_railway1),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$total_railway_extended_mileage){
+    p<-p+geom_line(aes(x=tm,y=total_railway_extended_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=total_railway_extended_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$national_railway2){
+    p<-p+geom_line(aes(x=tm,y=national_railway2),color="red",size=0.7)+geom_point(aes(x=tm,y=national_railway2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$joint_investment_railway2){
+    p<-p+geom_line(aes(x=tm,y=joint_investment_railway2),color="orange",size=0.7)+geom_point(aes(x=tm,y=joint_investment_railway2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$local_railway2){
+    p<-p+geom_line(aes(x=tm,y=local_railway2),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$total_railway_main_track_extended_mileage){
+    p<-p+geom_line(aes(x=tm,y=total_railway_main_track_extended_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=total_railway_main_track_extended_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$national_railway3){
+    p<-p+geom_line(aes(x=tm,y=national_railway3),color="red",size=0.7)+geom_point(aes(x=tm,y=national_railway3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$joint_investment_railway3){
+    p<-p+geom_line(aes(x=tm,y=joint_investment_railway3),color="orange",size=0.7)+geom_point(aes(x=tm,y=joint_investment_railway3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$local_railway3){
+    p<-p+geom_line(aes(x=tm,y=local_railway3),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$total_railway_double_track_mileage){
+    p<-p+geom_line(aes(x=tm,y=total_railway_double_track_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=total_railway_double_track_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$national_railway4){
+    p<-p+geom_line(aes(x=tm,y=national_railway4),color="red",size=0.7)+geom_point(aes(x=tm,y=national_railway4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$joint_investment_railway4){
+    p<-p+geom_line(aes(x=tm,y=joint_investment_railway4),color="orange",size=0.7)+geom_point(aes(x=tm,y=joint_investment_railway4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$local_railway4){
+    p<-p+geom_line(aes(x=tm,y=local_railway4),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$total_railway_electric_mileage){
+    p<-p+geom_line(aes(x=tm,y=total_railway_electric_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=total_railway_electric_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$national_railway5){
+    p<-p+geom_line(aes(x=tm,y=national_railway5),color="red",size=0.7)+geom_point(aes(x=tm,y=national_railway5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$double_track5){
+    p<-p+geom_line(aes(x=tm,y=double_track5),color="orange",size=0.7)+geom_point(aes(x=tm,y=double_track5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$joint_investment_railway5){
+    p<-p+geom_line(aes(x=tm,y=joint_investment_railway5),color="purple",size=0.7)+geom_point(aes(x=tm,y=joint_investment_railway5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$local_railway5){
+    p<-p+geom_line(aes(x=tm,y=local_railway5),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$national_railway_diesel_mileage){
+    p<-p+geom_line(aes(x=tm,y=national_railway_diesel_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=national_railway_diesel_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  p+ylab("铁路营业里程")+xlab("时间")+geom_line()
+  
+})
+output$rawdata_relevant_mileage_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      dfrawdata<-mengmeng_yearly
+      dfrawdata<-data.frame(dfrawdata[1:23])
+      data<-dfrawdata},
+    colnames = c('时间','全国铁路营业里程（公里）','国家铁路','合资铁路','地方铁路',
+                 '全国铁路延展里程（公里）', '国家铁路','合资铁路','地方铁路',
+                 '全国铁路正线延展里程（公里）', '国家铁路','合资铁路','地方铁路',
+                 '全国铁路复线里程（公里）','国家铁路','合资铁路','地方铁路',
+                 '全国铁路电气化里程（公里）','国家铁路','复线','合资铁路','地方铁路',
+                 '国家铁路内燃化里程（公里）'),
+    rownames = TRUE))
+#——--------------------分地区营业里程——————————————————————————————————————————————————————————————————————————————————————
+output$sub_regional_mileage_yearly_plot <- renderPlot( {
+  
+  dfrawdata<-mengmeng2_yearly
+  dfrawdata$tm<-as.Date.POSIXct(mengmeng2_yearly$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
+  
+  if(input$year_start_regional_mileage> input$year_end_regional_mileage)  {
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_regional_mileage) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_regional_mileage))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  
+  if(input$total){
+    p<-p+geom_line(aes(x=tm,y=total),color="black",size=0.7)+geom_point(aes(x=tm,y=total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$beijing){
+    p<-p+geom_line(aes(x=tm,y=beijing),color="red",size=0.7)+geom_point(aes(x=tm,y=beijing),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$tianjin){
+    p<-p+geom_line(aes(x=tm,y=tianjin),color="orange",size=0.7)+geom_point(aes(x=tm,y=tianjin),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$hebei){
+    p<-p+geom_line(aes(x=tm,y=hebei),color="green",size=0.7)+geom_point(aes(x=tm,y=hebei),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$shanxi1){
+    p<-p+geom_line(aes(x=tm,y=shanxi1),color="blue",size=0.7)+geom_point(aes(x=tm,y=shanxi1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$neimenggu){
+    p<-p+geom_line(aes(x=tm,y=neimenggu),color="black",size=0.7)+geom_point(aes(x=tm,y=neimenggu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$liaoning){
+    p<-p+geom_line(aes(x=tm,y=liaoning),color="red",size=0.7)+geom_point(aes(x=tm,y=liaoning),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$jilin){
+    p<-p+geom_line(aes(x=tm,y=jilin),color="black",size=0.7)+geom_point(aes(x=tm,y=jilin),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$heilongjiang){
+    p<-p+geom_line(aes(x=tm,y=heilongjiang),color="blue",size=0.7)+geom_point(aes(x=tm,y=heilongjiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$shanghai){
+    p<-p+geom_line(aes(x=tm,y=shanghai),color="red",size=0.7)+geom_point(aes(x=tm,y=shanghai),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$jiangsu){
+    p<-p+geom_line(aes(x=tm,y=jiangsu),color="orange",size=0.7)+geom_point(aes(x=tm,y=jiangsu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$zhejiang){
+    p<-p+geom_line(aes(x=tm,y=zhejiang),color="green",size=0.7)+geom_point(aes(x=tm,y=zhejiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$anhui){
+    p<-p+geom_line(aes(x=tm,y=anhui),color="black",size=0.7)+geom_point(aes(x=tm,y=anhui),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$fujian){
+    p<-p+geom_line(aes(x=tm,y=fujian),color="gray",size=0.7)+geom_point(aes(x=tm,y=fujian),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$jiangxi){
+    p<-p+geom_line(aes(x=tm,y=jiangxi),color="blue",size=0.7)+geom_point(aes(x=tm,y=jiangxi),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$shandong){
+    p<-p+geom_line(aes(x=tm,y=shandong),color="purple",size=0.7)+geom_point(aes(x=tm,y=shandong),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$henan){
+    p<-p+geom_line(aes(x=tm,y=henan),color="black",size=0.7)+geom_point(aes(x=tm,y=henan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$hunan){
+    p<-p+geom_line(aes(x=tm,y=hunan),color="red",size=0.7)+geom_point(aes(x=tm,y=hunan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$hubei){
+    p<-p+geom_line(aes(x=tm,y=hubei),color="blue",size=0.7)+geom_point(aes(x=tm,y=hubei),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$guangdong){
+    p<-p+geom_line(aes(x=tm,y=guangdong),color="black",size=0.7)+geom_point(aes(x=tm,y=guangdong),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$guangxi){
+    p<-p+geom_line(aes(x=tm,y=guangxi),color="red",size=0.7)+geom_point(aes(x=tm,y=guangxi),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$hainan){
+    p<-p+geom_line(aes(x=tm,y=hainan),color="blue",size=0.7)+geom_point(aes(x=tm,y=hainan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$sichuan){
+    p<-p+geom_line(aes(x=tm,y=sichuan),color="black",size=0.7)+geom_point(aes(x=tm,y=sichuan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$guizhou){
+    p<-p+geom_line(aes(x=tm,y=guizhou),color="red",size=0.7)+geom_point(aes(x=tm,y=guizhou),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$yunnan){
+    p<-p+geom_line(aes(x=tm,y=yunnan),color="blue",size=0.7)+geom_point(aes(x=tm,y=yunnan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$guangdong){
+    p<-p+geom_line(aes(x=tm,y=guangdong),color="purple",size=0.7)+geom_point(aes(x=tm,y=guangdong),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$xizang){
+    p<-p+geom_line(aes(x=tm,y=xizang),color="black",size=0.7)+geom_point(aes(x=tm,y=xizang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$shanxi2){
+    p<-p+geom_line(aes(x=tm,y=shanxi2),color="black",size=0.7)+geom_point(aes(x=tm,y=shanxi2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$gansu){
+    p<-p+geom_line(aes(x=tm,y=gansu),color="red",size=0.7)+geom_point(aes(x=tm,y=gansu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$qinghai){
+    p<-p+geom_line(aes(x=tm,y=qinghai),color="blue",size=0.7)+geom_point(aes(x=tm,y=qinghai),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$ningxia){
+    p<-p+geom_line(aes(x=tm,y=ningxia),color="green",size=0.7)+geom_point(aes(x=tm,y=ningxia),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$xinjiang){
+    p<-p+geom_line(aes(x=tm,y=xinjiang),color="purple",size=0.7)+geom_point(aes(x=tm,y=xinjiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  p+ylab("全国铁路分地区营业里程")+xlab("时间")+geom_line()
+  
+})
+output$sub_regional_mileage_yearly_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      dfrawdata<-mengmeng2_yearly
+      dfrawdata<-data.frame(dfrawdata[1:33])
+      data<-dfrawdata},
+    colnames = c('时间','北京','天津','河北','山西',
+                 '内蒙古', '辽宁','吉林','黑龙江',
+                 '上海', '江苏','浙江','安徽',
+                 '福建','江西','山东','河南',
+                 '湖北','湖南','广东','广西','海南',
+                 '重庆','四川','贵州','云南','西藏','陕西','甘肃','青海','宁夏','新疆'),
+    rownames = TRUE)
+  
+)   
+#——-------------------机车拥有量——————————————————————————————————————————————————————————————————————————————————————
+output$rawdata_Locomotive_ownership_plot <- renderPlot( {
+  
+  dfrawdata<- mengmeng1_yearly
+  dfrawdata$tm<-as.Date.POSIXct( mengmeng1_yearly$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
+  
+  if(input$year_start_locomotive> input$year_end_locomotive)  {
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_locomotive) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_locomotive))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  
+  if(input$total_railway_locomotive){
+    p<-p+geom_line(aes(x=tm,y=total_railway_locomotive),color="black",size=0.7)+geom_point(aes(x=tm,y=total_railway_locomotive),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$diesel_locomotive1){
+    p<-p+geom_line(aes(x=tm,y=diesel_locomotive1),color="red",size=0.7)+geom_point(aes(x=tm,y=diesel_locomotive1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$electic_locomotive1){
+    p<-p+geom_line(aes(x=tm,y=electic_locomotive1),color="blue",size=0.7)+geom_point(aes(x=tm,y=electic_locomotive1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$steam_locomotive1){
+    p<-p+geom_line(aes(x=tm,y=steam_locomotive1),color="purple",size=0.7)+geom_point(aes(x=tm,y=steam_locomotive1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$national_railway_locomotive){
+    p<-p+geom_line(aes(x=tm,y=national_railway_locomotive),color="black",size=0.7)+geom_point(aes(x=tm,y=national_railway_locomotive),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$diesel_locomotive2){
+    p<-p+geom_line(aes(x=tm,y=nrjc2),color="red",size=0.7)+geom_point(aes(x=tm,y=nrjc2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$electic_locomotive2){
+    p<-p+geom_line(aes(x=tm,y=dljc2),color="blue",size=0.7)+geom_point(aes(x=tm,y=dljc2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$steam_locomotive2){
+    p<-p+geom_line(aes(x=tm,y=zqjc2),color="purple",size=0.7)+geom_point(aes(x=tm,y=zqjc2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$joint_investment_locomotive){
+    p<-p+geom_line(aes(x=tm,y=joint_investment_locomotive),color="black",size=0.7)+geom_point(aes(x=tm,y=joint_investment_locomotive),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$diesel_locomotive3){
+    p<-p+geom_line(aes(x=tm,y=nrjc3),color="red",size=0.7)+geom_point(aes(x=tm,y=nrjc3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$electic_locomotive3){
+    p<-p+geom_line(aes(x=tm,y=dljc3),color="blue",size=0.7)+geom_point(aes(x=tm,y=dljc3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$steam_locomotive3){
+    p<-p+geom_line(aes(x=tm,y=zqjc3),color="purple",size=0.7)+geom_point(aes(x=tm,y=zqjc3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$local_railway_locomotive){
+    p<-p+geom_line(aes(x=tm,y=local_railway_locomotive),color="black",size=0.7)+geom_point(aes(x=tm,y=local_railway_locomotive),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$diesel_locomotive4){
+    p<-p+geom_line(aes(x=tm,y=nrjc4),color="red",size=0.7)+geom_point(aes(x=tm,y=nrjc4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$electic_locomotive4){
+    p<-p+geom_line(aes(x=tm,y=dljc4),color="blue",size=0.7)+geom_point(aes(x=tm,y=dljc4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$steam_locomotive4){
+    p<-p+geom_line(aes(x=tm,y=zqjc4),color="purple",size=0.7)+geom_point(aes(x=tm,y=zqjc4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  
+  p+ylab("机车拥有量")+xlab("时间")+geom_line()
+  
+})
+output$rawdata_Locomotive_ownership_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      dfrawdata<-mengmeng1_yearly
+      dfrawdata<-data.frame(dfrawdata[1:17])
+      data<-dfrawdata},
+    colnames = c('时间','全国铁路机车（台）','内燃机','电力机','蒸汽机',
+                 '国家铁路机车（台）','内燃机车','电力机车','蒸汽机车','合资铁路机车（台）',
+                 '内燃机','电力机','蒸汽机','地方铁路机车（台）','内燃机','电力机', '蒸汽机'),
+    rownames = TRUE)
+)
+
+
+#——--------------------分型号机车拥有量——————————————————————————————————————————————————————————————————————————————————————
+
+output$rawdata_model_Locomotive_ownership_plot <- renderPlot( {
+  dfrawdata<-mengmeng3_yearly
+  dfrawdata$tm<-as.Date.POSIXct(mengmeng3_yearly$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
+  
+  if(input$year_start_model_locomotive> input$year_end_model_locomotive)  {
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_model_locomotive) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_model_locomotive))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  if(input$total){
+    p<-p+geom_line(aes(x=tm,y=total),color="red",size=0.7)+geom_point(aes(x=tm,y=total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$diesel_locomotive){
+    p<-p+geom_line(aes(x=tm,y=diesel_locomotive),color="black",size=0.7)+geom_point(aes(x=tm,y=diesel_locomotive),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$dongfeng4){
+    p<-p+geom_line(aes(x=tm,y=dongfeng4),color="black",size=0.7)+geom_point(aes(x=tm,y=dongfeng4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$dongfeng6){
+    p<-p+geom_line(aes(x=tm,y=dongfeng6),color="black",size=0.7)+geom_point(aes(x=tm,y=dongfeng6),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$dongfeng7){
+    p<-p+geom_line(aes(x=tm,y=dongfeng7),color="black",size=0.7)+geom_point(aes(x=tm,y=dongfeng7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$dongfeng8){
+    p<-p+geom_line(aes(x=tm,y=dongfeng8),color="black",size=0.7)+geom_point(aes(x=tm,y=dongfeng8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$dongfeng10){
+    p<-p+geom_line(aes(x=tm,y=dongfeng10),color="black",size=0.7)+geom_point(aes(x=tm,y=dongfeng10),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$dongfeng11){
+    p<-p+geom_line(aes(x=tm,y=dongfeng11),color="black",size=0.7)+geom_point(aes(x=tm,y=dongfeng11),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$dongfeng12){
+    p<-p+geom_line(aes(x=tm,y=dongfeng12),color="black",size=0.7)+geom_point(aes(x=tm,y=dongfeng12),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$beijing){
+    p<-p+geom_line(aes(x=tm,y=beijing),color="black",size=0.7)+geom_point(aes(x=tm,y=beijing),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$nd5){
+    p<-p+geom_line(aes(x=tm,y=nd5),color="black",size=0.7)+geom_point(aes(x=tm,y=nd5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$ny6){
+    p<-p+geom_line(aes(x=tm,y=ny6),color="black",size=0.7)+geom_point(aes(x=tm,y=ny6),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$ny7){
+    p<-p+geom_line(aes(x=tm,y=ny7),color="black",size=0.7)+geom_point(aes(x=tm,y=ny7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$qt1){
+    p<-p+geom_line(aes(x=tm,y=qt1),color="black",size=0.7)+geom_point(aes(x=tm,y=qt1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$electric_locomotive){
+    p<-p+geom_line(aes(x=tm,y=electric_locomotive),color="blue",size=0.7)+geom_point(aes(x=tm,y=electric_locomotive),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$shaoshan1){
+    p<-p+geom_line(aes(x=tm,y=shaoshan1),color="black",size=0.7)+geom_point(aes(x=tm,y=shaoshan1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$shaoshan3){
+    p<-p+geom_line(aes(x=tm,y=shaoshan3),color="black",size=0.7)+geom_point(aes(x=tm,y=shaoshan3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$shaoshan4){
+    p<-p+geom_line(aes(x=tm,y=shaoshan4),color="black",size=0.7)+geom_point(aes(x=tm,y=shaoshan4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$shaoshan6){
+    p<-p+geom_line(aes(x=tm,y=shaoshan6),color="black",size=0.7)+geom_point(aes(x=tm,y=shaoshan6),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$shaoshan7){
+    p<-p+geom_line(aes(x=tm,y=shaoshan7),color="black",size=0.7)+geom_point(aes(x=tm,y=shaoshan7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$shaoshan8){
+    p<-p+geom_line(aes(x=tm,y=shaoshan8),color="black",size=0.7)+geom_point(aes(x=tm,y=shaoshan8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$shaoshan9){
+    p<-p+geom_line(aes(x=tm,y=shaoshan9),color="black",size=0.7)+geom_point(aes(x=tm,y=shaoshan9),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$g6){
+    p<-p+geom_line(aes(x=tm,y=g6),color="black",size=0.7)+geom_point(aes(x=tm,y=g6),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$g8){
+    p<-p+geom_line(aes(x=tm,y=g8),color="black",size=0.7)+geom_point(aes(x=tm,y=g8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$k6){
+    p<-p+geom_line(aes(x=tm,y=k6),color="black",size=0.7)+geom_point(aes(x=tm,y=k6),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$k8){
+    p<-p+geom_line(aes(x=tm,y=k8),color="black",size=0.7)+geom_point(aes(x=tm,y=k8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$hxd1){
+    p<-p+geom_line(aes(x=tm,y=hxd1),color="black",size=0.7)+geom_point(aes(x=tm,y=hxd1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$hxd2){
+    p<-p+geom_line(aes(x=tm,y=hxd2),color="black",size=0.7)+geom_point(aes(x=tm,y=hxd2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$hxd3){
+    p<-p+geom_line(aes(x=tm,y=hxd3),color="black",size=0.7)+geom_point(aes(x=tm,y=hxd3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$qt2){
+    p<-p+geom_line(aes(x=tm,y=qt2),color="black",size=0.7)+geom_point(aes(x=tm,y=qt2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$steam_locomotive){
+    p<-p+geom_line(aes(x=tm,y=steam_locomotive),color="orange",size=0.7)+geom_point(aes(x=tm,y=steam_locomotive),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$renmin){
+    p<-p+geom_line(aes(x=tm,y=renmin),color="black",size=0.7)+geom_point(aes(x=tm,y=renmin),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$shengli){
+    p<-p+geom_line(aes(x=tm,y=shengli),color="black",size=0.7)+geom_point(aes(x=tm,y=shengli),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$jianshe){
+    p<-p+geom_line(aes(x=tm,y=jianshe),color="black",size=0.7)+geom_point(aes(x=tm,y=jianshe),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$qianjin){
+    p<-p+geom_line(aes(x=tm,y=qianjin),color="black",size=0.7)+geom_point(aes(x=tm,y=qianjin),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$jiefang){
+    p<-p+geom_line(aes(x=tm,y=jiefang),color="black",size=0.7)+geom_point(aes(x=tm,y=jiefang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$kd7){
+    p<-p+geom_line(aes(x=tm,y=kd7),color="black",size=0.7)+geom_point(aes(x=tm,y=kd7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  if(input$qt3){
+    p<-p+geom_line(aes(x=tm,y=qt3),color="black",size=0.7)+geom_point(aes(x=tm,y=qt3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  p+ylab("分机型机车量")+xlab("时间")+geom_line()
+})
+output$rawdata_model_Locomotive_ownership_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      dfrawdata<-mengmeng3_yearly
+      dfrawdata<-data.frame(dfrawdata[1:39])
+      data<-dfrawdata},
+    colnames = c('时间','总计','内燃机车','东风4','东风6','东风7','东风8','东风10','东风11','东风12',
+                 '北京','ND5','NY6','NY7','其他','电力机车', '韶山1', '韶山3', '韶山4', '韶山6', 
+                 '韶山7', '韶山8', '韶山9','6G','8G','6K','8K','HXD1','HXD2','HXD3','其他',
+                 '蒸汽机车', '人民','胜利','建设','前进','解放','KD7','其他'),
+    rownames = TRUE)
+)
+#--------fancongcong--start------
+#全国客车货车拥有量
+output$holding_plot <- renderPlot( {
+  
+  dfrawdata<-fcc_holding
+  dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
+  
+  if(input$year_start_holding> input$year_end_holding)  { 
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0)) }
+  
+  else{
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_holding) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_holding))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))   }
+  
+ #electronic--------------国家铁路客车拥有量
+
+if (input$national_railway_passenger) {
+  p<-p+geom_line(aes(x=tm,y=national_railway_passenger),color="red",size=0.7)+geom_point(aes(x=tm,y=national_railway_passenger),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  
+}
+#electronic--------------合资铁路客车拥有量
+if (input$joint_investment_railway_passenger) {
+  p<-p+geom_line(aes(x=tm,y=joint_investment_railway_passenger),color="blue",size=0.7)+geom_point(aes(x=tm,y=joint_investment_railway_passenger),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  
+}
+#electronic--------------地方铁路客车拥有量
+if (input$local_railway_passenger) {
+  p<-p+geom_line(aes(x=tm,y=local_railway_passenger),color="orange",size=0.7)+geom_point(aes(x=tm,y=local_railway_passenger),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  
+}
+
+#electronic--------------客车合计拥有量
+if (input$passenger_car_total) {
+  p<-p+geom_line(aes(x=tm,y=passenger_car_total),color="black",size=0.7)+geom_point(aes(x=tm,y=passenger_car_total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  
+}
+#electronic--------------国家铁路货车拥有量
+if (input$national_railway_feight) {
+  p<-p+geom_line(aes(x=tm,y=national_railway_feight),color="red",size=0.7)+geom_point(aes(x=tm,y=national_railway_feight),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  
+}
+#electronic--------------合资铁路货车拥有量
+if (input$joint_investment_railway_feight) {
+  p<-p+geom_line(aes(x=tm,y=joint_investment_railway_feight),color="blue",size=0.7)+geom_point(aes(x=tm,y=joint_investment_railway_feight),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  
+}
+#electronic--------------地方铁路货车拥有量  
+if (input$local_railway_feight) {
+  p<-p+geom_line(aes(x=tm,y=local_railway_feight),color="orange",size=0.7)+geom_point(aes(x=tm,y=local_railway_feight),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  
+}
+#electronic--------------货车合计拥有量
+if (input$freight_car_total) {
+  p<-p+geom_line(aes(x=tm,y=freight_car_total),color="black",size=0.7)+geom_point(aes(x=tm,y=freight_car_total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  
+}
+
+
+p+ylab("国家铁路客车拥有量")+xlab("时间")+geom_line()
+
+})
+
+output$holding_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      dfrawdata<-fcc_holding
+      dfrawdata<-data.frame(dfrawdata[1:9])
+      data<-dfrawdata},
+    colnames = c('时间','全国客车总拥有量(辆)','国家铁路客车拥有量(辆)','合资铁路客车拥有量(辆)','地方铁路客车拥有量(辆)', 
+                 '全国货车总拥有量(辆)','国家铁路货车拥有量(辆)','合资铁路货车拥有量(辆)','地方铁路货车拥有量(辆)'),
+    rownames = TRUE))
+#机车客车货车利用率
+output$availability_plot <- renderPlot( {
+  
+  dfrawdata<-fcc_availability
+  dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
+  
+  if(input$year_start_availablity> input$year_end_availablity)  { 
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0)) }
+  
+  else{
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_availablity) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_availablity))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))   }
+  
+  
+  #electronic--------------平均每台机车换算周转量
+  if (input$availablity=="locomotive_rotation_average") {
+    p<-p+geom_line(aes(x=tm,y=locomotive_rotation_average),color="red",size=0.7)+geom_point(aes(x=tm,y=locomotive_rotation_average),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------平均每台机车总重吨公里
+  if (input$availablity=="locomotive_weight_average") {
+    p<-p+geom_line(aes(x=tm,y=locomotive_weight_average),color="red",size=0.7)+geom_point(aes(x=tm,y=locomotive_weight_average),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------每百营业公里拥有机车台数
+  if (input$availablity=="locomotive_ownership_volume") {
+    p<-p+geom_line(aes(x=tm,y=locomotive_ownership_volume),color="blue",size=0.7)+geom_point(aes(x=tm,y=locomotive_ownership_volume),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------平均每辆客车客运量
+  
+  if (input$availablity=="passenger_car_volume_average") {
+    p<-p+geom_line(aes(x=tm,y=passenger_car_volume_average),color="red",size=0.7)+geom_point(aes(x=tm,y=passenger_car_volume_average),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------平均每辆客车客运周转量
+  if (input$availablity=="passenger_rotation_average") {
+    p<-p+geom_line(aes(x=tm,y=passenger_rotation_average),color="red",size=0.7)+geom_point(aes(x=tm,y=passenger_rotation_average),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------每百营业公里拥有客车辆数
+  if (input$availablity=="passenger_car_ownership_number") {
+    p<-p+geom_line(aes(x=tm,y=passenger_car_ownership_number),color="blue",size=0.7)+geom_point(aes(x=tm,y=passenger_car_ownership_number),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------平均每辆货车完成货运量
+  if (input$availablity=="freight_car_volume_average") {
+    p<-p+geom_line(aes(x=tm,y=freight_car_volume_average),color="red",size=0.7)+geom_point(aes(x=tm,y=freight_car_volume_average),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------平均每辆货车完成货运周转量
+  if (input$availablity=="feight_rotation_average") {
+    p<-p+geom_line(aes(x=tm,y=feight_rotation_average),color="red",size=0.7)+geom_point(aes(x=tm,y=feight_rotation_average),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------每百营业公里拥有货车数
+  if (input$availablity=="freight_car_ownership_number") {
+    p<-p+geom_line(aes(x=tm,y=mbyyglyyhcs),color="purple",size=0.7)+geom_point(aes(x=tm,y=freight_car_ownership_number),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  p+ylab("机车客车货车利用率")+xlab("时间")+geom_line()
+  
+})  
+
+output$availability_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      dfrawdata<-fcc_availability
+      dfrawdata<-data.frame(dfrawdata[1:10])
+      data<-dfrawdata},
+    colnames = c('时间','平均每台机车换算周转量(万换算吨公里/台)','平均每台机车总重吨公里(万吨公里/台)','每百营业公里拥有机车台数(台/百公里)', 
+                 '平均每辆客车客运量(万人/辆)','平均每辆客车客运周转量(万人公里/辆)','每百营业公里拥有客车辆数(辆/百公里)',
+                 '平均每辆货车完成货运量(吨/辆)','平均每辆货车完成货运周转量(万吨公里/辆)','每百营业公里拥有货车数(辆/百公里)'),
+    rownames = TRUE))
+
+
+#国家铁路客车拥有量（分座次）
+output$kecheholding_plot <- renderPlot( {
+  
+  dfrawdata<-fcc_kecheholding
+  dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
+  
+  if(input$year_start_kecheholding> input$year_end_kecheholding)  { 
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0)) }
+  
+  else{
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_kecheholding) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_kecheholding))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))   }
+  
+  
+  #electronic--------------软卧
+  if (input$soft_sleeper) {
+    p<-p+geom_line(aes(x=tm,y=soft_sleeper),color="red",size=0.7)+geom_point(aes(x=tm,y=soft_sleeper),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------硬卧
+  if (input$hard_sleeper) {
+    p<-p+geom_line(aes(x=tm,y=hard_sleeper),color="black",size=0.7)+geom_point(aes(x=tm,y=hard_sleeper),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------软硬卧
+  if (input$sleeper) {
+    p<-p+geom_line(aes(x=tm,y=sleeper),color="blue",size=0.7)+geom_point(aes(x=tm,y=sleeper),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  
+  #electronic--------------软座
+  if (input$soft_seat) {
+    p<-p+geom_line(aes(x=tm,y=soft_seat),color="orange",size=0.7)+geom_point(aes(x=tm,y=soft_seat),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------硬座
+  if (input$hard_seat) {
+    p<-p+geom_line(aes(x=tm,y=hard_seat),color="purple",size=0.7)+geom_point(aes(x=tm,y=hard_seat),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------软硬座
+  if (input$seat) {
+    p<-p+geom_line(aes(x=tm,y=seat),color="red",size=0.7)+geom_point(aes(x=tm,y=seat),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------餐车 
+  if (input$restaurant_car) {
+    p<-p+geom_line(aes(x=tm,y=restaurant_car),color="black",size=0.7)+geom_point(aes(x=tm,y=restaurant_car),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------行李
+  if (input$package) {
+    p<-p+geom_line(aes(x=tm,y=package),color="blue",size=0.7)+geom_point(aes(x=tm,y=package),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------公务
+  if (input$business) {
+    p<-p+geom_line(aes(x=tm,y=business),color="orange",size=0.7)+geom_point(aes(x=tm,y=business),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------其他
+  if (input$other_car) {
+    p<-p+geom_line(aes(x=tm,y=other_car),color="purple",size=0.7)+geom_point(aes(x=tm,y=other_car),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------空调车
+  if (input$air_conditiona_car) {
+    p<-p+geom_line(aes(x=tm,y=air_conditiona_car),color="red",size=0.7)+geom_point(aes(x=tm,y=air_conditiona_car),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  
+  p+ylab("国家铁路客车拥有量")+xlab("时间")+geom_line()
+  
+})
+
+output$kecheholding_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      dfrawdata<-fcc_kecheholding
+      dfrawdata<-data.frame(dfrawdata[1:15])
+      data<-dfrawdata},
+    colnames = c('时间','客车辆数合计(辆)','软卧车厢(节)','硬卧车厢(节)', '软硬卧车厢(节)','软座车厢(节)','硬座车厢(节)',
+                 '软硬座车厢(节)','餐车车厢(节)','行李车厢(节)','公务车厢(节)','其他车厢(节)',
+                 '空调车(辆)','座位（万个）','卧铺（万个）'),
+    rownames = TRUE))
+
+#国家铁路分车型货车拥有量
+output$huocheholding_plot <- renderPlot( {
+  
+  dfrawdata<-fcc_huocheholding
+  dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
+  
+  if(input$year_start_huocheholding> input$year_end_huocheholding)  { 
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0)) }
+  
+  else{
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_huocheholding) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_huocheholding))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))   }
+  
+  #electronic--------------棚车
+  if (input$box_car) {
+    p<-p+geom_line(aes(x=tm,y=box_car),color="red",size=0.7)+geom_point(aes(x=tm,y=box_car),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------敞车
+  if (input$open_car) {
+    p<-p+geom_line(aes(x=tm,y=open_car),color="purple",size=0.7)+geom_point(aes(x=tm,y=open_car),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------平车
+  if (input$flat_car) {
+    p<-p+geom_line(aes(x=tm,y=flat_car),color="blue",size=0.7)+geom_point(aes(x=tm,y=flat_car),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------毒品车
+  if (input$poison_car) {
+    p<-p+geom_line(aes(x=tm,y=poison_car),color="orange",size=0.7)+geom_point(aes(x=tm,y=poison_car),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------罐车合计
+  if (input$tank_car) {
+    p<-p+geom_line(aes(x=tm,y=tank_car),color="black",size=0.7)+geom_point(aes(x=tm,y=tank_car),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------轻油罐车
+  if (input$light_oil) {
+    p<-p+geom_line(aes(x=tm,y=light_oil),color="red",size=0.7)+geom_point(aes(x=tm,y=light_oil),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------粘油罐车
+  if (input$viscous_oil) {
+    p<-p+geom_line(aes(x=tm,y=viscous_oil),color="blue",size=0.7)+geom_point(aes(x=tm,y=viscous_oil),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------其他罐车
+  if (input$other_oil_car) {
+    p<-p+geom_line(aes(x=tm,y=other_oil_car),color="purple",size=0.7)+geom_point(aes(x=tm,y=other_oil_car),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------冷藏车
+  if (input$refeigerator_car) {
+    p<-p+geom_line(aes(x=tm,y=refeigerator_car),color="orange",size=0.7)+geom_point(aes(x=tm,y=refeigerator_car),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------其他货车
+  if (input$other_car) {
+    p<-p+geom_line(aes(x=tm,y=other_car),color="red",size=0.7)+geom_point(aes(x=tm,y=other_car),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------货车合计
+  if (input$freight_car_total) {
+    p<-p+geom_line(aes(x=tm,y=freight_car_total),color="black",size=0.7)+geom_point(aes(x=tm,y=freight_car_total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  
+  
+  
+  p+ylab("国家铁路货车拥有量")+xlab("时间")+geom_line()
+  
+})  
+
+output$huocheholding_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      dfrawdata<-fcc_huocheholding
+      dfrawdata<-data.frame(dfrawdata[1:12])
+      data<-dfrawdata},
+    colnames = c('时间','货车辆数合计(辆)','棚车(辆)','敞车(辆)', '平车(辆)','毒品车(辆)','罐车总数(辆)',
+                 '清油罐车(辆)','粘油罐车(辆)','其他罐车(辆)','冷藏车(辆)','其他(辆)'),
+    rownames =TRUE))
+
+#铁路车站主要客货运设施、设备
+output$sheshishebei_plot <- renderPlot( {
+  
+  dfrawdata<-fcc_sheshishebei
+  dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
+  
+  if(input$year_start_sheshishebei> input$year_end_sheshishebei)  { 
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0)) }
+  
+  else{
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_sheshishebei) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_sheshishebei))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))   }
+  
+  #electronic--------------办理客运业务车站
+  if (input$sheshishebei=="passenger_service_station") {
+    p<-p+geom_line(aes(x=tm,y=passenger_service_station),color="red",size=0.7)+geom_point(aes(x=tm,y=passenger_service_station),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------候车室数量
+  if (input$sheshishebei=="waiting_room") {
+    p<-p+geom_line(aes(x=tm,y=waiting_room),color="blue",size=0.7)+geom_point(aes(x=tm,y=waiting_room),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------有行包房车站 
+  if (input$sheshishebei=="luggage_parcel_station") {
+    p<-p+geom_line(aes(x=tm,y=luggage_parcel_station),color="orange",size=0.7)+geom_point(aes(x=tm,y=luggage_parcel_station),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------有雨棚站台
+  if (input$sheshishebei=="rainshed_platform") {
+    p<-p+geom_line(aes(x=tm,y=rainshed_platform),color="purple",size=0.7)+geom_point(aes(x=tm,y=rainshed_platform),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------办理客运乘降的处所
+  if (input$sheshishebei=="passenger_take_down_position") {
+    p<-p+geom_line(aes(x=tm,y=passenger_take_down_position),color="red",size=0.7)+geom_point(aes(x=tm,y=passenger_take_down_position),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------货物仓库数量
+  if (input$sheshishebei=="freight_warehouse_number") {
+    p<-p+geom_line(aes(x=tm,y=freight_warehouse_number),color="blue",size=0.7)+geom_point(aes(x=tm,y=freight_warehouse_number),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------货物仓库建筑面积
+  if (input$sheshishebei=="freight_warehouse_area") {
+    p<-p+geom_line(aes(x=tm,y=freight_warehouse_area),color="orange",size=0.7)+geom_point(aes(x=tm,y=freight_warehouse_area),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------货物雨棚数量
+  if (input$sheshishebei=="freight_rainshed_number") {
+    p<-p+geom_line(aes(x=tm,y=freight_rainshed_number),color="blue",size=0.7)+geom_point(aes(x=tm,y=freight_rainshed_number),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------货物雨棚建筑面积
+  if (input$sheshishebei=="freight_rainshed_area") {
+    p<-p+geom_line(aes(x=tm,y=freight_rainshed_area),color="orange",size=0.7)+geom_point(aes(x=tm,y=freight_rainshed_area),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------货物站台数量
+  if (input$sheshishebei=="freight_platform_number") {
+    p<-p+geom_line(aes(x=tm,y=freight_platform_number),color="blue",size=0.7)+geom_point(aes(x=tm,y=freight_platform_number),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------货物站台建筑面积
+  if (input$sheshishebei=="freight_platform_area") {
+    p<-p+geom_line(aes(x=tm,y=freight_platform_area),color="orange",size=0.7)+geom_point(aes(x=tm,y=freight_platform_area),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------装卸线数量
+  if (input$sheshishebei=="load_unload_line_number") {
+    p<-p+geom_line(aes(x=tm,y=load_unload_line_number),color="blue",size=0.7)+geom_point(aes(x=tm,y=load_unload_line_number),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------装卸线有效长
+  if (input$sheshishebei=="load_unload_line_effective_lenghth") {
+    p<-p+geom_line(aes(x=tm,y=load_unload_line_effective_lenghth),color="orange",size=0.7)+geom_point(aes(x=tm,y=load_unload_line_effective_lenghth),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+    
+  }
+  #electronic--------------装卸线全长
+  if (input$sheshishebei=="load_unload_line_lenghth") {
+    p<-p+geom_line(aes(x=tm,y=load_unload_line_lenghth),color="red",size=0.7)+geom_point(aes(x=tm,y=load_unload_line_lenghth),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  } 
+  
+  p+ylab("铁路车站主要客货运设施设备")+xlab("时间")+geom_line()
+  
+})   
+
+output$sheshishebei_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      dfrawdata<-fcc_sheshishebei
+      dfrawdata<-data.frame(dfrawdata[1:15])
+      data<-dfrawdata},
+    colnames = c('时间','办理客运业务车站(个)','候车室数量(个)','有行包房车站(个)', '有雨棚站台(个)','办理客运乘降的处所(个)','货物仓库数量(座)',
+                 '货物仓库建筑面积(平米)','货物雨棚数量(座)','货物雨棚建筑面积(平米)','货物站台数量(座)','货物站台建筑面积(平米)',
+                 '装卸线数量(条)','装卸线全长(米)','装卸线装卸线有效长(米)'),
+    rownames =TRUE))
+
+
+    
+    #-------------------景钊
+    output$rawdata_yslzzl_plot<-renderPlot({
+  dfrawdata<-df_yslzzl_yearly
+  dfrawdata$tm<-as.Date.POSIXct(dfrawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata$tm)
+  
+  if(input$year_start_yslzzl> input$year_end_yslzzl)  {
+    p<-ggplot(dfrawdata,x=c(dfrawdata$tm[1],dfrawdata$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    dfrawdatasub<-subset(dfrawdata,(substr(dfrawdata$tm,1,4)>=input$year_start_yslzzl) )
+    dfrawdatasub<-subset(dfrawdatasub,(substr(dfrawdatasub$tm,1,4)<=input$year_end_yslzzl))
+    p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))
+  }
+  #national_passenger_volume_rawdata---------------全国铁路客运量(万人)
+  if(input$yslzzl_rawdata=="national_passenger_volume_rawdata"){
+    p<-p+geom_line(aes(x=tm,y=national_passenger_volume),color="black",size=0.7)+geom_point(aes(x=tm,y=national_passenger_volume),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #national_passenger_turnover_volume_rawdata --------------全国铁路客运周转量(亿人公里) 
+  if(input$yslzzl_rawdata=="national_passenger_turnover_volume_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=national_passenger_turnover_volume),color="red",size=0.7)+geom_point(aes(x=tm,y=national_passenger_turnover_volume),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  }
+  #national_freight_volume_rawdata-----------------全国铁路货运量(万吨)
+  if(input$yslzzl_rawdata=="national_freight_volume_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=national_freight_volume),color="blue",size=0.7)+geom_point(aes(x=tm,y=national_freight_volume),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #national_freight_turnover_volume_rawdata----------------全国铁路货运周转量(亿吨公里)
+  if(input$yslzzl_rawdata=="national_freight_turnover_volume_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=national_freight_turnover_volume),color="orange",size=0.7)+geom_point(aes(x=tm,y=national_freight_turnover_volume),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #national_parcel_volume_rawdata-----------全国铁路行包运量(万吨)
+  if(input$yslzzl_rawdata=="national_parcel_volume_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=national_parcel_volume),color="purple",size=0.7)+geom_point(aes(x=tm,y=national_parcel_volume),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #national_parcel_turnover_volume_rawdata-----------全国铁路行包周转量(亿吨公里)
+  if(input$yslzzl_rawdata=="national_parcel_turnover_volume_rawdata") {
+    p<-p+geom_line(aes(x=tm,y=national_parcel_turnover_volume),color="red",size=0.7)+geom_point(aes(x=tm,y=national_parcel_turnover_volume),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #passenger_average_mileage------------全国旅客平均里程(公里)
+  if(input$yslzzl_rawdata=="national_passenger_average_mileage") {
+    p<-p+geom_line(aes(x=tm,y=national_passenger_average_mileage),color="blue",size=0.7)+geom_point(aes(x=tm,y=national_passenger_average_mileage),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  p+ylab("运输量-周转量数据")+xlab("时间")
+})
+#-------------------------景钊--------------------------
+#rawdata_yslzzl-----------原始数据/运输量-周转量-jingzhao
+output$rawdata_yslzzl_table<-DT::renderDataTable(
+  DT::datatable(
+    dfrawdata<-df_yslzzl_yearly,
+    colnames = c('时间','全国铁路客运量(万人)','全国铁路客运周转量(亿人公里)','全国铁路货运量(万吨)','全国铁路货运周转量(亿吨公里)','全国铁路行包运量(万吨)','全国铁路行包周转量(亿吨公里)','全国旅客平均里程(公里)')
+    ))
+#—————————————————————————————运输量—周转量 景钊  END———————————————————————————————
+
+#------李雪妍4_16国家铁路省、市、自治区货物运量
+output$hyl_plot <- renderPlot( {
+  lxy1rawdata<-lxy1_yearly
+  lxy1rawdata$tm<-as.Date.POSIXct(lxy1rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(lxy1rawdata$tm)
+  
+  if(input$year_start_hyl> input$year_end_hyl)  {
+    p<-ggplot(lxy1rawdata,x=c(lxy1rawdata$tm[1],lxy1rawdata$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    lxy1rawdatasub<-subset(lxy1rawdata,(substr(lxy1rawdata$tm,1,4)>=input$year_start_hyl) )
+    lxy1rawdatasub<-subset(lxy1rawdatasub,(substr(lxy1rawdatasub$tm,1,4)<=input$year_end_hyl))
+    p<-ggplot(lxy1rawdatasub,x=c(lxy1rawdatasub$tm[1],lxy1rawdatasub$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  #zj---------------总计
+  if(input$zj1){
+    p<-p+geom_line(aes(x=tm,y=mileage_total),color="black",size=0.7)+geom_point(aes(x=tm,y=mileage_total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #beijing---------------北京
+  if(input$beijing1){
+    p<-p+geom_line(aes(x=tm,y=beijing),color="red",size=0.7)+geom_point(aes(x=tm,y=beijing),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #tianjin---------------天津
+  if(input$tianjin1){
+    p<-p+geom_line(aes(x=tm,y=tianjin),color="blue",size=0.7)+geom_point(aes(x=tm,y=tianjin),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hebei---------------河北
+  if(input$hebei1){
+    p<-p+geom_line(aes(x=tm,y=hebei),color="orange",size=0.7)+geom_point(aes(x=tm,y=hebei),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shanxi1---------------山西
+  if(input$shanxi11){
+    p<-p+geom_line(aes(x=tm,y=shanxi1),color="purple",size=0.7)+geom_point(aes(x=tm,y=shanxi1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #neimenggu---------------内蒙古
+  if(input$neimenggu1){
+    p<-p+geom_line(aes(x=tm,y=neimenggu),color="brown",size=0.7)+geom_point(aes(x=tm,y=neimenggu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #liaoning---------------辽宁
+  if(input$liaoning1){
+    p<-p+geom_line(aes(x=tm,y=liaoning),color="red",size=0.7)+geom_point(aes(x=tm,y=liaoning),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #jilin---------------吉林
+  if(input$jilin1){
+    p<-p+geom_line(aes(x=tm,y=jilin),color="blue",size=0.7)+geom_point(aes(x=tm,y=jilin),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #heilongjiang---------------黑龙江
+  if(input$heilongjiang1){
+    p<-p+geom_line(aes(x=tm,y=heilongjiang),color="purple",size=0.7)+geom_point(aes(x=tm,y=heilongjiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shanghai---------------上海
+  if(input$shanghai1){
+    p<-p+geom_line(aes(x=tm,y=shanghai),color="red",size=0.7)+geom_point(aes(x=tm,y=shanghai),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #jiangsu---------------江苏
+  if(input$jiangsu1){
+    p<-p+geom_line(aes(x=tm,y=jiangsu),color="blue",size=0.7)+geom_point(aes(x=tm,y=jiangsu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #zhejiang---------------浙江
+  if(input$zhejiang1){
+    p<-p+geom_line(aes(x=tm,y=zhejiang),color="purple",size=0.7)+geom_point(aes(x=tm,y=zhejiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #anhui---------------安徽
+  if(input$anhui1){
+    p<-p+geom_line(aes(x=tm,y=anhui),color="orange",size=0.7)+geom_point(aes(x=tm,y=anhui),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #fujian---------------福建
+  if(input$fujian1){
+    p<-p+geom_line(aes(x=tm,y=fujian),color="brown",size=0.7)+geom_point(aes(x=tm,y=fujian),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #jiangxi---------------江西
+  if(input$jiangxi1){
+    p<-p+geom_line(aes(x=tm,y=jiangxi),color="black",size=0.7)+geom_point(aes(x=tm,y=jiangxi),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shandong---------------山东
+  if(input$shandong1){
+    p<-p+geom_line(aes(x=tm,y=shandong),color="green",size=0.7)+geom_point(aes(x=tm,y=shandong),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #henan---------------河南
+  if(input$henan1){
+    p<-p+geom_line(aes(x=tm,y=henan),color="blue",size=0.7)+geom_point(aes(x=tm,y=henan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hubei---------------湖北
+  if(input$hubei1){
+    p<-p+geom_line(aes(x=tm,y=hubei),color="brown",size=0.7)+geom_point(aes(x=tm,y=hubei),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hunan---------------湖南
+  if(input$hunan1){
+    p<-p+geom_line(aes(x=tm,y=hunan),color="purple",size=0.7)+geom_point(aes(x=tm,y=hunan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #guangdong---------------广东
+  if(input$guangdong1){
+    p<-p+geom_line(aes(x=tm,y=guangdong),color="red",size=0.7)+geom_point(aes(x=tm,y=guangdong),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #guangxi---------------广西
+  if(input$guangxi1){
+    p<-p+geom_line(aes(x=tm,y=guangxi),color="black",size=0.7)+geom_point(aes(x=tm,y=guangxi),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hainan---------------海南
+  if(input$hainan1){
+    p<-p+geom_line(aes(x=tm,y=hainan),color="blue",size=0.7)+geom_point(aes(x=tm,y=hainan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #chongqing---------------重庆
+  if(input$chongqing1){
+    p<-p+geom_line(aes(x=tm,y=chongqing),color="black",size=0.7)+geom_point(aes(x=tm,y=chongqing),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #sichuan---------------四川
+  if(input$sichuan1){
+    p<-p+geom_line(aes(x=tm,y=sichuan),color="red",size=0.7)+geom_point(aes(x=tm,y=sichuan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #guizhou---------------贵州
+  if(input$guizhou1){
+    p<-p+geom_line(aes(x=tm,y=guizhou),color="blue",size=0.7)+geom_point(aes(x=tm,y=guizhou),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #yunnan---------------云南
+  if(input$yunnan1){
+    p<-p+geom_line(aes(x=tm,y=yunnan),color="purple",size=0.7)+geom_point(aes(x=tm,y=yunnan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #xizang---------------西藏
+  if(input$xizang1){
+    p<-p+geom_line(aes(x=tm,y=xizang),color="brown",size=0.7)+geom_point(aes(x=tm,y=xizang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shanxi2---------------陕西
+  if(input$shanxi21){
+    p<-p+geom_line(aes(x=tm,y=shanxi2),color="orange",size=0.7)+geom_point(aes(x=tm,y=shanxi2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #gansu---------------甘肃
+  if(input$gansu1){
+    p<-p+geom_line(aes(x=tm,y=gansu),color="black",size=0.7)+geom_point(aes(x=tm,y=gansu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #qinghai---------------青海
+  if(input$qinghai1){
+    p<-p+geom_line(aes(x=tm,y=qinghai),color="red",size=0.7)+geom_point(aes(x=tm,y=qinghai),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #ningxia---------------宁夏
+  if(input$ningxia1){
+    p<-p+geom_line(aes(x=tm,y=ningxia),color="blue",size=0.7)+geom_point(aes(x=tm,y=ningxia),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #xinjiang---------------新疆
+  if(input$xinjiang1){
+    p<-p+geom_line(aes(x=tm,y=xinjiang),color="purple",size=0.7)+geom_point(aes(x=tm,y=xinjiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  p+ylab("国家铁路省、市、自治区货物运量")+xlab("时间")+geom_line()
+  
+})
+#4_16hyl-------国家铁路省、市、自治区货运量表输出lixueyan
+output$hyl_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      lxy1rawdata<-lxy1_yearly
+      lxy1rawdata<-data.frame(lxy1rawdata[1:33])
+      data<-lxy1rawdata},
+    colnames = c('年度','合计','北京','天津','河北','山西','内蒙古','辽宁','吉林','黑龙江','上海','江苏','浙江','安徽','福建','江西','山东','河南','湖北','湖南','广东','广西','海南','重庆','四川','贵州','云南','西藏','陕西','甘肃','青海','宁夏','新疆'),
+    rownames = TRUE))
+#------李雪妍4_17国家铁路省、市、自治区货运周转量
+output$hyzzl_plot <- renderPlot( {
+  lxy2rawdata<-lxy2_yearly
+  lxy2rawdata$tm<-as.Date.POSIXct(lxy2rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(lxy2rawdata$tm)
+  
+  if(input$year_start_hyzzl> input$year_end_hyzzl)  {
+    p<-ggplot(lxy2rawdata,x=c(lxy2rawdata$tm[1],lxy2rawdata$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    lxy2rawdatasub<-subset(lxy2rawdata,(substr(lxy2rawdata$tm,1,4)>=input$year_start_hyzzl) )
+    lxy2rawdatasub<-subset(lxy2rawdatasub,(substr(lxy2rawdatasub$tm,1,4)<=input$year_end_hyzzl))
+    p<-ggplot(lxy2rawdatasub,x=c(lxy2rawdatasub$tm[1],lxy2rawdatasub$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  #zj---------------总计
+  if(input$zj2){
+    p<-p+geom_line(aes(x=tm,y=mileage_total),color="black",size=0.7)+geom_point(aes(x=tm,y=mileage_total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #beijing---------------北京
+  if(input$beijing2){
+    p<-p+geom_line(aes(x=tm,y=beijing),color="red",size=0.7)+geom_point(aes(x=tm,y=beijing),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #tianjin---------------天津
+  if(input$tianjin2){
+    p<-p+geom_line(aes(x=tm,y=tianjin),color="blue",size=0.7)+geom_point(aes(x=tm,y=tianjin),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hebei---------------河北
+  if(input$hebei2){
+    p<-p+geom_line(aes(x=tm,y=hebei),color="brown",size=0.7)+geom_point(aes(x=tm,y=hebei),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shanxi1---------------山西
+  if(input$shanxi12){
+    p<-p+geom_line(aes(x=tm,y=shanxi1),color="purple",size=0.7)+geom_point(aes(x=tm,y=shanxi1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #neimenggu---------------内蒙古
+  if(input$neimenggu2){
+    p<-p+geom_line(aes(x=tm,y=neimenggu),color="black",size=0.7)+geom_point(aes(x=tm,y=neimenggu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #liaoning---------------辽宁
+  if(input$liaoning2){
+    p<-p+geom_line(aes(x=tm,y=liaoning),color="red",size=0.7)+geom_point(aes(x=tm,y=liaoning),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #jilin---------------吉林
+  if(input$jilin2){
+    p<-p+geom_line(aes(x=tm,y=jilin),color="blue",size=0.7)+geom_point(aes(x=tm,y=jilin),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #heilongjiang---------------黑龙江
+  if(input$heilongjiang2){
+    p<-p+geom_line(aes(x=tm,y=heilongjiang),color="black",size=0.7)+geom_point(aes(x=tm,y=heilongjiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shanghai---------------上海
+  if(input$shanghai2){
+    p<-p+geom_line(aes(x=tm,y=shanghai),color="red",size=0.7)+geom_point(aes(x=tm,y=shanghai),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #jiangsu---------------江苏
+  if(input$jiangsu2){
+    p<-p+geom_line(aes(x=tm,y=jiangsu),color="blue",size=0.7)+geom_point(aes(x=tm,y=jiangsu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #zhejiang---------------浙江
+  if(input$zhejiang2){
+    p<-p+geom_line(aes(x=tm,y=zhejiang),color="black",size=0.7)+geom_point(aes(x=tm,y=zhejiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #anhui---------------安徽
+  if(input$anhui2){
+    p<-p+geom_line(aes(x=tm,y=anhui),color="brown",size=0.7)+geom_point(aes(x=tm,y=anhui),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #fujian---------------福建
+  if(input$fujian2){
+    p<-p+geom_line(aes(x=tm,y=fujian),color="purple",size=0.7)+geom_point(aes(x=tm,y=fujian),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #jiangxi---------------江西
+  if(input$jiangxi2){
+    p<-p+geom_line(aes(x=tm,y=jiangxi),color="green",size=0.7)+geom_point(aes(x=tm,y=jiangxi),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shandong---------------山东
+  if(input$shandong2){
+    p<-p+geom_line(aes(x=tm,y=shandong),color="red",size=0.7)+geom_point(aes(x=tm,y=shandong),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #henan---------------河南
+  if(input$henan2){
+    p<-p+geom_line(aes(x=tm,y=henan),color="blue",size=0.7)+geom_point(aes(x=tm,y=henan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hubei---------------湖北
+  if(input$hubei2){
+    p<-p+geom_line(aes(x=tm,y=hubei),color="purple",size=0.7)+geom_point(aes(x=tm,y=hubei),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hunan---------------湖南
+  if(input$hunan2){
+    p<-p+geom_line(aes(x=tm,y=hunan),color="orange",size=0.7)+geom_point(aes(x=tm,y=hunan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #guangdong---------------广东
+  if(input$guangdong2){
+    p<-p+geom_line(aes(x=tm,y=guangdong),color="black",size=0.7)+geom_point(aes(x=tm,y=guangdong),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #guangxi---------------广西
+  if(input$guangxi2){
+    p<-p+geom_line(aes(x=tm,y=guangxi),color="red",size=0.7)+geom_point(aes(x=tm,y=guangxi),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hainan---------------海南
+  if(input$hainan2){
+    p<-p+geom_line(aes(x=tm,y=hainan),color="blue",size=0.7)+geom_point(aes(x=tm,y=hainan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #chongqing---------------重庆
+  if(input$chongqing2){
+    p<-p+geom_line(aes(x=tm,y=chongqing),color="purple",size=0.7)+geom_point(aes(x=tm,y=chongqing),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #sichuan---------------四川
+  if(input$sichuan2){
+    p<-p+geom_line(aes(x=tm,y=sichuan),color="red",size=0.7)+geom_point(aes(x=tm,y=sichuan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #guizhou---------------贵州
+  if(input$guizhou2){
+    p<-p+geom_line(aes(x=tm,y=guizhou),color="blue",size=0.7)+geom_point(aes(x=tm,y=guizhou),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #yunnan---------------云南
+  if(input$yunnan2){
+    p<-p+geom_line(aes(x=tm,y=yunnan),color="black",size=0.7)+geom_point(aes(x=tm,y=yunnan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #xizang---------------西藏
+  if(input$xizang2){
+    p<-p+geom_line(aes(x=tm,y=xizang),color="brown",size=0.7)+geom_point(aes(x=tm,y=xizang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shanxi2---------------陕西
+  if(input$shanxi22){
+    p<-p+geom_line(aes(x=tm,y=shanxi2),color="black",size=0.7)+geom_point(aes(x=tm,y=shanxi2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #gansu---------------甘肃
+  if(input$gansu2){
+    p<-p+geom_line(aes(x=tm,y=gansu),color="red",size=0.7)+geom_point(aes(x=tm,y=gansu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #qinghai---------------青海
+  if(input$qinghai2){
+    p<-p+geom_line(aes(x=tm,y=qinghai),color="blue",size=0.7)+geom_point(aes(x=tm,y=qinghai),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #ningxia---------------宁夏
+  if(input$ningxia2){
+    p<-p+geom_line(aes(x=tm,y=ningxia),color="purple",size=0.7)+geom_point(aes(x=tm,y=ningxia),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #xinjiang---------------新疆
+  if(input$xinjiang2){
+    p<-p+geom_line(aes(x=tm,y=xinjiang),color="brown",size=0.7)+geom_point(aes(x=tm,y=xinjiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  p+ylab("国家铁路省、市、自治区货运周转量")+xlab("时间")+geom_line()
+  
+})
+#4_17hyzzl-------国家铁路省、市、自治区货运周转量表输出lixueyan
+output$hyzzl_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      lxy2rawdata<-lxy2_yearly
+      lxy2rawdata<-data.frame(lxy2rawdata[1:33])
+      data<-lxy2rawdata},
+    colnames = c('年度','合计','北京','天津','河北','山西','内蒙古','辽宁','吉林','黑龙江','上海','江苏','浙江','安徽','福建','江西','山东','河南','湖北','湖南','广东','广西','海南','重庆','四川','贵州','云南','西藏','陕西','甘肃','青海','宁夏','新疆'),
+    rownames = TRUE))
+
+#------李雪妍4_18国家铁路省、市、自治区客运量
+output$kyl_plot <- renderPlot( {
+  lxy3rawdata<-lxy3_yearly
+  lxy3rawdata$tm<-as.Date.POSIXct(lxy3rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(lxy3rawdata$tm)
+  
+  if(input$year_start_kyl> input$year_end_kyl)  {
+    p<-ggplot(lxy3rawdata,x=c(lxy3rawdata$tm[1],lxy3rawdata$tm[len]))
+  }
+  else{
+    lxy3rawdatasub<-subset(lxy3rawdata,(substr(lxy3rawdata$tm,1,4)>=input$year_start_kyl) )
+    lxy3rawdatasub<-subset(lxy3rawdatasub,(substr(lxy3rawdatasub$tm,1,4)<=input$year_end_kyl))
+    p<-ggplot(lxy3rawdatasub,x=c(lxy3rawdatasub$tm[1],lxy3rawdatasub$tm[len]))
+  }
+  
+  #mileage_total---------------总计
+  if(input$zj3){
+    p<-p+geom_line(aes(x=tm,y=mileage_total),color="black",size=0.7)+geom_point(aes(x=tm,y=mileage_total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #beijing---------------北京
+  if(input$beijing3){
+    p<-p+geom_line(aes(x=tm,y=beijing),color="red",size=0.7)+geom_point(aes(x=tm,y=beijing),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #tianjin---------------天津
+  if(input$tianjin3){
+    p<-p+geom_line(aes(x=tm,y=tianjin),color="blue",size=0.7)+geom_point(aes(x=tm,y=tianjin),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hebei---------------河北
+  if(input$hebei3){
+    p<-p+geom_line(aes(x=tm,y=hebei),color="purple",size=0.7)+geom_point(aes(x=tm,y=hebei),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shanxi1---------------山西
+  if(input$shanxi13){
+    p<-p+geom_line(aes(x=tm,y=shanxi1),color="brown",size=0.7)+geom_point(aes(x=tm,y=shanxi1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  #neimenggu---------------内蒙古
+  if(input$neimenggu3){
+    p<-p+geom_line(aes(x=tm,y=neimenggu),color="orange",size=0.7)+geom_point(aes(x=tm,y=neimenggu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #liaoning---------------辽宁
+  if(input$liaoning3){
+    p<-p+geom_line(aes(x=tm,y=liaoning),color="black",size=0.7)+geom_point(aes(x=tm,y=liaoning),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #jilin---------------吉林
+  if(input$jilin3){
+    p<-p+geom_line(aes(x=tm,y=jilin),color="red",size=0.7)+geom_point(aes(x=tm,y=jilin),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #heilongjiang---------------黑龙江
+  if(input$heilongjiang3){
+    p<-p+geom_line(aes(x=tm,y=heilongjiang),color="blue",size=0.7)+geom_point(aes(x=tm,y=heilongjiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shanghai---------------上海
+  if(input$shanghai3){
+    p<-p+geom_line(aes(x=tm,y=shanghai),color="red",size=0.7)+geom_point(aes(x=tm,y=shanghai),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #jiangsu---------------江苏
+  if(input$jiangsu3){
+    p<-p+geom_line(aes(x=tm,y=jiangsu),color="black",size=0.7)+geom_point(aes(x=tm,y=jiangsu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #zhejiang---------------浙江
+  if(input$zhejiang3){
+    p<-p+geom_line(aes(x=tm,y=zhejiang),color="blue",size=0.7)+geom_point(aes(x=tm,y=zhejiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #anhui---------------安徽
+  if(input$anhui3){
+    p<-p+geom_line(aes(x=tm,y=anhui),color="brown",size=0.7)+geom_point(aes(x=tm,y=anhui),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #fujian---------------福建
+  if(input$fujian3){
+    p<-p+geom_line(aes(x=tm,y=fujian),color="purple",size=0.7)+geom_point(aes(x=tm,y=fujian),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #jiangxi---------------江西
+  if(input$jiangxi3){
+    p<-p+geom_line(aes(x=tm,y=jiangxi),color="orange",size=0.7)+geom_point(aes(x=tm,y=jiangxi),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shandong---------------山东
+  if(input$shandong3){
+    p<-p+geom_line(aes(x=tm,y=shandong),color="green",size=0.7)+geom_point(aes(x=tm,y=shandong),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #henan---------------河南
+  if(input$henan3){
+    p<-p+geom_line(aes(x=tm,y=henan),color="blue",size=0.7)+geom_point(aes(x=tm,y=henan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hubei---------------湖北
+  if(input$hubei3){
+    p<-p+geom_line(aes(x=tm,y=hubei),color="purple",size=0.7)+geom_point(aes(x=tm,y=hubei),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hunan---------------湖南
+  if(input$hunan3){
+    p<-p+geom_line(aes(x=tm,y=hunan),color="red",size=0.7)+geom_point(aes(x=tm,y=hunan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #guangdong---------------广东
+  if(input$guangdong3){
+    p<-p+geom_line(aes(x=tm,y=guangdong),color="black",size=0.7)+geom_point(aes(x=tm,y=guangdong),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #guangxi---------------广西
+  if(input$guangxi3){
+    p<-p+geom_line(aes(x=tm,y=guangxi),color="red",size=0.7)+geom_point(aes(x=tm,y=guangxi),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hainan---------------海南
+  if(input$hainan3){
+    p<-p+geom_line(aes(x=tm,y=hainan),color="blue",size=0.7)+geom_point(aes(x=tm,y=hainan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #chongqing---------------重庆
+  if(input$chongqing3){
+    p<-p+geom_line(aes(x=tm,y=chongqing),color="orange",size=0.7)+geom_point(aes(x=tm,y=chongqing),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #sichuan---------------四川
+  if(input$sichuan3){
+    p<-p+geom_line(aes(x=tm,y=sichuan),color="black",size=0.7)+geom_point(aes(x=tm,y=sichuan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #guizhou---------------贵州
+  if(input$guizhou3){
+    p<-p+geom_line(aes(x=tm,y=guizhou),color="red",size=0.7)+geom_point(aes(x=tm,y=guizhou),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #yunnan---------------云南
+  if(input$yunnan3){
+    p<-p+geom_line(aes(x=tm,y=yunnan),color="blue",size=0.7)+geom_point(aes(x=tm,y=yunnan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #xizang---------------西藏
+  if(input$xizang3){
+    p<-p+geom_line(aes(x=tm,y=xizang),color="brown",size=0.7)+geom_point(aes(x=tm,y=xizang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shanxi2---------------陕西
+  if(input$shanxi23){
+    p<-p+geom_line(aes(x=tm,y=shanxi2),color="black",size=0.7)+geom_point(aes(x=tm,y=shanxi2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #gansu---------------甘肃
+  if(input$gansu3){
+    p<-p+geom_line(aes(x=tm,y=gansu),color="red",size=0.7)+geom_point(aes(x=tm,y=gansu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #qinghai---------------青海
+  if(input$qinghai3){
+    p<-p+geom_line(aes(x=tm,y=qinghai),color="blue",size=0.7)+geom_point(aes(x=tm,y=qinghai),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #ningxia---------------宁夏
+  if(input$ningxia3){
+    p<-p+geom_line(aes(x=tm,y=ningxia),color="brown",size=0.7)+geom_point(aes(x=tm,y=ningxia),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #xinjiang---------------新疆
+  if(input$xinjiang3){
+    p<-p+geom_line(aes(x=tm,y=xinjiang),color="purple",size=0.7)+geom_point(aes(x=tm,y=xinjiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  
+  p+ylab("国家铁路省、市、自治区客运量")+xlab("时间")
+  
+})
+#4_18kyl-------国家铁路省、市、自治区客运量表输出lixueyan
+output$kyl_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      lxy3rawdata<-lxy3_yearly
+      lxy3rawdata<-data.frame(lxy3rawdata[1:33])
+      data<-lxy3rawdata},
+    colnames = c('年度','合计','北京','天津','河北','山西','内蒙古','辽宁','吉林','黑龙江','上海','江苏','浙江','安徽','福建','江西','山东','河南','湖北','湖南','广东','广西','海南','重庆','四川','贵州','云南','西藏','陕西','甘肃','青海','宁夏','新疆'),
+    rownames = TRUE))
+#------李雪妍4_19国家铁路省、市、自治区客运周转量
+output$kyzzl_plot <- renderPlot( {
+  lxy4rawdata<-lxy4_yearly
+  lxy4rawdata$tm<-as.Date.POSIXct(lxy4rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(lxy4rawdata$tm)
+  
+  if(input$year_start_kyzzl> input$year_end_kyzzl)  {
+    p<-ggplot(lxy4rawdata,x=c(lxy4rawdata$tm[1],lxy4rawdata$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    lxy4rawdatasub<-subset(lxy4rawdata,(substr(lxy4rawdata$tm,1,4)>=input$year_start_kyzzl) )
+    lxy4rawdatasub<-subset(lxy4rawdatasub,(substr(lxy4rawdatasub$tm,1,4)<=input$year_end_kyzzl))
+    p<-ggplot(lxy4rawdatasub,x=c(lxy4rawdatasub$tm[1],lxy4rawdatasub$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  #zj---------------总计
+  if(input$zj4){
+    p<-p+geom_line(aes(x=tm,y=mileage_total),color="black",size=0.7)+geom_point(aes(x=tm,y=mileage_total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #beijing---------------北京
+  if(input$beijing4){
+    p<-p+geom_line(aes(x=tm,y=beijing),color="red",size=0.7)+geom_point(aes(x=tm,y=beijing),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #tianjin---------------天津
+  if(input$tianjin4){
+    p<-p+geom_line(aes(x=tm,y=tianjin),color="blue",size=0.7)+geom_point(aes(x=tm,y=tianjin),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hebei---------------河北
+  if(input$hebei4){
+    p<-p+geom_line(aes(x=tm,y=hebei),color="purple",size=0.7)+geom_point(aes(x=tm,y=hebei),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shanxi1---------------山西
+  if(input$shanxi14){
+    p<-p+geom_line(aes(x=tm,y=shanxi1),color="orange",size=0.7)+geom_point(aes(x=tm,y=shanxi1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #neimenggu---------------内蒙古
+  if(input$neimenggu4){
+    p<-p+geom_line(aes(x=tm,y=neimenggu),color="brown",size=0.7)+geom_point(aes(x=tm,y=neimenggu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #liaoning---------------辽宁
+  if(input$liaoning4){
+    p<-p+geom_line(aes(x=tm,y=liaoning),color="black",size=0.7)+geom_point(aes(x=tm,y=liaoning),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #jilin---------------吉林
+  if(input$jilin4){
+    p<-p+geom_line(aes(x=tm,y=jilin),color="red",size=0.7)+geom_point(aes(x=tm,y=jilin),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #heilongjiang---------------黑龙江
+  if(input$heilongjiang4){
+    p<-p+geom_line(aes(x=tm,y=heilongjiang),color="blue",size=0.7)+geom_point(aes(x=tm,y=heilongjiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shanghai---------------上海
+  if(input$shanghai4){
+    p<-p+geom_line(aes(x=tm,y=shanghai),color="black",size=0.7)+geom_point(aes(x=tm,y=shanghai),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #jiangsu---------------江苏
+  if(input$jiangsu4){
+    p<-p+geom_line(aes(x=tm,y=jiangsu),color="red",size=0.7)+geom_point(aes(x=tm,y=jiangsu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #zhejiang---------------浙江
+  if(input$zhejiang4){
+    p<-p+geom_line(aes(x=tm,y=zhejiang),color="blue",size=0.7)+geom_point(aes(x=tm,y=zhejiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #anhui---------------安徽
+  if(input$anhui4){
+    p<-p+geom_line(aes(x=tm,y=anhui),color="orange",size=0.7)+geom_point(aes(x=tm,y=anhui),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #fujian---------------福建
+  if(input$fujian4){
+    p<-p+geom_line(aes(x=tm,y=fujian),color="brown",size=0.7)+geom_point(aes(x=tm,y=fujian),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #jiangxi---------------江西
+  if(input$jiangxi4){
+    p<-p+geom_line(aes(x=tm,y=jiangxi),color="green",size=0.7)+geom_point(aes(x=tm,y=jiangxi),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shandong---------------山东
+  if(input$shandong4){
+    p<-p+geom_line(aes(x=tm,y=shandong),color="purple",size=0.7)+geom_point(aes(x=tm,y=shandong),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #henan---------------河南
+  if(input$henan4){
+    p<-p+geom_line(aes(x=tm,y=henan),color="blue",size=0.7)+geom_point(aes(x=tm,y=henan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hubei---------------湖北
+  if(input$hubei4){
+    p<-p+geom_line(aes(x=tm,y=hubei),color="purple",size=0.7)+geom_point(aes(x=tm,y=hubei),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hunan---------------湖南
+  if(input$hunan4){
+    p<-p+geom_line(aes(x=tm,y=hunan),color="orange",size=0.7)+geom_point(aes(x=tm,y=hunan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #guangdong---------------广东
+  if(input$guangdong4){
+    p<-p+geom_line(aes(x=tm,y=guangdong),color="black",size=0.7)+geom_point(aes(x=tm,y=guangdong),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #guangxi---------------广西
+  if(input$guangxi4){
+    p<-p+geom_line(aes(x=tm,y=guangxi),color="red",size=0.7)+geom_point(aes(x=tm,y=guangxi),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #hainan---------------海南
+  if(input$hainan4){
+    p<-p+geom_line(aes(x=tm,y=hainan),color="blue",size=0.7)+geom_point(aes(x=tm,y=hainan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  #chongqing---------------重庆
+  if(input$chongqing4){
+    p<-p+geom_line(aes(x=tm,y=chongqing),color="black",size=0.7)+geom_point(aes(x=tm,y=chongqing),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #sichuan---------------四川
+  if(input$sichuan4){
+    p<-p+geom_line(aes(x=tm,y=sichuan),color="red",size=0.7)+geom_point(aes(x=tm,y=sichuan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #guizhou---------------贵州
+  if(input$guizhou4){
+    p<-p+geom_line(aes(x=tm,y=guizhou),color="blue",size=0.7)+geom_point(aes(x=tm,y=guizhou),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #yunnan---------------云南
+  if(input$yunnan4){
+    p<-p+geom_line(aes(x=tm,y=yunnan),color="brown",size=0.7)+geom_point(aes(x=tm,y=yunnan),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #xizang---------------西藏
+  if(input$xizang4){
+    p<-p+geom_line(aes(x=tm,y=xizang),color="purple",size=0.7)+geom_point(aes(x=tm,y=xizang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #shanxi2---------------陕西
+  if(input$shanxi24){
+    p<-p+geom_line(aes(x=tm,y=shanxi2),color="black",size=0.7)+geom_point(aes(x=tm,y=shanxi2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #gansu---------------甘肃
+  if(input$gansu4){
+    p<-p+geom_line(aes(x=tm,y=gansu),color="red",size=0.7)+geom_point(aes(x=tm,y=gansu),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #qinghai---------------青海
+  if(input$qinghai4){
+    p<-p+geom_line(aes(x=tm,y=qinghai),color="blue",size=0.7)+geom_point(aes(x=tm,y=qinghai),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #ningxia---------------宁夏
+  if(input$ningxia4){
+    p<-p+geom_line(aes(x=tm,y=ningxia4),color="purple",size=0.7)+geom_point(aes(x=tm,y=ningxia4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #xinjiang---------------新疆
+  if(input$xinjiang4){
+    p<-p+geom_line(aes(x=tm,y=xinjiang),color="brown",size=0.7)+geom_point(aes(x=tm,y=xinjiang),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  p+ylab("国家铁路省、市、自治区客运周转量")+xlab("时间")+geom_line()
+  
+})
+#4_19kyzzl-------国家铁路省、市、自治区客运周转量表输出lixueyan
+output$kyzzl_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      lxy4rawdata<-lxy4_yearly
+      lxy4rawdata<-data.frame(lxy4rawdata[1:33])
+      data<-lxy4rawdata},
+    colnames = c('年度','合计','北京','天津','河北','山西','内蒙古','辽宁','吉林','黑龙江','上海','江苏','浙江','安徽','福建','江西','山东','河南','湖北','湖南','广东','广西','海南','重庆','四川','贵州','云南','西藏','陕西','甘肃','青海','宁夏','新疆'),
+    rownames = TRUE))
+#------李雪妍5_1国家铁路机车运用指标
+output$jcyyzb_plot <- renderPlot( {
+  lxy5rawdata<-lxy5_yearly
+  lxy5rawdata$tm<-as.Date.POSIXct(lxy5rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(lxy5rawdata$tm)
+  
+  if(input$year_start_jcyyzb> input$year_end_jcyyzb)  {
+    p<-ggplot(lxy5rawdata,x=c(lxy5rawdata$tm[1],lxy5rawdata$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    lxy5rawdatasub<-subset(lxy5rawdata,(substr(lxy5rawdata$tm,1,4)>=input$year_start_jcyyzb) )
+    lxy5rawdatasub<-subset(lxy5rawdatasub,(substr(lxy5rawdatasub$tm,1,4)<=input$year_end_jcyyzb))
+    p<-ggplot(lxy5rawdatasub,x=c(lxy5rawdatasub$tm[1],lxy5rawdatasub$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  #daily_possessed_locomotive_number---------------平均一日支配机车台数
+  if(input$daily_possessed_locomotive_number){
+    p<-p+geom_line(aes(x=tm,y=daily_possessed_locomotive_number),color="black",size=0.7)+geom_point(aes(x=tm,y=daily_possessed_locomotive_number),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #used_locomotive_number---------------运用机车
+  if(input$used_locomotive_number){
+    p<-p+geom_line(aes(x=tm,y=used_locomotive_number),color="red",size=0.7)+geom_point(aes(x=tm,y=used_locomotive_number),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #locomotive_opration_rate---------------机车运用率（%）
+  if(input$locomotive_opration_rate){
+    p<-p+geom_line(aes(x=tm,y=locomotive_opration_rate),color="blue",size=0.7)+geom_point(aes(x=tm,y=locomotive_opration_rate),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #locomotive_repair_rate---------------机车检修率（%）
+  if(input$locomotive_repair_rate){
+    p<-p+geom_line(aes(x=tm,y=locomotive_repair_rate),color="brown",size=0.7)+geom_point(aes(x=tm,y=locomotive_repair_rate),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #daily_passenger_locomotive_mileage---------------客运机车日车公里(公里)
+  if(input$daily_passenger_locomotive_mileage){
+    p<-p+geom_line(aes(x=tm,y=daily_passenger_locomotive_mileage),color="red",size=0.7)+geom_point(aes(x=tm,y=daily_passenger_locomotive_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #diesel_locomotive1---------------内燃
+  if(input$diesel_locomotive1){
+    p<-p+geom_line(aes(x=tm,y=diesel_locomotive1),color="blue",size=0.7)+geom_point(aes(x=tm,y=diesel_locomotive1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #electic_locomotive1---------------电力
+  if(input$electic_locomotive1){
+    p<-p+geom_line(aes(x=tm,y=electic_locomotive1),color="black",size=0.7)+geom_point(aes(x=tm,y=electic_locomotive1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #steam_locomotive1---------------蒸汽
+  if(input$steam_locomotive1){
+    p<-p+geom_line(aes(x=tm,y=steam_locomotive1),color="orange",size=0.7)+geom_point(aes(x=tm,y=steam_locomotive1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #passenger_locomotive_speed---------------客运机车旅行速度(公里/小时)
+  if(input$passenger_locomotive_speed){
+    p<-p+geom_line(aes(x=tm,y=passenger_locomotive_speed),color="brown",size=0.7)+geom_point(aes(x=tm,y=passenger_locomotive_speed),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #passenger_locomotive_tech_speed---------------客运机车技术速度(公里/小时)
+  if(input$passenger_locomotive_tech_speed){
+    p<-p+geom_line(aes(x=tm,y=passenger_locomotive_tech_speed),color="purple",size=0.7)+geom_point(aes(x=tm,y=passenger_locomotive_tech_speed),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #daily_freight_locomotive_mileage---------------货运机车日车公里(公里)
+  if(input$daily_freight_locomotive_mileage){
+    p<-p+geom_line(aes(x=tm,y=daily_freight_locomotive_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=daily_freight_locomotive_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #diesel_locomotive2---------------内燃
+  if(input$diesel_locomotive2){
+    p<-p+geom_line(aes(x=tm,y=diesel_locomotive2),color="red",size=0.7)+geom_point(aes(x=tm,y=diesel_locomotive2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #electic_locomotive2---------------电力
+  if(input$electic_locomotive2){
+    p<-p+geom_line(aes(x=tm,y=electic_locomotive2),color="blue",size=0.7)+geom_point(aes(x=tm,y=electic_locomotive2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #steam_locomotive2---------------蒸汽
+  if(input$steam_locomotive2){
+    p<-p+geom_line(aes(x=tm,y=steam_locomotive2),color="brown",size=0.7)+geom_point(aes(x=tm,y=steam_locomotive2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #freight_locomotive_speed---------------货运机车旅行速度(公里/小时)
+  if(input$freight_locomotive_speed){
+    p<-p+geom_line(aes(x=tm,y=freight_locomotive_speed),color="purple",size=0.7)+geom_point(aes(x=tm,y=freight_locomotive_speed),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #freight_locomotive_tech_speed---------------货运机车技术速度(公里/小时)
+  if(input$freight_locomotive_tech_speed){
+    p<-p+geom_line(aes(x=tm,y=freight_locomotive_tech_speed),color="orange",size=0.7)+geom_point(aes(x=tm,y=freight_locomotive_tech_speed),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #daily_freight_locomotive_volume---------------货运机车日产量
+  if(input$daily_freight_locomotive_volume){
+    p<-p+geom_line(aes(x=tm,y=daily_freight_locomotive_volume),color="black",size=0.7)+geom_point(aes(x=tm,y=daily_freight_locomotive_volume),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #diesel_locomotive3---------------内燃
+  if(input$diesel_locomotive3){
+    p<-p+geom_line(aes(x=tm,y=diesel_locomotive3),color="red",size=0.7)+geom_point(aes(x=tm,y=diesel_locomotive3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #electic_locomotive3---------------电力
+  if(input$electic_locomotive3){
+    p<-p+geom_line(aes(x=tm,y=electic_locomotive3),color="blue",size=0.7)+geom_point(aes(x=tm,y=electic_locomotive3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #steam_locomotive3---------------蒸汽
+  if(input$steam_locomotive3){
+    p<-p+geom_line(aes(x=tm,y=steam_locomotive3),color="brown",size=0.7)+geom_point(aes(x=tm,y=steam_locomotive3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #daily_freight_locomotive_height---------------货运列车平均总重(吨)
+  if(input$daily_freight_locomotive_height){
+    p<-p+geom_line(aes(x=tm,y=daily_freight_locomotive_height),color="black",size=0.7)+geom_point(aes(x=tm,y=daily_freight_locomotive_height),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #diesel_locomotive4---------------内燃
+  if(input$diesel_locomotive4){
+    p<-p+geom_line(aes(x=tm,y=diesel_locomotive4),color="red",size=0.7)+geom_point(aes(x=tm,y=diesel_locomotive4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #electic_locomotive4---------------电力
+  if(input$electic_locomotive4){
+    p<-p+geom_line(aes(x=tm,y=electic_locomotive4),color="blue",size=0.7)+geom_point(aes(x=tm,y=electic_locomotive4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #steam_locomotive4---------------蒸汽
+  if(input$steam_locomotive4){
+    p<-p+geom_line(aes(x=tm,y=steam_locomotive4),color="purple",size=0.7)+geom_point(aes(x=tm,y=steam_locomotive4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  p+ylab("国家铁路机车运用指标")+xlab("时间")+geom_line()
+  
+})
+#5_1jcyyzb-------国家铁路机车运用指标表输出lixueyan
+output$jcyyzb_table<-DT::renderDataTable(
+  DT::datatable(
+    {  
+      lxy5rawdata<-lxy5_yearly
+      lxy5rawdata<-data.frame(lxy5rawdata[1:25])
+      data<-lxy5rawdata},
+    colnames = c('年度','平均一日支配机车台数','运用机车','机车运用率（%）','机车检修率（%）','客运机车日车公里(公里)','内燃','电力','蒸汽','客运机车旅行速度(公里/小时)','客运机车技术速度(公里/小时)','货运机车日车公里(公里)','内燃','电力','蒸汽','货运机车旅行速度(公里/小时)','货运机车技术速度(公里/小时)','货运机车日产量','内燃','电力','蒸汽','货运列车平均总重(吨)','内燃','电力','蒸汽'),
+    rownames = TRUE))
+#——国家铁路机车能源消耗——————————————————————————————————————————————————————————————————————————————————————
+#——国家铁路机车能源消耗——————————————————————————————————————————————————————————————————————————————————————
+output$railwaytrain_energy_plot <- renderPlot( {
+  dfrawdata_52<-df_yearly_52
+  dfrawdata_52$tm<-as.Date.POSIXct(df_yearly_52$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata_52$tm)
+  
+  if(input$year_start_railwaytrain_energy> input$year_end_railwaytrain_energy)  {
+    p<-ggplot(dfrawdata_52,x=c(dfrawdata_52$tm[1],dfrawdata_52$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    dfrawdatasub_52<-subset(dfrawdata_52,(substr(dfrawdata_52$tm,1,4)>=input$year_start_railwaytrain_energy) )
+    dfrawdatasub_52<-subset(dfrawdatasub_52,(substr(dfrawdatasub_52$tm,1,4)<=input$year_end_railwaytrain_energy))
+    p<-ggplot(dfrawdatasub_52,x=c(dfrawdatasub_52$tm[1],dfrawdatasub_52$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  #oil_consume_volume---------------内燃机车油消耗总量(万吨)
+  if(input$railwaytrain_consumption=="oil_consume_volume"){
+    p<-p+geom_line(aes(x=tm,y=oil_consume_volume),color="black",size=0.7)+ylim(200,530)+geom_point(aes(x=tm,y=oil_consume_volume),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #oil_consume_volume_kilometer --------------内燃机车每万吨公里耗油量(公斤) 
+  if (input$railwaytrain_consumption=="oil_consume_volume_kilometer") {
+    p<-p+geom_line(aes(x=tm,y=oil_consume_volume_kilometer),color="red",size=0.7)+ylim(20,30)+geom_point(aes(x=tm,y=oil_consume_volume_kilometer),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  #electric_consume_volume-----------------电力机车电消耗总量(亿千瓦小时)
+  if (input$railwaytrain_consumption=="electric_consume_volume") {
+    p<-p+geom_line(aes(x=tm,y=electric_consume_volume),color="blue",size=0.7)+geom_point(aes(x=tm,y=electric_consume_volume),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #electric_consume_volume_kilometer----------------电力机车每万吨公里耗电量(千瓦小时)
+  if (input$railwaytrain_consumption=="electric_consume_volume_kilometer") {
+    p<-p+geom_line(aes(x=tm,y=electric_consume_volume_kilometer),color="orange",size=0.7)+ylim(100,120)+geom_point(aes(x=tm,y=electric_consume_volume_kilometer),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #coal_consume_volume-----------------蒸汽机车煤消耗总量(万吨)
+  if (input$railwaytrain_consumption=="coal_consume_volume") {
+    p<-p+geom_line(aes(x=tm,y=coal_consume_volume),color="blue",size=0.7)+geom_point(aes(x=tm,y=coal_consume_volume),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #coal_consume_volume_kilometer----------------蒸汽机车每万吨公里耗煤量(公斤)
+  if (input$railwaytrain_consumption=="coal_consume_volume_kilometer") {
+    p<-p+geom_line(aes(x=tm,y=coal_consume_volume_kilometer),color="orange",size=0.7)+geom_point(aes(x=tm,y=coal_consume_volume_kilometer),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  p+ylab("铁路机车能源消耗")+xlab("时间")+geom_line()
+  
+})
+#机车能源消耗
+output$railwaytrain_energy_table<-DT::renderDataTable(
+  DT::datatable(
+    {
+      dfrawdata_52<-df_yearly_52
+      dfrawdata_52<-data.frame(dfrawdata_52)
+      data<-dfrawdata_52},
+    colnames = c('时间','内燃机车油消耗总量(万吨)','内燃机车每万吨公里耗油量(公斤)','电力机车电消耗总量(亿千瓦小时)','电力机车每万吨公里耗电量(千瓦小时)','蒸汽机车煤消耗总量(万吨)','蒸汽机车每万吨公里耗煤量(公斤)'),
+    rownames = TRUE))
+
+#——国家铁路机车工作量——————————————————————————————————————————————————————————————————————————————————————
+#——国家铁路机车工作量——————————————————————————————————————————————————————————————————————————————————————
+output$railwaytrain_work_plot <- renderPlot( {
+  dfrawdata_53<-df_yearly_53
+  dfrawdata_53$tm<-as.Date.POSIXct(df_yearly_53$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata_53$tm)
+  
+  if(input$year_start_railwaytrain_work> input$year_end_railwaytrain_work)  {
+    p<-ggplot(dfrawdata_53,x=c(dfrawdata_53$tm[1],dfrawdata_53$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    dfrawdatasub_53<-subset(dfrawdata_53,(substr(dfrawdata_53$tm,1,4)>=input$year_start_railwaytrain_work) )
+    dfrawdatasub_53<-subset(dfrawdatasub_53,(substr(dfrawdatasub_53$tm,1,4)<=input$year_end_railwaytrain_work))
+    p<-ggplot(dfrawdatasub_53,x=c(dfrawdatasub_53$tm[1],dfrawdatasub_53$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  if(input$locomotive_running_mileage){
+    p<-p+geom_line(aes(x=tm,y=locomotive_running_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=locomotive_running_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$diesel_locomotive1) {
+    p<-p+geom_line(aes(x=tm,y=diesel_locomotive1),color="red",size=0.7)+geom_point(aes(x=tm,y=diesel_locomotive1),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  if (input$electic_locomotive1) {
+    p<-p+geom_line(aes(x=tm,y=electic_locomotive1),color="blue",size=0.7)+geom_point(aes(x=tm,y=electic_locomotive1),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$steam_locomotive1) {
+    p<-p+geom_line(aes(x=tm,y=steam_locomotive1),color="orange",size=0.7)+geom_point(aes(x=tm,y=steam_locomotive1),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$service_running_mileage){
+    p<-p+geom_line(aes(x=tm,y=service_running_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=service_running_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$diesel_locomotive2) {
+    p<-p+geom_line(aes(x=tm,y=diesel_locomotive2),color="red",size=0.7)+geom_point(aes(x=tm,y=diesel_locomotive2),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  if (input$electic_locomotive2) {
+    p<-p+geom_line(aes(x=tm,y=electic_locomotive2),color="blue",size=0.7)+geom_point(aes(x=tm,y=electic_locomotive2),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$steam_locomotive2) {
+    p<-p+geom_line(aes(x=tm,y=steam_locomotive2),color="orange",size=0.7)+geom_point(aes(x=tm,y=steam_locomotive2),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$traction_running_mileage){
+    p<-p+geom_line(aes(x=tm,y=traction_running_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=traction_running_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$diesel_locomotive3) {
+    p<-p+geom_line(aes(x=tm,y=diesel_locomotive3),color="red",size=0.7)+geom_point(aes(x=tm,y=diesel_locomotive3),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  }
+  if (input$electic_locomotive3) {
+    p<-p+geom_line(aes(x=tm,y=electic_locomotive3),color="blue",size=0.7)+geom_point(aes(x=tm,y=electic_locomotive3),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$steam_locomotive3) {
+    p<-p+geom_line(aes(x=tm,y=steam_locomotive3),color="orange",size=0.7)+geom_point(aes(x=tm,y=steam_locomotive3),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  p+ylab("机车走行公里数据")+xlab("时间")+geom_line()
+  
+})
+#机车工作量
+output$railwaytrain_work_table<-DT::renderDataTable(
+  DT::datatable(
+    {
+      dfrawdata_53<-df_yearly_53
+      dfrawdata_53<-data.frame(dfrawdata_53)
+      data<-dfrawdata_53},
+    colnames = c('时间','机车走行公里合计(百万)','内燃机车走行公里(百万)','电力机车走行公里(百万)','蒸汽机车走行公里(百万)','本务机走行公里合计(百万)','本务内燃机走行公里(百万)','本务电力机走行公里(百万)','本务蒸汽机走行公里(百万)','牵引重吨公里合计(亿)','内燃牵引重吨公里(亿)','电力牵引重吨公里(亿)','蒸汽牵引重吨公里(亿)'),
+    rownames = TRUE))
+#——国家铁路货车运用指标——————————————————————————————————————————————————————————————————————————————————————
+#——国家铁路货车运用指标——————————————————————————————————————————————————————————————————————————————————————
+output$railway_freightusing_plot <- renderPlot( {
+  dfrawdata_54<-df_yearly_54
+  dfrawdata_54$tm<-as.Date.POSIXct(df_yearly_54$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata_54$tm)
+  
+  if(input$year_start_railway_freightusing> input$year_end_railway_freightusing)  {
+    p<-ggplot(dfrawdata_54,x=c(dfrawdata_54$tm[1],dfrawdata_54$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    dfrawdatasub_54<-subset(dfrawdata_54,(substr(dfrawdata_54$tm,1,4)>=input$year_start_railway_freightusing) )
+    dfrawdatasub_54<-subset(dfrawdatasub_54,(substr(dfrawdatasub_54$tm,1,4)<=input$year_end_railway_freightusing))
+    p<-ggplot(dfrawdatasub_54,x=c(dfrawdatasub_54$tm[1],dfrawdatasub_54$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  if(input$daily_load){
+    p<-p+geom_line(aes(x=tm,y=daily_load),color="black",size=0.7)+geom_point(aes(x=tm,y=daily_load),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$daily_load_coal) {
+    p<-p+geom_line(aes(x=tm,y=daily_load_coal),color="red",size=0.7)+geom_point(aes(x=tm,y=daily_load_coal),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  }
+  if (input$daily_unload) {
+    p<-p+geom_line(aes(x=tm,y=daily_unload),color="blue",size=0.7)+geom_point(aes(x=tm,y=daily_unload),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$freight_car_static_weight) {
+    p<-p+geom_line(aes(x=tm,y=freight_car_static_weight),color="orange",size=0.7)+ylim(50,70)+geom_point(aes(x=tm,y=freight_car_static_weight),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$daily_ownership_car){
+    p<-p+geom_line(aes(x=tm,y=daily_ownership_car),color="black",size=0.7)+geom_point(aes(x=tm,y=daily_ownership_car),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$daily_using_car) {
+    p<-p+geom_line(aes(x=tm,y=daily_using_car),color="red",size=0.7)+geom_point(aes(x=tm,y=daily_using_car),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  if (input$feight_car_using_percent) {
+    p<-p+geom_line(aes(x=tm,y=feight_car_using_percent),color="blue",size=0.7)+geom_point(aes(x=tm,y=feight_car_using_percent),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$empty_car_running_percent) {
+    p<-p+geom_line(aes(x=tm,y=empty_car_running_percent),color="orange",size=0.7)+geom_point(aes(x=tm,y=empty_car_running_percent),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$feight_car_turnover){
+    p<-p+geom_line(aes(x=tm,y=feight_car_turnover),color="black",size=0.7)+ylim(4,6)+geom_point(aes(x=tm,y=feight_car_turnover),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$once_detention_time) {
+    p<-p+geom_line(aes(x=tm,y=once_detention_time),color="red",size=0.7)+geom_point(aes(x=tm,y=once_detention_time),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  if (input$transit_detention_time) {
+    p<-p+geom_line(aes(x=tm,y=transit_detention_time),color="blue",size=0.7)+geom_point(aes(x=tm,y=transit_detention_time),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$complete_round) {
+    p<-p+geom_line(aes(x=tm,y=complete_round),color="orange",size=0.7)+geom_point(aes(x=tm,y=complete_round),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$heavy_round) {
+    p<-p+geom_line(aes(x=tm,y=heavy_round),color="blue",size=0.7)+geom_point(aes(x=tm,y=heavy_round),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$transit_round) {
+    p<-p+geom_line(aes(x=tm,y=transit_round),color="red",size=0.7)+geom_point(aes(x=tm,y=transit_round),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  }
+  p+ylab("货车运用指标数据")+xlab("时间")+geom_line()
+  
+})
+#货车运用指标
+output$railway_freightusing_table<-DT::renderDataTable(
+  DT::datatable(
+    {
+      dfrawdata_54<-df_yearly_54
+      dfrawdata_54<-data.frame(dfrawdata_54)
+      data<-dfrawdata_54},
+    colnames = c('时间','日均装车(车)','日均装车_煤(车)','日均卸车(车)','货车静载重(吨)','日均现在车(辆)','日均运用车(辆)','货车运用率(%)','空车走行率(%)','货车周转时间(天)','一次作业停留时间(小时)','中转停留时间(小时)','全周距 (公里)','重周距(公里)','中转距离(公里)'),
+    rownames = TRUE))
+#-----李亚芳---------------
+#——国家铁路列车正点率——————————————————————————————————————————————————————————————————————————————————————
+#——国家铁路列车正点率——————————————————————————————————————————————————————————————————————————————————————
+output$railwaytrain_correct_point_plot <- renderPlot( {
+  dfrawdata_55<-df_yearly_55
+  dfrawdata_55$tm<-as.Date.POSIXct(dfrawdata_55$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata_55$tm)
+  
+  if(input$year_start_railwaytrain_correct_point> input$year_end_railwaytrain_correct_point)  {
+    p<-ggplot(dfrawdata_55,x=c(dfrawdata_55$tm[1],dfrawdata_55$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    dfrawdatasub_55<-subset(dfrawdata_55,(substr(dfrawdata_55$tm,1,4)>=input$year_start_railwaytrain_correct_point) )
+    dfrawdatasub_55<-subset(dfrawdatasub_55,(substr(dfrawdatasub_55$tm,1,4)<=input$year_end_railwaytrain_correct_point))
+    p<-ggplot(dfrawdatasub_55,x=c(dfrawdatasub_55$tm[1],dfrawdatasub_55$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  #passenger_depart_on_shedule_rate---------------旅客列车出发正点率(%)
+  if(input$passenger_depart_on_shedule_rate){
+    p<-p+geom_line(aes(x=tm,y=passenger_depart_on_shedule_rate),color="black",size=0.7)+ylim(89,100)+geom_point(aes(x=tm,y=passenger_depart_on_shedule_rate),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #passenger_running_on_shedule_rate --------------旅客列车运行正点率(%) 
+  if (input$passenger_running_on_shedule_rate) {
+    p<-p+geom_line(aes(x=tm,y=passenger_running_on_shedule_rate),color="red",size=0.7)+ylim(89,100)+geom_point(aes(x=tm,y=passenger_running_on_shedule_rate),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+    
+  }
+  #freight_depart_on_shedule_rate-----------------货物列车出发正点率(%)
+  if (input$freight_depart_on_shedule_rate) {
+    p<-p+geom_line(aes(x=tm,y=freight_depart_on_shedule_rate),color="blue",size=0.7)+ylim(89,100)+geom_point(aes(x=tm,y=freight_depart_on_shedule_rate),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  #freight_running_on_shedule_rate----------------货物列车运行正点率(%)
+  if (input$freight_running_on_shedule_rate) {
+    p<-p+geom_line(aes(x=tm,y=freight_running_on_shedule_rate),color="orange",size=0.7)+ylim(89,100)+geom_point(aes(x=tm,y=freight_running_on_shedule_rate),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  
+  p+ylab("列车正点率数据")+xlab("时间")+geom_line()
+  
+})
+#列车正点率
+output$railwaytrain_correct_point_table<-DT::renderDataTable(
+  DT::datatable(
+    {
+      dfrawdata_55<-df_yearly_55
+      dfrawdata_55<-data.frame(dfrawdata_55)
+      data<-dfrawdata_55},
+    colnames = c('时间','旅客列车出发正点率(%)','旅客列车运行正点率(%)','货物列车出发正点率(%)','货物列车运行正点率(%)'),
+    rownames = TRUE))
+#——全国铁路固定资产投资——————————————————————————————————————————————————————————————————————————————————————
+#——全国铁路固定资产投资——————————————————————————————————————————————————————————————————————————————————————
+output$railway_gdzctz_plot <- renderPlot( {
+  dfrawdata_61<-df_yearly_61
+  dfrawdata_61$tm<-as.Date.POSIXct(df_yearly_61$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata_61$tm)
+  
+  if(input$year_start_railway_gdzctz> input$year_end_railway_gdzctz)  {
+    p<-ggplot(dfrawdata_61,x=c(dfrawdata_61$tm[1],dfrawdata_61$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    dfrawdatasub_61<-subset(dfrawdata_61,(substr(dfrawdata_61$tm,1,4)>=input$year_start_railway_gdzctz) )
+    dfrawdatasub_61<-subset(dfrawdatasub_61,(substr(dfrawdatasub_61$tm,1,4)<=input$year_end_railway_gdzctz))
+    p<-ggplot(dfrawdatasub_61,x=c(dfrawdatasub_61$tm[1],dfrawdatasub_61$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  if(input$fixed_assets_investment){
+    p<-p+geom_line(aes(x=tm,y=fixed_assets_investment),color="black",size=0.7)+geom_point(aes(x=tm,y=fixed_assets_investment),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$infrastructure_investment) {
+    p<-p+geom_line(aes(x=tm,y=infrastructure_investment),color="red",size=0.7)+geom_point(aes(x=tm,y=infrastructure_investment),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  }
+  if (input$renovation_investment) {
+    p<-p+geom_line(aes(x=tm,y=renovation_investment),color="blue",size=0.7)+geom_point(aes(x=tm,y=renovation_investment),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$locomotive_purchase_investment) {
+    p<-p+geom_line(aes(x=tm,y=locomotive_purchase_investment),color="orange",size=0.7)+geom_point(aes(x=tm,y=locomotive_purchase_investment),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  p+ylab("固定资产投资数据")+xlab("时间")+geom_line()
+  
+})
+output$railway_gdzctz_table<-DT::renderDataTable(
+  DT::datatable(
+    {
+      dfrawdata_61<-df_yearly_61
+      dfrawdata_61<-data.frame(dfrawdata_61)
+      data<-dfrawdata_61},
+    colnames = c('时间','总固定资产(亿元)','基本建设(亿元)','更新改造(亿元)','机车车辆购置(亿元)'),
+    rownames = TRUE))
+#——全国铁路基本建设投资——————————————————————————————————————————————————————————————————————————————————————
+#——全国铁路基本建设投资——————————————————————————————————————————————————————————————————————————————————————
+output$railway_jbjstz_plot <- renderPlot( {
+  dfrawdata_62<-df_yearly_62
+  dfrawdata_62$tm<-as.Date.POSIXct(df_yearly_62$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  len<-length(dfrawdata_62$tm)
+  
+  if(input$year_start_railway_jbjstz> input$year_end_railway_jbjstz)  {
+    p<-ggplot(dfrawdata_62,x=c(dfrawdata_62$tm[1],dfrawdata_62$tm[len]),aes(x=tm[1],y=0))
+  }
+  else{
+    dfrawdatasub_62<-subset(dfrawdata_62,(substr(dfrawdata_62$tm,1,4)>=input$year_start_railway_jbjstz) )
+    dfrawdatasub_62<-subset(dfrawdatasub_62,(substr(dfrawdatasub_62$tm,1,4)<=input$year_end_railway_jbjstz))
+    p<-ggplot(dfrawdatasub_62,x=c(dfrawdatasub_62$tm[1],dfrawdatasub_62$tm[len]),aes(x=tm[1],y=0))
+  }
+  
+  if(input$infrastructure_investment_sum){
+    p<-p+geom_line(aes(x=tm,y=infrastructure_investment_sum),color="black",size=0.7)+geom_point(aes(x=tm,y=infrastructure_investment_sum),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$national_joint_railway) {
+    p<-p+geom_line(aes(x=tm,y=national_joint_railway),color="red",size=0.7)+geom_point(aes(x=tm,y=national_joint_railway),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  }
+  if (input$local_railway) {
+    p<-p+geom_line(aes(x=tm,y=local_railway),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$MOR_investment) {
+    p<-p+geom_line(aes(x=tm,y=MOR_investment),color="orange",size=0.7)+geom_point(aes(x=tm,y=MOR_investment),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if(input$MOR_national_joint_railway){
+    p<-p+geom_line(aes(x=tm,y=MOR_national_joint_railway),color="black",size=0.7)+geom_point(aes(x=tm,y=MOR_national_joint_railway),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$MOR_local_railway) {
+    p<-p+geom_line(aes(x=tm,y=MOR_local_railway),color="red",size=0.7)+geom_point(aes(x=tm,y=MOR_local_railway),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  }
+  if (input$local_government_enterprise_investment) {
+    p<-p+geom_line(aes(x=tm,y=local_government_enterprise_investment),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_government_enterprise_investment),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$local_railway_local) {
+    p<-p+geom_line(aes(x=tm,y=local_railway_local),color="orange",size=0.7)+geom_point(aes(x=tm,y=local_railway_local),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$old_line) {
+    p<-p+geom_line(aes(x=tm,y=old_line),color="red",size=0.7)+geom_point(aes(x=tm,y=old_line),size=3,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
+  }
+  if (input$new_line) {
+    p<-p+geom_line(aes(x=tm,y=new_line),color="blue",size=0.7)+geom_point(aes(x=tm,y=new_line),size=3,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  if (input$other_line) {
+    p<-p+geom_line(aes(x=tm,y=other_line),color="orange",size=0.7)+geom_point(aes(x=tm,y=other_line),size=3,shape=21,colour="darkred",fill="cornsilk",position=position_dodge(width=0.2))
+  }
+  p+ylab("基本建设投资数据")+xlab("时间")+geom_line()
+  
+})
+#--------李亚芳---------  
+#基本建设投资
+output$railway_jbjstz_table<-DT::renderDataTable(
+  DT::datatable(
+    {
+      dfrawdata_62<-df_yearly_62
+      dfrawdata_62<-data.frame(dfrawdata_62)
+      data<-dfrawdata_62},
+    colnames = c('时间','基本建设投资合计(亿元)','国家和合资铁路(亿元)','地方铁路(亿元)','铁道部投资合计(亿元)','铁道部国家和合资铁路(亿元)','铁道部地方铁路(亿元)','地方政府与企业投资合计(亿元)','地方政府与企业投资地方铁路(亿元)','既有线(亿元)','新线(亿元)','其他(亿元)'),
+    rownames = TRUE))
+#--------李亚芳---------  
+#--------刘治----------
+    output$plot6.3 <- renderPlot({
+
+        names(table6.3) <- c("tm",'a1','b2','c3','d4','e5','f6','g7','h8','i9','j10','k11')
+        if(input$tm_start6.3 > input$tm_end6.3){
+        p<-ggplot(table6.3)
+        }
+        else{
+        sub6.3<-subset(table6.3,tm>=input$tm_start6.3)
+        sub6.3<-subset(sub6.3,tm<=input$tm_end6.3)
+        p<-ggplot(sub6.3,x=c(input$tm_start6.3,input$tm_start6.3))
+        }
+        if(input$df6.3_capital_toal){
+            p<-p+geom_line(aes(x=tm,y=a1),color="black",size=0.7)+geom_point(aes(x=tm,y=a1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.3_national_budget){
+            p<-p+geom_line(aes(x=tm,y=b2),color="red",size=0.7)+geom_point(aes(x=tm,y=b2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.3_internal_loan){
+            p<-p+geom_line(aes(x=tm,y=c3),color="blue",size=0.7)+geom_point(aes(x=tm,y=c3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.3_foreign_capital){
+            p<-p+geom_line(aes(x=tm,y=d4),color="orange",size=0.7)+geom_point(aes(x=tm,y=d4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.3_special_fund){
+            p<-p+geom_line(aes(x=tm,y=e5),color="green",size=0.7)+geom_point(aes(x=tm,y=e5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.3_bond){
+            p<-p+geom_line(aes(x=tm,y=f6),color="purple",size=0.7)+geom_point(aes(x=tm,y=f6),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.3_coal_oil){
+            p<-p+geom_line(aes(x=tm,y=g7),color="black",size=0.7)+geom_point(aes(x=tm,y=g7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.3_MOR_self){
+            p<-p+geom_line(aes(x=tm,y=h8),color="red",size=0.7)+geom_point(aes(x=tm,y=h8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.3_enterprise_self){
+            p<-p+geom_line(aes(x=tm,y=i9),color="blue",size=0.7)+geom_point(aes(x=tm,y=i9),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.3_others){
+            p<-p+geom_line(aes(x=tm,y=j10),color="orange",size=0.7)+geom_point(aes(x=tm,y=j10),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.3_vehicle_tax){
+            p<-p+geom_line(aes(x=tm,y=k11),color="green",size=0.7)+geom_point(aes(x=tm,y=k11),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        p+ylab("铁道部基本建设投资的资金来源")+xlab("时间")
+    })
+    
+    output$table6.3 <- DT::renderDataTable({
+        names(table6.3)<- c("年度","合计","国家预算内",'国内贷款','利用外资','专项基金','债券','煤代油','铁道部自筹','企事业自筹','其他资金','车辆购置税')
+        table6.3})
+
+    output$plot6.4 <- renderPlot({
+        names(table6.4) <- c('tm','a1','b2','c3','d4','e5','f6','g7','h8','i9','j10','k11','l12','m13','n14','o15')
+        if(input$tm_start6.4 > input$tm_end6.4){
+        p<-ggplot(table6.4)
+        }
+        else{
+        sub6.4<-subset(table6.4,tm>=input$tm_start6.4)
+        sub6.4<-subset(sub6.4,tm<=input$tm_end6.4)
+        p<-ggplot(sub6.4,x=c(input$tm_start6.4,input$tm_start6.4))
+        }
+        if(input$df6.4_new_lay_total){
+            p<-p+geom_line(aes(x=tm,y=a1),color="black",size=0.7)+geom_point(aes(x=tm,y=a1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_new_lay_national){
+            p<-p+geom_line(aes(x=tm,y=b2),color="red",size=0.7)+geom_point(aes(x=tm,y=b2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_new_lay_regional){
+            p<-p+geom_line(aes(x=tm,y=c3),color="blue",size=0.7)+geom_point(aes(x=tm,y=c3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_multi_lay_total){
+            p<-p+geom_line(aes(x=tm,y=d4),color="black",size=0.7)+geom_point(aes(x=tm,y=d4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_multi_lay_national){
+            p<-p+geom_line(aes(x=tm,y=e5),color="red",size=0.7)+geom_point(aes(x=tm,y=e5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_multi_lay_regional){
+            p<-p+geom_line(aes(x=tm,y=f6),color="blue",size=0.7)+geom_point(aes(x=tm,y=f6),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_new_product_total){
+            p<-p+geom_line(aes(x=tm,y=g7),color="black",size=0.7)+geom_point(aes(x=tm,y=g7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_new_product_national){
+            p<-p+geom_line(aes(x=tm,y=h8),color="red",size=0.7)+geom_point(aes(x=tm,y=h8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_new_product_regional){
+            p<-p+geom_line(aes(x=tm,y=i9),color="blue",size=0.7)+geom_point(aes(x=tm,y=i9),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_multi_product_total){
+            p<-p+geom_line(aes(x=tm,y=j10),color="black",size=0.7)+geom_point(aes(x=tm,y=j10),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_multi_product_national){
+            p<-p+geom_line(aes(x=tm,y=k11),color="red",size=0.7)+geom_point(aes(x=tm,y=k11),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_multi_product_regional){
+            p<-p+geom_line(aes(x=tm,y=l12),color="blue",size=0.7)+geom_point(aes(x=tm,y=l12),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_electr_product_total){
+            p<-p+geom_line(aes(x=tm,y=m13),color="black",size=0.7)+geom_point(aes(x=tm,y=m13),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_electr_product_national){
+            p<-p+geom_line(aes(x=tm,y=n14),color="red",size=0.7)+geom_point(aes(x=tm,y=n14),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.4_electr_product_regional){
+            p<-p+geom_line(aes(x=tm,y=o15),color="blue",size=0.7)+geom_point(aes(x=tm,y=o15),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        p+ylab("铁路基本建设铺轨及投产里程")+xlab("时间")
+    })
+    
+    output$table6.4 <- DT::renderDataTable({
+        names(table6.4) <- c('年度','新线铺轨里程','国家和合资铁路','地方铁路','复线铺轨里程','国家和合资铁路','地方铁路','新线投产里程','国家和合资铁路','地方铁路','复线投产里程','国家和合资铁路','地方铁路','电气化铁路投产里程','国家和合资铁路','地方铁路')
+        table6.4})
+    
+    output$plot6.7 <- renderPlot({
+        names(table6.7) <- c('tm','a1','b2','c3','d4','e5','f6','g7','h8','i9','j10','k11')
+        if(input$tm_start6.7 > input$tm_end6.7){
+        p<-ggplot(table6.7)
+        }
+        else{
+        sub6.7<-subset(table6.7,tm>=input$tm_start6.7)
+        sub6.7<-subset(sub6.7,tm<=input$tm_end6.7)
+        p<-ggplot(sub6.7,x=c(input$tm_start6.7,input$tm_end6.7))
+        }
+        if(input$df6.7_invest_toal){
+            p<-p+geom_line(aes(x=tm,y=a1),color="black",size=0.7)+geom_point(aes(x=tm,y=a1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.7_invest_infruatructure){
+            p<-p+geom_line(aes(x=tm,y=b2),color="red",size=0.7)+geom_point(aes(x=tm,y=b2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.7_invest_change){
+            p<-p+geom_line(aes(x=tm,y=c3),color="blue",size=0.7)+geom_point(aes(x=tm,y=c3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.7_invest_others){
+            p<-p+geom_line(aes(x=tm,y=d4),color="orange",size=0.7)+geom_point(aes(x=tm,y=d4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.7_motor_total){
+            p<-p+geom_line(aes(x=tm,y=e5),color="black",size=0.7)+geom_point(aes(x=tm,y=e5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.7_motor_fuel){
+            p<-p+geom_line(aes(x=tm,y=g7),color="red",size=0.7)+geom_point(aes(x=tm,y=g7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.7_motor_electric){
+            p<-p+geom_line(aes(x=tm,y=h8),color="blue",size=0.7)+geom_point(aes(x=tm,y=h8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.7_bus7){
+            p<-p+geom_line(aes(x=tm,y=i9),color="red",size=0.7)+geom_point(aes(x=tm,y=i9),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.7_truck){
+            p<-p+geom_line(aes(x=tm,y=j10),color="blue",size=0.7)+geom_point(aes(x=tm,y=j10),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        if(input$df6.7_bullet){
+            p<-p+geom_line(aes(x=tm,y=k11),color="black",size=0.7)+geom_point(aes(x=tm,y=k11),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+        p+ylab("国家铁路机车车辆购置")+xlab('时间')
+    })
+    
+    output$table6.7 <- DT::renderDataTable({
+        names(table6.7)<-c('年度','投资完成（亿元）','基建资金','更改资金','其他资金','机车（台）','内燃','电力',"客车（辆）",'货车（辆）',"动车组(组)")
+        table6.7})
 
 }
 )
