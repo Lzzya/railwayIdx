@@ -104,14 +104,14 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                    #预警信号系统界面
                    
                    tabPanel("预警信号系统",
-                            titlePanel("铁路预警信号灯"),
+                            titlePanel("铁路预警信号灯(黑线代表货运，蓝线代表客运)"),
                             hr(),                          
                             plotOutput(outputId = "plot_index", height = "400px"),
                             hr(),
                             wellPanel(
                               h4("铁路运输景气预警信号系统，是借助于相关计量经济分析方法，将多个指标进行数据处理，合并为一个综合性"),
                               h4("的指标，对这组指标和综合指标所代表的铁路运输波动状况发出预警信号，通过观察信号的变化情况，来判断"), 
-                              h4("未来铁路运输增长的趋势。在本APP中，五种颜色信号的含义如下："),
+                              h4("未来铁路运输增长的趋势。在本APP中，三种颜色信号的含义如下："),
                               #h4("蓝灯&浅蓝灯---运输市场景气偏冷"),
                               h4("绿灯---铁路运输发展稳定"),
                               h4("黄灯---铁路运输短期内有转热和加速的可能"),
@@ -809,8 +809,8 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                    
                    
                    navbarMenu("适配性研究",
-                              tabPanel("固定资产-营业里程",
-                                       titlePanel("固定资产-营业里程"),
+                              tabPanel("基本建设投资-新增营业里程",
+                                       titlePanel("基本建设投资-新增营业里程"),
                                        
                                        sidebarLayout(
                                          sidebarPanel(
@@ -830,9 +830,9 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                        choice=y_wenjing_rawdata_yearly,
                                                        selected=max(y_wenjing_rawdata_yearly) ),
                                            textInput(inputId="mileage_input",
-                                                     label=strong("营业里程"),
+                                                     label=strong("新增营业里程"),
                                                      value=round(mean(df_yearly$mileage),2)),
-                                           hr("预测结果—固定资产值（亿元）"),
+                                           hr("预测结果—基本建设投资值（亿元）"),
                                            hr(),
                                            textOutput("mileage_fixed_assets_investment_output") ,
                                            hr(),
@@ -855,8 +855,8 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                        )
                               ),
                               
-                              tabPanel("固定资产-铺轨里程",
-                                       titlePanel("固定资产投资-铺轨里程"),
+                              tabPanel("基本建设投资-新线铺轨里程",
+                                       titlePanel("基本建设投资-新线铺轨里程"),
                                        
                                        sidebarLayout(
                                          sidebarPanel(
@@ -878,9 +878,9 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                            textInput(inputId="newline_tracklaying_mileage_input",
                                                      label=strong("新线铺轨里程（公里）"),
                                                      value=round(mean(df_yearly$newline_tracklaying_mileage),2)),
-                                           textInput(inputId="oldline_tracklaying_mileage_input",
-                                                     label=strong("复线铺轨里程（公里）"),
-                                                     value=round(mean(df_yearly$oldline_tracklaying_mileage),2)),
+                                           #textInput(inputId="oldline_tracklaying_mileage_input",
+                                           #label=strong("复线铺轨里程（公里）"),
+                                           #value=round(mean(df_yearly$oldline_tracklaying_mileage),2)),
                                            hr("预测结果——固定资产值（亿元）"),
                                            hr(),
                                            textOutput("tracklaying_mileage_output") ,
@@ -896,7 +896,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                              tabPanel("多元线性回归", plotOutput("tracklaying_mileage_linearplot")), 
                                              tabPanel("随机森林回归", plotOutput("tracklaying_mileage_rfplot")), 
                                              tabPanel("支持向量机回归", plotOutput("tracklaying_mileage_svmplot"))
-
+                                             
                                            ),
                                            
                                            fluidRow(  DT::dataTableOutput("tracklaying_mileage_table")   )
