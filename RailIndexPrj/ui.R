@@ -1028,8 +1028,8 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                        )
                                        ),
 
-tabPanel("客运量-动车组数-客运机车日行公里数",
-         titlePanel("客运量-动车组数-客运机车日行公里数"),
+tabPanel("客运量-动车组数-客运机车日车公里数",
+         titlePanel("客运量-动车组数-客运机车日车公里数"),
          
          sidebarLayout(
            sidebarPanel(

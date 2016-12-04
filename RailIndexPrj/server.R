@@ -2010,7 +2010,7 @@ output$passenger_volume_rfplot <- renderPlot( {
     {
       PVp<-plotCurve(PVdfsub,PVdfsub$tm,PVdfsub$frRegPred)
     }
-    p+ylab("固定资产投资额")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    PVp+ylab("客运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   }
  
   if(input$passenger_volume_predict_data){
