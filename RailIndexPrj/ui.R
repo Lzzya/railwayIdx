@@ -24,7 +24,7 @@ y_wenjing_rawdata_yearly<-substr(df_yearly$tm,1,4)
 dftrans<-read.xlsx("trans_index_x12.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 dftrans$tm<-as.Date.POSIXct(dftrans$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
 y_wenjing<-c(2000:max(y_wenjing_rawdata_yearly))
-
+y_wangyang<-c(2002:max(y_wenjing_rawdata_yearly))
 y_yiheng<-y_wenjing
 
 #-----------------------------------------
@@ -271,12 +271,12 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 fluidRow(
                                                                                   column(3,  selectInput(inputId = "year_start_trans",#year_start_trans运输合成指数中的起始年下拉框
                                                                                                          label = "自:", 
-                                                                                                         choices = y_wenjing,
-                                                                                                         selected = min(y_wenjing) )),
+                                                                                                         choices=y_wangyang,
+                                                                                                         selected = min(y_wangyang) )),
                                                                                   column(3, selectInput(inputId="year_end_trans",#year_end_trans运输合成指数中的终止年下拉框
                                                                                                         label="至:",
-                                                                                                        choice=y_wenjing,
-                                                                                                        selected=max(y_wenjing)))
+                                                                                                        choices=y_wangyang,
+                                                                                                        selected=max(y_wangyang)))
                                                                                 ),
                                                                                 plotOutput(outputId="trans_index", height = "400px"), #trans_index 运输合成指数的画图
                                                                                 fluidRow(
@@ -1129,8 +1129,8 @@ tabPanel("客运量-动车组数-客运机车日行公里数",
 #---------------------------------------------------------------------------------------------------------
 #-----------------------------------------机车数量适配性研究----------------------------------------------       
 
-                              tabPanel("机车数量-客运量-货运量",
-                                       titlePanel("机车数量-客运量-货运量"),
+                              tabPanel("机车数量-普铁客运量-货运量",
+                                       titlePanel("机车数量-普铁客运量-货运量"),
                                        sidebarLayout(
                                          sidebarPanel(
                                            checkboxInput(inputId="Locomotive_stat_data1",
@@ -1150,9 +1150,9 @@ tabPanel("客运量-动车组数-客运机车日行公里数",
                                            textInput(inputId="ton_input",
                                                      label=strong("预测输入值——货运量（万吨）"),
                                                      value=round(mean(Locomotive_fre$freight_volume_yearly),2)),
-                                           textInput(inputId="passenger_input",
-                                                     label=strong("预测输入值——客运量（万人）"),
-                                                     value=round(mean(Locomotive_fre$passenger_volume),0)),
+                                           textInput(inputId="ptpassenger_input",
+                                                     label=strong("预测输入值——普铁客运量（万人）"),
+                                                     value=round(mean(Locomotive_fre$ptpassenger_volume),0)),
                                            hr("预测结果——机车数量（辆）"),
                                            hr(),
                                            textOutput("locomotive_output1") ,

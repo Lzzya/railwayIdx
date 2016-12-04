@@ -193,6 +193,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   #-----运输----2. 合成指数计算------------------------  
   
   #-----运输----2.1 标准化变化率计算--------
+  dftrans2<-dftrans[dftrans$x12hyzzl!=0,]
   index.1<- function(z)
   { zlen<- length(z)
   z[3:zlen]<- 200*(z[3:zlen]-z[2:(zlen-1)])/(z[3:zlen]+z[2:(zlen-1)])
@@ -200,19 +201,18 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   z[1]<- 0
   z<- z/(sum(abs(z))/(zlen-2))}  #标准化变化率计算函数
   
+  index.2<- function(z)
+  {zlen<- length(z)
+  z[2:zlen]<- 200*(z[2:zlen]-z[1:(zlen-1)])/(z[2:zlen]+z[1:(zlen-1)])
+  z[1]<- 0
+  z<- z/(sum(abs(z))/(zlen-1))}
+  
   #-----运输----2.2 平均变化率R----------------------------------------------------------------------------
-  coor.trans.test<- index.1(dftrans[dftrans$x12hyl!=0,'x12hyl'])*hyl.trans.percent +
-                    + index.1(dftrans[dftrans$x12hyzzl!=0,'x12hyzzl'])*hyzzl.trans.percent+
-                    +index.1(dftrans[dftrans$x12gyzjz!=0,'x12gyzjz'])*gyzjz.trans.percent
+  coor.trans.test<- index.2(dftrans2$x12hyl)*hyl.trans.percent + index.2(dftrans2$x12hyzzl)*hyzzl.trans.percent+index.2(dftrans2$x12gyzjz)*gyzjz.trans.percent
   #coor.test一致合成指数平均变化率R2
-  adv.trans.test<- index.1(dftrans[dftrans$x12gc!=0,'x12gc'])*(gc.trans.percent-0.2)+
-                  + index.1(dftrans[dftrans$x12ym!=0,'x12ym'])*ym.trans.percent+
-                  +index.1(dftrans[dftrans$x12yy!=0,'x12yy'])*(yy.trans.percent+0.1)+
-                  +index.1(dftrans[dftrans$x12hlfdl!=0,'x12hlfdl'])*(hlfdl.trans.percent+0.1)
+  adv.trans.test<- index.2(dftrans2$x12gc)*(gc.trans.percent-0.2)+ index.2(dftrans2$x12ym)*ym.trans.percent+index.2(dftrans2$x12yy)*(yy.trans.percent+0.1)+index.2(dftrans2$x12hlfdl)*(hlfdl.trans.percent+0.1)
   #adv.trans.test先行合成指数平均变化率R1
-  delay.trans.test<- index.1(dftrans[dftrans$x12kyl!=0,'x12kyl'])*kyl.trans.percent +
-                  + index.1(dftrans[dftrans$x12kyzzl!=0,'x12kyzzl'])*kyzzl.trans.percent+
-                  +index.1(dftrans[dftrans$x12gdzctz!=0,'x12gdzctz'])*gdzctz.trans.percent
+  delay.trans.test<- index.2(dftrans2$x12kyl)*kyl.trans.percent + index.2(dftrans2$x12kyzzl)*kyzzl.trans.percent+index.2(dftrans2$x12gdzctz)*gdzctz.trans.percent
   #coor.trans.test滞后合成指数平均变化率R3
   
   #-----运输----2.3 标准化因子F----------------------------------------------
@@ -228,7 +228,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   a[2:alen]<- (200+a[2:alen])/(200-a[2:alen])#(200+当列)/(200-当列)
   a1<- a
   for(i in 2:alen){a1[i]<- a1[i-1]*a[i] }#a1[i]=a1[i-1]*a[i]初步合成指数
-  index.jizhunnianfen<- mean(a1[49:60]) #抽取基准年份的平均值
+  index.jizhunnianfen<- mean(a1[37:48]) #抽取基准年份的平均值
   a1<- 100*a1/index.jizhunnianfen
   return(a1)
   }
@@ -238,12 +238,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   trans.adv<- hecheng.trans.index(adv.trans.test,biaozhunhua.trans.F.adv)
   trans.delay<- hecheng.trans.index(delay.trans.test,biaozhunhua.trans.F.delay)
   
-  dflen<-length(dftrans[,1])
-  idxlen<-length(trans.coor)
-  
-  dftrans$coor[(dflen-idxlen+1):dflen]<- trans.coor   #168行数据与180行数据对齐
-  dftrans$adv[(dflen-idxlen+1):dflen]<- trans.adv
-  dftrans$delay[(dflen-idxlen+1):dflen]<- trans.delay
+  dftrans2$coor<- trans.coor
+  dftrans2$adv<- trans.adv
+  dftrans2$delay<- trans.delay
   
   #-----------运输的算完了！！----3.运输画线和显示数据表--------
   percent.input<- function(a)
@@ -262,9 +259,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     gdzctz.qz.input<- percent.input(input$trans_gdzctz_qz_input)
     kyzzl.qz.input<- percent.input(input$trans_kyzzl_qz_input)
     
-    coor.test.input<- index.1(dftrans$x12hyl)*hyl.qz.input+index.1(dftrans$x12hyzzl)*hyzzl.qz.input+index.1(dftrans$x12gyzjz)*gyzjz.qz.input
-    adv.test.input<- index.1(dftrans$x12gc)*gc.qz.input + index.1(dftrans$x12ym)*ym.qz.input+index.1(dftrans$x12yy)*yy.qz.input+index.1(dftrans$x12hlfdl)*hlfdl.qz.input
-    delay.test.input<- index.1(dftrans$x12kyl)*kyl.qz.input + index.1(dftrans$x12kyzzl)*kyzzl.qz.input+index.1(dftrans$x12gdzctz)*gdzctz.qz.input
+    coor.test.input<- index.2(dftrans2$x12hyl)*hyl.qz.input+index.2(dftrans2$x12hyzzl)*hyzzl.qz.input+index.2(dftrans2$x12gyzjz)*gyzjz.qz.input
+    adv.test.input<- index.2(dftrans2$x12gc)*gc.qz.input + index.2(dftrans2$x12ym)*ym.qz.input+index.2(dftrans2$x12yy)*yy.qz.input+index.2(dftrans2$x12hlfdl)*hlfdl.qz.input
+    delay.test.input<- index.2(dftrans2$x12kyl)*kyl.qz.input + index.2(dftrans2$x12kyzzl)*kyzzl.qz.input+index.2(dftrans2$x12gdzctz)*gdzctz.qz.input
     
     biaozhunhua.F.adv.input<- sum(abs(adv.test.input))/sum(abs(coor.test.input)) 
     biaozhunhua.F.delay.input<- sum(abs(delay.test.input))/sum(abs(coor.test.input))
@@ -273,32 +270,32 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     trans.adv.input<- hecheng.trans.index(adv.test.input,biaozhunhua.F.adv.input)
     trans.delay.input<- hecheng.trans.index(delay.test.input,biaozhunhua.F.delay.input)
     
-    dftrans$coor.input<- trans.coor.input   
-    dftrans$adv.input<- trans.adv.input
-    dftrans$delay.input<- trans.delay.input
+    dftrans2$coor.input<- trans.coor.input   
+    dftrans2$adv.input<- trans.adv.input
+    dftrans2$delay.input<- trans.delay.input
     
     #-----运输----3.1 运输默认权重计算的画线------------  
     if(input$year_start_trans> input$year_end_trans)  {
-      p<-ggplot(dftrans,x=c(dftrans$tm[1],dftrans$tm[trans.len]),aes(x=tm,y=100))}
+      p<-ggplot(dftrans2,x=c(dftrans2$tm[1],dftrans2$tm[trans.len]),aes(x=tm,y=100))}
     else{
-      dftranssub<-subset(dftrans,(substr(dftrans$tm,1,4)>=input$year_start_trans) )
+      dftranssub<-subset(dftrans2,(substr(dftrans2$tm,1,4)>=input$year_start_trans) )
       dftranssub<-subset(dftranssub,(substr(dftranssub$tm,1,4)<=input$year_end_trans))
       p<-ggplot(dftranssub,x=c(dftranssub$tm[1],dftranssub$tm[trans.len]),aes(x=tm,y=100))}
     
     if(input$trans_coor_Index){
-      p<-p+geom_line(aes(x=tm,y=dftranssub$coor),color="black",size=0.6)}
+      p<-p+geom_line(aes(x=tm,y=dftranssub$coor),color="black",size=1)}
     if (input$trans_advanced_Index) {
-      p<-p+geom_line(aes(x=tm,y=dftranssub$adv),color="red",size=0.6) }
+      p<-p+geom_line(aes(x=tm,y=dftranssub$adv),color="red",size=1) }
     if (input$trans_delay_Index) {
-      p<-p+geom_line(aes(x=tm,y=dftranssub$delay),color="blue",size=0.6)}
+      p<-p+geom_line(aes(x=tm,y=dftranssub$delay),color="blue",size=1)}
     
     #----运输----3.2 输入修改权重后算出来的新先行指数------------------
     if(input$trans_qz_coor_input)#输入修改权重后算出来的新先行指数
-    { p<-p+geom_line(aes(x=tm,y=dftranssub$coor.input),color="black",size=1,linetype=1)}
+    { p<-p+geom_line(aes(x=tm,y=dftranssub$coor.input),color="black",size=1.6,linetype=1)}
     if(input$trans_qz_adv_input)
-    {p<-p+geom_line(aes(x=tm,y=dftranssub$adv.input),color="red",size=1,linetype=1)}
+    {p<-p+geom_line(aes(x=tm,y=dftranssub$adv.input),color="red",size=1.6,linetype=1)}
     if(input$trans_qz_delay_input)
-    {p<-p+geom_line(aes(x=tm,y=dftranssub$delay.input),color="blue",size=1,linetype=1)}  
+    {p<-p+geom_line(aes(x=tm,y=dftranssub$delay.input),color="blue",size=1.6,linetype=1)}  
     
     p+ylab("运输合成指数")+xlab("时间")+geom_line()
   })
@@ -317,9 +314,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     gdzctz.qz.input<- percent.input(input$trans_gdzctz_qz_input)
     kyzzl.qz.input<- percent.input(input$trans_kyzzl_qz_input)
     
-    coor.test.input<- index.1(dftrans$x12hyl)*hyl.qz.input+index.1(dftrans$x12hyzzl)*hyzzl.qz.input+index.1(dftrans$x12gyzjz)*gyzjz.qz.input
-    adv.test.input<- index.1(dftrans$x12gc)*gc.qz.input + index.1(dftrans$x12ym)*ym.qz.input+index.1(dftrans$x12yy)*yy.qz.input+index.1(dftrans$x12hlfdl)*hlfdl.qz.input
-    delay.test.input<- index.1(dftrans$x12kyl)*kyl.qz.input + index.1(dftrans$x12kyzzl)*kyzzl.qz.input+index.1(dftrans$x12gdzctz)*gdzctz.qz.input
+    coor.test.input<- index.2(dftrans2$x12hyl)*hyl.qz.input+index.2(dftrans2$x12hyzzl)*hyzzl.qz.input+index.2(dftrans2$x12gyzjz)*gyzjz.qz.input
+    adv.test.input<- index.2(dftrans2$x12gc)*gc.qz.input + index.2(dftrans2$x12ym)*ym.qz.input+index.2(dftrans2$x12yy)*yy.qz.input+index.2(dftrans2$x12hlfdl)*hlfdl.qz.input
+    delay.test.input<- index.2(dftrans2$x12kyl)*kyl.qz.input + index.2(dftrans2$x12kyzzl)*kyzzl.qz.input+index.2(dftrans2$x12gdzctz)*gdzctz.qz.input
     
     biaozhunhua.F.adv.input<- sum(abs(adv.test.input))/sum(abs(coor.test.input)) 
     biaozhunhua.F.delay.input<- sum(abs(delay.test.input))/sum(abs(coor.test.input))
@@ -328,21 +325,21 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     trans.adv.input<- hecheng.trans.index(adv.test.input,biaozhunhua.F.adv.input)
     trans.delay.input<- hecheng.trans.index(delay.test.input,biaozhunhua.F.delay.input)
     
-    dftrans$coor.input<- trans.coor.input   
-    dftrans$adv.input<- trans.adv.input
-    dftrans$delay.input<- trans.delay.input
+    dftrans2$coor.input<- trans.coor.input   
+    dftrans2$adv.input<- trans.adv.input
+    dftrans2$delay.input<- trans.delay.input
     
     #----运输----4.1 输入修改权重后算出来的三个指数------------------   
     if(input$trans_qz_coor_input|input$trans_qz_adv_input|input$trans_qz_delay_input){
       DT::datatable(
-        { dftrans<- data.frame(dftrans[1],dftrans$adv.input,dftrans$coor.input,dftrans$delay.input)
+        { dftrans<- data.frame(dftrans2$tm,dftrans2$adv.input,dftrans2$coor.input,dftrans2$delay.input)
         data<-dftrans},
         colnames = c('时间', '先行指数',  '同步指数','滞后指数'),
         rownames = TRUE)}
     #----运输----4.2 默认权重计算下的三个指数------------------  
     else{ 
       DT::datatable(
-        { dftrans<- data.frame(dftrans[1],dftrans$adv,dftrans$coor,dftrans$delay)
+        { dftrans<- data.frame(dftrans2$tm,dftrans2$adv,dftrans2$coor,dftrans2$delay)
         data<-dftrans},
         colnames = c('时间', '运输合成先行指数',  '运输合成同步指数','运输合成滞后指数'),
         rownames = TRUE)
@@ -2300,19 +2297,19 @@ rownames = TRUE)
   Locomotive_fre$tm<-as.Date.POSIXct(Locomotive_fre$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))
   
   #-------------olsRegModel为多元回归模型
-  freightolsRegModel<-lm(locomotive_number~freight_volume_yearly+passenger_volume,data=Locomotive_fre)
+  freightolsRegModel<-lm(locomotive_number~freight_volume_yearly+ptpassenger_volume,data=Locomotive_fre)
   
   Locomotive_fre$linearRegPred<-as.integer(predict(freightolsRegModel,newdata=Locomotive_fre))
-
+  
+  
   
   #-------rfRegModel是随机森林得到的回归模型，后面用predict直接调用此模型即可,因数量少，不运行交叉验证
-
-  freightrfRegModel<-randomForest(locomotive_number~freight_volume_yearly+passenger_volume,data=Locomotive_fre,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
+  freightrfRegModel<-randomForest(locomotive_number~freight_volume_yearly+ptpassenger_volume,data=Locomotive_fre,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
   
   Locomotive_fre$frRegPred<-as.integer(predict(freightrfRegModel,Locomotive_fre))    #<-----------随机森林的预测数据已经在这里计算得到
   
   #-------svmRegModel是支持向量机得到的回归模型，后面也可以直接调用
-  freightsvmRegModel<-svm(locomotive_number~freight_volume_yearly+passenger_volume,data=Locomotive_fre,type="eps-regression",cross=dim(Locomotive_fre)[1]/2)
+  freightsvmRegModel<-svm(locomotive_number~freight_volume_yearly+ptpassenger_volume,data=Locomotive_fre,type="eps-regression",cross=dim(Locomotive_fre)[1]/2)
   #svm 内含交叉验证，所以不需要再运行交叉验证.eps-regression   huigui
   Locomotive_fre$svmRegPred<-as.integer(predict(freightsvmRegModel,Locomotive_fre))   #<-----------支持向量机的预测数据已经在这里计算得到
   
@@ -2350,47 +2347,43 @@ rownames = TRUE)
     }
     
     if(input$Locomotive_predict_data1){
-      p<-p+geom_line(aes(x=tm,y=dislinearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
+      
+      p<-p+geom_line(aes(x=tm,y=linearRegPred),color="blue",size=0.8)#+geom_ribbon(aes(ymin=bound[,2],ymax=bound[,3]),alpha=0.2)
       #+stat_smooth(method=lm,color='black',level=0.95)
     }
     
-
     if (input$Locomotive_stat_data1) {
       p<-p+geom_point(aes(x=tm,y=locomotive_number),color="red",size=3,shape=21)
     }
     p+ylab("机车数量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
-
   })
   
   #----------------------------------------------------
   
   #----------------------------------------------------   
   #多元回归预测计算
-
   output$locomotive_output1<-renderText({
     Locomotive_x2<-as.numeric(input$ton_input)
     freight_volume_yearly<-c(Locomotive_x2)
-    Locomotive_x3<-as.numeric(input$passenger_input)
-    passenger_volume<-Locomotive_x3
+    Locomotive_x3<-as.numeric(input$ptpassenger_input)
+    ptpassenger_volume<-Locomotive_x3
     tm<-c(2016)
     locomotive_number<-c(0)
-    inputdata<-data.frame(tm,locomotive_number, freight_volume_yearly,passenger_volume)#  其中的数不能省略
+    inputdata<-data.frame(tm,locomotive_number, freight_volume_yearly,ptpassenger_volume)#  其中的数不能省略
     freightpred<-as.integer(predict(freightolsRegModel,inputdata))
     paste("多元回归预测：",freightpred ) 
-
   }
   )
   #-------------------------------------------------
   #随机森林回归预测计算
-
   output$locomotive_FRR1<-renderText({
     Locomotive_x2<-as.numeric(input$ton_input)
     freight_volume_yearly<-c(Locomotive_x2)
-    Locomotive_x3<-as.numeric(input$passenger_input)
-    passenger_volume<-Locomotive_x3
+    Locomotive_x3<-as.numeric(input$ptpassenger_input)
+    ptpassenger_volume<-Locomotive_x3
     tm<-c(2016)
     locomotive_number<-c(0)
-    inputdata<-data.frame(tm,locomotive_number, freight_volume_yearly,passenger_volume)
+    inputdata<-data.frame(tm,locomotive_number, freight_volume_yearly,ptpassenger_volume)
     raillocomotive<-predict(freightrfRegModel,inputdata)   #rfRegModel随机森林在最初已经计算得到
     paste("随机森林回归预测：",as.integer(raillocomotive[1])  ) 
     
@@ -2398,26 +2391,24 @@ rownames = TRUE)
   )
   #----------------------------------
   #支持向量机回归预测计算
-
   output$locomotive_zhi1<-renderText({
     Locomotive_x2<-as.numeric(input$ton_input)
     freight_volume_yearly<-c(Locomotive_x2)
-    Locomotive_x3<-as.numeric(input$passenger_input)
-    passenger_volume<-Locomotive_x3
+    Locomotive_x3<-as.numeric(input$ptpassenger_input)
+    ptpassenger_volume<-Locomotive_x3
     tm<-c(2016)
     locomotive_number<-c(0)
-    inputdata<-data.frame(tm,locomotive_number, freight_volume_yearly,passenger_volume)
+    inputdata<-data.frame(tm,locomotive_number, freight_volume_yearly,ptpassenger_volume)
     freightpred<-as.integer(predict(freightsvmRegModel,inputdata))
     
     paste("支持向量机预测：",freightpred)
-
+    
   }
   )
   #-------------------------------------
   
   
   #-----------随机森林Tabset画线  
-
   output$freightrfplot<- renderPlot( {
     
     if(input$Locomotive_year_start1> input$Locomotive_year_end1)  {
@@ -2448,13 +2439,12 @@ rownames = TRUE)
     
     if (input$Locomotive_stat_data1) {
       p<-p+geom_point(aes(x=tm,y=locomotive_number),color="red",size=3,shape=21)
-
     }
-    p+ylab("营业里程")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    p+ylab("机车辆数")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   #----------------------------支持向量机Tabset画线
-
+  
   output$freightsvmplot<- renderPlot( {
     
     if(input$Locomotive_year_start1> input$Locomotive_year_end1)  {
@@ -2487,32 +2477,28 @@ rownames = TRUE)
       p<-p+geom_point(aes(x=tm,y=locomotive_number),color="red",size=3,shape=21)
     }
     p+ylab("机车数量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
-
   })
   
   #--------------------------------------
   
   #----------------------datatable显示数据
   #-----------------在df中，又增加了3列数据，存放预测结果,
-
-  passenger<-Locomotive_fre$passenger_volume
+  ptpassenger<-Locomotive_fre$ptpassenger_volume
   freight<-Locomotive_fre$freight_volume_yearly
   locomotive<-Locomotive_fre$locomotive_number
   linearRegPred<-Locomotive_fre$linearRegPred
   frRegPred<-Locomotive_fre$frRegPred
   svmRegPred<-Locomotive_fre$svmRegPred
   tm<-unique(substr(Locomotive_fre$tm,1,4))
-  locomotive_data<-data.frame(tm,locomotive,passenger,freight,linearRegPred,frRegPred,svmRegPred)
-  #-----------------
+  locomotive_data<-data.frame(tm,locomotive,ptpassenger,freight,linearRegPred,frRegPred,svmRegPred)
   output$freighttable<-DT::renderDataTable(
     DT::datatable(
       data<-locomotive_data, 
-      colnames = c('序号', '年','机车数量（辆）','货运量（万吨）',"客运量（万人)",'多元回归预测（辆）','随机森林回归预测（辆）','支持向量机回归预测（辆）'),
+      colnames = c('序号', '年','机车数量（辆）','货运量（万吨）',"普铁客运量（万人)",'多元回归预测（辆）','随机森林回归预测（辆）','支持向量机回归预测（辆）'),
       rownames = TRUE)
   )
- #----------------
   
-
+  
 
   #----------------------------------------------------------
   #------------货运量-营业里程适配性研究--------------------
