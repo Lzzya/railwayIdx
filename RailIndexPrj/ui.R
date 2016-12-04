@@ -81,7 +81,7 @@ distance_tm<-unique(substr(distance_fre$tm,1,4))
 #---------------------------------------------------------------------------------------------------------
 
 
-
+#-----------------------客运量-动车组数-客运机车日车公里适配性研究-----------------------------------------------------------------
 PVdf<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 PVdf$tm<-as.Date.POSIXct(PVdf$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))
 PVy<-unique(substr(PVdf$tm,1,4))
@@ -1052,7 +1052,7 @@ tabPanel("客运量-动车组数-客运机车日车公里数",
                        label=strong("动车组数（辆）"),
                        value=round(mean(PVdf$bullettrain_number),0)),
              textInput(inputId="locomotive_mileage_pcar_input",
-                       label=strong("客车机车日车公里（公里）"),
+                       label=strong("客车运机车日车公里（公里）"),
                        value=round(mean(PVdf$locomotive_mileage_pcar),2)),
              hr("预测结果——客运量（万人）"),
              hr(),
