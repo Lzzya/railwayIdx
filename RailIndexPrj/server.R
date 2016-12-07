@@ -5839,9 +5839,7 @@ output$railway_jbjstz_table<-DT::renderDataTable(
 #--------李亚芳---------  
 #--------刘治----------
     output$plot6.3 <- renderPlot({
-
-        names(table6.3) <- c("tm",'a1','b2','c3','d4','e5','f6','g7','h8','i9','j10','k11')
-        if(input$tm_start6.3 > input$tm_end6.3){
+if(input$tm_start6.3 > input$tm_end6.3){
         p<-ggplot(table6.3)
         }
         else{
@@ -5850,27 +5848,27 @@ output$railway_jbjstz_table<-DT::renderDataTable(
         p<-ggplot(sub6.3,x=c(input$tm_start6.3,input$tm_start6.3))
         }
         if(input$df6.3_capital_toal){
-            p<-p+geom_line(aes(x=tm,y=a1),color="black",size=0.7)+geom_point(aes(x=tm,y=a1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=infrustrate_capital_total),color="black",size=0.7)+geom_point(aes(x=tm,y=infrustrate_capital_total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_national_budget){
-            p<-p+geom_line(aes(x=tm,y=b2),color="red",size=0.7)+geom_point(aes(x=tm,y=b2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=national_budget),color="red",size=0.7)+geom_point(aes(x=tm,y=national_budget),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_internal_loan){
-            p<-p+geom_line(aes(x=tm,y=c3),color="blue",size=0.7)+geom_point(aes(x=tm,y=c3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=domestic_loans),color="blue",size=0.7)+geom_point(aes(x=tm,y=domestic_loans),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_foreign_capital){
-            p<-p+geom_line(aes(x=tm,y=d4),color="orange",size=0.7)+geom_point(aes(x=tm,y=d4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=foreign_capital),color="orange",size=0.7)+geom_point(aes(x=tm,y=foreign_capital),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_special_fund){
-            p<-p+geom_line(aes(x=tm,y=e5),color="green",size=0.7)+geom_point(aes(x=tm,y=e5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=special_fund),color="green",size=0.7)+geom_point(aes(x=tm,y=special_fund),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_bond){
-            p<-p+geom_line(aes(x=tm,y=f6),color="purple",size=0.7)+geom_point(aes(x=tm,y=f6),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=bond),color="purple",size=0.7)+geom_point(aes(x=tm,y=bond),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_coal_oil){
-            p<-p+geom_line(aes(x=tm,y=g7),color="black",size=0.7)+geom_point(aes(x=tm,y=g7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=coal_replace_oil),color="black",size=0.7)+geom_point(aes(x=tm,y=coal_replace_oil),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_MOR_self){
-            p<-p+geom_line(aes(x=tm,y=h8),color="red",size=0.7)+geom_point(aes(x=tm,y=h8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=MOR_self),color="red",size=0.7)+geom_point(aes(x=tm,y=MOR_self),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_enterprise_self){
-            p<-p+geom_line(aes(x=tm,y=i9),color="blue",size=0.7)+geom_point(aes(x=tm,y=i9),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=public_institution_self),color="blue",size=0.7)+geom_point(aes(x=tm,y=public_institution_self),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_others){
-            p<-p+geom_line(aes(x=tm,y=j10),color="orange",size=0.7)+geom_point(aes(x=tm,y=j10),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=other_capital),color="orange",size=0.7)+geom_point(aes(x=tm,y=other_capital),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_vehicle_tax){
-            p<-p+geom_line(aes(x=tm,y=k11),color="green",size=0.7)+geom_point(aes(x=tm,y=k11),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=vehicle_purchase_tax),color="green",size=0.7)+geom_point(aes(x=tm,y=vehicle_purchase_tax),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         p+ylab("铁道部基本建设投资的资金来源")+xlab("时间")
     })
     
@@ -5879,7 +5877,6 @@ output$railway_jbjstz_table<-DT::renderDataTable(
         table6.3})
 
     output$plot6.4 <- renderPlot({
-        names(table6.4) <- c('tm','a1','b2','c3','d4','e5','f6','g7','h8','i9','j10','k11','l12','m13','n14','o15')
         if(input$tm_start6.4 > input$tm_end6.4){
         p<-ggplot(table6.4)
         }
@@ -5889,35 +5886,35 @@ output$railway_jbjstz_table<-DT::renderDataTable(
         p<-ggplot(sub6.4,x=c(input$tm_start6.4,input$tm_start6.4))
         }
         if(input$df6.4_new_lay_total){
-            p<-p+geom_line(aes(x=tm,y=a1),color="black",size=0.7)+geom_point(aes(x=tm,y=a1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=newline_tracklaying_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=newline_tracklaying_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_new_lay_national){
-            p<-p+geom_line(aes(x=tm,y=b2),color="red",size=0.7)+geom_point(aes(x=tm,y=b2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=national_joint_railway1),color="red",size=0.7)+geom_point(aes(x=tm,y=national_joint_railway1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_new_lay_regional){
-            p<-p+geom_line(aes(x=tm,y=c3),color="blue",size=0.7)+geom_point(aes(x=tm,y=c3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=local_railway1),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_multi_lay_total){
-            p<-p+geom_line(aes(x=tm,y=d4),color="black",size=0.7)+geom_point(aes(x=tm,y=d4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=nultiline_tracklaying_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=nultiline_tracklaying_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_multi_lay_national){
-            p<-p+geom_line(aes(x=tm,y=e5),color="red",size=0.7)+geom_point(aes(x=tm,y=e5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=national_joint_railway2),color="red",size=0.7)+geom_point(aes(x=tm,y=national_joint_railway2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_multi_lay_regional){
-            p<-p+geom_line(aes(x=tm,y=f6),color="blue",size=0.7)+geom_point(aes(x=tm,y=f6),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=local_railway2),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_new_product_total){
-            p<-p+geom_line(aes(x=tm,y=g7),color="black",size=0.7)+geom_point(aes(x=tm,y=g7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=newline_operation_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=newline_operation_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_new_product_national){
-            p<-p+geom_line(aes(x=tm,y=h8),color="red",size=0.7)+geom_point(aes(x=tm,y=h8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=national_joint_railway3),color="red",size=0.7)+geom_point(aes(x=tm,y=national_joint_railway3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_new_product_regional){
-            p<-p+geom_line(aes(x=tm,y=i9),color="blue",size=0.7)+geom_point(aes(x=tm,y=i9),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=local_railway3),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_multi_product_total){
-            p<-p+geom_line(aes(x=tm,y=j10),color="black",size=0.7)+geom_point(aes(x=tm,y=j10),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=nultiline_operation_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=nultiline_operation_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_multi_product_national){
-            p<-p+geom_line(aes(x=tm,y=k11),color="red",size=0.7)+geom_point(aes(x=tm,y=k11),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=national_joint_railway4),color="red",size=0.7)+geom_point(aes(x=tm,y=national_joint_railway4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_multi_product_regional){
-            p<-p+geom_line(aes(x=tm,y=l12),color="blue",size=0.7)+geom_point(aes(x=tm,y=l12),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=local_railway4),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_electr_product_total){
-            p<-p+geom_line(aes(x=tm,y=m13),color="black",size=0.7)+geom_point(aes(x=tm,y=m13),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=electric_railway_opration_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=electric_railway_opration_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_electr_product_national){
-            p<-p+geom_line(aes(x=tm,y=n14),color="red",size=0.7)+geom_point(aes(x=tm,y=n14),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=national_joint_railway5),color="red",size=0.7)+geom_point(aes(x=tm,y=national_joint_railway5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_electr_product_regional){
-            p<-p+geom_line(aes(x=tm,y=o15),color="blue",size=0.7)+geom_point(aes(x=tm,y=o15),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=local_railway5),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         p+ylab("铁路基本建设铺轨及投产里程")+xlab("时间")
     })
     
@@ -5926,7 +5923,6 @@ output$railway_jbjstz_table<-DT::renderDataTable(
         table6.4})
     
     output$plot6.7 <- renderPlot({
-        names(table6.7) <- c('tm','a1','b2','c3','d4','e5','f6','g7','h8','i9','j10','k11')
         if(input$tm_start6.7 > input$tm_end6.7){
         p<-ggplot(table6.7)
         }
@@ -5936,25 +5932,25 @@ output$railway_jbjstz_table<-DT::renderDataTable(
         p<-ggplot(sub6.7,x=c(input$tm_start6.7,input$tm_end6.7))
         }
         if(input$df6.7_invest_toal){
-            p<-p+geom_line(aes(x=tm,y=a1),color="black",size=0.7)+geom_point(aes(x=tm,y=a1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=completed_investment),color="black",size=0.7)+geom_point(aes(x=tm,y=completed_investment),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_invest_infruatructure){
-            p<-p+geom_line(aes(x=tm,y=b2),color="red",size=0.7)+geom_point(aes(x=tm,y=b2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=infrastructure_capital),color="red",size=0.7)+geom_point(aes(x=tm,y=infrastructure_capital),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_invest_change){
-            p<-p+geom_line(aes(x=tm,y=c3),color="blue",size=0.7)+geom_point(aes(x=tm,y=c3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=change_capital),color="blue",size=0.7)+geom_point(aes(x=tm,y=change_capital),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_invest_others){
-            p<-p+geom_line(aes(x=tm,y=d4),color="orange",size=0.7)+geom_point(aes(x=tm,y=d4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=other_capital),color="orange",size=0.7)+geom_point(aes(x=tm,y=other_capital),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_motor_total){
-            p<-p+geom_line(aes(x=tm,y=e5),color="black",size=0.7)+geom_point(aes(x=tm,y=e5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=locomotive_total),color="black",size=0.7)+geom_point(aes(x=tm,y=locomotive_total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_motor_fuel){
-            p<-p+geom_line(aes(x=tm,y=g7),color="red",size=0.7)+geom_point(aes(x=tm,y=g7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=diesel_locomotive),color="red",size=0.7)+geom_point(aes(x=tm,y=diesel_locomotive),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_motor_electric){
-            p<-p+geom_line(aes(x=tm,y=h8),color="blue",size=0.7)+geom_point(aes(x=tm,y=h8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=electic_locomotive),color="blue",size=0.7)+geom_point(aes(x=tm,y=electic_locomotive),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_bus7){
-            p<-p+geom_line(aes(x=tm,y=i9),color="red",size=0.7)+geom_point(aes(x=tm,y=i9),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=passenger_car),color="red",size=0.7)+geom_point(aes(x=tm,y=passenger_car),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_truck){
-            p<-p+geom_line(aes(x=tm,y=j10),color="blue",size=0.7)+geom_point(aes(x=tm,y=j10),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=freight_car),color="blue",size=0.7)+geom_point(aes(x=tm,y=freight_car),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_bullet){
-            p<-p+geom_line(aes(x=tm,y=k11),color="black",size=0.7)+geom_point(aes(x=tm,y=k11),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=bullettrain_group),color="black",size=0.7)+geom_point(aes(x=tm,y=bullettrain_group),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         p+ylab("国家铁路机车车辆购置")+xlab('时间')
     })
     
