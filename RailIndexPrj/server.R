@@ -84,11 +84,12 @@ shinyServer(function(input, output) {
     a<-length(index_data$date)
     p<-ggplot(data=index_data,aes(x=date,y=index))
     p<-p+ylim(0,1)+xlim(index_data[1,1],index_data[a,1])
-    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0,ymax=0.15,fill="red",alpha=0.7)
-    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.15,ymax=0.35,fill="yellow",alpha=0.7)
-    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.35,ymax=0.65,fill="green",alpha=0.7)
-    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.65,ymax=0.85,fill="#56B4E9",alpha=0.7)
-    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.85,ymax=1,fill="blue",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0,ymax=0.15,fill="green",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.15,ymax=0.35,fill="green",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.35,ymax=0.65,fill="yellow",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.65,ymax=0.85,fill="red",alpha=0.7)
+    p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.85,ymax=1,fill="red",alpha=0.7)
+
     p<-p+geom_line(size=1)
     p+theme_bw()+theme(panel.border=element_blank())+xlab("日期")+ylab("指数")
   })
@@ -2791,7 +2792,7 @@ names(df)<-c("tm","iron","coal","freight") #iron表示成品钢材产量，coal�
   output$table<-DT::renderDataTable(
     DT::datatable(
       data<-df, 
-      colnames = c('日期', '货运量(万吨)','成品钢材产量(万吨)','原煤产量(万吨)','多元回归预测(万吨)','随机森林回归预测(万吨)','支持向量机回归预测(万吨)'),
+      colnames = c('日期', '成品钢材产量(万吨)','原煤产量(万吨)','货运量(万吨)','多元回归预测(万吨)','随机森林回归预测(万吨)','支持向量机回归预测(万吨)'),
       rownames = TRUE)
   )
   
