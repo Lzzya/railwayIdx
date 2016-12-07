@@ -8,22 +8,18 @@ shinyServer(function(input, output) {
   require(forecast)
   require(rJava)
   require(xlsx)
-  
+  require(maptools)
   df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
   df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
  #-------------------其它铁路原始数据----------------------
   #---------------------mashaomeng--------------------------
 mengmeng_yearly<-read.xlsx("3-1 全国铁路线路、铁路复线、电气化、内燃牵引里程.xlsx",1,head=T,startRow=2,encoding = "UTF-8")#--------表3-1是3-1和3-6的合并
-railway_mileage_yearly<-substr(mengmeng_yearly$tm,1,4)
 
 mengmeng1_yearly<-read.xlsx("3-9 全国铁路机车拥有量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-Locomotive_ownership_yearly<-substr(mengmeng1_yearly$tm,1,4)
 
 mengmeng2_yearly<-read.xlsx("3-2 全国铁路分地区营业里程.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-sub_regional_mileage_yearly<-substr(mengmeng2_yearly$tm,1,4)
 
 mengmeng3_yearly<-read.xlsx("3-10 国家铁路分机型机车拥有量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-model_locomotive_ownership_yearly<-substr(mengmeng3_yearly$tm,1,4)
 
 #---------------------mashaomeng--------------------------
 #-------------聪聪-----------------------------
@@ -1882,7 +1878,7 @@ rownames = TRUE)
   output$investmenttable<-DT::renderDataTable(
     DT::datatable(
       data<-investment_data, 
-      colnames = c('序号', '年','固定资产投资增加额（万元）','新增普客车辆数（辆）','新增动车组数(组)','多元回归预测（万元）','支持向量机回归预测（万元）'),
+      colnames = c('序号', '年','固定资产投资增加额（万元）','客车车辆数（辆）','动车组数量(组)','多元回归预测（万元）','支持向量机回归预测（万元）'),
       rownames = TRUE)
   )
   
@@ -1890,11 +1886,11 @@ rownames = TRUE)
   
   
 #------------------------------------------------------------------------------------------
-#------------------客运量-动车组数-客运机车日行公里适配性研究(尹君)--------------------------------------------
+#------------------客运量-客车车辆数适配性研究--------------------------------------------
 #PV-------客运量（passenger_volume）简写
 #passenger_volume-------客运量
 #bullettrain_number-------动车组数
-#locomotive_mileage_pcar-------客运机车日车公里
+#locomotive_mileage_pcar-------客车机车日行公里数
 PVdf<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 PVolsRegModel<-lm(passenger_volume~bullettrain_number+locomotive_mileage_pcar,data=PVdf)
 PVdf$linearRegPred<-as.integer(predict(PVolsRegModel,newdata=PVdf))
@@ -2079,7 +2075,7 @@ output$passenger_volume_table<-DT::renderDataTable(
   
   PVdata<-passenger_volume_data
 } , 
-colnames = c('序号', '时间', '客运量（万人）','动车组数（组）','客运机车日车公里（公里）','多元回归预测（万人）','随机森林回归预测（万人）','支持向量机回归预测（万人）'),
+colnames = c('序号', '时间', '客运量（万人）','动车组数（组）','客车机车日行公里（公里）','多元回归预测（亿万）','随机森林回归预测（亿万）','随机森林回归预测（万元）','支持向量机回归预测（亿万）'),
 rownames = TRUE)
 )
   #--------------------------------------------------------------------
@@ -2501,7 +2497,7 @@ rownames = TRUE)
   
 
   #----------------------------------------------------------
-  #------------货运量-营业里程-货车辆数适配性研究--------------------
+  #------------货运量-营业里程适配性研究--------------------
   #该部分对应报告中“货运量-营业里程适配性研究”一节，最终的回归模型中不仅包含货运量和营业里程，还包含货车车辆数
   #freight_olm_car_df表示本适配性研究用到的数据集，包含货运量、营业里程、货车车辆数三个变量
   
@@ -3845,7 +3841,6 @@ output$rawdata_relevant_mileage_table<-DT::renderDataTable(
 output$sub_regional_mileage_yearly_plot <- renderPlot( {
   
   dfrawdata<-mengmeng2_yearly
-  dfrawdata$tm<-as.Date.POSIXct(mengmeng2_yearly$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(dfrawdata$tm)
   
   if(input$year_start_regional_mileage> input$year_end_regional_mileage)  {
@@ -4748,7 +4743,6 @@ output$rawdata_yslzzl_table<-DT::renderDataTable(
 #------李雪妍4_16国家铁路省、市、自治区货物运量
 output$hyl_plot <- renderPlot( {
   lxy1rawdata<-lxy1_yearly
-  lxy1rawdata$tm<-as.Date.POSIXct(lxy1rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(lxy1rawdata$tm)
   
   if(input$year_start_hyl> input$year_end_hyl)  {
@@ -4904,7 +4898,6 @@ output$hyl_table<-DT::renderDataTable(
 #------李雪妍4_17国家铁路省、市、自治区货运周转量
 output$hyzzl_plot <- renderPlot( {
   lxy2rawdata<-lxy2_yearly
-  lxy2rawdata$tm<-as.Date.POSIXct(lxy2rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(lxy2rawdata$tm)
   
   if(input$year_start_hyzzl> input$year_end_hyzzl)  {
@@ -5060,7 +5053,6 @@ output$hyzzl_table<-DT::renderDataTable(
 #------李雪妍4_18国家铁路省、市、自治区客运量
 output$kyl_plot <- renderPlot( {
   lxy3rawdata<-lxy3_yearly
-  lxy3rawdata$tm<-as.Date.POSIXct(lxy3rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(lxy3rawdata$tm)
   
   if(input$year_start_kyl> input$year_end_kyl)  {
@@ -5218,7 +5210,6 @@ output$kyl_table<-DT::renderDataTable(
 #------李雪妍4_19国家铁路省、市、自治区客运周转量
 output$kyzzl_plot <- renderPlot( {
   lxy4rawdata<-lxy4_yearly
-  lxy4rawdata$tm<-as.Date.POSIXct(lxy4rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(lxy4rawdata$tm)
   
   if(input$year_start_kyzzl> input$year_end_kyzzl)  {
@@ -5957,6 +5948,43 @@ if(input$tm_start6.3 > input$tm_end6.3){
     output$table6.7 <- DT::renderDataTable({
         names(table6.7)<-c('年度','投资完成（亿元）','基建资金','更改资金','其他资金','机车（台）','内燃','电力',"客车（辆）",'货车（辆）',"动车组(组)")
         table6.7})
+    
+#---------------地图-------------------------------------------
+#---------------map函数------------------
+mapFunction <- function(data,year){
+        mydf1 <- data[,-2] ## 加辅助列香港以保证每张图在作图时存在相同的最大值，以使得同表各年份地图颜色一致。
+        top_provinceData <- max(sapply(data[,c(-1,-2)],max),na.rm = TRUE)
+        mydf2 <- data.frame(mydf1,hongkang = rep(top_provinceData,nrow(data))) # 比地图少 台湾 和 香港
+        china.shp <- readShapePoly('bou2_4p.shp')
+        china.df <- fortify(china.shp)
+        ##测试用
+        temp <- which(year==mydf2[,1])
+        a <- mydf2[temp,]
+        ## 调整表格数据以匹配地图数据中省份的位置，然后选取相应省份数据
+        a1 <- a[,c(8,5,31,7,6,28,3,1,4,2,27,30,29,15,26,16,10,12,23,17,22,9,11,18,14,25,24,13,20,19,32,21)+1]
+        b <- t(a1)[,1]
+
+        provinceName <- unique(china.shp$NAME)[c(-34,-30)] ## 保留除去NA和台湾的省名
+        
+        temp1 <- data.frame(NAME = provinceName,provinceData=b)## 得到地图数据中的省份对应的ID
+        temp.id <- china.shp$BOU2_4M_-2
+        temp2 <- data.frame(id=temp.id,NAME=china.shp$NAME) ## 得到地图数据中，省份名与对应ID
+        
+        #mydata <- merge(temp1,temp2,by='NAME',all=TRUE)
+        mydata <- plyr::join(temp1,temp2,by='NAME',type='right')
+        final.df <- plyr::join(china.df,mydata,by='id',type='inner') ## 通过连接增加各省的数据
+        ## 绘图
+        mymap <- ggplot()+geom_polygon(data =final.df,aes(x = long, y = lat, group = id,fill =provinceData), colour = "black")+theme_grey() 
+        mymap + coord_quickmap()+scale_fill_gradient(low = 'white',high = 'red')
+}
+#---------------map函数 END--------------
+
+output$map_plot3.2 <- renderPlot(mapFunction(mengmeng2_yearly,input$year3.2))
+output$map_plot4.16 <- renderPlot(mapFunction(lxy1_yearly,input$year4.16))
+output$map_plot4.17 <- renderPlot(mapFunction(lxy2_yearly,input$year4.17))
+output$map_plot4.18 <- renderPlot(mapFunction(lxy3_yearly,input$year4.18))
+output$map_plot4.19 <- renderPlot(mapFunction(lxy4_yearly,input$year4.19))
+#---------------地图 END --------------
 
 }
 )
