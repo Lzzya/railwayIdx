@@ -101,7 +101,7 @@ mengmeng1_yearly<-read.xlsx("3-9 全国铁路机车拥有量.xlsx",1,head=T,star
 Locomotive_ownership_yearly<-substr(mengmeng1_yearly$tm,1,4)
 
 mengmeng2_yearly<-read.xlsx("3-2 全国铁路分地区营业里程.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-sub_regional_mileage_yearly<-substr(mengmeng2_yearly$tm,1,4)
+sub_regional_mileage_yearly<-mengmeng2_yearly$tm
 
 mengmeng3_yearly<-read.xlsx("3-10 国家铁路分机型机车拥有量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 model_locomotive_ownership_yearly<-substr(mengmeng3_yearly$tm,1,4)
@@ -121,16 +121,16 @@ df_yslzzl_yearly<-read.xlsx("4-1 全国铁路运营量.xlsx",1,head=T,startRow=2
 y_jingzhao_rawdata_yearly<-substr(df_yslzzl_yearly$tm,1,4)
 #------李雪妍-------
 lxy1_yearly<-read.xlsx("4_16国家铁路省、市、自治区货运量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-y_lixueyan_4_16_yearly<-substr(lxy1_yearly$tm,1,4)
+y_lixueyan_4_16_yearly<-lxy1_yearly$tm
 
 lxy2_yearly<-read.xlsx("4_17国家铁路省、市、自治区货运周转量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-y_lixueyan_4_17_yearly<-substr(lxy2_yearly$tm,1,4)
+y_lixueyan_4_17_yearly<-lxy2_yearly$tm
 
 lxy3_yearly<-read.xlsx("4_18国家铁路省、市、自治区客运量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-y_lixueyan_4_18_yearly<-substr(lxy3_yearly$tm,1,4)
+y_lixueyan_4_18_yearly<-lxy3_yearly$tm
 
 lxy4_yearly<-read.xlsx("4_19国家铁路省、市、自治区客运周转量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-y_lixueyan_4_19_yearly<-substr(lxy4_yearly$tm,1,4)
+y_lixueyan_4_19_yearly<-lxy4_yearly$tm
 
 lxy5_yearly<-read.xlsx("5_1国家铁路机车运用指标.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 y_lixueyan_5_1_yearly<-substr(lxy5_yearly$tm,1,4)
@@ -1920,6 +1920,14 @@ tabPanel("货运量-营业里程",
                                          ),
                                          
                                          plotOutput(outputId = "sub_regional_mileage_yearly_plot", height = "440px"),
+                                         
+                                         sliderInput("year3.2",
+                                         "Year",
+                                         min = min(sub_regional_mileage_yearly),
+                                         max = max(sub_regional_mileage_yearly),
+                                         value = max(sub_regional_mileage_yearly)),
+                                        
+                                         plotOutput(outputId = "map_plot3.2", height = "440px"),
                                          fluidRow(
                                            column(12,DT::dataTableOutput("sub_regional_mileage_yearly_table"))#sub_regional_mileage_yearly_table原始数据中相关的数据表输出
                                          )
@@ -2621,6 +2629,14 @@ tabPanel("货物运量",titlePanel("货物运量"),
                                     choice=y_lixueyan_4_16_yearly,
                                     selected=max(y_lixueyan_4_16_yearly) ))),
                plotOutput(outputId = "hyl_plot", height = "400px"),
+               
+               sliderInput("year4.16",
+               "Year",
+               min = min(y_lixueyan_4_16_yearly),
+               max = max(y_lixueyan_4_16_yearly),
+               value = max(y_lixueyan_4_16_yearly)),
+                                        
+               plotOutput(outputId = "map_plot4.16", height = "440px"),
                DT::dataTableOutput("hyl_table"),
                width=9)#hyl_plot原始数据中货运量的画图
            )  #mainpanel
@@ -2760,6 +2776,14 @@ tabPanel("货运周转量",titlePanel("货运周转量"),
                                     label="至:",
                                     choice=y_lixueyan_4_17_yearly,
                                     selected=max(y_lixueyan_4_17_yearly) ))),
+               
+               sliderInput("year4.17",
+               "Year",
+               min = min(y_lixueyan_4_17_yearly),
+               max = max(y_lixueyan_4_17_yearly),
+               value = max(y_lixueyan_4_17_yearly)),
+                                        
+               plotOutput(outputId = "map_plot4.17", height = "440px"),
                plotOutput(outputId = "hyzzl_plot", height = "400px"),
                DT::dataTableOutput("hyzzl_table"),
                width=9)#hyl_plot原始数据中货运量的画图
@@ -2902,6 +2926,14 @@ tabPanel("客运量",titlePanel("客运量"),
                                     choice=y_lixueyan_4_18_yearly,
                                     selected=max(y_lixueyan_4_18_yearly) ))),
                plotOutput(outputId = "kyl_plot", height = "400px"),
+               
+               sliderInput("year4.18",
+               "Year",
+               min = min(y_lixueyan_4_18_yearly),
+               max = max(y_lixueyan_4_18_yearly),
+               value = max(y_lixueyan_4_18_yearly)),
+                                        
+               plotOutput(outputId = "map_plot4.18", height = "440px"),
                DT::dataTableOutput("kyl_table"),
                width=9)#hyl_plot原始数据中货运量的画图
              
@@ -3044,6 +3076,14 @@ tabPanel("客运周转量",titlePanel("客运周转量"),
                                     choice=y_lixueyan_4_19_yearly,
                                     selected=max(y_lixueyan_4_19_yearly) ))),
                plotOutput(outputId = "kyzzl_plot", height = "400px"),
+               
+               sliderInput("year4.19",
+               "Year",
+               min = min(y_lixueyan_4_19_yearly),
+               max = max(y_lixueyan_4_19_yearly),
+               value = max(y_lixueyan_4_19_yearly)),
+                                        
+               plotOutput(outputId = "map_plot4.19", height = "440px"),
                DT::dataTableOutput("kyzzl_table"),
                width=9)#hyl_plot原始数据中货运量的画图
              
