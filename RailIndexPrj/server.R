@@ -1890,11 +1890,11 @@ rownames = TRUE)
   
   
 #------------------------------------------------------------------------------------------
-#------------------客运量-动车组数-客车机车日行公里数适配性研究(尹君)--------------------------------------------
+#------------------客运量-动车组数-客运机车日行公里适配性研究(尹君)--------------------------------------------
 #PV-------客运量（passenger_volume）简写
 #passenger_volume-------客运量
 #bullettrain_number-------动车组数
-#locomotive_mileage_pcar-------客车机车日行公里数
+#locomotive_mileage_pcar-------客运机车日车公里
 PVdf<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 PVolsRegModel<-lm(passenger_volume~bullettrain_number+locomotive_mileage_pcar,data=PVdf)
 PVdf$linearRegPred<-as.integer(predict(PVolsRegModel,newdata=PVdf))
@@ -2079,7 +2079,7 @@ output$passenger_volume_table<-DT::renderDataTable(
   
   PVdata<-passenger_volume_data
 } , 
-colnames = c('序号', '时间', '客运量（万人）','动车组数（组）','客运机车日行公里（公里）','多元回归预测（亿万）','随机森林回归预测（万元）','支持向量机回归预测（亿万）'),
+colnames = c('序号', '时间', '客运量（万人）','动车组数（组）','客运机车日车公里（公里）','多元回归预测（万人）','随机森林回归预测（万人）','支持向量机回归预测（万人）'),
 rownames = TRUE)
 )
   #--------------------------------------------------------------------
