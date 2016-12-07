@@ -979,8 +979,8 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
 #-----------------------------------------固定资产适配性研究----------------------------------------
 #-----------------------------------------固定资产适配性研究----------------------------------------
                               
-                              tabPanel("固定资产-新增客车-新增动车",
-                                       titlePanel("固定资产-新增客车-新增动车"),
+                              tabPanel("固定资产-新增普客车辆数-新增动车组数",
+                                       titlePanel("固定资产-新增普客车辆数-新增动车组数"),
                                        sidebarLayout(
                                          sidebarPanel(
                                            checkboxInput(inputId="investment_stat_data",
@@ -999,10 +999,10 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                        choice=investment_y,
                                                        selected=max(investment_y) ),
                                            textInput(inputId="ptrain_input",
-                                                     label=strong("预测输入值—客车增加数量（辆）"),
+                                                     label=strong("预测输入值—新增普客车辆数（辆）"),
                                                      value=round(mean(investment_data$passenger_car_delta),0)),
                                            textInput(inputId="htrain_input",
-                                                     label=strong("预测输入值—动车组增加数量（组）"),
+                                                     label=strong("预测输入值—动车组增加数（组）"),
                                                      value=round(mean(investment_data$bullettrain_number_delta),0)),      
                                            
                                            hr("预测结果——固定资产投资额（万元）"),
@@ -1080,8 +1080,8 @@ tabPanel("客运量-动车组数-客运机车日车公里",
 #-----------------------------------------营业里程适配性研究----------------------------------------
 #-----------------------------------------营业里程适配性研究----------------------------------------
 
-                              tabPanel("营业里程-机车-动车",
-                                       titlePanel("营业里程-机车-动车"),
+                              tabPanel("营业里程-机车台数-动车组数",
+                                       titlePanel("营业里程-机车台数-动车组数"),
                                        sidebarLayout(
                                          sidebarPanel(
                                            checkboxInput(inputId="distance_stat_data1",
