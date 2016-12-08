@@ -2776,7 +2776,7 @@ tabPanel("货运周转量",titlePanel("货运周转量"),
                                     label="至:",
                                     choice=y_lixueyan_4_17_yearly,
                                     selected=max(y_lixueyan_4_17_yearly) ))),
-               plotOutput(outputId = "map_plot4.17", height = "440px"),
+               plotOutput(outputId = "hyzzl_plot", height = "400px"),
                
                sliderInput("year4.17",
                "Year",
@@ -2784,7 +2784,7 @@ tabPanel("货运周转量",titlePanel("货运周转量"),
                max = max(y_lixueyan_4_17_yearly),
                value = max(y_lixueyan_4_17_yearly)),
                                         
-               plotOutput(outputId = "hyzzl_plot", height = "400px"),
+               plotOutput(outputId = "map_plot4.17", height = "440px"),
                DT::dataTableOutput("hyzzl_table"),
                width=9)#hyl_plot原始数据中货运量的画图
              
