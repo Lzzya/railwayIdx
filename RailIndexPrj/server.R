@@ -11,7 +11,11 @@ shinyServer(function(input, output) {
   require(maptools)
   df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
   df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
- #-------------------其它铁路原始数据----------------------
+  #------------------景气指数数据----------------------
+  dftrans<-read.xlsx("trans_index_x12.xlsx",1,head=T,startRow=1,encoding = "UTF-8")
+  dfequip<-read.xlsx("yearly_index.xlsx",1,head=T,startRow=1,encoding = "UTF-8")
+  
+  #-------------------其它铁路原始数据----------------------
   #---------------------mashaomeng--------------------------
 mengmeng_yearly<-read.xlsx("3-1 全国铁路线路、铁路复线、电气化、内燃牵引里程.xlsx",1,head=T,startRow=2,encoding = "UTF-8")#--------表3-1是3-1和3-6的合并
 
@@ -156,94 +160,133 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   #铁路景气指数，包括合成指数和扩散指数
   #————————————————————————————————————————————————————————————————————————————————————————————————
   #-------------------------------------------------------
-  #---------------合成指数--------------------------------
-  
-  #运输合成指数计算------------------------------
-  dftrans<-read.xlsx("trans_index_x12.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-  dftrans$tm<-as.Date.POSIXct(dftrans$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
+  #---------------计算前先保留一份原始数据
+  #因为设备和规模用的是一张表，所以规模的数据仍用dfequip
+  dftrans_old<-dftrans[!is.na(dftrans$coor),]
+  dfequip_old<-dfequip[!is.na(dfequip$coor),]
+  dfscale_old<-dfequip[!is.na(dfequip$coor.sc),]
+  dftransks_old<-dftrans[!is.na(dftrans$DIt_trans),]
+  dfequipks_old<-dfequip[!is.na(dfequip$DIt_equip),]
+  dfscaleks_old<-dfequip[!is.na(dfequip$DIt_scale),]
+  #---------数据长度
   trans.len<-length(dftrans$tm)
-  
-  #-----运输----1. 权重计算函数--------------------
+  equip.len<-length(dfequip$df_yearly.tm)
+  scale.len<-equip.len
+  transold.len<-length(dftrans_old$tm)
+  equipold.len<-length(dfequip_old$df_yearly.tm)
+  scaleold.len<-length(dfscale_old$df_yearly.tm)
+  transoldks.len<-length(dftransks_old$tm)
+  equipoldks.len<-length(dfequipks_old$df_yearly.tm)
+  scaleoldks.len<-length(dfscaleks_old$df_yearly.tm)
+  #---------------合成指数--------------------------------
+  #--------- 合成指数计算公式--------------
+  #--------- 同步/一致指标的权重公式
   percent.1<- function(x)
   { xlen<- length(x)
   x<- x/max(x)
   x<- -(1/log(xlen))*sum( (x/sum(x))*log((x/sum(x))) )
   x<- 1-x}
   
-  #------运输---1.1 同步/一致指标的权重--------
+  #--------- 标准化变化率计算公式
+  
+  index.1<- function(z)#设备和规模中用到
+  { zlen<- length(z)
+  z[3:zlen]<- 200*(z[3:zlen]-z[2:(zlen-1)])/(z[3:zlen]+z[2:(zlen-1)])
+  z[2]<- 0
+  z[1]<- 0
+  z<- z/(sum(abs(z))/(zlen-2))}  #运输中用到
+  #--------- 运输合成指数用到
+  index.2<- function(z)
+  {zlen<- length(z)
+  z[14:zlen]<- 200*(z[14:zlen]-z[13:(zlen-1)])/(z[14:zlen]+z[13:(zlen-1)])
+  z[13]<- 0
+  z<- z/(sum(abs(z))/(zlen-13))}
+  #-----运输----2.4 合成指数计算公式--------------
+  hecheng.trans.index<- function(a,b)
+  { alen<- length(a)
+  a<- a/b
+  a[12]<- 100
+  a[13:alen]<- (200+a[13:alen])/(200-a[13:alen])#(200+当列)/(200-当列)
+  a1<- a
+  for(i in 13:alen){a1[i]<- a1[i-1]*a[i] }#a1[i]=a1[i-1]*a[i]初步合成指数
+  index.jizhunnianfen<- mean(a1[49:60]) #抽取基准年份的平均值
+  a1<- 100*a1/index.jizhunnianfen
+  return(a1)
+  }
+  biaozhunhua.F.coor<- 1 #同步的标准化因子是1
+  #运输合成指数计算------------------------------
+  
+  #-----运输----1. 权重计算函数
+  
   hyl.trans.percent<- percent.1(dftrans$hyl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
   gyzjz.trans.percent<- percent.1(dftrans$gyzjz)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
   hyzzl.trans.percent<- percent.1(dftrans$hyzzl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
   
-  #------运输----1.2 滞后指标的权重--------------------------------------------------------------- 
+  #------运输----1.2 滞后指标的权重
   kyl.trans.percent<- percent.1(dftrans$kyl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
   kyzzl.trans.percent<- percent.1(dftrans$kyzzl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
   gdzctz.trans.percent<- percent.1(dftrans$gdzctz)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
   
-  #----运输------1.3 先行指标的权重--------------------------------------------------------------- 
+  #----运输------1.3 先行指标的权重
   gc.trans.percent<- percent.1(dftrans$gc)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
   ym.trans.percent<- percent.1(dftrans$ym)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
   yy.trans.percent<- percent.1(dftrans$yy)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
   hlfdl.trans.percent<- percent.1(dftrans$hlfdl)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
   
+  
   #-----运输----2. 合成指数计算------------------------  
-  
-  #-----运输----2.1 标准化变化率计算--------
-  dftrans2<-dftrans[dftrans$x12hyzzl!=0,]
-  index.1<- function(z)
-  { zlen<- length(z)
-  z[3:zlen]<- 200*(z[3:zlen]-z[2:(zlen-1)])/(z[3:zlen]+z[2:(zlen-1)])
-  z[2]<- 0
-  z[1]<- 0
-  z<- z/(sum(abs(z))/(zlen-2))}  #标准化变化率计算函数
-  
-  index.2<- function(z)
-  {zlen<- length(z)
-  z[2:zlen]<- 200*(z[2:zlen]-z[1:(zlen-1)])/(z[2:zlen]+z[1:(zlen-1)])
-  z[1]<- 0
-  z<- z/(sum(abs(z))/(zlen-1))}
-  
-  #-----运输----2.2 平均变化率R----------------------------------------------------------------------------
-  coor.trans.test<- index.2(dftrans2$x12hyl)*hyl.trans.percent + index.2(dftrans2$x12hyzzl)*hyzzl.trans.percent+index.2(dftrans2$x12gyzjz)*gyzjz.trans.percent
-  #coor.test一致合成指数平均变化率R2
-  adv.trans.test<- index.2(dftrans2$x12gc)*(gc.trans.percent-0.2)+ index.2(dftrans2$x12ym)*ym.trans.percent+index.2(dftrans2$x12yy)*(yy.trans.percent+0.1)+index.2(dftrans2$x12hlfdl)*(hlfdl.trans.percent+0.1)
-  #adv.trans.test先行合成指数平均变化率R1
-  delay.trans.test<- index.2(dftrans2$x12kyl)*kyl.trans.percent + index.2(dftrans2$x12kyzzl)*kyzzl.trans.percent+index.2(dftrans2$x12gdzctz)*gdzctz.trans.percent
-  #coor.trans.test滞后合成指数平均变化率R3
-  
-  #-----运输----2.3 标准化因子F----------------------------------------------
-  biaozhunhua.F.coor<- 1  #同步的标准化因子是1
-  biaozhunhua.trans.F.adv<- sum(abs(adv.trans.test))/sum(abs(coor.trans.test)) #先行的标准化因子
-  biaozhunhua.trans.F.delay<- sum(abs(delay.trans.test))/sum(abs(coor.trans.test)) #滞后的标准化因子
-  
-  #-----运输----2.4 合成指数计算---------------
-  hecheng.trans.index<- function(a,b)
-  { alen<- length(a)
-  a<- a/b
-  a[1]<- 100
-  a[2:alen]<- (200+a[2:alen])/(200-a[2:alen])#(200+当列)/(200-当列)
-  a1<- a
-  for(i in 2:alen){a1[i]<- a1[i-1]*a[i] }#a1[i]=a1[i-1]*a[i]初步合成指数
-  index.jizhunnianfen<- mean(a1[37:48]) #抽取基准年份的平均值
-  a1<- 100*a1/index.jizhunnianfen
-  return(a1)
+  if(trans.len>transold.len){
+    #-----运输----2.2 平均变化率R
+    coor.trans.test<- index.2(dftrans$x12hyl)*hyl.trans.percent + index.2(dftrans$x12hyzzl)*hyzzl.trans.percent+index.2(dftrans$x12gyzjz)*gyzjz.trans.percent
+    #coor.test一致合成指数平均变化率R2
+    adv.trans.test<- index.2(dftrans$x12gc)*(gc.trans.percent-0.2)+ index.2(dftrans$x12ym)*ym.trans.percent+index.2(dftrans$x12yy)*(yy.trans.percent+0.1)+index.2(dftrans$x12hlfdl)*(hlfdl.trans.percent+0.1)
+    #adv.trans.test先行合成指数平均变化率R1
+    delay.trans.test<- index.2(dftrans$x12kyl)*kyl.trans.percent + index.2(dftrans$x12kyzzl)*kyzzl.trans.percent+index.2(dftrans$x12gdzctz)*gdzctz.trans.percent
+    #coor.trans.test滞后合成指数平均变化率R3
+    
+    #-----运输----2.3 标准化因子F
+     
+    biaozhunhua.trans.F.adv<- sum(abs(adv.trans.test))/sum(abs(coor.trans.test)) #先行的标准化因子
+    biaozhunhua.trans.F.delay<- sum(abs(delay.trans.test))/sum(abs(coor.trans.test)) #滞后的标准化因子
+    #默认权重计算得到的运输同步、先行、滞后指数
+    trans.coor<- hecheng.trans.index(coor.trans.test,biaozhunhua.F.coor)
+    trans.adv<- hecheng.trans.index(adv.trans.test,biaozhunhua.trans.F.adv)
+    trans.delay<- hecheng.trans.index(delay.trans.test,biaozhunhua.trans.F.delay)
+    
+    dftrans$coor[(transold.len+1):trans.len]<- trans.coor[(transold.len+1):trans.len]
+    dftrans$adv[(transold.len+1):trans.len]<- trans.adv[(transold.len+1):trans.len]
+    dftrans$delay[(transold.len+1):trans.len]<- trans.delay[(transold.len+1):trans.len]
+    
+    dftrans$hyl.trans.percent[(transold.len+1):trans.len]<-hyl.trans.percent
+    dftrans$hyzzl.trans.percent[(transold.len+1):trans.len]<-hyzzl.trans.percent
+    dftrans$gyzjz.trans.percent[(transold.len+1):trans.len]<-gyzjz.trans.percent
+    dftrans$gc.trans.percent[(transold.len+1):trans.len]<-gc.trans.percent
+    dftrans$ym.trans.percent[(transold.len+1):trans.len]<-ym.trans.percent
+    dftrans$yy.trans.percent[(transold.len+1):trans.len]<-yy.trans.percent
+    dftrans$hlfdl.trans.percent[(transold.len+1):trans.len]<-hlfdl.trans.percent
+    dftrans$kyl.trans.percent[(transold.len+1):trans.len]<-kyl.trans.percent
+    dftrans$kyzzl.trans.percent[(transold.len+1):trans.len]<-kyzzl.trans.percent
+    dftrans$gdzctz.trans.percent[(transold.len+1):trans.len]<-gdzctz.trans.percent
   }
+  #-----------运输的算完了！！----3.运输画线和显示数据表,权重显示--------
+  #-----运输----3.1 运输左侧边栏权重显示------------  
   
-  #默认权重计算得到的运输同步、先行、滞后指数
-  trans.coor<- hecheng.trans.index(coor.trans.test,biaozhunhua.F.coor)
-  trans.adv<- hecheng.trans.index(adv.trans.test,biaozhunhua.trans.F.adv)
-  trans.delay<- hecheng.trans.index(delay.trans.test,biaozhunhua.trans.F.delay)
+  output$trans_hyl_qz_output<-renderText({hyl.trans.percent*100}) 
+  output$trans_gyzjz_qz_output<-renderText({gyzjz.trans.percent*100}) 
+  output$trans_hyzzl_qz_output<-renderText({hyzzl.trans.percent*100})   
+  output$trans_kyl_qz_output<-renderText({kyl.trans.percent*100}) 
+  output$trans_kyzzl_qz_output<-renderText({kyzzl.trans.percent*100}) 
+  output$trans_gc_qz_output<-renderText({(gc.trans.percent-0.2)*100})
+  output$trans_ym_qz_output<-renderText({ym.trans.percent*100}) 
+  output$trans_yy_qz_output<-renderText({(yy.trans.percent+0.1)*100}) 
+  output$trans_hlfdl_qz_output<-renderText({(hlfdl.trans.percent+0.1)*100}) 
+  output$trans_gdzctz_qz_output<-renderText({gdzctz.trans.percent*100}) 
+  #---权重手动输入的计算----------
   
-  dftrans2$coor<- trans.coor
-  dftrans2$adv<- trans.adv
-  dftrans2$delay<- trans.delay
-  
-  #-----------运输的算完了！！----3.运输画线和显示数据表--------
   percent.input<- function(a)
   {a<- as.numeric(a)/100}  #权重手动输入部分计算的函数们
-  
   output$trans_index<- renderPlot( {
-    #---权重手动输入的计算----------
+    
     hyl.qz.input<- percent.input(input$trans_hyl_qz_input)
     gyzjz.qz.input<- percent.input(input$trans_gyzjz_qz_input)
     hyzzl.qz.input<- percent.input(input$trans_hyzzl_qz_input)
@@ -255,9 +298,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     gdzctz.qz.input<- percent.input(input$trans_gdzctz_qz_input)
     kyzzl.qz.input<- percent.input(input$trans_kyzzl_qz_input)
     
-    coor.test.input<- index.2(dftrans2$x12hyl)*hyl.qz.input+index.2(dftrans2$x12hyzzl)*hyzzl.qz.input+index.2(dftrans2$x12gyzjz)*gyzjz.qz.input
-    adv.test.input<- index.2(dftrans2$x12gc)*gc.qz.input + index.2(dftrans2$x12ym)*ym.qz.input+index.2(dftrans2$x12yy)*yy.qz.input+index.2(dftrans2$x12hlfdl)*hlfdl.qz.input
-    delay.test.input<- index.2(dftrans2$x12kyl)*kyl.qz.input + index.2(dftrans2$x12kyzzl)*kyzzl.qz.input+index.2(dftrans2$x12gdzctz)*gdzctz.qz.input
+    coor.test.input<- index.2(dftrans$x12hyl)*hyl.qz.input+index.2(dftrans$x12hyzzl)*hyzzl.qz.input+index.2(dftrans$x12gyzjz)*gyzjz.qz.input
+    adv.test.input<- index.2(dftrans$x12gc)*gc.qz.input + index.2(dftrans$x12ym)*ym.qz.input+index.2(dftrans$x12yy)*yy.qz.input+index.2(dftrans$x12hlfdl)*hlfdl.qz.input
+    delay.test.input<- index.2(dftrans$x12kyl)*kyl.qz.input + index.2(dftrans$x12kyzzl)*kyzzl.qz.input+index.2(dftrans$x12gdzctz)*gdzctz.qz.input
     
     biaozhunhua.F.adv.input<- sum(abs(adv.test.input))/sum(abs(coor.test.input)) 
     biaozhunhua.F.delay.input<- sum(abs(delay.test.input))/sum(abs(coor.test.input))
@@ -266,33 +309,46 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     trans.adv.input<- hecheng.trans.index(adv.test.input,biaozhunhua.F.adv.input)
     trans.delay.input<- hecheng.trans.index(delay.test.input,biaozhunhua.F.delay.input)
     
-    dftrans2$coor.input<- trans.coor.input   
-    dftrans2$adv.input<- trans.adv.input
-    dftrans2$delay.input<- trans.delay.input
+    dftrans$coor.input<- trans.coor.input   
+    dftrans$adv.input<- trans.adv.input
+    dftrans$delay.input<- trans.delay.input
     
     #-----运输----3.1 运输默认权重计算的画线------------  
     if(input$year_start_trans> input$year_end_trans)  {
-      p<-ggplot(dftrans2,x=c(dftrans2$tm[1],dftrans2$tm[trans.len]),aes(x=tm,y=100))}
+      dftransmr<-subset(dftrans,(substr(dftrans$tm,1,4)>2001) )
+      p<-ggplot(dftransmr,x=c(dftransmr$tm[1],dftransmr$tm[trans.len]),aes(x=tm,y=100))
+      if(input$trans_coor_Index){
+        p<-p+geom_line(aes(x=tm,y=dftransmr$coor),color="black",size=1)}
+      if (input$trans_advanced_Index) {
+        p<-p+geom_line(aes(x=tm,y=dftransmr$adv),color="red",size=1) }
+      if (input$trans_delay_Index) {
+        p<-p+geom_line(aes(x=tm,y=dftransmr$delay),color="blue",size=1)}
+      if(input$trans_qz_coor_input)#输入修改权重后算出来的新先行指数
+      { p<-p+geom_line(aes(x=tm,y=dftransmr$coor.input),color="black",size=1.6,linetype=1)}
+      if(input$trans_qz_adv_input)
+      {p<-p+geom_line(aes(x=tm,y=dftransmr$adv.input),color="red",size=1.6,linetype=1)}
+      if(input$trans_qz_delay_input)
+      {p<-p+geom_line(aes(x=tm,y=dftransmr$delay.input),color="blue",size=1.6,linetype=1)}  
+    }
     else{
-      dftranssub<-subset(dftrans2,(substr(dftrans2$tm,1,4)>=input$year_start_trans) )
+      dftranssub<-subset(dftrans,(substr(dftrans$tm,1,4)>=input$year_start_trans) )
       dftranssub<-subset(dftranssub,(substr(dftranssub$tm,1,4)<=input$year_end_trans))
-      p<-ggplot(dftranssub,x=c(dftranssub$tm[1],dftranssub$tm[trans.len]),aes(x=tm,y=100))}
-    
-    if(input$trans_coor_Index){
-      p<-p+geom_line(aes(x=tm,y=dftranssub$coor),color="black",size=1)}
-    if (input$trans_advanced_Index) {
-      p<-p+geom_line(aes(x=tm,y=dftranssub$adv),color="red",size=1) }
-    if (input$trans_delay_Index) {
-      p<-p+geom_line(aes(x=tm,y=dftranssub$delay),color="blue",size=1)}
-    
-    #----运输----3.2 输入修改权重后算出来的新先行指数------------------
-    if(input$trans_qz_coor_input)#输入修改权重后算出来的新先行指数
-    { p<-p+geom_line(aes(x=tm,y=dftranssub$coor.input),color="black",size=1.6,linetype=1)}
-    if(input$trans_qz_adv_input)
-    {p<-p+geom_line(aes(x=tm,y=dftranssub$adv.input),color="red",size=1.6,linetype=1)}
-    if(input$trans_qz_delay_input)
-    {p<-p+geom_line(aes(x=tm,y=dftranssub$delay.input),color="blue",size=1.6,linetype=1)}  
-    
+      p<-ggplot(dftranssub,x=c(dftranssub$tm[1],dftranssub$tm[trans.len]),aes(x=tm,y=100))
+      
+      if(input$trans_coor_Index){
+        p<-p+geom_line(aes(x=tm,y=dftranssub$coor),color="black",size=1)}
+      if (input$trans_advanced_Index) {
+        p<-p+geom_line(aes(x=tm,y=dftranssub$adv),color="red",size=1) }
+      if (input$trans_delay_Index) {
+        p<-p+geom_line(aes(x=tm,y=dftranssub$delay),color="blue",size=1)}
+      if(input$trans_qz_coor_input)#输入修改权重后算出来的新先行指数
+      { p<-p+geom_line(aes(x=tm,y=dftranssub$coor.input),color="black",size=1.6,linetype=1)}
+      if(input$trans_qz_adv_input)
+      {p<-p+geom_line(aes(x=tm,y=dftranssub$adv.input),color="red",size=1.6,linetype=1)}
+      if(input$trans_qz_delay_input)
+      {p<-p+geom_line(aes(x=tm,y=dftranssub$delay.input),color="blue",size=1.6,linetype=1)}  
+      
+    }
     p+ylab("运输合成指数")+xlab("时间")+geom_line()
   })
   
@@ -310,9 +366,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     gdzctz.qz.input<- percent.input(input$trans_gdzctz_qz_input)
     kyzzl.qz.input<- percent.input(input$trans_kyzzl_qz_input)
     
-    coor.test.input<- index.2(dftrans2$x12hyl)*hyl.qz.input+index.2(dftrans2$x12hyzzl)*hyzzl.qz.input+index.2(dftrans2$x12gyzjz)*gyzjz.qz.input
-    adv.test.input<- index.2(dftrans2$x12gc)*gc.qz.input + index.2(dftrans2$x12ym)*ym.qz.input+index.2(dftrans2$x12yy)*yy.qz.input+index.2(dftrans2$x12hlfdl)*hlfdl.qz.input
-    delay.test.input<- index.2(dftrans2$x12kyl)*kyl.qz.input + index.2(dftrans2$x12kyzzl)*kyzzl.qz.input+index.2(dftrans2$x12gdzctz)*gdzctz.qz.input
+    coor.test.input<- index.2(dftrans$x12hyl)*hyl.qz.input+index.2(dftrans$x12hyzzl)*hyzzl.qz.input+index.2(dftrans$x12gyzjz)*gyzjz.qz.input
+    adv.test.input<- index.2(dftrans$x12gc)*gc.qz.input + index.2(dftrans$x12ym)*ym.qz.input+index.2(dftrans$x12yy)*yy.qz.input+index.2(dftrans$x12hlfdl)*hlfdl.qz.input
+    delay.test.input<- index.2(dftrans$x12kyl)*kyl.qz.input + index.2(dftrans$x12kyzzl)*kyzzl.qz.input+index.2(dftrans$x12gdzctz)*gdzctz.qz.input
     
     biaozhunhua.F.adv.input<- sum(abs(adv.test.input))/sum(abs(coor.test.input)) 
     biaozhunhua.F.delay.input<- sum(abs(delay.test.input))/sum(abs(coor.test.input))
@@ -321,21 +377,21 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     trans.adv.input<- hecheng.trans.index(adv.test.input,biaozhunhua.F.adv.input)
     trans.delay.input<- hecheng.trans.index(delay.test.input,biaozhunhua.F.delay.input)
     
-    dftrans2$coor.input<- trans.coor.input   
-    dftrans2$adv.input<- trans.adv.input
-    dftrans2$delay.input<- trans.delay.input
+    dftrans$coor.input<- trans.coor.input   
+    dftrans$adv.input<- trans.adv.input
+    dftrans$delay.input<- trans.delay.input
     
     #----运输----4.1 输入修改权重后算出来的三个指数------------------   
     if(input$trans_qz_coor_input|input$trans_qz_adv_input|input$trans_qz_delay_input){
       DT::datatable(
-        { dftrans<- data.frame(dftrans2$tm,dftrans2$adv.input,dftrans2$coor.input,dftrans2$delay.input)
+        { dftrans<- data.frame(dftrans$tm[13:trans.len],dftrans$adv.input[13:trans.len],dftrans$coor.input[13:trans.len],dftrans$delay.input[13:trans.len])
         data<-dftrans},
         colnames = c('时间', '先行指数',  '同步指数','滞后指数'),
         rownames = TRUE)}
     #----运输----4.2 默认权重计算下的三个指数------------------  
     else{ 
       DT::datatable(
-        { dftrans<- data.frame(dftrans2$tm,dftrans2$adv,dftrans2$coor,dftrans2$delay)
+        { dftrans<- data.frame(dftrans$tm[13:trans.len],dftrans$adv[13:trans.len],dftrans$coor[13:trans.len],dftrans$delay[13:trans.len])
         data<-dftrans},
         colnames = c('时间', '运输合成先行指数',  '运输合成同步指数','运输合成滞后指数'),
         rownames = TRUE)
@@ -343,19 +399,12 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   })
   
   #-----设备合成指数计算-------------------------------
-  dfequipall<-data.frame(df_yearly$tm,df_yearly$iron_output_yearly,df_yearly$coal_output_yearly,df_yearly$oil_processing_volume_yearly,df_yearly$coalfired_power_generation_yearly,df_yearly$locomotive_mileage_sum,df_yearly$dailycar_run,df_yearly$dailycar_now,df_yearly$locomotive_mileage_pcar,df_yearly$locomotive_mileage_fcar,df_yearly$passenger_car,df_yearly$freight_car,df_yearly$locomotive_number,df_yearly$practitioner_number)
-  dfequip<-subset(dfequipall,(substr(dfequipall$df_yearly.tm,1,4)>="2001") )
-  dfequip$df_yearly.tm<-as.Date.POSIXct(dfequip$df_yearly.tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-  equip.len<-length(dfequip$df_yearly.tm)
   
-  #---------设备 1. 权重计算------------------------
-  #---函数公式同上，不用再写一遍
-  
-  #----------设备 1.1 同步/一致指标的权重---------------------------------------------------------------
+  #----------设备 1.1 同步/一致指标的权重
   locomotive_mileage_sum.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_sum)/(percent.1(dfequip$df_yearly.locomotive_mileage_sum)+percent.1(dfequip$df_yearly.dailycar_run))
   dailycar_run.equip.qz<- percent.1(dfequip$df_yearly.dailycar_run)/(percent.1(dfequip$df_yearly.locomotive_mileage_sum)+percent.1(dfequip$df_yearly.dailycar_run))
   
-  #----------设备 1.2 滞后指标的权重--------------------------------------------------------------- 
+  #----------设备 1.2 滞后指标的权重
   dailycar_now.equip.qz<- percent.1(dfequip$df_yearly.dailycar_now)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
   locomotive_mileage_pcar.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_pcar)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
   locomotive_mileage_fcar.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_fcar)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
@@ -363,36 +412,20 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   freight_car.equip.qz<- percent.1(dfequip$df_yearly.freight_car)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
   locomotive_number.equip.qz<- percent.1(dfequip$df_yearly.locomotive_number)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
   
-  #----------设备 1.3 先行指标的权重，计算出来同运输的不一样，所以变量标注2--------------------------------------------------------------- 
-  iron_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.iron_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  coal_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.coal_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  #----------设备 1.3 先行指标的权重，计算出来同运输的不一样，所以变量标注2
+  iron_yearly.equip.qz<- percent.1(dfequip$df_yearly.iron_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  coal_yearly.equip.qz<- percent.1(dfequip$df_yearly.coal_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
   oil_processing_volume_yearly.equip.qz<- percent.1(dfequip$df_yearly.oil_processing_volume_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
   coalfired_power_generation_yearly.equip.qz<- percent.1(dfequip$df_yearly.coalfired_power_generation_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
   
   #---------设备 2. 合成指数计算------------------------  
   
-  #--------设备的合成指数不用去季节化，因为本来就是年度数据，直接计算增长率---------
+  #--------设备的合成指数不用去季节化，因为本来就是年度数据，直接计算增长率
   rate.1<- function(m)
   { m[2:length(m)]<- m[2:length(m)]/m[1:(length(m)-1)]-1
   m[1]<- 0
   return(m)}
-  
-  #---------设备 2.1 标准化变化率计算----同上运输标准化变化率，不用再重复----
-  
-  #---------设备 2.2 平均变化率R----------------------------------------------------------------------------
-  coor.equip.test<- index.1(rate.1(dfequip$df_yearly.locomotive_mileage_sum))*locomotive_mileage_sum.equip.qz + index.1(rate.1(dfequip$df_yearly.dailycar_run))*dailycar_run.equip.qz
-  #coor2.test一致合成指数平均变化率R2
-  adv.equip.test<- index.1(rate.1(dfequip$df_yearly.iron_output_yearly))*iron_output_yearly.equip.qz + index.1(rate.1(dfequip$df_yearly.coal_output_yearly))*coal_output_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.oil_processing_volume_yearly))*oil_processing_volume_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.coalfired_power_generation_yearly))*coalfired_power_generation_yearly.equip.qz
-  #coor2.test先行合成指数平均变化率R1
-  delay.equip.test<- index.1(rate.1(dfequip$df_yearly.dailycar_now))*dailycar_now.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_pcar))*locomotive_mileage_pcar.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_fcar))*locomotive_mileage_fcar.equip.qz+index.1(rate.1(dfequip$df_yearly.passenger_car))*passenger_car.equip.qz+index.1(rate.1(dfequip$df_yearly.freight_car))*freight_car.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_number))*locomotive_number.equip.qz
-  #coor2.test滞后合成指数平均变化率R3
-  
-  #---------设备 2.3 标准化因子F----------------------------------------------
-  biaozhunhua.equip.F.coor<- 1  #同步的标准化因子是1
-  biaozhunhua.equip.F.adv<- sum(abs(adv.equip.test))/sum(abs(coor.equip.test)) #先行的标准化因子
-  biaozhunhua.equip.F.delay<- sum(abs(delay.equip.test))/sum(abs(coor.equip.test)) #滞后的标准化因子
-  
-  #---------设备 2.4 合成指数计算--设备的合成基本年数的值设为100-------------
+  #---------设备-合成指数计算--设备的合成基本年数的值设为100
   hecheng.equip.index<- function(a,b)
   {
     alen<- length(a)
@@ -406,16 +439,66 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     return(a1)
   }
   
-  equip.coor<- hecheng.equip.index(coor.equip.test,biaozhunhua.equip.F.coor)
-  equip.adv<- hecheng.equip.index(adv.equip.test,biaozhunhua.equip.F.adv)
-  equip.delay<- hecheng.equip.index(delay.equip.test,biaozhunhua.equip.F.delay)
+  if(equip.len>equipold.len){
+    #---------设备 2.1 标准化变化率计算----同上运输标准化变化率，不用再重复
+    
+    #---------设备 2.2 平均变化率R
+    coor.equip.test<- index.1(rate.1(dfequip$df_yearly.locomotive_mileage_sum))*locomotive_mileage_sum.equip.qz + index.1(rate.1(dfequip$df_yearly.dailycar_run))*dailycar_run.equip.qz
+    #coor2.test一致合成指数平均变化率R2
+    adv.equip.test<- index.1(rate.1(dfequip$df_yearly.iron_output_yearly))*iron_yearly.equip.qz + index.1(rate.1(dfequip$df_yearly.coal_output_yearly))*coal_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.oil_processing_volume_yearly))*oil_processing_volume_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.coalfired_power_generation_yearly))*coalfired_power_generation_yearly.equip.qz
+    #coor2.test先行合成指数平均变化率R1
+    delay.equip.test<- index.1(rate.1(dfequip$df_yearly.dailycar_now))*dailycar_now.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_pcar))*locomotive_mileage_pcar.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_fcar))*locomotive_mileage_fcar.equip.qz+index.1(rate.1(dfequip$df_yearly.passenger_car))*passenger_car.equip.qz+index.1(rate.1(dfequip$df_yearly.freight_car))*freight_car.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_number))*locomotive_number.equip.qz
+    #coor2.test滞后合成指数平均变化率R3
+    
+    #---------设备 2.3 标准化因子F
+    biaozhunhua.equip.F.coor<- 1  #同步的标准化因子是1
+    biaozhunhua.equip.F.adv<- sum(abs(adv.equip.test))/sum(abs(coor.equip.test)) #先行的标准化因子
+    biaozhunhua.equip.F.delay<- sum(abs(delay.equip.test))/sum(abs(coor.equip.test)) #滞后的标准化因子
+    
+    
+    equip.coor<- hecheng.equip.index(coor.equip.test,biaozhunhua.equip.F.coor)
+    equip.adv<- hecheng.equip.index(adv.equip.test,biaozhunhua.equip.F.adv)
+    equip.delay<- hecheng.equip.index(delay.equip.test,biaozhunhua.equip.F.delay)
+    
+    dfequip$coor[(equipold.len+1):equip.len]<- equip.coor[(equipold.len+1):equip.len]
+    dfequip$adv[(equipold.len+1):equip.len]<- equip.adv[(equipold.len+1):equip.len]
+    dfequip$delay[(equipold.len+1):equip.len]<- equip.delay[(equipold.len+1):equip.len]
+    
+    dfequip$locomotive_mileage_sum.equip.qz[(equipold.len+1):equip.len]<-locomotive_mileage_sum.equip.qz
+    dfequip$dailycar_run.equip.qz[(equipold.len+1):equip.len]<-dailycar_run.equip.qz
+    dfequip$dailycar_now.equip.qz[(equipold.len+1):equip.len]<-dailycar_now.equip.qz
+    dfequip$locomotive_mileage_pcar.equip.qz[(equipold.len+1):equip.len]<-locomotive_mileage_pcar.equip.qz
+    dfequip$locomotive_mileage_fcar.equip.qz[(equipold.len+1):equip.len]<-locomotive_mileage_fcar.equip.qz
+    dfequip$passenger_car.equip.qz[(equipold.len+1):equip.len]<-passenger_car.equip.qz
+    dfequip$freight_car.equip.qz[(equipold.len+1):equip.len]<-freight_car.equip.qz
+    dfequip$locomotive_number.equip.qz[(equipold.len+1):equip.len]<-locomotive_number.equip.qz
+    dfequip$iron_yearly.equip.qz[(equipold.len+1):equip.len]<-iron_yearly.equip.qz
+    dfequip$coal_yearly.equip.qz[(equipold.len+1):equip.len]<-coal_yearly.equip.qz
+    dfequip$oil_processing_volume_yearly.equip.qz[(equipold.len+1):equip.len]<-oil_processing_volume_yearly.equip.qz
+    dfequip$coalfired_power_generation_yearly.equip.qz[(equipold.len+1):equip.len]<-coalfired_power_generation_yearly.equip.qz
+    
+  }
   
-  dfequip$coor<- c(1:equip.len)
-  dfequip$adv<- c(1:equip.len)
-  dfequip$delay<- c(1:equip.len)
-  dfequip$coor<- equip.coor
-  dfequip$adv<- equip.adv
-  dfequip$delay<- equip.delay
+  #-----设备----3.1 设备左侧边栏权重------------  
+  output$equip_jczxzlc_qz_output<-renderText({locomotive_mileage_sum.equip.qz*100}) 
+  output$equip_rjyyc_qz_output<-renderText({dailycar_run.equip.qz*100}) 
+  
+  
+  output$equip_gc_qz_output<-renderText({iron_yearly.equip.qz*100}) 
+  output$equip_ym_qz_output<-renderText({coal_yearly.equip.qz*100}) 
+  output$equip_yy_qz_output<-renderText({oil_processing_volume_yearly.equip.qz*100}) 
+  output$equip_hlfdl_qz_output<-renderText({coalfired_power_generation_yearly.equip.qz*100}) 
+  
+  
+  output$equip_rjxzc_qz_output<-renderText({dailycar_now.equip.qz*100})   
+  output$equip_kyjclc_qz_output<-renderText({locomotive_mileage_pcar.equip.qz*100}) 
+  output$equip_hyjclc_qz_output<-renderText({locomotive_mileage_fcar.equip.qz*100}) 
+  output$equip_kcls_qz_output<-renderText({passenger_car.equip.qz*100})
+  output$equip_hcls_qz_output<-renderText({freight_car.equip.qz*100}) 
+  output$equip_jcts_qz_output<-renderText({locomotive_number.equip.qz*100}) 
+  
+  
+  
   
   #-----------设备的算完了！！----3.设备 画线和显示数据表--------
   output$equip_index<- renderPlot( {
@@ -450,33 +533,56 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     
     #-----设备----3.1 默认权重计算的画线------------     
     if(input$year_start_equip > input$year_end_equip)  {
-      p<-ggplot(dfequip,x=c(dfequip$df_yearly.tm[1],dfequip$df_yearly.tm[equip.len]),aes(x=df_yearly.tm,y=100))  }
+      p<-ggplot(dfequip,x=c(dfequip$df_yearly.tm[1],dfequip$df_yearly.tm[equip.len]),aes(x=df_yearly.tm,y=100))
+      if(input$equip_coor_Index){
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequip$coor),color="black",size=0.6)
+        p<-p+geom_point(aes(x=df_yearly.tm,y=dfequip$coor),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if (input$equip_advanced_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequip$adv),color="red",size=0.6)
+        p<-p+geom_point(aes(x=df_yearly.tm,y=dfequip$adv),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if (input$equip_delay_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequip$delay),color="blue",size=0.6)
+        p<-p+geom_point(aes(x=df_yearly.tm,y=dfequip$delay),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      
+      #-----设备----3.2 权重手动输入后的画线------------      
+      if(input$equip_qz_coor_input)#输入修改权重后算出来的新先行指数
+      { p<-p+geom_line(aes(x=df_yearly.tm,y=dfequip$coor.input),color="black",size=1,linetype=1)
+      p<-p+geom_point(aes(x=df_yearly.tm,y=dfequip$coor.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if(input$equip_qz_adv_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfequip$adv.input),color="red",size=1,linetype=1)
+      p<-p+geom_point(aes(x=df_yearly.tm,y=dfequip$adv.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if(input$equip_qz_delay_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfequip$delay.input),color="blue",size=1,linetype=1)
+      p<-p+geom_point(aes(x=df_yearly.tm,y=dfequip$delay.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))} 
+      
+    }
     else{
       dfequipsub<-subset(dfequip,(substr(dfequip$df_yearly.tm,1,4)>=input$year_start_equip) )
       dfequipsub<-subset(dfequipsub,(substr(dfequipsub$df_yearly.tm,1,4)<=input$year_end_equip))
-      p<-ggplot(dfequipsub,x=c(dfequipsub$df_yearly.tm[1],dfequipsub$df_yearly.tm[equip.len]),aes(x=df_yearly.tm,y=100))    }
-    
-    if(input$equip_coor_Index){
-      p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$coor),color="black",size=0.6)
-      p<-p+geom_point(aes(x=df_yearly.tm,y=dfequipsub$coor),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
-    if (input$equip_advanced_Index) {
-      p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$adv),color="red",size=0.6)
-      p<-p+geom_point(aes(x=df_yearly.tm,y=dfequipsub$adv),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
-    if (input$equip_delay_Index) {
-      p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$delay),color="blue",size=0.6)
-      p<-p+geom_point(aes(x=df_yearly.tm,y=dfequipsub$delay),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
-    
-    #-----设备----3.2 权重手动输入后的画线------------      
-    if(input$equip_qz_coor_input)#输入修改权重后算出来的新先行指数
-    { p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$coor.input),color="black",size=1,linetype=1)
-    p<-p+geom_point(aes(x=df_yearly.tm,y=dfequipsub$coor.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
-    if(input$equip_qz_adv_input)
-    {p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$adv.input),color="red",size=1,linetype=1)
-    p<-p+geom_point(aes(x=df_yearly.tm,y=dfequipsub$adv.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
-    if(input$equip_qz_delay_input)
-    {p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$delay.input),color="blue",size=1,linetype=1)
-    p<-p+geom_point(aes(x=df_yearly.tm,y=dfequipsub$delay.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))} 
-    
+      p<-ggplot(dfequipsub,x=c(dfequipsub$df_yearly.tm[1],dfequipsub$df_yearly.tm[equip.len]),aes(x=df_yearly.tm,y=100)) 
+      
+      if(input$equip_coor_Index){
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$coor),color="black",size=0.6)
+        p<-p+geom_point(aes(x=df_yearly.tm,y=dfequipsub$coor),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if (input$equip_advanced_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$adv),color="red",size=0.6)
+        p<-p+geom_point(aes(x=df_yearly.tm,y=dfequipsub$adv),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if (input$equip_delay_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$delay),color="blue",size=0.6)
+        p<-p+geom_point(aes(x=df_yearly.tm,y=dfequipsub$delay),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      
+      #-----设备----3.2 权重手动输入后的画线------------      
+      if(input$equip_qz_coor_input)#输入修改权重后算出来的新先行指数
+      { p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$coor.input),color="black",size=1,linetype=1)
+      p<-p+geom_point(aes(x=df_yearly.tm,y=dfequipsub$coor.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if(input$equip_qz_adv_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$adv.input),color="red",size=1,linetype=1)
+      p<-p+geom_point(aes(x=df_yearly.tm,y=dfequipsub$adv.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if(input$equip_qz_delay_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$delay.input),color="blue",size=1,linetype=1)
+      p<-p+geom_point(aes(x=df_yearly.tm,y=dfequipsub$delay.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))} 
+      
+    }
     
     p+ylab("设备合成指数")+xlab("时间")+geom_line()
   })
@@ -525,51 +631,76 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   })
   
   #-----规模合成指数计算-------------------------------
-  dfscaleall<-data.frame(df_yearly$tm,df_yearly$Industrial_Added_Value_Rate_yearly,df_yearly$freight_volume_28_yearly,df_yearly$freight_rotation_volume_yearly,df_yearly$iron_output_yearly,df_yearly$coal_output_yearly,df_yearly$oil_processing_volume_yearly,df_yearly$coalfired_power_generation_yearly,df_yearly$passenger_car,df_yearly$freight_car,df_yearly$mileage,df_yearly$practitioner_number,df_yearly$locomotive_number)
-  dfscale<-subset(dfscaleall,(substr(dfscaleall$df_yearly.tm,1,4)>="2001") )
-  dfscale$df_yearly.tm<-as.Date.POSIXct(dfscale$df_yearly.tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-  scale.len<-length(dfscale$df_yearly.tm)
   
-  #---------规模 1. 权重计算------------------------
-  #---函数公式同上，不用再写一遍
+  #---------规模 1.1 同步/一致指标的权重
+  gyzjz.scale.qz<- percent.1(dfequip$df_yearly.Industrial_Added_Value_Rate_yearly)/(percent.1(dfequip$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfequip$df_yearly.freight_volume_28_yearly)+percent.1(dfequip$df_yearly.freight_rotation_volume_yearly))
+  hyl.scale.qz<- percent.1(dfequip$df_yearly.freight_volume_28_yearly)/(percent.1(dfequip$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfequip$df_yearly.freight_volume_28_yearly)+percent.1(dfequip$df_yearly.freight_rotation_volume_yearly))
+  hyzzl.scale.qz<- percent.1(dfequip$df_yearly.freight_rotation_volume_yearly)/(percent.1(dfequip$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfequip$df_yearly.freight_volume_28_yearly)+percent.1(dfequip$df_yearly.freight_rotation_volume_yearly))
+  #----------规模 1.2 滞后指标的权重
+  kcls.scale.qz<- percent.1(dfequip$df_yearly.passenger_car)/(percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.mileage)+percent.1(dfequip$df_yearly.practitioner_number)+percent.1(dfequip$df_yearly.locomotive_number))
+  hcls.scale.qz<- percent.1(dfequip$df_yearly.freight_car)/(percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.mileage)+percent.1(dfequip$df_yearly.practitioner_number)+percent.1(dfequip$df_yearly.locomotive_number))
+  yylc.scale.qz<- percent.1(dfequip$df_yearly.mileage)/(percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.mileage)+percent.1(dfequip$df_yearly.practitioner_number)+percent.1(dfequip$df_yearly.locomotive_number))
+  cyrysl.scale.qz<- percent.1(dfequip$df_yearly.practitioner_number)/(percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.mileage)+percent.1(dfequip$df_yearly.practitioner_number)+percent.1(dfequip$df_yearly.locomotive_number))
+  jcts.scale.qz<- percent.1(dfequip$df_yearly.locomotive_number)/(percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.mileage)+percent.1(dfequip$df_yearly.practitioner_number)+percent.1(dfequip$df_yearly.locomotive_number))
   
-  #---------规模 1.1 同步/一致指标的权重---------------------------------------------------------------
-  gyzjz.scale.qz<- percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)/(percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
-  hyl.scale.qz<- percent.1(dfscale$df_yearly.freight_volume_28_yearly)/(percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
-  hyzzl.scale.qz<- percent.1(dfscale$df_yearly.freight_rotation_volume_yearly)/(percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
-  #----------规模 1.2 滞后指标的权重--------------------------------------------------------------- 
-  kcls.scale.qz<- percent.1(dfscale$df_yearly.passenger_car)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  hcls.scale.qz<- percent.1(dfscale$df_yearly.freight_car)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  yylc.scale.qz<- percent.1(dfscale$df_yearly.mileage)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  cyrysl.scale.qz<- percent.1(dfscale$df_yearly.practitioner_number)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  jcts.scale.qz<- percent.1(dfscale$df_yearly.locomotive_number)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  
-  #----------规模 1.3 先行指标的权重，计算出来同规模一样，直接用设备的即可--------------------------------------------------------------- 
-  
-  #---------规模 2. 合成指数计算----规模的合成指数不用去季节化，因为本来就是年度数据，直接计算增长率-----------------------------  
+  #----------规模 1.3 先行指标的权重，计算出来同规模一样，直接用设备的即可
+  #---------规模 2. 合成指数计算----规模的合成指数不用去季节化，因为本来就是年度数据，直接计算增长率
   #---------规模 2.1 标准化变化率计算----同上设备标准化变化率，不用再重复----
   
-  #---------规模 2.2 平均变化率R----------------------------------------------------------------------------
-  coor.scale.test<- index.1(rate.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly))*gyzjz.scale.qz + index.1(rate.1(dfscale$df_yearly.freight_volume_28_yearly))*hyl.scale.qz + index.1(rate.1(dfscale$df_yearly.freight_rotation_volume_yearly))*hyzzl.scale.qz
-  #coor.scale.test一致合成指数平均变化率R2
-  #adv.equip.test<- index.1(rate.1(dfscale$df_yearly.iron_output_yearly))*gc2.qz + index.1(rate.1(dfscale$df_yearly.coal_output_yearly))*ym2.qz+index.1(rate.1(dfscale$df_yearly.oil_processing_volume_yearly))*yy2.qz+index.1(rate.1(dfscale$df_yearly.coalfired_power_generation_yearly))*hlfdl2.qz
-  #adv.scale.test先行合成指数平均变化率R1 同coor.equip.test
+  if(scale.len>scaleold.len){
+    #---------规模 2.2 平均变化率R
+    coor.scale.test<- index.1(rate.1(dfequip$df_yearly.Industrial_Added_Value_Rate_yearly))*gyzjz.scale.qz + index.1(rate.1(dfequip$df_yearly.freight_volume_28_yearly))*hyl.scale.qz + index.1(rate.1(dfequip$df_yearly.freight_rotation_volume_yearly))*hyzzl.scale.qz
+    #coor.scale.test一致合成指数平均变化率R2
+    adv.scale.test<- index.1(rate.1(dfequip$df_yearly.iron_output_yearly))*iron_yearly.equip.qz + index.1(rate.1(dfequip$df_yearly.coal_output_yearly))*coal_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.oil_processing_volume_yearly))*oil_processing_volume_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.coalfired_power_generation_yearly))*coalfired_power_generation_yearly.equip.qz
+    
+    #adv.scale.test先行合成指数平均变化率R1 同coor.equip.test
+    
+    delay.scale.test<- index.1(rate.1(dfequip$df_yearly.passenger_car))*kcls.scale.qz+index.1(rate.1(dfequip$df_yearly.freight_car))*hcls.scale.qz+index.1(rate.1(dfequip$df_yearly.mileage))*yylc.scale.qz+index.1(rate.1(dfequip$df_yearly.practitioner_number))*cyrysl.scale.qz+index.1(rate.1(dfequip$df_yearly.locomotive_number))*jcts.scale.qz  #delay3.test滞后合成指数平均变化率R3
+    
+    #---------规模 2.3 标准化因子F
+    biaozhunhua.scale.F.coor<- 1  #同步的标准化因子是1
+    biaozhunhua.scale.F.adv<- sum(abs(adv.scale.test))/sum(abs(coor.scale.test)) #先行的标准化因子
+    biaozhunhua.scale.F.delay<- sum(abs(delay.scale.test))/sum(abs(coor.scale.test)) #滞后的标准化因子
+    
+    #---------规模 2.4 合成指数计算--规模的合成基本年数的值同设备的，都设为100，也不用写了
+    scale.coor<- hecheng.equip.index(coor.scale.test,biaozhunhua.scale.F.coor)
+    scale.adv<- hecheng.equip.index(adv.scale.test,biaozhunhua.scale.F.adv)
+    scale.delay<- hecheng.equip.index(delay.scale.test,biaozhunhua.scale.F.delay)
+    
+    dfequip$coor.sc[(scaleold.len+1):scale.len]<- scale.coor[(scaleold.len+1):scale.len]
+    dfequip$adv.sc[(scaleold.len+1):scale.len]<- scale.adv[(scaleold.len+1):scale.len]
+    dfequip$delay.sc[(scaleold.len+1):scale.len]<- scale.delay[(scaleold.len+1):scale.len]
+    
+    dfequip$gyzjz.scale.qz[(scaleold.len+1):scale.len]<-gyzjz.scale.qz
+    dfequip$hyl.scale.qz[(scaleold.len+1):scale.len]<-hyl.scale.qz
+    dfequip$hyzzl.scale.qz[(scaleold.len+1):scale.len]<-hyzzl.scale.qz
+    dfequip$kcls.scale.qz[(scaleold.len+1):scale.len]<-kcls.scale.qz
+    dfequip$hcls.scale.qz[(scaleold.len+1):scale.len]<-hcls.scale.qz
+    dfequip$yylc.scale.qz[(scaleold.len+1):scale.len]<-yylc.scale.qz
+    dfequip$cyrysl.scale.qz[(scaleold.len+1):scale.len]<- cyrysl.scale.qz
+    dfequip$jcts.scale.qz[(scaleold.len+1):scale.len]<-jcts.scale.qz
+    
+  }
+  #-----规模----3.1 设备左侧边栏数据输出------------  
   
-  delay.scale.test<- index.1(rate.1(dfscale$df_yearly.passenger_car))*kcls.scale.qz+index.1(rate.1(dfscale$df_yearly.freight_car))*hcls.scale.qz+index.1(rate.1(dfscale$df_yearly.mileage))*yylc.scale.qz+index.1(rate.1(dfscale$df_yearly.practitioner_number))*cyrysl.scale.qz+index.1(rate.1(dfscale$df_yearly.locomotive_number))*jcts.scale.qz  #delay3.test滞后合成指数平均变化率R3
+  output$scale_hyl_qz_output<-renderText({hyl.scale.qz*100}) 
+  output$scale_gyzjz_qz_output<-renderText({gyzjz.scale.qz*100}) 
+  output$scale_hyzzl_qz_output<-renderText({hyzzl.scale.qz*100})   
   
-  #---------规模 2.3 标准化因子F----------------------------------------------
-  biaozhunhua.scale.F.coor<- 1  #同步的标准化因子是1
-  biaozhunhua.scale.F.adv<- sum(abs(adv.equip.test))/sum(abs(coor.scale.test)) #先行的标准化因子
-  biaozhunhua.scale.F.delay<- sum(abs(delay.scale.test))/sum(abs(coor.scale.test)) #滞后的标准化因子
+  output$scale_gc_qz_output<-renderText({iron_yearly.equip.qz*100})
+  output$scale_ym_qz_output<-renderText({coal_yearly.equip.qz*100}) 
+  output$scale_yy_qz_output<-renderText({oil_processing_volume_yearly.equip.qz*100}) 
+  output$scale_hlfdl_qz_output<-renderText({coalfired_power_generation_yearly.equip.qz*100}) 
   
-  #---------规模 2.4 合成指数计算--规模的合成基本年数的值同设备的，都设为100，也不用写了-------------
-  scale.coor<- hecheng.equip.index(coor.scale.test,biaozhunhua.scale.F.coor)
-  scale.adv<- hecheng.equip.index(adv.equip.test,biaozhunhua.scale.F.adv)
-  scale.delay<- hecheng.equip.index(delay.scale.test,biaozhunhua.scale.F.delay)
   
-  dfscale$coor<- scale.coor
-  dfscale$adv<- scale.adv
-  dfscale$delay<- scale.delay
+  output$scale_yylc_qz_output<-renderText({yylc.scale.qz*100}) 
+  output$scale_cyrysl_qz_output<-renderText({cyrysl.scale.qz*100}) 
+  output$scale_kcls_qz_output<-renderText({kcls.scale.qz*100})   
+  output$scale_hcls_qz_output<-renderText({hcls.scale.qz*100}) 
+  output$scale_jcts_qz_output<-renderText({jcts.scale.qz*100})   
+  
+  
+  
   
   #-----------规模的也算完了！！----底下是画线和显示数据表--------
   
@@ -588,9 +719,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     cyrysl.qz.input<- percent.input(input$scale_cyrysl_qz_input)
     jcts.qz.input<- percent.input(input$scale_jcts_qz_input)
     
-    coor.test.input<- index.1(rate.1(dfscale$df_yearly.freight_volume_28_yearly))*hyl.qz.input+index.1(rate.1(dfscale$df_yearly.freight_rotation_volume_yearly))*hyzzl.qz.input+index.1(rate.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly))*gyzjz.qz.input
-    adv.test.input<- index.1(rate.1(dfscale$df_yearly.iron_output_yearly))*gc.qz.input + index.1(rate.1(dfscale$df_yearly.coal_output_yearly))*ym.qz.input+index.1(rate.1(dfscale$df_yearly.oil_processing_volume_yearly))*yy.qz.input+index.1(rate.1(dfscale$df_yearly.coalfired_power_generation_yearly))*hlfdl.qz.input
-    delay.test.input<- index.1(rate.1(dfscale$df_yearly.passenger_car))*kcls.qz.input + index.1(rate.1(dfscale$df_yearly.freight_car))*hcls.qz.input+index.1(rate.1(dfscale$df_yearly.mileage))*yylc.qz.input+index.1(rate.1(dfscale$df_yearly.practitioner_number))*cyrysl.qz.input+index.1(rate.1(dfscale$df_yearly.locomotive_number))*jcts.qz.input
+    coor.test.input<- index.1(rate.1(dfequip$df_yearly.freight_volume_28_yearly))*hyl.qz.input+index.1(rate.1(dfequip$df_yearly.freight_rotation_volume_yearly))*hyzzl.qz.input+index.1(rate.1(dfequip$df_yearly.Industrial_Added_Value_Rate_yearly))*gyzjz.qz.input
+    adv.test.input<- index.1(rate.1(dfequip$df_yearly.iron_output_yearly))*gc.qz.input + index.1(rate.1(dfequip$df_yearly.coal_output_yearly))*ym.qz.input+index.1(rate.1(dfequip$df_yearly.oil_processing_volume_yearly))*yy.qz.input+index.1(rate.1(dfequip$df_yearly.coalfired_power_generation_yearly))*hlfdl.qz.input
+    delay.test.input<- index.1(rate.1(dfequip$df_yearly.passenger_car))*kcls.qz.input + index.1(rate.1(dfequip$df_yearly.freight_car))*hcls.qz.input+index.1(rate.1(dfequip$df_yearly.mileage))*yylc.qz.input+index.1(rate.1(dfequip$df_yearly.practitioner_number))*cyrysl.qz.input+index.1(rate.1(dfequip$df_yearly.locomotive_number))*jcts.qz.input
     
     biaozhunhua.F.adv.input<- sum(abs(adv.test.input))/sum(abs(coor.test.input)) 
     biaozhunhua.F.delay.input<- sum(abs(delay.test.input))/sum(abs(coor.test.input))
@@ -599,40 +730,63 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     scale.adv.input<- hecheng.equip.index(adv.test.input,biaozhunhua.F.adv.input)
     scale.delay.input<- hecheng.equip.index(delay.test.input,biaozhunhua.F.delay.input)
     
-    dfscale$coor.input<- scale.coor.input   
-    dfscale$adv.input<- scale.adv.input
-    dfscale$delay.input<- scale.delay.input
+    dfequip$coor.sc.input<- scale.coor.input   
+    dfequip$adv.sc.input<- scale.adv.input
+    dfequip$delay.sc.input<- scale.delay.input
     
     #-----规模----3.1 默认权重计算的画线------------          
     if(input$year_start_scale> input$year_end_scale)  {
-      p<-ggplot(dfscale,x=c(dfscale$df_yearly.tm[1],dfscale$df_yearly.tm[scale.len]),aes(x=df_yearly.tm,y=100))
+      p<-ggplot(dfequip,x=c(dfequip$df_yearly.tm[1],dfequip$df_yearly.tm[scale.len]),aes(x=df_yearly.tm,y=100))
+      
+      if(input$scale_coor_Index){
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequip$coor.sc),color="black",size=0.6)
+        p<-p+geom_point(aes(x=df_yearly.tm,y=dfequip$coor.sc),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if (input$scale_advanced_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequip$adv.sc),color="red",size=0.6) 
+        p<-p+geom_point(aes(x=df_yearly.tm,y=dfequip$adv.sc),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if (input$scale_delay_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequip$delay.sc),color="blue",size=0.6)
+        p<-p+geom_point(aes(x=df_yearly.tm,y=dfequip$delay.sc),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      
+      
+      if(input$scale_qz_coor_input)#输入修改权重后算出来的新先行指数
+      { p<-p+geom_line(aes(x=df_yearly.tm,y=dfequip$coor.sc.input),color="black",size=1,linetype=1)
+      p<-p+geom_point(aes(x=df_yearly.tm,y=dfequip$coor.sc.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if(input$scale_qz_adv_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfequip$adv.sc.input),color="red",size=1,linetype=1)
+      p<-p+geom_point(aes(x=df_yearly.tm,y=dfequip$adv.sc.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if(input$scale_qz_delay_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfequip$delay.sc.input),color="blue",size=1,linetype=1)
+      p<-p+geom_point(aes(x=df_yearly.tm,y=dfequip$delay.sc.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}    
+      
     }
     else{
-      dfscalesub<-subset(dfscale,(substr(dfscale$df_yearly.tm,1,4)>=input$year_start_scale) )
+      dfscalesub<-subset(dfequip,(substr(dfequip$df_yearly.tm,1,4)>=input$year_start_scale) )
       dfscalesub<-subset(dfscalesub,(substr(dfscalesub$df_yearly.tm,1,4)<=input$year_end_scale))
       p<-ggplot(dfscalesub,x=c(dfscalesub$df_yearly.tm[1],dfscalesub$df_yearly.tm[scale.len]),aes(x=df_yearly.tm,y=100))
+      
+      if(input$scale_coor_Index){
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$coor.sc),color="black",size=0.6)
+        p<-p+geom_point(aes(x=df_yearly.tm,y=dfscalesub$coor.sc),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if (input$scale_advanced_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$adv.sc),color="red",size=0.6) 
+        p<-p+geom_point(aes(x=df_yearly.tm,y=dfscalesub$adv.sc),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if (input$scale_delay_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$delay.sc),color="blue",size=0.6)
+        p<-p+geom_point(aes(x=df_yearly.tm,y=dfscalesub$delay.sc),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      
+      #-----equip----3.2 权重手动输入后的画线    
+      if(input$scale_qz_coor_input)#输入修改权重后算出来的新先行指数
+      { p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$coor.sc.input),color="black",size=1,linetype=1)
+      p<-p+geom_point(aes(x=df_yearly.tm,y=dfscalesub$coor.sc.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if(input$scale_qz_adv_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$adv.sc.input),color="red",size=1,linetype=1)
+      p<-p+geom_point(aes(x=df_yearly.tm,y=dfscalesub$adv.sc.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
+      if(input$scale_qz_delay_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$delay.sc.input),color="blue",size=1,linetype=1)
+      p<-p+geom_point(aes(x=df_yearly.tm,y=dfscalesub$delay.sc.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}    
+      
     }
-    
-    if(input$scale_coor_Index){
-      p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$coor),color="black",size=0.6)
-      p<-p+geom_point(aes(x=df_yearly.tm,y=dfscalesub$coor),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
-    if (input$scale_advanced_Index) {
-      p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$adv),color="red",size=0.6) 
-      p<-p+geom_point(aes(x=df_yearly.tm,y=dfscalesub$adv),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
-    if (input$scale_delay_Index) {
-      p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$delay),color="blue",size=0.6)
-      p<-p+geom_point(aes(x=df_yearly.tm,y=dfscalesub$delay),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
-    
-    #-----equip----3.2 权重手动输入后的画线------------      
-    if(input$scale_qz_coor_input)#输入修改权重后算出来的新先行指数
-    { p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$coor.input),color="black",size=1,linetype=1)
-    p<-p+geom_point(aes(x=df_yearly.tm,y=dfscalesub$coor.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
-    if(input$scale_qz_adv_input)
-    {p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$adv.input),color="red",size=1,linetype=1)
-    p<-p+geom_point(aes(x=df_yearly.tm,y=dfscalesub$adv.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}
-    if(input$scale_qz_delay_input)
-    {p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$delay.input),color="blue",size=1,linetype=1)
-    p<-p+geom_point(aes(x=df_yearly.tm,y=dfscalesub$delay.input),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))}    
     
     p+ylab("规模合成指数")+xlab("时间")+geom_line()
   })
@@ -653,9 +807,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
       cyrysl.qz.input<- percent.input(input$scale_cyrysl_qz_input)
       jcts.qz.input<- percent.input(input$scale_jcts_qz_input)
       
-      coor.test.input<- index.1(rate.1(dfscale$df_yearly.freight_volume_28_yearly))*hyl.qz.input+index.1(rate.1(dfscale$df_yearly.freight_rotation_volume_yearly))*hyzzl.qz.input+index.1(rate.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly))*gyzjz.qz.input
-      adv.test.input<- index.1(rate.1(dfscale$df_yearly.iron_output_yearly))*gc.qz.input + index.1(rate.1(dfscale$df_yearly.coal_output_yearly))*ym.qz.input+index.1(rate.1(dfscale$df_yearly.oil_processing_volume_yearly))*yy.qz.input+index.1(rate.1(dfscale$df_yearly.coalfired_power_generation_yearly))*hlfdl.qz.input
-      delay.test.input<- index.1(rate.1(dfscale$df_yearly.passenger_car))*kcls.qz.input + index.1(rate.1(dfscale$df_yearly.freight_car))*hcls.qz.input+index.1(rate.1(dfscale$df_yearly.mileage))*yylc.qz.input+index.1(rate.1(dfscale$df_yearly.practitioner_number))*cyrysl.qz.input+index.1(rate.1(dfscale$df_yearly.locomotive_number))*jcts.qz.input
+      coor.test.input<- index.1(rate.1(dfequip$df_yearly.freight_volume_28_yearly))*hyl.qz.input+index.1(rate.1(dfequip$df_yearly.freight_rotation_volume_yearly))*hyzzl.qz.input+index.1(rate.1(dfequip$df_yearly.Industrial_Added_Value_Rate_yearly))*gyzjz.qz.input
+      adv.test.input<- index.1(rate.1(dfequip$df_yearly.iron_output_yearly))*gc.qz.input + index.1(rate.1(dfequip$df_yearly.coal_output_yearly))*ym.qz.input+index.1(rate.1(dfequip$df_yearly.oil_processing_volume_yearly))*yy.qz.input+index.1(rate.1(dfequip$df_yearly.coalfired_power_generation_yearly))*hlfdl.qz.input
+      delay.test.input<- index.1(rate.1(dfequip$df_yearly.passenger_car))*kcls.qz.input + index.1(rate.1(dfequip$df_yearly.freight_car))*hcls.qz.input+index.1(rate.1(dfequip$df_yearly.mileage))*yylc.qz.input+index.1(rate.1(dfequip$df_yearly.practitioner_number))*cyrysl.qz.input+index.1(rate.1(dfequip$df_yearly.locomotive_number))*jcts.qz.input
       
       biaozhunhua.F.adv.input<- sum(abs(adv.test.input))/sum(abs(coor.test.input)) 
       biaozhunhua.F.delay.input<- sum(abs(delay.test.input))/sum(abs(coor.test.input))
@@ -664,21 +818,20 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
       scale.adv.input<- hecheng.equip.index(adv.test.input,biaozhunhua.F.adv.input)
       scale.delay.input<- hecheng.equip.index(delay.test.input,biaozhunhua.F.delay.input)
       
-      dfscale$coor.input<- scale.coor.input   
-      dfscale$adv.input<- scale.adv.input
-      dfscale$delay.input<- scale.delay.input
+      dfequip$coor.sc.input<- scale.coor.input   
+      dfequip$adv.sc.input<- scale.adv.input
+      dfequip$delay.sc.input<- scale.delay.input
       
       if(input$scale_qz_coor_input|input$scale_qz_adv_input|input$scale_qz_delay_input){
         DT::datatable(
-          { dfscale<- data.frame(dfscale$df_yearly.tm,dfscale$adv.input,dfscale$coor.input,dfscale$delay.input)
-          data<-dfscale},
+          { dfscalehc<- data.frame(dfequip$df_yearly.tm,dfequip$adv.sc.input,dfequip$coor.sc.input,dfequip$delay.sc.input)
+          data<-dfscalehc},
           colnames = c('时间', '先行指数',  '同步指数','滞后指数'),
           rownames = TRUE)}
-      
       else{ 
         DT::datatable(
-          { dfscale<-data.frame(dfscale$df_yearly.tm,dfscale$adv,dfscale$coor,dfscale$delay)
-          data<-dfscale},
+          { dfscalehc<-data.frame(dfequip$df_yearly.tm,dfequip$adv.sc,dfequip$coor.sc,dfequip$delay.sc)
+          data<-dfscalehc},
           colnames = c('时间', '规模合成先行指数',  '规模合成同步指数','规模合成滞后指数'),
           rownames = TRUE)}
     }  
@@ -692,58 +845,13 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   #——————————————1.计算过程———————————————
   #-------------1.1 权重计算--------------
   
-  #------------(1) 运输先行指标的权重-----
-  #gc.trans.percent<- percent.1(dftrans$gc)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
-  #ym.trans.percent<- percent.1(dftrans$ym)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
-  #yy.trans.percent<- percent.1(dftrans$yy)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
-  #hlfdl.trans.percent<- percent.1(dftrans$hlfdl)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
+  #其余权重同合成指数
+  #------------ 运输滞后指标的权重
+  kyl.trans.percentks<- percent.1(dftrans$kyl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc))
+  kyzzl.trans.percentks<- percent.1(dftrans$kyzzl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc))
+  gdzctz.trans.percentks<- percent.1(dftrans$gdzctz)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc))
+  yylc.trans.percentks<- percent.1(dftrans$yylc)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc))
   
-  #------------(2) 运输同步指标的权重---
-  #hyl.trans.percent<- percent.1(dftrans$hyl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
-  #gyzjz.trans.percent<- percent.1(dftrans$gyzjz)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
-  #hyzzl.trans.percent<- percent.1(dftrans$hyzzl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
-  
-  #------------(3) 运输滞后指标的权重---
-  kyl.trans.percent<- percent.1(dftrans$kyl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
-  kyzzl.trans.percent<- percent.1(dftrans$kyzzl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
-  gdzctz.trans.percent<- percent.1(dftrans$gdzctz)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
-  yylc.trans.percent<- percent.1(dftrans$yylc)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
-  
-  #------------(4) 设备先行指标的权----
-  #iron_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.iron_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  #coal_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.coal_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  #oil_processing_volume_yearly.equip.qz<- percent.1(dfequip$df_yearly.oil_processing_volume_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  #coalfired_power_generation_yearly.equip.qz<- percent.1(dfequip$df_yearly.coalfired_power_generation_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  
-  #------------(5) 设备同步指标的权重------------------------------------
-  #locomotive_mileage_sum.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_sum)/(percent.1(dfequip$df_yearly.locomotive_mileage_sum)+percent.1(dfequip$df_yearly.dailycar_run))
-  #dailycar_run.equip.qz<- percent.1(dfequip$df_yearly.dailycar_run)/(percent.1(dfequip$df_yearly.locomotive_mileage_sum)+percent.1(dfequip$df_yearly.dailycar_run))
-  
-  #------------(6) 设备滞后指标的权重------------------------------------ 
-  #dailycar_now.equip.qz<- percent.1(dfequip$df_yearly.dailycar_now)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  #locomotive_mileage_pcar.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_pcar)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  #locomotive_mileage_fcar.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_fcar)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  #passenger_car.equip.qz<- percent.1(dfequip$df_yearly.passenger_car)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  #freight_car.equip.qz<- percent.1(dfequip$df_yearly.freight_car)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  #locomotive_number.equip.qz<- percent.1(dfequip$df_yearly.locomotive_number)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  
-  #------------(7) 规模先行指标的权重------------------------------------ 
-  gc.scale.percent<- iron_output_yearly.equip.qz #percent.1(dfscale$df_yearly.iron_output_yearly)/(percent.1(dfscale$df_yearly.iron_output_yearly)+percent.1(dfscale$df_yearly.coal_output_yearly)+percent.1(dfscale$df_yearly.oil_processing_volume_yearly)+percent.1(dfscale$df_yearly.coalfired_power_generation_yearly))
-  ym.scale.percent<- coal_output_yearly.equip.qz #percent.1(dfscale$df_yearly.coal_output_yearly)/(percent.1(dfscale$df_yearly.iron_output_yearly)+percent.1(dfscale$df_yearly.coal_output_yearly)+percent.1(dfscale$df_yearly.oil_processing_volume_yearly)+percent.1(dfscale$df_yearly.coalfired_power_generation_yearly))
-  yy.scale.percent<- oil_processing_volume_yearly.equip.qz #percent.1(dfscale$df_yearly.oil_processing_volume_yearly)/(percent.1(dfscale$df_yearly.iron_output_yearly)+percent.1(dfscale$df_yearly.coal_output_yearly)+percent.1(dfscale$df_yearly.oil_processing_volume_yearly)+percent.1(dfscale$df_yearly.coalfired_power_generation_yearly))
-  hlfdl.scale.percent<- coalfired_power_generation_yearly.equip.qz #percent.1(dfscale$df_yearly.coalfired_power_generation_yearly)/(percent.1(dfscale$df_yearly.iron_output_yearly)+percent.1(dfscale$df_yearly.coal_output_yearly)+percent.1(dfscale$df_yearly.oil_processing_volume_yearly)+percent.1(dfscale$df_yearly.coalfired_power_generation_yearly))
-  
-  #------------(8) 规模同步指标的权重------------------------------------
-  #hyl.scale.qz<- percent.1(dfscale$df_yearly.freight_volume_28_yearly)/(percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
-  #gyzjz.scale.qz<- percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)/(percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
-  #hyzzl.scale.qz<- percent.1(dfscale$df_yearly.freight_rotation_volume_yearly)/(percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
-  
-  #------------(9) 规模滞后指标的权重------------------------------------
-  #kcls.scale.qz<- percent.1(dfscale$df_yearly.passenger_car)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  #hcls.scale.qz<- percent.1(dfscale$df_yearly.freight_car)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  #yylc.scale.qz<- percent.1(dfscale$df_yearly.mileage)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  #cyrysl.scale.qz<- percent.1(dfscale$df_yearly.practitioner_number)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  #jcts.scale.qz<- percent.1(dfscale$df_yearly.locomotive_number)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
   
   #-------------1.2 扩散指数计算---------------------------------------------------------------------
   #自定义函数，输入为某量的时间序列数据，输出为1,0.5,0三个值
@@ -757,9 +865,10 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   
   #权重手动输入部分计算的函数们
   
-  #--------------(1) 运输扩散指数计算---------------------------
+  #--------------扩散指数计算-------------------
+  #--------------(1) 运输扩散指数计算
   #计算运输扩散指数
-  tm1<-dftrans$tm[2:length(dftrans$tm)]
+  
   c1<-function1(dftrans$gc)
   c2<-function1(dftrans$ym)
   c3<-function1(dftrans$yy)
@@ -772,16 +881,26 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   c10<-function1(dftrans$gdzctz)
   c11<-function1(dftrans$yylc)
   
-  DIx_trans<-gc.trans.percent*c1+ym.trans.percent*c2+yy.trans.percent*c3+hlfdl.trans.percent*c4#运输扩散先行指数
-  DIt_trans<-hyzzl.trans.percent*c5+hyl.trans.percent*c6+gyzjz.trans.percent*c7#运输扩散同步指数
-  DIz_trans<-kyl.trans.percent*c8+kyzzl.trans.percent*c9+gdzctz.trans.percent*c10+yylc.trans.percent*c11#运输扩散滞后指数
   
-  DI_trans<-data.frame(tm1,DIx_trans,DIt_trans,DIz_trans)#存储所有指数计算结果的数据框
-  #DI_trans$tm1<-as.Date.POSIXct(DI_trans$tm1,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-  #write.csv(DI_trans,file="DI_Trans.csv",row.names = FALSE)
+  if(trans.len>transoldks.len){
+    
+    DIx_trans<-gc.trans.percent*c1+ym.trans.percent*c2+yy.trans.percent*c3+hlfdl.trans.percent*c4#运输扩散先行指数
+    DIt_trans<-hyzzl.trans.percent*c5+hyl.trans.percent*c6+gyzjz.trans.percent*c7#运输扩散同步指数
+    DIz_trans<-kyl.trans.percentks*c8+kyzzl.trans.percentks*c9+gdzctz.trans.percentks*c10+yylc.trans.percentks*c11#运输扩散滞后指数
+    
+    dftrans$DIx_trans[(transoldks.len+1):(trans.len)]<-DIx_trans[transoldks.len:(trans.len-1)]
+    dftrans$DIt_trans[(transoldks.len+1):(trans.len)]<-DIt_trans[transoldks.len:(trans.len-1)]
+    dftrans$DIz_trans[(transoldks.len+1):(trans.len)]<-DIz_trans[transoldks.len:(trans.len-1)]
+    
+    dftrans$kyl.trans.percentks[(transoldks.len+1):(trans.len)]<-kyl.trans.percentks
+    dftrans$kyzzl.trans.percentks[(transoldks.len+1):(trans.len)]<-kyzzl.trans.percentks
+    dftrans$gdzctz.trans.percentks[(transoldks.len+1):(trans.len)]<-gdzctz.trans.percentks
+    dftrans$yylc.trans.percentks[(transoldks.len+1):(trans.len)]<-yylc.trans.percentks
+    
+  }
   
-  #-------------(2) 设备扩散指数计算-----------------------------
-  tm2<-dfequip$df_yearly.tm[2:equip.len]#这里是从第二行开始计算和显示的，所以可以把第一行的数据设置为0
+  #-------------(2) 设备扩散指数计算
+  
   c12<-function1(dfequip$df_yearly.locomotive_mileage_sum)
   c13<-function1(dfequip$df_yearly.dailycar_run)
   c14<-function1(dfequip$df_yearly.dailycar_now)
@@ -794,32 +913,95 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   c23<-function1(dfequip$df_yearly.coal_output_yearly)
   c24<-function1(dfequip$df_yearly.oil_processing_volume_yearly)
   c25<-function1(dfequip$df_yearly.coalfired_power_generation_yearly)
-  DIx_equip<-iron_output_yearly.equip.qz*c22+coal_output_yearly.equip.qz*c23+oil_processing_volume_yearly.equip.qz*c24+coalfired_power_generation_yearly.equip.qz*c25 #设备扩散先行指数
-  DIt_equip<-locomotive_mileage_sum.equip.qz*c12+dailycar_run.equip.qz*c13#设备扩散同步指数
-  DIz_equip<-dailycar_now.equip.qz*c14+locomotive_mileage_pcar.equip.qz*c15+locomotive_mileage_fcar.equip.qz*c16+passenger_car.equip.qz*c17+freight_car.equip.qz*c18+locomotive_number.equip.qz*c19#设备扩散滞后指数
   
-  DI_equip<-data.frame(tm2,DIx_equip,DIt_equip,DIz_equip)#存储所有指数计算结果的数据框，不需要再写c成csv表格
+  if(equip.len>equipoldks.len){
+    DIx_equip<-iron_yearly.equip.qz*c22+coal_yearly.equip.qz*c23+oil_processing_volume_yearly.equip.qz*c24+coalfired_power_generation_yearly.equip.qz*c25 #设备扩散先行指数
+    DIt_equip<-locomotive_mileage_sum.equip.qz*c12+dailycar_run.equip.qz*c13#设备扩散同步指数
+    DIz_equip<-dailycar_now.equip.qz*c14+locomotive_mileage_pcar.equip.qz*c15+locomotive_mileage_fcar.equip.qz*c16+passenger_car.equip.qz*c17+freight_car.equip.qz*c18+locomotive_number.equip.qz*c19#设备扩散滞后指数
+    
+    dfequip$DIx_equip[(equipoldks.len+1):equip.len]<-DIx_equip[equipoldks.len:(equip.len-1)]
+    dfequip$DIt_equip[(equipoldks.len+1):equip.len]<-DIt_equip[equipoldks.len:(equip.len-1)]
+    dfequip$DIz_equip[(equipoldks.len+1):equip.len]<-DIz_equip[equipoldks.len:(equip.len-1)]
+  } 
+  #-------------(3) 规模扩散指数计算
   
-  #-------------(3) 规模扩散指数计算-----------------------------
-  tm3<-dfscale$df_yearly.tm[2:scale.len]
-  c20<-function1(dfscale$df_yearly.practitioner_number)
-  c21<-function1(dfscale$df_yearly.mileage)
+  
+  c20<-function1(dfequip$df_yearly.practitioner_number)
+  c21<-function1(dfequip$df_yearly.mileage)
   #c22<-function1(dfscale$df_yearly.iron_output_yearly) 
   #c23<-function1(dfscale$df_yearly.coal_output_yearly)
   #c24<-function1(dfscale$df_yearly.oil_processing_volume_yearly)
   #c25<-function1(dfscale$df_yearly.coalfired_power_generation_yearly)
-  c30<-function1(dfscale$df_yearly.freight_rotation_volume_yearly)
-  c31<-function1(dfscale$df_yearly.freight_volume_28_yearly)
-  c32<-function1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)
-  DIx_scale<-gc.scale.percent*c22+ym.scale.percent*c23+yy.scale.percent*c24+hlfdl.scale.percent*c25 #规模扩散先行指数
-  DIt_scale<-hyzzl.scale.qz*c30+hyl.scale.qz*c31+gyzjz.scale.qz*c32#规模扩散同步指数
-  DIz_scale<-kcls.scale.qz*c17+hcls.scale.qz*c18+yylc.scale.qz*c21+cyrysl.scale.qz*c20+jcts.scale.qz*c19#规模扩散滞后指数
+  c30<-function1(dfequip$df_yearly.freight_rotation_volume_yearly)
+  c31<-function1(dfequip$df_yearly.freight_volume_28_yearly)
+  c32<-function1(dfequip$df_yearly.Industrial_Added_Value_Rate_yearly)
   
-  DI_scale<-data.frame(tm3,DIx_scale,DIt_scale,DIz_scale)#存储所有指数计算结果的数据框
+  if(scale.len>scaleoldks.len){
+    DIx_scale<-iron_yearly.equip.qz*c22+coal_yearly.equip.qz*c23+oil_processing_volume_yearly.equip.qz*c24+coalfired_power_generation_yearly.equip.qz*c25 #规模扩散先行指数
+    DIt_scale<-hyzzl.scale.qz*c30+hyl.scale.qz*c31+gyzjz.scale.qz*c32#规模扩散同步指数
+    DIz_scale<-kcls.scale.qz*c17+hcls.scale.qz*c18+yylc.scale.qz*c21+cyrysl.scale.qz*c20+jcts.scale.qz*c19#规模扩散滞后指数
+    
+    
+    dfequip$DIx_scale[(scaleoldks.len+1):scale.len]<-DIx_scale[scaleoldks.len:(scale.len-1)]
+    dfequip$DIt_scale[(scaleoldks.len+1):scale.len]<-DIt_scale[scaleoldks.len:(scale.len-1)]
+    dfequip$DIz_scale[(scaleoldks.len+1):scale.len]<-DIz_scale[scaleoldks.len:(scale.len-1)]
+  }
+  #-------扩散左侧边栏权重输入------------
   
-  #——————————————2.画图过程——————————————————————————————
-  #------------2.1运输扩散指数画图------------------------
-  #----------(1)运输扩散指数计算--权重手动输入------------
+  #-----运输----3.1 运输左侧边栏数据输出
+  
+  output$trans_hyl_qz_outputks<-renderText({hyl.trans.percent*100}) 
+  output$trans_gyzjz_qz_outputks<-renderText({gyzjz.trans.percent*100}) 
+  output$trans_hyzzl_qz_outputks<-renderText({hyzzl.trans.percent*100})   
+  output$trans_kyl_qz_outputks<-renderText({kyl.trans.percentks*100}) 
+  output$trans_kyzzl_qz_outputks<-renderText({kyzzl.trans.percentks*100}) 
+  output$trans_gc_qz_outputks<-renderText({gc.trans.percent*100})
+  output$trans_ym_qz_outputks<-renderText({ym.trans.percent*100}) 
+  output$trans_yy_qz_outputks<-renderText({yy.trans.percent*100}) 
+  output$trans_hlfdl_qz_outputks<-renderText({hlfdl.trans.percent*100}) 
+  output$trans_gdzctz_qz_outputks<-renderText({gdzctz.trans.percentks*100})
+  output$trans_yylc_qz_outputks<-renderText({yylc.trans.percentks*100})
+  
+  #-----设备----3.1 设备左侧边栏数据输出  
+  output$equip_jczxzlc_qz_outputks<-renderText({locomotive_mileage_sum.equip.qz*100}) 
+  output$equip_rjyyc_qz_outputks<-renderText({dailycar_run.equip.qz*100}) 
+  
+  
+  output$equip_gc_qz_outputks<-renderText({iron_yearly.equip.qz*100}) 
+  output$equip_ym_qz_outputks<-renderText({coal_yearly.equip.qz*100}) 
+  output$equip_yy_qz_outputks<-renderText({oil_processing_volume_yearly.equip.qz*100}) 
+  output$equip_hlfdl_qz_outputks<-renderText({coalfired_power_generation_yearly.equip.qz*100}) 
+  
+  
+  output$equip_rjxzc_qz_outputks<-renderText({dailycar_now.equip.qz*100})   
+  output$equip_kyjclc_qz_outputks<-renderText({locomotive_mileage_pcar.equip.qz*100}) 
+  output$equip_hyjclc_qz_outputks<-renderText({locomotive_mileage_fcar.equip.qz*100}) 
+  output$equip_kcls_qz_outputks<-renderText({passenger_car.equip.qz*100})
+  output$equip_hcls_qz_outputks<-renderText({freight_car.equip.qz*100}) 
+  output$equip_jcts_qz_outputks<-renderText({locomotive_number.equip.qz*100}) 
+  
+  #-----规模----3.1 规模左侧边栏数据输出  
+  
+  output$scale_hyl_qz_outputks<-renderText({hyl.scale.qz*100}) 
+  output$scale_gyzjz_qz_outputks<-renderText({gyzjz.scale.qz*100}) 
+  output$scale_hyzzl_qz_outputks<-renderText({hyzzl.scale.qz*100})   
+  
+  output$scale_gc_qz_outputks<-renderText({ iron_yearly.equip.qz*100})
+  output$scale_ym_qz_outputks<-renderText({coal_yearly.equip.qz*100}) 
+  output$scale_yy_qz_outputks<-renderText({oil_processing_volume_yearly.equip.qz*100}) 
+  output$scale_hlfdl_qz_outputks<-renderText({coalfired_power_generation_yearly.equip.qz*100}) 
+  
+  
+  output$scale_yylc_qz_outputks<-renderText({yylc.scale.qz*100}) 
+  output$scale_cyrysl_qz_outputks<-renderText({cyrysl.scale.qz*100}) 
+  output$scale_kcls_qz_outputks<-renderText({kcls.scale.qz*100})   
+  output$scale_hcls_qz_outputks<-renderText({hcls.scale.qz*100}) 
+  output$scale_jcts_qz_outputks<-renderText({jcts.scale.qz*100})   
+  
+  
+  #——————————————2.画图过程--------------------
+  #------------2.1运输扩散指数画图
+  #----------(1)运输扩散指数计算--权重手动输入
   output$trans_DI_index<- renderPlot( {
     
     hyl.input<- percent.input(input$trans_hyl_percent_input)
@@ -842,37 +1024,58 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     DIt_trans_input<- hyzzl.input*c5+hyl.input*c6+gyzjz.input*c7
     DIz_trans_input<- kyl.input*c8 + kyzzl.input*c9+gdzctz.input*c10+yylc.input*c11
     
-    DI_trans_input<-data.frame(tm1,DIx_trans_input, DIt_trans_input,DIz_trans_input)#存储所有指数计算结果的数据框
-    DI_trans_input$tm1<-as.Date.POSIXct(DI_trans_input$tm1,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    #write.csv(DI_trans_input,file="DI_Trans_Input.csv",row.names = FALSE)    
+    dftrans$DIx_trans_input[1]<-0
+    dftrans$DIt_trans_input[1]<-0
+    dftrans$DIz_trans_input[1]<-0
+    dftrans$DIx_trans_input[2:trans.len]<-DIx_trans_input
+    dftrans$DIt_trans_input[2:trans.len]<-DIt_trans_input
+    dftrans$DIz_trans_input[2:trans.len]<-DIz_trans_input
     
-    #----------(2)运输扩散指数--默认权重计算的画图--------------------------------- 
-    DI_trans.len<-length(DI_trans_input$tm1)
     
+    #----------(2)运输扩散指数--默认权重计算的画图
+    dftransks<-dftrans[2:trans.len,]
     if(input$year_start_trans_ID> input$year_end_trans_ID)  {
-      p<-ggplot(DI_trans,x=c(DI_trans$tm1[1],DI_trans$tm1[DI_trans.len]),aes(x=tm1,y=0.5))} else
-      {
-        dftranssub<-subset(DI_trans,(substr(DI_trans$tm1,1,4)>=input$year_start_trans_ID) )
-        dftranssub<-subset(dftranssub,(substr(dftranssub$tm1,1,4)<=input$year_end_trans_ID))
-        p<-ggplot(dftranssub,x=c(dftranssub$tm1[1],dftranssub$tm1[DI_trans.len]),aes(x=tm1,y=0.5))}
-    
-    if(input$trans_DIt_Index){
-      p<-p+geom_line(aes(x=tm1,y=dftranssub$DIt_trans),color="black",size=0.6)}
-    if (input$trans_DIx_Index) {
-      p<-p+geom_line(aes(x=tm1,y=dftranssub$DIx_trans),color="red",size=0.6) }
-    if (input$trans_DIz_Index) {
-      p<-p+geom_line(aes(x=tm1,y=dftranssub$DIz_trans),color="blue",size=0.6)}
-    
-    #----------(3)运输扩散指数--权重手动输入计算的画图---------------------------------
-    dftransinputsub<-subset(DI_trans_input,(substr(DI_trans_input$tm1,1,4)>=input$year_start_trans_ID))
-    dftransinputsub<-subset(dftransinputsub,(substr(dftransinputsub$tm1,1,4)<=input$year_end_trans_ID))
-    if(input$trans_percent_coor_input)#输入修改权重后算出来的新先行指数
-    { 
-      p<-p+geom_line(aes(x=tm1,y=dftransinputsub$DIt_trans_input),color="black",size=1,linetype=1)}
-    if(input$trans_percent_adv_input)
-    {p<-p+geom_line(aes(x=tm1,y=dftransinputsub$DIx_trans_input),color="red",size=1,linetype=1)}
-    if(input$trans_percent_delay_input)
-    {p<-p+geom_line(aes(x=tm1,y=dftransinputsub$DIz_trans_input),color="blue",size=1,linetype=1)} 
+      p<-ggplot(dftransks,x=c(dftransks$tm[1],dftrans$tm[(trans.len)]),aes(x=tm,y=0.5))
+      if(input$trans_DIt_Index){
+        p<-p+geom_line(aes(x=tm,y=dftransks$DIt_trans),color="black",size=0.6)}
+      if (input$trans_DIx_Index) {
+        p<-p+geom_line(aes(x=tm,y=dftransks$DIx_trans),color="red",size=0.6) }
+      if (input$trans_DIz_Index) {
+        p<-p+geom_line(aes(x=tm,y=dftransks$DIz_trans),color="blue",size=0.6)}
+      
+      #----------(3)运输扩散指数--权重手动输入计算的画图
+      
+      if(input$trans_percent_coor_input)#输入修改权重后算出来的新先行指数
+      { 
+        p<-p+geom_line(aes(x=tm,y=dftransks$DIt_trans_input),color="black",size=1,linetype=1)}
+      if(input$trans_percent_adv_input)
+      {p<-p+geom_line(aes(x=tm,y=dftransks$DIx_trans_input),color="red",size=1,linetype=1)}
+      if(input$trans_percent_delay_input)
+      {p<-p+geom_line(aes(x=tm,y=dftransks$DIz_trans_input),color="blue",size=1,linetype=1)} 
+    } 
+    else
+    {
+      dftranssub<-subset(dftransks,(substr(dftransks$tm,1,4)>=input$year_start_trans_ID) )
+      dftranssub<-subset(dftranssub,(substr(dftranssub$tm,1,4)<=input$year_end_trans_ID))
+      p<-ggplot(dftranssub,x=c(dftranssub$tm[1],dftranssub$tm[trans.len]),aes(x=tm,y=0.5))
+      
+      if(input$trans_DIt_Index){
+        p<-p+geom_line(aes(x=tm,y=dftranssub$DIt_trans),color="black",size=0.6)}
+      if (input$trans_DIx_Index) {
+        p<-p+geom_line(aes(x=tm,y=dftranssub$DIx_trans),color="red",size=0.6) }
+      if (input$trans_DIz_Index) {
+        p<-p+geom_line(aes(x=tm,y=dftranssub$DIz_trans),color="blue",size=0.6)}
+      
+      #----------(3)运输扩散指数--权重手动输入计算的画图
+      
+      if(input$trans_percent_coor_input)#输入修改权重后算出来的新先行指数
+      { 
+        p<-p+geom_line(aes(x=tm,y=dftranssub$DIt_trans_input),color="black",size=1,linetype=1)}
+      if(input$trans_percent_adv_input)
+      {p<-p+geom_line(aes(x=tm,y=dftranssub$DIx_trans_input),color="red",size=1,linetype=1)}
+      if(input$trans_percent_delay_input)
+      {p<-p+geom_line(aes(x=tm,y=dftranssub$DIz_trans_input),color="blue",size=1,linetype=1)} 
+    }
     
     p+ylab("运输扩散指数")+xlab("时间")+geom_line()
   })
@@ -880,6 +1083,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   
   #------------2.2设备扩散指数画图-----------------------------------------
   #----------(1)设备扩散指数计算--权重手动输入---------------------
+  
   output$equip_DI_index<- renderPlot( {
     
     rjyyc.input<- percent.input(input$equip_rjyyc_percent_input)
@@ -899,43 +1103,62 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     DIt_equip_input<- jczxzlc.input*c12+rjyyc.input*c13
     DIz_equip_input<- rjxzc.input*c14+kyjclc.input*c15+hyjclc.input*c16+kcls.input*c17+hcls.input*c18+jcts.input*c19
     
-    DI_equip_input<-data.frame(tm2,DIx_equip_input, DIt_equip_input,DIz_equip_input)#存储所有指数计算结果的数据框
-    #DI_equip_input$tm2<-as.Date.POSIXct(DI_equip_input$tm2,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    #write.csv(DI_equip_input,file="DI_Equip_Input.csv",row.names = FALSE) 
+    dfequip$DIx_equip_input[1]<-0
+    dfequip$DIt_equip_input[1]<-0
+    dfequip$DIz_equip_input[1]<-0
+    dfequip$DIx_equip_input[2:equip.len]<-DIx_equip_input
+    dfequip$DIt_equip_input[2:equip.len]<-DIt_equip_input
+    dfequip$DIz_equip_input[2:equip.len]<-DIz_equip_input  
     
     #----------(2)设备扩散指数--默认权重计算的画图---------------------
-    DI_equip.len<-length(DI_equip_input$tm2)
     
     if(input$year_start_equip_ID > input$year_end_equip_ID)  {
-      p<-ggplot(DI_equip,x=c(DI_equip$tm2[1],DI_equip$tm2[DI_equip.len]),aes(x=tm2,y=0.5))}
+      dfequipks<-dfequip[2:equip.len,]
+      p<-ggplot(dfequipks,x=c(dfequipks$df_yearly.tm[1],dfequipks$df_yearly.tm[equip.len]),aes(x=df_yearly.tm,y=0.5))
+      if(input$equip_DIt_Index){
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipks$DIt_equip),color="black",size=0.6)+geom_point(aes(x=df_yearly.tm,y=dfequipks$DIt_equip),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
+      if (input$equip_DIx_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipks$DIx_equip),color="red",size=0.6)+geom_point(aes(x=df_yearly.tm,y=dfequipks$DIx_equip),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
+      if (input$equip_DIz_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipks$DIz_equip),color="blue",size=0.6)+geom_point(aes(x=df_yearly.tm,y=dfequipks$DIz_equip),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))}
+      
+      #----------(3)设备扩散指数--权重手动输入计算的画图---------------------
+      
+      if(input$equip_percent_coor_input)#输入修改权重后算出来的新先行指数
+      { p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipks$DIt_equip_input),color="black",size=1,linetype=1)+geom_point(aes(x=df_yearly.tm,y=dfequipks$DIt_equip_input),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
+      if(input$equip_percent_adv_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipks$DIx_equip_input),color="red",size=1,linetype=1)+geom_point(aes(x=df_yearly.tm,y=dfequipks$DIx_equip_input),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
+      if(input$equip_percent_delay_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipks$DIz_equip_input),color="blue",size=1,linetype=1)+geom_point(aes(x=df_yearly.tm,y=dfequipks$DIz_equip_input),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))} 
+    }
+    
     else{
-      dfequipsub<-subset(DI_equip,(substr(DI_equip$tm2,1,4)>=input$year_start_equip_ID) )
-      dfequipsub<-subset(dfequipsub,(substr(dfequipsub$tm2,1,4)<=input$year_end_equip_ID))
-      p<-ggplot(dfequipsub,x=c(dfequipsub$tm2[1],dfequipsub$tm2[DI_equip.len]),aes(x=tm2,y=0.5))}
-    
-    if(input$equip_DIt_Index){
-      p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIt_equip),color="black",size=0.6)+geom_point(aes(x=tm2,y=dfequipsub$DIt_equip),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
-    if (input$equip_DIx_Index) {
-      p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIx_equip),color="red",size=0.6)+geom_point(aes(x=tm2,y=dfequipsub$DIx_equip),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
-    if (input$equip_DIz_Index) {
-      p<-p+geom_line(aes(x=tm2,y=dfequipsub$DIz_equip),color="blue",size=0.6)+geom_point(aes(x=tm2,y=dfequipsub$DIz_equip),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))}
-    
-    #----------(3)设备扩散指数--权重手动输入计算的画图---------------------
-    dfequipinputsub<-subset(DI_equip_input,(substr(DI_equip_input$tm2,1,4)>=input$year_start_equip_ID))
-    dfequipinputsub<-subset(dfequipinputsub,(substr(dfequipinputsub$tm2,1,4)<=input$year_end_equip_ID))
-    if(input$equip_percent_coor_input)#输入修改权重后算出来的新先行指数
-    { p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIt_equip_input),color="black",size=1,linetype=1)+geom_point(aes(x=tm2,y=dfequipinputsub$DIt_equip_input),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
-    if(input$equip_percent_adv_input)
-    {p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIx_equip_input),color="red",size=1,linetype=1)+geom_point(aes(x=tm2,y=dfequipinputsub$DIx_equip_input),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
-    if(input$equip_percent_delay_input)
-    {p<-p+geom_line(aes(x=tm2,y=dfequipinputsub$DIz_equip_input),color="blue",size=1,linetype=1)+geom_point(aes(x=tm2,y=dfequipinputsub$DIz_equip_input),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))} 
-    
+      dfequipsub<-subset(dfequip,(substr(dfequip$df_yearly.tm,1,4)>=input$year_start_equip_ID) )
+      dfequipsub<-subset(dfequipsub,(substr(dfequipsub$df_yearly.tm,1,4)<=input$year_end_equip_ID))
+      p<-ggplot(dfequipsub,x=c(dfequipsub$df_yearly.tm[2],dfequipsub$df_yearly.tm[equip.len]),aes(x=df_yearly.tm,y=0.5))
+      if(input$equip_DIt_Index){
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$DIt_equip),color="black",size=0.6)+geom_point(aes(x=df_yearly.tm,y=dfequipsub$DIt_equip),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
+      if (input$equip_DIx_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$DIx_equip),color="red",size=0.6)+geom_point(aes(x=df_yearly.tm,y=dfequipsub$DIx_equip),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
+      if (input$equip_DIz_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$DIz_equip),color="blue",size=0.6)+geom_point(aes(x=df_yearly.tm,y=dfequipsub$DIz_equip),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))}
+      
+      #----------(3)设备扩散指数--权重手动输入计算的画图---------------------
+      
+      if(input$equip_percent_coor_input)#输入修改权重后算出来的新先行指数
+      { p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$DIt_equip_input),color="black",size=1,linetype=1)+geom_point(aes(x=df_yearly.tm,y=dfequipsub$DIt_equip_input),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
+      if(input$equip_percent_adv_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$DIx_equip_input),color="red",size=1,linetype=1)+geom_point(aes(x=df_yearly.tm,y=dfequipsub$DIx_equip_input),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
+      if(input$equip_percent_delay_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfequipsub$DIz_equip_input),color="blue",size=1,linetype=1)+geom_point(aes(x=df_yearly.tm,y=dfequipsub$DIz_equip_input),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))} 
+    }
     p+ylab("设备扩散指数")+xlab("时间")+geom_line()
   })  
   
   
   #------------2.3规模扩散指数画图-----------------------------------------
   #----------(1)规模扩散指数计算--权重手动输入---------------------
+  
   output$scale_DI_index<- renderPlot( {
     
     hyl.input<- percent.input(input$scale_hyl_percent_input)
@@ -955,36 +1178,62 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     DIt_scale_input<- hyzzl.input*c30+hyl.input*c31+gyzjz.input*c32
     DIz_scale_input<- kcls.input*c17+hcls.input*c18+yylc.input*c21+cyrysl.input*c20+jcts.input*c19
     
-    DI_scale_input<-data.frame(tm3,DIx_scale_input, DIt_scale_input,DIz_scale_input)#存储所有指数计算结果的数据框
-    #DI_scale_input$tm3<-as.Date.POSIXct(DI_scale_input$tm3,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    #write.csv(DI_scale_input,file="DI_Scale_Input.csv",row.names = FALSE)    
     
-    #----------(2)规模扩散指数--默认权重计算的画图---------------------
-    DI_scale.len<-length(DI_scale_input$tm3)
+    dfequip$DIx_scale_input[1]<-0
+    dfequip$DIt_scale_input[1]<-0
+    dfequip$DIz_scale_input[1]<-0
+    dfequip$DIx_scale_input[2:scale.len]<-DIx_scale_input
+    dfequip$DIt_scale_input[2:scale.len]<-DIt_scale_input
+    dfequip$DIz_scale_input[2:scale.len]<-DIz_scale_input  
+    
+    
+    #----------(2)规模扩散指数--默认权重计算的画图
+    
     
     if(input$year_start_scale_ID> input$year_end_scale_ID)  {
-      p<-ggplot(DI_scale,x=c(DI_scale$tm3[1],DI_scale$tm3[DI_scale.len]),aes(x=tm3,y=0.5))}
+      dfscaleks<-dfequip[2:scale.len,]
+      p<-ggplot(dfscaleks,x=c(dfscaleks$df_yearly.tm[1],dfscaleks$df_yearly.tm[scale.len]),aes(x=df_yearly.tm,y=0.5))
+      
+      if(input$scale_DIt_Index){
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfscaleks$DIt_scale),color="black",size=0.6)+geom_point(aes(x=df_yearly.tm,y=dfscaleks$DIt_scale),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
+      if (input$scale_DIx_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfscaleks$DIx_scale),color="red",size=0.6)+geom_point(aes(x=df_yearly.tm,y=dfscaleks$DIx_scale),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
+      if (input$scale_DIz_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfscaleks$DIz_scale),color="blue",size=0.6)+geom_point(aes(x=df_yearly.tm,y=dfscaleks$DIz_scale),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))}
+      
+      #----------(3)规模扩散指数--权重手动输入计算的画图---------------------
+      
+      if(input$scale_percent_coor_input)#输入修改权重后算出来的新先行指数
+      { p<-p+geom_line(aes(x=df_yearly.tm,y=dfscaleks$DIt_scale_input),color="black",size=1,linetype=1)+geom_point(aes(x=df_yearly.tm,y=dfscaleks$DIt_scale_input),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
+      if(input$scale_percent_adv_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfscaleks$DIx_scale_input),color="red",size=1,linetype=1)+geom_point(aes(x=df_yearly.tm,y=dfscaleks$DIx_scale_input),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
+      if(input$scale_percent_delay_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfscaleks$DIz_scale_input),color="blue",size=1,linetype=1)+geom_point(aes(x=df_yearly.tm,y=dfscaleks$DIz_scale_input),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))} 
+      
+    }
     else{
-      dfscalesub<-subset(DI_scale,(substr(DI_scale$tm3,1,4)>=input$year_start_scale_ID) )
-      dfscalesub<-subset(dfscalesub,(substr(dfscalesub$tm3,1,4)<=input$year_end_scale_ID))
-      p<-ggplot(dfscalesub,x=c(dfscalesub$tm3[1],dfscalesub$tm3[DI_scale.len]),aes(x=tm3,y=0.5))}
-    
-    if(input$scale_DIt_Index){
-      p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIt_scale),color="black",size=0.6)+geom_point(aes(x=tm3,y=dfscalesub$DIt_scale),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
-    if (input$scale_DIx_Index) {
-      p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIx_scale),color="red",size=0.6)+geom_point(aes(x=tm3,y=dfscalesub$DIx_scale),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
-    if (input$scale_DIz_Index) {
-      p<-p+geom_line(aes(x=tm3,y=dfscalesub$DIz_scale),color="blue",size=0.6)+geom_point(aes(x=tm3,y=dfscalesub$DIz_scale),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))}
-    
-    #----------(3)规模扩散指数--权重手动输入计算的画图---------------------
-    dfscaleinputsub<-subset(DI_scale_input,(substr(DI_scale_input$tm3,1,4)>=input$year_start_scale_ID))
-    dfscaleinputsub<-subset(dfscaleinputsub,(substr(dfscaleinputsub$tm3,1,4)<=input$year_end_scale_ID))
-    if(input$scale_percent_coor_input)#输入修改权重后算出来的新先行指数
-    { p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIt_scale_input),color="black",size=1,linetype=1)+geom_point(aes(x=tm3,y=dfscaleinputsub$DIt_scale_input),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
-    if(input$scale_percent_adv_input)
-    {p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIx_scale_input),color="red",size=1,linetype=1)+geom_point(aes(x=tm3,y=dfscaleinputsub$DIx_scale_input),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
-    if(input$scale_percent_delay_input)
-    {p<-p+geom_line(aes(x=tm3,y=dfscaleinputsub$DIz_scale_input),color="blue",size=1,linetype=1)+geom_point(aes(x=tm3,y=dfscaleinputsub$DIz_scale_input),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))} 
+      dfscalesub<-subset(dfequip,(substr(dfequip$df_yearly.tm,1,4)>=input$year_start_scale_ID) )
+      dfscalesub<-subset(dfscalesub,(substr(dfscalesub$df_yearly.tm,1,4)<=input$year_end_scale_ID))
+      p<-ggplot(dfscalesub,x=c(dfscalesub$df_yearly.tm[2],dfscalesub$df_yearly.tm[scale.len]),aes(x=df_yearly.tm,y=0.5))
+      
+      
+      if(input$scale_DIt_Index){
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$DIt_scale),color="black",size=0.6)+geom_point(aes(x=df_yearly.tm,y=dfscalesub$DIt_scale),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
+      if (input$scale_DIx_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$DIx_scale),color="red",size=0.6)+geom_point(aes(x=df_yearly.tm,y=dfscalesub$DIx_scale),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
+      if (input$scale_DIz_Index) {
+        p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$DIz_scale),color="blue",size=0.6)+geom_point(aes(x=df_yearly.tm,y=dfscalesub$DIz_scale),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))}
+      
+      #----------(3)规模扩散指数--权重手动输入计算的画图---------------------
+      
+      if(input$scale_percent_coor_input)#输入修改权重后算出来的新先行指数
+      { p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$DIt_scale_input),color="black",size=1,linetype=1)+geom_point(aes(x=df_yearly.tm,y=dfscalesub$DIt_scale_input),size=3,shape=18,colour="black",fill="black",position=position_dodge(width=0.2))}
+      if(input$scale_percent_adv_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$DIx_scale_input),color="red",size=1,linetype=1)+geom_point(aes(x=df_yearly.tm,y=dfscalesub$DIx_scale_input),size=3,shape=18,colour="red",fill="red",position=position_dodge(width=0.2))}
+      if(input$scale_percent_delay_input)
+      {p<-p+geom_line(aes(x=df_yearly.tm,y=dfscalesub$DIz_scale_input),color="blue",size=1,linetype=1)+geom_point(aes(x=df_yearly.tm,y=dfscalesub$DIz_scale_input),size=3,shape=18,colour="blue",fill="blue",position=position_dodge(width=0.2))} 
+      
+    }
     
     p+ylab("规模扩散指数")+xlab("时间")+geom_line()
   }) 
@@ -1013,27 +1262,33 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     DIt_trans_input<- hyzzl.input*c5+hyl.input*c6+gyzjz.input*c7
     DIz_trans_input<- kyl.input*c8 + kyzzl.input*c9+gdzctz.input*c10+yylc.input*c11
     
-    DI_trans_input<-data.frame(tm1,DIx_trans_input, DIt_trans_input,DIz_trans_input)#存储所有指数计算结果的数据框
-    #DI_trans_input$tm1<-as.Date.POSIXct(DI_trans_input$tm1,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    #write.csv(DI_trans_input,file="DI_Trans_Input.csv",row.names = FALSE)
+    dftrans$DIx_trans_input[1]<-0
+    dftrans$DIt_trans_input[1]<-0
+    dftrans$DIz_trans_input[1]<-0
+    dftrans$DIx_trans_input[2:trans.len]<-DIx_trans_input
+    dftrans$DIt_trans_input[2:trans.len]<-DIt_trans_input
+    dftrans$DIz_trans_input[2:trans.len]<-DIz_trans_input
     
-    #----运输----输入修改权重后算出来的三个指数------------------   
+    
+    #----运输----输入修改权重后算出来的三个指数
+    dftransks<-dftrans[2:trans.len,]
     if(input$trans_percent_coor_input|input$trans_percent_adv_input|input$trans_percent_delay_input){
       DT::datatable(
-        { data<-DI_trans_input},
+        { DI_trans_input<- data.frame(dftransks$tm,dftransks$DIx_trans_input,dftransks$DIt_trans_input,dftransks$DIz_trans_input)
+        data<-DI_trans_input},
         colnames = c('时间', '运输扩散先行指数','运输扩散同步指数','运输扩散滞后指数'),
         rownames = TRUE)}
-    #----运输-----默认权重计算下的三个指数------------------  
+    #----运输-----默认权重计算下的三个指数 
     else{ 
       DT::datatable(
-        {data<-DI_trans},
+        { dftransmrb<- data.frame(dftransks$tm,dftransks$DIx_trans,dftransks$DIt_trans,dftransks$DIz_trans)
+        data<-dftransmrb},
         colnames = c('时间', '运输扩散先行指数',  '运输扩散同步指数','运输扩散滞后指数'),
         rownames = TRUE)
     }
   })      
   
-  #------------3.2设备扩散指数数据表显示----------
-  
+  #------------3.2设备扩散指数数据表显示
   output$table_equip_DI_index<-DT::renderDataTable({
     rjyyc.input<- percent.input(input$equip_rjyyc_percent_input)
     jczxzlc.input<- percent.input(input$equip_jczxzlc_percent_input)
@@ -1052,24 +1307,30 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     DIt_equip_input<- jczxzlc.input*c12+rjyyc.input*c13
     DIz_equip_input<- rjxzc.input*c14+kyjclc.input*c15+hyjclc.input*c16+kcls.input*c17+hcls.input*c18+jcts.input*c19
     
-    DI_equip_input<-data.frame(tm2,DIx_equip_input, DIt_equip_input,DIz_equip_input)#存储所有指数计算结果的数据框
-    #DI_equip_input$tm2<-as.Date.POSIXct(DI_equip_input$tm2,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    #write.csv(DI_equip_input,file="DI_Equip_Input.csv",row.names = FALSE)
+    dfequip$DIx_equip_input[1]<-0
+    dfequip$DIt_equip_input[1]<-0
+    dfequip$DIz_equip_input[1]<-0
+    dfequip$DIx_equip_input[2:equip.len]<-DIx_equip_input
+    dfequip$DIt_equip_input[2:equip.len]<-DIt_equip_input
+    dfequip$DIz_equip_input[2:equip.len]<-DIz_equip_input 
+    #----设备----输入修改权重后算出来的三个指数  
     
-    #----设备----输入修改权重后算出来的三个指数------------------   
     if(input$equip_percent_coor_input|input$equip_percent_adv_input|input$equip_percent_delay_input){
       DT::datatable(
-        {data<-DI_equip_input},
+        { equip_input<- data.frame(dfequip$df_yearly.tm[2:equip.len],dfequip$DIx_equip_input[2:equip.len],dfequip$DIt_equip_input[2:equip.len],dfequip$DIz_equip_input[2:equip.len])
+        data<-equip_input},
         colnames = c('时间', '设备扩散先行指数','设备扩散同步指数','设备扩散滞后指数'),
         rownames = TRUE)}
-    #----设备----默认权重计算下的三个指数------------------  
+    #----设备----默认权重计算下的三个指数 
     else{DT::datatable(
-      {data<-DI_equip},
+      {  dfeq<- data.frame(dfequip$df_yearly.tm[2:equip.len],dfequip$DIx_equip[2:equip.len],dfequip$DIt_equip[2:equip.len],dfequip$DIz_equip[2:equip.len])
+      data<-dfeq},
       colnames = c('时间', '设备扩散先行指数','设备扩散同步指数','设备扩散滞后指数'),
       rownames = TRUE)}
   })
   
-  #------------3.3规模扩散指数数据表显示-------------------
+  #------------3.3规模扩散指数数据表显示
+  
   output$table_scale_DI_index<-DT::renderDataTable({
     hyl.input<- percent.input(input$scale_hyl_percent_input)
     gyzjz.input<- percent.input(input$scale_gyzjz_percent_input)
@@ -1088,26 +1349,50 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     DIt_scale_input<- hyzzl.input*c30+hyl.input*c31+gyzjz.input*c32
     DIz_scale_input<- kcls.input*c17+hcls.input*c18+yylc.input*c21+cyrysl.input*c20+jcts.input*c19
     
-    DI_scale_input<-data.frame(tm3,DIx_scale_input, DIt_scale_input,DIz_scale_input)#存储所有指数计算结果的数据框
-    #DI_scale_input$tm3<-as.Date.POSIXct(DI_scale_input$tm3,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    #write.csv(DI_scale_input,file="DI_Scale_Input.csv",row.names = FALSE)  
+    
+    dfequip$DIx_scale_input[1]<-0
+    dfequip$DIt_scale_input[1]<-0
+    dfequip$DIz_scale_input[1]<-0
+    dfequip$DIx_scale_input[2:scale.len]<-DIx_scale_input
+    dfequip$DIt_scale_input[2:scale.len]<-DIt_scale_input
+    dfequip$DIz_scale_input[2:scale.len]<-DIz_scale_input  
+    
     
     #----规模---- 输入修改权重后算出来的三个指数------------------  
     if(input$scale_percent_coor_input|input$scale_percent_adv_input|input$scale_percent_delay_input){
       DT::datatable(
-        {data<-DI_scale_input},
+        {scale_input<-data.frame(dfequip$df_yearly.tm[2:scale.len],dfequip$DIx_scale_input[2:scale.len],dfequip$DIt_scale_input[2:scale.len],dfequip$DIz_scale_input[2:scale.len])
+        data<-scale_input},
         colnames = c('时间', '规模扩散先行指数','规模扩散同步指数','规模扩散滞后指数'),
         rownames = TRUE)}
     #----规模----默认权重计算下的三个指数------------------  
     else{DT::datatable(
-      {data<-DI_scale},
+      { DI_scale<-data.frame(dfequip$df_yearly.tm[2:scale.len],dfequip$DIx_scale[2:scale.len],dfequip$DIt_scale[2:scale.len],dfequip$DIz_scale[2:scale.len])
+      data<-DI_scale},
       colnames = c('时间', '规模扩散先行指数','规模扩散同步指数','规模扩散滞后指数'),
       rownames = TRUE)}
   })
+  #--------------最终数据写入-------------------- 
+  observeEvent(input$yshcsdtz,{ 
+     write.xlsx(dftrans,"trans_index_x12.xlsx",append = FALSE,row.names=FALSE,showNA=FALSE)
+  })
+  observeEvent(input$sbhcsdtz,{ 
+    write.xlsx(dfequip,"yearly_index.xlsx",append = FALSE,row.names=FALSE,showNA=FALSE)  
+  })
+  observeEvent(input$gmhcsdtz,{ 
+    write.xlsx(dfequip,"yearly_index.xlsx",append = FALSE,row.names=FALSE,showNA=FALSE)  
+  })
+  observeEvent(input$yskssdtz,{ 
+    write.xlsx(dftrans,"trans_index_x12.xlsx",append = FALSE,row.names=FALSE,showNA=FALSE)
+  })
+  observeEvent(input$sbkssdtz,{ 
+    write.xlsx(dfequip,"yearly_index.xlsx",append = FALSE,row.names=FALSE,showNA=FALSE)  
+  })
+  observeEvent(input$gmkssdtz,{ 
+    write.xlsx(dfequip,"yearly_index.xlsx",append = FALSE,row.names=FALSE,showNA=FALSE)  
+  })
   
-  
-  
-  
+ 
   #——————————————————————————————————————————————————————————————————————————————————————————————
   #——————————————————————————————————————————————————————————————————————————————————————————————
   #黑货指数白货指数
@@ -3146,7 +3431,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   SteelTimeind<-df_monthly$iron_output
   SteelTimeindus<-ts(SteelTimeind,start=c(2001,1),freq=12)
   SteelTimern<-auto.arima(SteelTimeindus,ic="bic")
-  SteelTimern<-arima(SteelTimeindus,order=c(2,1,3),seasonal=c(0,1,2))
+  SteelTimern<-arima(SteelTimeindus,order=c(2,1,0),seasonal=c(2,0,0))
   SteelTimern2<-forecast(SteelTimern,h=12)
   SteelTimern3<- data.frame(SteelTimern2)
   SteelTimern3$forecast<- data.frame(SteelTimern2)[1]
@@ -3176,7 +3461,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   TruckTimeind<-df_yearly$freight_car
   TruckTimeindus<-ts(TruckTimeind,start=c(1990),freq=1)
   TruckTimern<-auto.arima(TruckTimeindus,ic="bic")
-  TruckTimern<-arima(TruckTimeindus,order=c(2,1,3),seasonal=c(0,1,2))
+  TruckTimern<-arima(TruckTimeindus,order=c(0,1,0),seasonal=c(0,0,0))
   TruckTimern2<-forecast(TruckTimern,h=1)
   TruckTimern3<- data.frame(TruckTimern2)
   TruckTimern3$forecast<- data.frame(TruckTimern2)[1]
@@ -3205,7 +3490,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   CoalTimeind<-df_monthly$coal_output
   CoalTimeindus<-ts(CoalTimeind,start=c(2001,1),freq=12)
   CoalTimern<-auto.arima(CoalTimeindus,ic="bic")
-  CoalTimern<-arima(CoalTimeindus,order=c(2,1,3),seasonal=c(0,1,2))
+  CoalTimern<-arima(CoalTimeindus,order=c(0,1,1),seasonal=c(0,1,1))
   CoalTimern2<-forecast(CoalTimern,h=12)
   CoalTimern3<- data.frame(CoalTimern2)
   CoalTimern3$forecast<- data.frame(CoalTimern2)[1]
@@ -3235,7 +3520,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   OilTimeind<-df_monthly$oil_processing_volume
   OilTimeindus<-ts(OilTimeind,start=c(2001,1),freq=12)
   OilTimern<-auto.arima(OilTimeindus,ic="bic")
-  OilTimern<-arima(OilTimeindus,order=c(2,1,3),seasonal=c(0,1,2))
+  OilTimern<-arima(OilTimeindus,order=c(2,1,0),seasonal=c(2,0,0))
   OilTimern2<-forecast(OilTimern,h=12)
   OilTimern3<- data.frame(OilTimern2)
   OilTimern3$forecast<- data.frame(OilTimern2)[1]

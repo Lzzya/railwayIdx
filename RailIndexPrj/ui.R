@@ -22,10 +22,8 @@ y_wenjing_rawdata_yearly<-substr(df_yearly$tm,1,4)
 #-----------------------------------------
 #-------铁路景气指数----------------------
 dftrans<-read.xlsx("trans_index_x12.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-dftrans$tm<-as.Date.POSIXct(dftrans$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-y_wenjing<-c(2000:max(y_wenjing_rawdata_yearly))
+y_wenjing<-c(2001:max(y_wenjing_rawdata_yearly))
 y_wangyang<-c(2002:max(y_wenjing_rawdata_yearly))
-y_yiheng<-y_wenjing
 
 #-----------------------------------------
 #-------黑货白货指数----------------------
@@ -214,6 +212,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 checkboxInput(inputId="trans_coor_Index", #trans_coor_Index默认的运输合成同步指数复选框
                                                                                               label=("同步指数"),
                                                                                               value=TRUE),
+                                                                                
                                                                                 checkboxInput(inputId="trans_advanced_Index",#trans_advanced_Index默认的运输合成先行指数复选框
                                                                                               label=("先行指数"),
                                                                                               value=TRUE),
@@ -221,48 +220,98 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                               label = ("滞后指数"),
                                                                                               value = TRUE),
                                                                                 
-                                                                                h4(strong("2.各要素权重手动调整"),style="color:black"),
+                                                                                actionButton(inputId="yshcsdtz",label = strong("2.各要素权重手动调整")),
                                                                                 checkboxInput(inputId="trans_qz_coor_input",#trans_qz_coor_input权重手动输入的运输合成同步指数复选框
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="trans_hyl_qz_input",#trans_hyl_qz_input 货运量的权重输入框
-                                                                                          label=h5("货运量%"),
-                                                                                          value="38.66"),
-                                                                                textInput(inputId="trans_gyzjz_qz_input",#trans_gyzjz_qz_input工业增加值的权重输入框
-                                                                                          label=h5("工业增加值%"),
-                                                                                          value="29.74"),
-                                                                                textInput(inputId="trans_hyzzl_qz_input",#trans_hyzzl_qz_input货运的权重输入框
-                                                                                          label=h5("货运周转量%"),
-                                                                                          value="31.60"),
                                                                                 
+                                                                                fluidRow(
+                                                                                  column(4, h5("货运量%",style="color:black")),
+                                                                                  column(1, textOutput("trans_hyl_qz_output")
+                                                                                  )),
+                                                                                
+                                                                                textInput(inputId="trans_hyl_qz_input",#trans_hyl_qz_input 货运量的权重输入框
+                                                                                          label = NULL,
+                                                                                          value="22.35"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("工业增加值%",style="color:black")),
+                                                                                  column(1, textOutput("trans_gyzjz_qz_output"))
+                                                                                ),
+                                                                                
+                                                                                textInput(inputId="trans_gyzjz_qz_input",#trans_gyzjz_qz_input工业增加值的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="53.98"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("货运周转量%",style="color:black")),
+                                                                                  column(1, textOutput("trans_hyzzl_qz_output"))
+                                                                                ),  
+                                                                                textInput(inputId="trans_hyzzl_qz_input",#trans_hyzzl_qz_input货运的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="23.67"),
                                                                                 checkboxInput(inputId="trans_qz_adv_input",#trans_qz_adv_input权重手动输入的运输合成先行指数复选框
                                                                                               label = strong("2.2 先行指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="trans_gc_qz_input",#trans_gc_qz_input运输合成指数中的钢材的权重输入框
-                                                                                          label=h5("成品钢材%"),
-                                                                                          value="42.60"),
-                                                                                textInput(inputId="trans_ym_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
-                                                                                          label=h5("原煤%"),
-                                                                                          value="25.80"),
-                                                                                textInput(inputId="trans_yy_qz_input",#trans_yy_qz_input运输合成指数中的原油的权重输入框
-                                                                                          label=h5("原油%"),
-                                                                                          value="10.31"),
-                                                                                textInput(inputId="trans_hlfdl_qz_input",#trans_hlfdl_qz_input运输合成指数中的火力发电量的权重输入框
-                                                                                          label=h5("火力发电量%"),
-                                                                                          value="21.29"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("成品钢材%",style="color:black")),
+                                                                                  column(1, textOutput("trans_gc_qz_output"))
+                                                                                ), 
                                                                                 
+                                                                                textInput(inputId="trans_gc_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="22.99"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("原煤%",style="color:black")),
+                                                                                  column(1, textOutput("trans_ym_qz_output"))
+                                                                                ),        
+                                                                                
+                                                                                textInput(inputId="trans_ym_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="23.94"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("原油%",style="color:black")),
+                                                                                  column(1, textOutput("trans_yy_qz_output"))
+                                                                                ),        
+                                                                                
+                                                                                textInput(inputId="trans_yy_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="21.57"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("火力发电量%",style="color:black")),
+                                                                                  column(1, textOutput("trans_hlfdl_qz_output"))
+                                                                                ),        
+                                                                                
+                                                                                textInput(inputId="trans_hlfdl_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="21.50"),
                                                                                 checkboxInput(inputId="trans_qz_delay_input",#trans_qz_adv_input权重手动输入的运输合成滞后指数复选框
                                                                                               label = strong("2.3 滞后指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="trans_kyl_qz_input",#trans_kyl_qz_input客运量的权重输入框
-                                                                                          label=h5("客运量%"),
-                                                                                          value="9.46"),
-                                                                                textInput(inputId="trans_kyzzl_qz_input",#trans_kyzzl_qz_input客运周转量的权重输入框
-                                                                                          label=h5("客运周转量%"),
-                                                                                          value="10.06"),
-                                                                                textInput(inputId="trans_gdzctz_qz_input",#trans_gdzctz_qz_input固定资产投资的权重输入框
-                                                                                          label=h5("固定资产投资%"),
-                                                                                          value="80.48"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("客运量%",style="color:black")),
+                                                                                  column(1, textOutput("trans_kyl_qz_output"))
+                                                                                ),        
+                                                                                
+                                                                                textInput(inputId="trans_kyl_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="13.27"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("客运周转量%",style="color:black")),
+                                                                                  column(1, textOutput("trans_kyzzl_qz_output"))
+                                                                                ),        
+                                                                                
+                                                                                textInput(inputId="trans_kyzzl_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="13.09"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("固定资产投资%",style="color:black")),
+                                                                                  column(1, textOutput("trans_gdzctz_qz_output"))
+                                                                                ),        
+                                                                                
+                                                                                textInput(inputId="trans_gdzctz_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="73.64"),
+                                                                                
                                                                                 width=3
                                                                               ),#侧边框
                                                                               
@@ -271,11 +320,11 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 fluidRow(
                                                                                   column(3,  selectInput(inputId = "year_start_trans",#year_start_trans运输合成指数中的起始年下拉框
                                                                                                          label = "自:", 
-                                                                                                         choices=y_wangyang,
+                                                                                                         choices = y_wangyang,
                                                                                                          selected = min(y_wangyang) )),
                                                                                   column(3, selectInput(inputId="year_end_trans",#year_end_trans运输合成指数中的终止年下拉框
                                                                                                         label="至:",
-                                                                                                        choices=y_wangyang,
+                                                                                                        choice=y_wangyang,
                                                                                                         selected=max(y_wangyang)))
                                                                                 ),
                                                                                 plotOutput(outputId="trans_index", height = "400px"), #trans_index 运输合成指数的画图
@@ -285,7 +334,6 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                               )#主显示区
                                                                               
                                                                             ))), #运输指数的页签
-                                                                
                                                                 tabPanel( "设备合成指数", 
                                                                           fluidRow(
                                                                             sidebarLayout(
@@ -301,54 +349,112 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                               label=("先行指数"),
                                                                                               value=TRUE),
                                                                                 
-                                                                                h4(strong("2.各要素权重手动调整"),style="color:black"),
+                                                                                actionButton(inputId="sbhcsdtz",label = strong("2.各要素权重手动调整")),
                                                                                 checkboxInput(inputId="equip_qz_coor_input",#equip_qz_adv_input权重手动输入的设备合成同步指数复选框
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
+                                                                                fluidRow(
+                                                                                  column(4, h5("机车总行走里程%",style="color:black")),
+                                                                                  column(1, textOutput("equip_jczxzlc_qz_output"))
+                                                                                ), 
                                                                                 textInput(inputId="equip_jczxzlc_qz_input",#equip_jczxzlc_qz_input机车总行走里程的权重输入框
-                                                                                          label=h5("机车总行走里程%"),
-                                                                                          value="81.28"),
+                                                                                          label=NULL,
+                                                                                          value="36.43"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("日均运用车%",style="color:black")),
+                                                                                  column(1, textOutput("equip_rjyyc_qz_output"))
+                                                                                ), 
+                                                                                
                                                                                 textInput(inputId="equip_rjyyc_qz_input",#equip_rjyyc_qz_input日均运用车的权重输入框
-                                                                                          label=h5("日均运用车%"),
-                                                                                          value="18.72"),
+                                                                                          label=NULL,
+                                                                                          value="63.57"),
                                                                                 
                                                                                 checkboxInput(inputId="equip_qz_adv_input",#equip_qz_adv_input权重手动输入的设备合成先行指数复选框
                                                                                               label = strong("2.2 先行指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="equip_gc_qz_input",#equip_gc_qz_input设备合成指数中的成品钢材的权重输入框
-                                                                                          label=h5("成品钢材%"),
-                                                                                          value="43.39"),
-                                                                                textInput(inputId="equip_ym_qz_input",#equip_ym_qz_input设备合成指数中的原煤的权重输入框
-                                                                                          label=h5("原煤%"),
-                                                                                          value="26.53"),
-                                                                                textInput(inputId="equip_yy_qz_input",#equip_yy_qz_input设备合成指数中的原油的权重输入框
-                                                                                          label=h5("原油%"),
-                                                                                          value="10.56"),
-                                                                                textInput(inputId="equip_hlfdl_qz_input",#equip_hlfdl_qz_input设备合成指数中的火力发电量的权重输入框
-                                                                                          label=h5("火力发电量%"),
-                                                                                          value="19.51"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("成品钢材%",style="color:black")),
+                                                                                  column(1, textOutput("equip_gc_qz_output"))
+                                                                                ), 
                                                                                 
+                                                                                textInput(inputId="equip_gc_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="42.94"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("原煤%",style="color:black")),
+                                                                                  column(1, textOutput("equip_ym_qz_output"))
+                                                                                ),        
+                                                                                
+                                                                                textInput(inputId="equip_ym_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="24.08"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("原油%",style="color:black")),
+                                                                                  column(1, textOutput("equip_yy_qz_output"))
+                                                                                ),        
+                                                                                
+                                                                                textInput(inputId="equip_yy_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="11.72"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("火力发电量%",style="color:black")),
+                                                                                  column(1, textOutput("equip_hlfdl_qz_output"))
+                                                                                ),        
+                                                                                
+                                                                                textInput(inputId="equip_hlfdl_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="21.28"),
                                                                                 checkboxInput(inputId="equip_qz_delay_input",#equip_qz_delay_input权重手动输入的设备合成滞后指数复选框
                                                                                               label = strong("2.3 滞后指数要素权重"),
                                                                                               value = FALSE),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("日均现在车%",style="color:black")),
+                                                                                  column(1, textOutput("equip_rjxzc_qz_output"))
+                                                                                ),
                                                                                 textInput(inputId="equip_rjxzc_qz_input",#equip_rjxzc_qz_input设备合成指数中的日均现在车的权重输入框
-                                                                                          label=h5("日均现在车%"),
-                                                                                          value="15.44"),
+                                                                                          label=NULL,
+                                                                                          value="14.60"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("客运机车里程%",style="color:black")),
+                                                                                  column(1, textOutput("equip_kyjclc_qz_output"))
+                                                                                ),  
                                                                                 textInput(inputId="equip_kyjclc_qz_input",#equip_kyjclc_qz_input设备合成指数中的客运机车里程的权重输入框
-                                                                                          label=h5("客运机车里程%"),
-                                                                                          value="35.92"),
+                                                                                          label=NULL,
+                                                                                          value="33.28"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("货运机车里程%",style="color:black")),
+                                                                                  column(1, textOutput("equip_hyjclc_qz_output"))
+                                                                                ),  
                                                                                 textInput(inputId="equip_hyjclc_qz_input",#equip_hyjclc_qz_input设备合成指数中的货运机车里程的权重输入框
-                                                                                          label=h5("货运机车里程%"),
-                                                                                          value="1.80"),
+                                                                                          label=NULL,
+                                                                                          value="1.70"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("客车辆数%",style="color:black")),
+                                                                                  column(1, textOutput("equip_kcls_qz_output"))
+                                                                                ),  
                                                                                 textInput(inputId="equip_kcls_qz_input",#equip_kcls_qz_input设备合成指数中的客车辆数的权重输入框
-                                                                                          label=h5("客车辆数%"),
-                                                                                          value="21.42"),
+                                                                                          label=NULL,
+                                                                                          value="25.32"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("货车辆数%",style="color:black")),
+                                                                                  column(1, textOutput("equip_hcls_qz_output"))
+                                                                                ),  
                                                                                 textInput(inputId="equip_hcls_qz_input",#equip_hcls_qz_input设备合成指数中的货车辆数的权重输入框
-                                                                                          label=h5("货车辆数%"),
-                                                                                          value="16.34"),
+                                                                                          label=NULL,
+                                                                                          value="17.40"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("机车台数%",style="color:black")),
+                                                                                  column(1, textOutput("equip_jcts_qz_output"))
+                                                                                ),  
                                                                                 textInput(inputId="equip_jcts_qz_input",#equip_jcts_qz_input设备合成指数中的机车台数的权重输入框
-                                                                                          label=h5("机车台数%"),
-                                                                                          value="9.08"),
+                                                                                          label=NULL,
+                                                                                          value="7.66"),
                                                                                 
                                                                                 width=3
                                                                               ),
@@ -378,63 +484,124 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                               sidebarPanel(
                                                                                 h4(strong("1.各要素权重默认"),style="color:black"),
                                                                                 checkboxInput(inputId="scale_coor_Index",#scale_coor_Index默认的规模合成同步指数复选框
-                                                                                              label=strong("同步指数"),
+                                                                                              label="同步指数",
                                                                                               value=TRUE),
                                                                                 checkboxInput(inputId="scale_advanced_Index",#scale_advanced_Index默认的规模合成先行指数复选框
-                                                                                              label=strong("先行指数"),
+                                                                                              label="先行指数",
                                                                                               value=TRUE),
                                                                                 checkboxInput(inputId = "scale_delay_Index",#scale_delay_Index默认的规模合成滞后指数复选框
-                                                                                              label = strong("滞后指数"),
+                                                                                              label = "滞后指数",
                                                                                               value = TRUE),
                                                                                 
-                                                                                h4(strong("2.各要素权重手动调整"),style="color:black"),
+                                                                                actionButton(inputId="gmhcsdtz",label = strong("2.各要素权重手动调整")),
                                                                                 checkboxInput(inputId="scale_qz_coor_input",#sacale_qz_coor_input权重手动输入的规模合成同步指数复选框
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="scale_hyl_qz_input",#scale_hyl_qz_input设备合成指数中的货运量的权重输入框
-                                                                                          label=h5("货运量%"),
-                                                                                          value="17.87"),
-                                                                                textInput(inputId="scale_gyzjz_qz_input",#scale_gyzjz_qz_input设备合成指数中的工业增加值的权重输入框
-                                                                                          label=h5("工业增加值%"),
-                                                                                          value="67.71"),
-                                                                                textInput(inputId="scale_hyzzl_qz_input",#scale_hyzzl_qz_input设备合成指数中的货运周转量的权重输入框
-                                                                                          label=h5("货运周转量%"),
-                                                                                          value="14.42"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("货运量%",style="color:black")),
+                                                                                  column(1, textOutput("scale_hyl_qz_output")
+                                                                                  )),
+                                                                                
+                                                                                textInput(inputId="scale_hyl_qz_input",#trans_hyl_qz_input 货运量的权重输入框
+                                                                                          label = NULL,
+                                                                                          value="16.91"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("工业增加值%",style="color:black")),
+                                                                                  column(1, textOutput("scale_gyzjz_qz_output"))
+                                                                                ),
+                                                                                
+                                                                                textInput(inputId="scale_gyzjz_qz_input",#trans_gyzjz_qz_input工业增加值的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="69.52"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("货运周转量%",style="color:black")),
+                                                                                  column(1, textOutput("scale_hyzzl_qz_output"))
+                                                                                ),  
+                                                                                textInput(inputId="scale_hyzzl_qz_input",#trans_hyzzl_qz_input货运的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="13.56"),
                                                                                 
                                                                                 checkboxInput(inputId="scale_qz_adv_input",#sacale_qz_adv_input权重手动输入的规模合成先行指数复选框
                                                                                               label = strong("2.2 先行指数要素权重"),
                                                                                               value = FALSE),
-                                                                                textInput(inputId="scale_gc_qz_input",#scale_gc_qz_input设备合成指数中的成品钢材产量的权重输入框
-                                                                                          label=h5("成品钢材%"),
-                                                                                          value="43.39"),
-                                                                                textInput(inputId="scale_ym_qz_input",#scale_ym_qz_input设备合成指数中的原煤产量的权重输入框
-                                                                                          label=h5("原煤%"),
-                                                                                          value="26.53"),
-                                                                                textInput(inputId="scale_yy_qz_input",#scale_yy_qz_input设备合成指数中的原油产量的权重输入框
-                                                                                          label=h5("原油%"),
-                                                                                          value="10.56"),
-                                                                                textInput(inputId="scale_hlfdl_qz_input",#scale_hlfdl_qz_input设备合成指数中的火力发电量的权重输入框
-                                                                                          label=h5("火力发电量%"),
-                                                                                          value="19.51"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("成品钢材%",style="color:black")),
+                                                                                  column(1, textOutput("scale_gc_qz_output"))
+                                                                                ), 
+                                                                                
+                                                                                textInput(inputId="scale_gc_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="42.94"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("原煤%",style="color:black")),
+                                                                                  column(1, textOutput("scale_ym_qz_output"))
+                                                                                ),        
+                                                                                
+                                                                                textInput(inputId="scale_ym_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="24.07"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("原油%",style="color:black")),
+                                                                                  column(1, textOutput("scale_yy_qz_output"))
+                                                                                ),        
+                                                                                
+                                                                                textInput(inputId="scale_yy_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="11.72"),
+                                                                                fluidRow(
+                                                                                  column(4, h5("火力发电量%",style="color:black")),
+                                                                                  column(1, textOutput("scale_hlfdl_qz_output"))
+                                                                                ),        
+                                                                                
+                                                                                textInput(inputId="scale_hlfdl_qz_input",#trans_ym_qz_input运输合成指数中的原煤的权重输入框
+                                                                                          label=NULL,
+                                                                                          value="21.28"),
                                                                                 
                                                                                 checkboxInput(inputId="scale_qz_delay_input",#sacale_qz_delay_input权重手动输入的规模合成滞后指数复选框
                                                                                               label = strong("2.3 滞后指数要素权重"),
                                                                                               value = FALSE),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("营业里程%",style="color:black")),
+                                                                                  column(1, textOutput("scale_yylc_qz_output"))
+                                                                                ),      
                                                                                 textInput(inputId="scale_yylc_qz_input",#scale_yylc_qz_input设备合成指数中的营业里程的权重输入框
-                                                                                          label=h5("营业里程%"),
-                                                                                          value="23.62"),
+                                                                                          label=NULL,
+                                                                                          value="31.71"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("从业人员数量%",style="color:black")),
+                                                                                  column(1, textOutput("scale_cyrysl_qz_output"))
+                                                                                ),      
                                                                                 textInput(inputId="scale_cyrysl_qz_input",#scale_cyrysl_qz_input设备合成指数中的从业人员数量的权重输入框
-                                                                                          label=h5("从业人员数量%"),
-                                                                                          value="6.62"),
+                                                                                          label=NULL,
+                                                                                          value="4.48"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("客车辆数%",style="color:black")),
+                                                                                  column(1, textOutput("scale_kcls_qz_output"))
+                                                                                ),      
                                                                                 textInput(inputId="scale_kcls_qz_input",#scale_kcls_qz_input设备合成指数中的客车辆数的权重输入框
-                                                                                          label=h5("客车辆数%"),
-                                                                                          value="31.90"),
+                                                                                          label=NULL,
+                                                                                          value="32.08"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("货车辆数%",style="color:black")),
+                                                                                  column(1, textOutput("scale_hcls_qz_output"))
+                                                                                ),      
                                                                                 textInput(inputId="scale_hcls_qz_input",#scale_hcls_qz_input设备合成指数中的货车辆数的权重输入框
-                                                                                          label=h5("货车辆数%"),
-                                                                                          value="24.33"),
+                                                                                          label=NULL,
+                                                                                          value="22.04"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("机车台数%",style="color:black")),
+                                                                                  column(1, textOutput("scale_jcts_qz_output"))
+                                                                                ),      
                                                                                 textInput(inputId="scale_jcts_qz_input",#scale_jcts_qz_input设备合成指数中的机车台数的权重输入框
-                                                                                          label=h5("机车台数%"),
-                                                                                          value="13.53"),
+                                                                                          label=NULL,
+                                                                                          value="9.70"),
+                                                                                
                                                                                 
                                                                                 width=3
                                                                                 
@@ -483,51 +650,106 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                             label = ("滞后指数"),
                                                                                             value = TRUE),
                                                                               
-                                                                              h4(strong("2.各要素权重手动调整"),style="color:black"),
+                                                                              actionButton(inputId="yskssdtz",label = strong("2.各要素权重手动调整")),
                                                                               checkboxInput(inputId="trans_percent_coor_input",
                                                                                             label = strong("2.1 同步指数要素权重"),
                                                                                             value = FALSE),
+                                                                              
+                                                                              fluidRow(
+                                                                                column(4, h5("货运量%",style="color:black")),
+                                                                                column(1, textOutput("trans_hyl_qz_outputks")
+                                                                                )),     
                                                                               textInput(inputId="trans_hyl_percent_input",
-                                                                                        label=h5("货运量%"),
-                                                                                        value="38.66"),
+                                                                                        label = NULL,
+                                                                                        value="22.35"),
+                                                                              
+                                                                              fluidRow(
+                                                                                column(4, h5("工业增加值%",style="color:black")),
+                                                                                column(1, textOutput("trans_gyzjz_qz_outputks"))
+                                                                              ), 
                                                                               textInput(inputId="trans_gyzjz_percent_input",
-                                                                                        label=h5("工业增加值%"),
-                                                                                        value="29.74"),
+                                                                                        label = NULL,
+                                                                                        value="53.98"),
+                                                                              
+                                                                              fluidRow(
+                                                                                column(4, h5("货运周转量%",style="color:black")),
+                                                                                column(1, textOutput("trans_hyzzl_qz_outputks"))
+                                                                              ),  
                                                                               textInput(inputId="trans_hyzzl_percent_input",
-                                                                                        label=h5("货运周转量%"),
-                                                                                        value="31.60"),
+                                                                                        label = NULL,
+                                                                                        value="23.67"),
                                                                               
                                                                               checkboxInput(inputId="trans_percent_adv_input",
                                                                                             label = strong("2.2 先行指数要素权重"),
                                                                                             value = FALSE),
+                                                                              
+                                                                              fluidRow(
+                                                                                column(4, h5("成品钢材%",style="color:black")),
+                                                                                column(1, textOutput("trans_gc_qz_outputks"))
+                                                                              ), 
                                                                               textInput(inputId="trans_gc_percent_input",
-                                                                                        label=h5("成品钢材%"),
-                                                                                        value="42.60"),
+                                                                                        label = NULL,
+                                                                                        value="42.99"),
+                                                                              
+                                                                              fluidRow(
+                                                                                column(4, h5("原煤%",style="color:black")),
+                                                                                column(1, textOutput("trans_ym_qz_outputks"))
+                                                                              ),   
                                                                               textInput(inputId="trans_ym_percent_input",
-                                                                                        label=h5("原煤%"),
-                                                                                        value="25.80"),
+                                                                                        label = NULL,
+                                                                                        value="23.94"),
+                                                                              
+                                                                              fluidRow(
+                                                                                column(4, h5("原油%",style="color:black")),
+                                                                                column(1, textOutput("trans_yy_qz_outputks"))
+                                                                              ),  
                                                                               textInput(inputId="trans_yy_percent_input",
-                                                                                        label=h5("原油%"),
-                                                                                        value="10.31"),
+                                                                                        label = NULL,
+                                                                                        value="11.57"),
+                                                                              
+                                                                              fluidRow(
+                                                                                column(4, h5("火力发电量%",style="color:black")),
+                                                                                column(1, textOutput("trans_hlfdl_qz_outputks"))
+                                                                              ),  
                                                                               textInput(inputId="trans_hlfdl_percent_input",
-                                                                                        label=h5("火力发电量%"),
-                                                                                        value="21.29"),
+                                                                                        label = NULL,
+                                                                                        value="21.50"),
                                                                               
                                                                               checkboxInput(inputId="trans_percent_delay_input",
                                                                                             label = strong("2.3 滞后指数要素权重"),
                                                                                             value = FALSE),
+                                                                              
+                                                                              fluidRow(
+                                                                                column(4, h5("客运量%",style="color:black")),
+                                                                                column(1, textOutput("trans_kyl_qz_outputks"))
+                                                                              ),   
                                                                               textInput(inputId="trans_kyl_percent_input",
-                                                                                        label=h5("客运量%"),
-                                                                                        value="9.30"),
+                                                                                        label = NULL,
+                                                                                        value="12.85"),
+                                                                              
+                                                                              fluidRow(
+                                                                                column(4, h5("客运周转量%",style="color:black")),
+                                                                                column(1, textOutput("trans_kyzzl_qz_outputks"))
+                                                                              ),  
                                                                               textInput(inputId="trans_kyzzl_percent_input",
-                                                                                        label=h5("客运周转量%"),
-                                                                                        value="9.90"),
+                                                                                        label = NULL,
+                                                                                        value="12.69"),
+                                                                              
+                                                                              fluidRow(
+                                                                                column(4, h5("固定资产投资%",style="color:black")),
+                                                                                column(1, textOutput("trans_gdzctz_qz_outputks"))
+                                                                              ), 
                                                                               textInput(inputId="trans_gdzctz_percent_input",
-                                                                                        label=h5("固定资产投资%"),
-                                                                                        value="78.80"),
+                                                                                        label = NULL,
+                                                                                        value="71.37"),
+                                                                              
+                                                                              fluidRow(
+                                                                                column(4, h5("营业里程%",style="color:black")),
+                                                                                column(1, textOutput("trans_yylc_qz_outputks"))
+                                                                              ), 
                                                                               textInput(inputId="trans_yylc_percent_input",
-                                                                                        label=h5("营业里程%"),
-                                                                                        value="2.00"),
+                                                                                        label = NULL,
+                                                                                        value="3.09"),
                                                                               width=3
                                                                             ),
                                                                             
@@ -536,12 +758,12 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                               fluidRow(
                                                                                 column(3,  selectInput(inputId = "year_start_trans_ID",
                                                                                                        label = "自:", 
-                                                                                                       choices = y_yiheng,
-                                                                                                       selected = min(y_yiheng) )),
+                                                                                                       choices = y_wenjing,
+                                                                                                       selected = min(y_wenjing) )),
                                                                                 column(3, selectInput(inputId="year_end_trans_ID",
                                                                                                       label="至:",
-                                                                                                      choice=y_yiheng,
-                                                                                                      selected=max(y_yiheng)))
+                                                                                                      choice=y_wenjing,
+                                                                                                      selected=max(y_wenjing)))
                                                                               ),
                                                                               plotOutput(outputId = "trans_DI_index", height = "400px"),
                                                                               fluidRow(
@@ -566,54 +788,113 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                               label=("先行指数"),
                                                                                               value=TRUE),
                                                                                 
-                                                                                h4(strong("2.各要素权重手动调整"),style="color:black"),
+                                                                                actionButton(inputId="sbkssdtz",label = strong("2.各要素权重手动调整")),
                                                                                 checkboxInput(inputId="equip_percent_coor_input",
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("机车总行走里程%",style="color:black")),
+                                                                                  column(1, textOutput("equip_jczxzlc_qz_outputks"))
+                                                                                ), 
                                                                                 textInput(inputId="equip_jczxzlc_percent_input",
-                                                                                          label=h5("机车总行走里程%"),
-                                                                                          value="81.28"),
+                                                                                          label=NULL,
+                                                                                          value="36.43"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("日均运用车%",style="color:black")),
+                                                                                  column(1, textOutput("equip_rjyyc_qz_outputks"))
+                                                                                ), 
                                                                                 textInput(inputId="equip_rjyyc_percent_input",
-                                                                                          label=h5("日均运用车%"),
-                                                                                          value="18.72"),
+                                                                                          label=NULL,
+                                                                                          value="63.58"),
                                                                                 
                                                                                 checkboxInput(inputId="equip_percent_adv_input",
                                                                                               label = strong("2.2 先行指数要素权重"),
                                                                                               value = FALSE),
+                                                                                fluidRow(
+                                                                                  column(4, h5("成品钢材%",style="color:black")),
+                                                                                  column(1, textOutput("equip_gc_qz_outputks"))
+                                                                                ), 
                                                                                 textInput(inputId="equip_gc_percent_input",
-                                                                                          label=h5("成品钢材%"),
-                                                                                          value="43.39"),
+                                                                                          label=NULL,
+                                                                                          value="42.94"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("原煤%",style="color:black")),
+                                                                                  column(1, textOutput("equip_ym_qz_outputks"))
+                                                                                ),   
                                                                                 textInput(inputId="equip_ym_percent_input",
-                                                                                          label=h5("原煤%"),
-                                                                                          value="26.53"),
+                                                                                          label=NULL,
+                                                                                          value="24.07"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("原油%",style="color:black")),
+                                                                                  column(1, textOutput("equip_yy_qz_outputks"))
+                                                                                ),   
                                                                                 textInput(inputId="equip_yy_percent_input",
-                                                                                          label=h5("原油%"),
-                                                                                          value="10.56"),
+                                                                                          label=NULL,
+                                                                                          value="11.72"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("火力发电量%",style="color:black")),
+                                                                                  column(1, textOutput("equip_hlfdl_qz_outputks"))
+                                                                                ), 
                                                                                 textInput(inputId="equip_hlfdl_percent_input",
-                                                                                          label=h5("火力发电量%"),
-                                                                                          value="19.51"),
+                                                                                          label=NULL,
+                                                                                          value="21.23"),
                                                                                 
                                                                                 checkboxInput(inputId="equip_percent_delay_input",
                                                                                               label = strong("2.3 滞后指数要素权重"),
                                                                                               value = FALSE),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("日均现在车%",style="color:black")),
+                                                                                  column(1, textOutput("equip_rjxzc_qz_outputks"))
+                                                                                ),
                                                                                 textInput(inputId="equip_rjxzc_percent_input",
-                                                                                          label=h5("日均现在车%"),
-                                                                                          value="15.44"),
+                                                                                          label=NULL,
+                                                                                          value="14.60"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("客运机车里程%",style="color:black")),
+                                                                                  column(1, textOutput("equip_kyjclc_qz_outputks"))
+                                                                                ),  
                                                                                 textInput(inputId="equip_kyjclc_percent_input",
-                                                                                          label=h5("客运机车里程%"),
-                                                                                          value="35.92"),
+                                                                                          label=NULL,
+                                                                                          value="33.28"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("货运机车里程%",style="color:black")),
+                                                                                  column(1, textOutput("equip_hyjclc_qz_outputks"))
+                                                                                ),  
                                                                                 textInput(inputId="equip_hyjclc_percent_input",
-                                                                                          label=h5("货运机车里程%"),
-                                                                                          value="1.80"),
+                                                                                          label=NULL,
+                                                                                          value="1.73"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("客车辆数%",style="color:black")),
+                                                                                  column(1, textOutput("equip_kcls_qz_outputks"))
+                                                                                ),  
                                                                                 textInput(inputId="equip_kcls_percent_input",
-                                                                                          label=h5("客车辆数%"),
-                                                                                          value="21.42"),
+                                                                                          label=NULL,
+                                                                                          value="25.33"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("货车辆数%",style="color:black")),
+                                                                                  column(1, textOutput("equip_hcls_qz_outputks"))
+                                                                                ),
                                                                                 textInput(inputId="equip_hcls_percent_input",
-                                                                                          label=h5("货车辆数%"),
-                                                                                          value="16.34"),
+                                                                                          label=NULL,
+                                                                                          value="17.40"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("机车台数%",style="color:black")),
+                                                                                  column(1, textOutput("equip_jcts_qz_outputks"))
+                                                                                ),
                                                                                 textInput(inputId="equip_jcts_percent_input",
-                                                                                          label=h5("机车台数%"),
-                                                                                          value="9.08"),
+                                                                                          label=NULL,
+                                                                                          value="7.66"),
                                                                                 width=3
                                                                               ),
                                                                               
@@ -621,12 +902,12 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 fluidRow(
                                                                                   column(3,  selectInput(inputId = "year_start_equip_ID",
                                                                                                          label = "自:", 
-                                                                                                         choices = y_yiheng,
-                                                                                                         selected = min(y_yiheng) )),
+                                                                                                         choices = y_wangyang,
+                                                                                                         selected = min(y_wangyang) )),
                                                                                   column(3, selectInput(inputId="year_end_equip_ID",
                                                                                                         label="至:",
-                                                                                                        choice=y_yiheng,
-                                                                                                        selected=max(y_yiheng)))
+                                                                                                        choice=y_wangyang,
+                                                                                                        selected=max(y_wangyang)))
                                                                                 ),
                                                                                 plotOutput(outputId="equip_DI_index", height = "400px"),
                                                                                 fluidRow(
@@ -651,54 +932,114 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                               label = ("滞后指数"),
                                                                                               value = TRUE),
                                                                                 
-                                                                                h4(strong("2.各要素权重手动调整"),style="color:black"),
+                                                                                actionButton(inputId="gmkssdtz",label = strong("2.各要素权重手动调整")),
                                                                                 checkboxInput(inputId="scale_percent_coor_input",
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("货运量%",style="color:black")),
+                                                                                  column(1, textOutput("scale_hyl_qz_outputks")
+                                                                                  )),
                                                                                 textInput(inputId="scale_hyl_percent_input",
-                                                                                          label=h5("货运量%"),
-                                                                                          value="17.87"),
+                                                                                          label=NULL,
+                                                                                          value="16.91"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("工业增加值%",style="color:black")),
+                                                                                  column(1, textOutput("scale_gyzjz_qz_outputks"))
+                                                                                ),
                                                                                 textInput(inputId="scale_gyzjz_percent_input",
-                                                                                          label=h5("工业增加值量%"),
-                                                                                          value="67.71"),
+                                                                                          label=NULL,
+                                                                                          value="69.53"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("货运周转量%",style="color:black")),
+                                                                                  column(1, textOutput("scale_hyzzl_qz_outputks"))
+                                                                                ),  
                                                                                 textInput(inputId="scale_hyzzl_percent_input",
-                                                                                          label=h5("货运周转量%"),
-                                                                                          value="14.42"),
+                                                                                          label=NULL,
+                                                                                          value="13.56"),
                                                                                 
                                                                                 checkboxInput(inputId="scale_percent_adv_input",
                                                                                               label = strong("2.2 先行指数要素权重"),
                                                                                               value = FALSE),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("成品钢材%",style="color:black")),
+                                                                                  column(1, textOutput("scale_gc_qz_outputks"))
+                                                                                ), 
                                                                                 textInput(inputId="scale_gc_percent_input",
-                                                                                          label=h5("成品钢材%"),
-                                                                                          value="43.39"),
+                                                                                          label=NULL,
+                                                                                          value="42.94"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("原煤%",style="color:black")),
+                                                                                  column(1, textOutput("scale_ym_qz_outputks"))
+                                                                                ),    
                                                                                 textInput(inputId="scale_ym_percent_input",
-                                                                                          label=h5("原煤%"),
-                                                                                          value="26.53"),
+                                                                                          label=NULL,
+                                                                                          value="24.07"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("原油%",style="color:black")),
+                                                                                  column(1, textOutput("scale_yy_qz_outputks"))
+                                                                                ),  
                                                                                 textInput(inputId="scale_yy_percent_input",
-                                                                                          label=h5("原油%"),
-                                                                                          value="10.56"),
+                                                                                          label=NULL,
+                                                                                          value="11.72"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("火力发电量%",style="color:black")),
+                                                                                  column(1, textOutput("scale_hlfdl_qz_outputks"))
+                                                                                ),
                                                                                 textInput(inputId="scale_hlfdl_percent_input",
-                                                                                          label=h5("火力发电量%"),
-                                                                                          value="19.51"),
+                                                                                          label=NULL,
+                                                                                          value="21.28"),
                                                                                 
                                                                                 checkboxInput(inputId="scale_percent_delay_input",
                                                                                               label = strong("2.3 滞后指数要素权重"),
                                                                                               value = FALSE),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("营业里程%",style="color:black")),
+                                                                                  column(1, textOutput("scale_yylc_qz_outputks"))
+                                                                                ),
                                                                                 textInput(inputId="scale_yylc_percent_input",
-                                                                                          label=h5("营业里程%"),
-                                                                                          value="23.62"),
+                                                                                          label=NULL,
+                                                                                          value="31.71"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("从业人员数量%",style="color:black")),
+                                                                                  column(1, textOutput("scale_cyrysl_qz_outputks"))
+                                                                                ),   
                                                                                 textInput(inputId="scale_cyrysl_percent_input",
-                                                                                          label=h5("从业人员数量%"),
-                                                                                          value="6.62"),
+                                                                                          label=NULL,
+                                                                                          value="4.48"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("客车辆数%",style="color:black")),
+                                                                                  column(1, textOutput("scale_kcls_qz_outputks"))
+                                                                                ), 
                                                                                 textInput(inputId="scale_kcls_percent_input",
-                                                                                          label=h5("客车辆数%"),
-                                                                                          value="31.90"),
+                                                                                          label=NULL,
+                                                                                          value="32.08"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("货车辆数%",style="color:black")),
+                                                                                  column(1, textOutput("scale_hcls_qz_outputks"))
+                                                                                ), 
                                                                                 textInput(inputId="scale_hcls_percent_input",
-                                                                                          label=h5("货车辆数%"),
-                                                                                          value="24.33"),
+                                                                                          label=NULL,
+                                                                                          value="22.04"),
+                                                                                
+                                                                                fluidRow(
+                                                                                  column(4, h5("机车台数%",style="color:black")),
+                                                                                  column(1, textOutput("scale_jcts_qz_outputks"))
+                                                                                ), 
                                                                                 textInput(inputId="scale_jcts_percent_input",
-                                                                                          label=h5("机车台数%"),
-                                                                                          value="13.53"),
+                                                                                          label=NULL,
+                                                                                          value="9.70"),
                                                                                 
                                                                                 width=3
                                                                                 
@@ -708,12 +1049,12 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 fluidRow(
                                                                                   column(3,  selectInput(inputId = "year_start_scale_ID",
                                                                                                          label = "自:", 
-                                                                                                         choices = y_yiheng,
-                                                                                                         selected = min(y_yiheng) )),
+                                                                                                         choices = y_wangyang,
+                                                                                                         selected = min(y_wangyang) )),
                                                                                   column(3, selectInput(inputId="year_end_scale_ID",
                                                                                                         label="至:",
-                                                                                                        choice=y_yiheng,
-                                                                                                        selected=max(y_yiheng)))
+                                                                                                        choice=y_wangyang,
+                                                                                                        selected=max(y_wangyang)))
                                                                                 ),
                                                                                 plotOutput(outputId="scale_DI_index", height = "400px"),
                                                                                 fluidRow(
@@ -727,6 +1068,8 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                          )))
                               )
                    ),
+                   
+                   
                    
                    
                    
