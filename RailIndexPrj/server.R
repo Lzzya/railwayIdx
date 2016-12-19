@@ -1366,7 +1366,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     if (input$mileage_stat_data) {
       mileage_p<-mileage_p+geom_point(aes(x=tm4,y=construct_investment1),color="red",size=3,shape=21)
     }
-    mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   output$mileage_fixed_assets_investment_output<-renderText({
     mileage_x<-as.numeric(input$mileage_input)
@@ -1437,7 +1437,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     if (input$mileage_stat_data) {
       mileage_p<-mileage_p+geom_point(aes(x=tm4,y=construct_investment1),color="red",size=3,shape=21)
     }
-    mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   #----------------------------支持向量机Tabset画线
   
@@ -1474,7 +1474,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     if (input$mileage_stat_data) {
       mileage_p<-mileage_p+geom_point(aes(x=tm4,y=construct_investment1),color="red",size=3,shape=21)
     }
-    mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   
@@ -1552,7 +1552,7 @@ output$tracklaying_mileage_linearplot <- renderPlot( {
   if (input$tracklaying_mileage_stat_data) {
     tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=construct_investment,group=1),color="red",size=3,shape=21)
   }
-  tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  tracklaying_mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 output$tracklaying_mileage_output<-renderText({
   tracklaying_mileage_x1<-as.numeric(input$newline_tracklaying_mileage_input)
@@ -1629,7 +1629,7 @@ output$tracklaying_mileage_rfplot <- renderPlot( {
   if (input$tracklaying_mileage_stat_data) {
     tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=construct_investment,group=1),color="red",size=3,shape=21)
   }
-  tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  tracklaying_mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 #----------------------------支持向量机Tabset画线
 
@@ -1663,7 +1663,7 @@ output$tracklaying_mileage_svmplot <- renderPlot( {
   if (input$tracklaying_mileage_stat_data) {
     tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=construct_investment,group=1),color="red",size=3,shape=21)
   }
-  tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  tracklaying_mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 construct_investment<-df_yearly2$construct_investment
