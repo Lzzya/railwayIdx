@@ -8,22 +8,19 @@ shinyServer(function(input, output) {
   require(forecast)
   require(rJava)
   require(xlsx)
-  
+  require(maptools)
+  require(rgeos)
   df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
   df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
  #-------------------其它铁路原始数据----------------------
   #---------------------mashaomeng--------------------------
 mengmeng_yearly<-read.xlsx("3-1 全国铁路线路、铁路复线、电气化、内燃牵引里程.xlsx",1,head=T,startRow=2,encoding = "UTF-8")#--------表3-1是3-1和3-6的合并
-railway_mileage_yearly<-substr(mengmeng_yearly$tm,1,4)
 
 mengmeng1_yearly<-read.xlsx("3-9 全国铁路机车拥有量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-Locomotive_ownership_yearly<-substr(mengmeng1_yearly$tm,1,4)
 
 mengmeng2_yearly<-read.xlsx("3-2 全国铁路分地区营业里程.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-sub_regional_mileage_yearly<-substr(mengmeng2_yearly$tm,1,4)
 
 mengmeng3_yearly<-read.xlsx("3-10 国家铁路分机型机车拥有量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-model_locomotive_ownership_yearly<-substr(mengmeng3_yearly$tm,1,4)
 
 #---------------------mashaomeng--------------------------
 #-------------聪聪-----------------------------
@@ -1369,7 +1366,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     if (input$mileage_stat_data) {
       mileage_p<-mileage_p+geom_point(aes(x=tm4,y=construct_investment1),color="red",size=3,shape=21)
     }
-    mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   output$mileage_fixed_assets_investment_output<-renderText({
     mileage_x<-as.numeric(input$mileage_input)
@@ -1440,7 +1437,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     if (input$mileage_stat_data) {
       mileage_p<-mileage_p+geom_point(aes(x=tm4,y=construct_investment1),color="red",size=3,shape=21)
     }
-    mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   #----------------------------支持向量机Tabset画线
   
@@ -1477,7 +1474,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     if (input$mileage_stat_data) {
       mileage_p<-mileage_p+geom_point(aes(x=tm4,y=construct_investment1),color="red",size=3,shape=21)
     }
-    mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   
@@ -1555,7 +1552,7 @@ output$tracklaying_mileage_linearplot <- renderPlot( {
   if (input$tracklaying_mileage_stat_data) {
     tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=construct_investment,group=1),color="red",size=3,shape=21)
   }
-  tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  tracklaying_mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 output$tracklaying_mileage_output<-renderText({
   tracklaying_mileage_x1<-as.numeric(input$newline_tracklaying_mileage_input)
@@ -1632,7 +1629,7 @@ output$tracklaying_mileage_rfplot <- renderPlot( {
   if (input$tracklaying_mileage_stat_data) {
     tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=construct_investment,group=1),color="red",size=3,shape=21)
   }
-  tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  tracklaying_mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 #----------------------------支持向量机Tabset画线
 
@@ -1666,7 +1663,7 @@ output$tracklaying_mileage_svmplot <- renderPlot( {
   if (input$tracklaying_mileage_stat_data) {
     tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=construct_investment,group=1),color="red",size=3,shape=21)
   }
-  tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  tracklaying_mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 construct_investment<-df_yearly2$construct_investment
@@ -1882,7 +1879,7 @@ rownames = TRUE)
   output$investmenttable<-DT::renderDataTable(
     DT::datatable(
       data<-investment_data, 
-      colnames = c('序号', '年','固定资产投资增加额（万元）','客车车辆数（辆）','动车组数量(组)','多元回归预测（万元）','支持向量机回归预测（万元）'),
+      colnames = c('序号', '年','固定资产投资（万元）','新增普客车辆数（辆）','新增动车组数(组)','多元回归预测（万元）','随机森林回归预测（万元）','支持向量机回归预测（万元）'),
       rownames = TRUE)
   )
   
@@ -2079,7 +2076,7 @@ output$passenger_volume_table<-DT::renderDataTable(
   
   PVdata<-passenger_volume_data
 } , 
-colnames = c('序号', '时间', '客运量（万人）','动车组数（组）','客车机车日行公里（公里）','多元回归预测（亿万）','随机森林回归预测（亿万）','随机森林回归预测（万元）','支持向量机回归预测（亿万）'),
+colnames = c('序号', '时间', '客运量（万人）','动车组数（组）','客车机车日行公里（公里）','多元回归预测（万人）','随机森林回归预测（万人）','支持向量机回归预测（万人）'),
 rownames = TRUE)
 )
   #--------------------------------------------------------------------
@@ -3103,7 +3100,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
   freight_rn<-auto.arima(freight_indus,ic="bic")
   freight_rn<-arima(freight_indus,order=c(2,1,3),seasonal=c(0,1,2))
   freight_rn2<-forecast(freight_rn,h=12)
-  freight_rn3<- data.frame(freight_rn2)
+  freight_rn3<- round(data.frame(freight_rn2),2)
   freight_rn3$forecast<- data.frame(freight_rn2)[1]
   freight_rn3$low80<- data.frame(freight_rn2)[2]
   freight_rn3$upper80<- data.frame(freight_rn2)[3]
@@ -3115,7 +3112,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
     freight_p<- plot(freight_rn2,main="货运量（预测未来一年）",ylab="货运量",xlab="年")})
   output$freight_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {freight_data<-freight_rn4},
+      {freight_data<-round(freight_rn4,2)},
       colnames = c('货运量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
@@ -3139,7 +3136,7 @@ output$passenger_volume_forecast <- renderPlot( {
   passenger_volume_p<- plot(passenger_volume_rn2,main="客运量（预测未来一年）",ylab="客运量",xlab="年")})
 output$passenger_volume_forecast_table<-DT::renderDataTable(
   DT::datatable(
-{passenger_volume_data<-passenger_volume_rn4},
+{passenger_volume_data<-round(passenger_volume_rn4,4)},
 colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
   )
 )
@@ -3168,7 +3165,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$SteelTime_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-SteelTimern4},
+      {data<-round(SteelTimern4,2)},
       colnames = c('成品钢材产量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
@@ -3198,7 +3195,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$TruckTime_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-TruckTimern4},
+      {data<-round(TruckTimern4)},
       colnames = c('货车辆数',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
@@ -3227,7 +3224,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$CoalTime_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-CoalTimern4},
+      {data<-round(CoalTimern4,2)},
       colnames = c('原煤产量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
@@ -3257,7 +3254,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$OilTime_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-OilTimern4},
+      {data<-round(OilTimern4,2)},
       colnames = c('原油加工量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
@@ -3283,7 +3280,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$Industrial_Added_Value_Rate_forecast_timesery_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-dfIndustrial_Added_Value_Rate4},
+      {data<-round(dfIndustrial_Added_Value_Rate4,2)},
       colnames = c('工业增加值增长率',  '80%置信区间下限','80%置信区间上限','95%置信区间下限','95%置信区间上限')
     )
   )
@@ -3308,7 +3305,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$Investment_in_Fixed_Assets_forecast_table_timesery<-DT::renderDataTable(
     DT::datatable(
-      {data<-dfInvestment_in_Fixed_Assets4},
+      {data<-round(dfInvestment_in_Fixed_Assets4,2)},
       colnames = c('固定资产投资',  '80%置信区间下限','80%置信区间上限','95%置信区间下限','95%置信区间上限')
     )
   )
@@ -3648,7 +3645,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
         dfrawdata<-df_yearly
         dfrawdata<-data.frame(dfrawdata[1:9])
         data<-dfrawdata},
-      colnames = c('时间','客车辆数(辆)','机车台数(辆)','货车辆数(辆)','动车组数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
+      colnames = c('时间','客车辆数(辆)','机车台数(台)','货车辆数(辆)','动车组数(组)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
       rownames = TRUE))
   
   output$rawdata_black_table<-DT::renderDataTable(
@@ -3845,7 +3842,6 @@ output$rawdata_relevant_mileage_table<-DT::renderDataTable(
 output$sub_regional_mileage_yearly_plot <- renderPlot( {
   
   dfrawdata<-mengmeng2_yearly
-  dfrawdata$tm<-as.Date.POSIXct(mengmeng2_yearly$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(dfrawdata$tm)
   
   if(input$year_start_regional_mileage> input$year_end_regional_mileage)  {
@@ -4748,7 +4744,6 @@ output$rawdata_yslzzl_table<-DT::renderDataTable(
 #------李雪妍4_16国家铁路省、市、自治区货物运量
 output$hyl_plot <- renderPlot( {
   lxy1rawdata<-lxy1_yearly
-  lxy1rawdata$tm<-as.Date.POSIXct(lxy1rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(lxy1rawdata$tm)
   
   if(input$year_start_hyl> input$year_end_hyl)  {
@@ -4904,7 +4899,6 @@ output$hyl_table<-DT::renderDataTable(
 #------李雪妍4_17国家铁路省、市、自治区货运周转量
 output$hyzzl_plot <- renderPlot( {
   lxy2rawdata<-lxy2_yearly
-  lxy2rawdata$tm<-as.Date.POSIXct(lxy2rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(lxy2rawdata$tm)
   
   if(input$year_start_hyzzl> input$year_end_hyzzl)  {
@@ -5060,7 +5054,6 @@ output$hyzzl_table<-DT::renderDataTable(
 #------李雪妍4_18国家铁路省、市、自治区客运量
 output$kyl_plot <- renderPlot( {
   lxy3rawdata<-lxy3_yearly
-  lxy3rawdata$tm<-as.Date.POSIXct(lxy3rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(lxy3rawdata$tm)
   
   if(input$year_start_kyl> input$year_end_kyl)  {
@@ -5218,7 +5211,6 @@ output$kyl_table<-DT::renderDataTable(
 #------李雪妍4_19国家铁路省、市、自治区客运周转量
 output$kyzzl_plot <- renderPlot( {
   lxy4rawdata<-lxy4_yearly
-  lxy4rawdata$tm<-as.Date.POSIXct(lxy4rawdata$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   len<-length(lxy4rawdata$tm)
   
   if(input$year_start_kyzzl> input$year_end_kyzzl)  {
@@ -5839,9 +5831,7 @@ output$railway_jbjstz_table<-DT::renderDataTable(
 #--------李亚芳---------  
 #--------刘治----------
     output$plot6.3 <- renderPlot({
-
-        names(table6.3) <- c("tm",'a1','b2','c3','d4','e5','f6','g7','h8','i9','j10','k11')
-        if(input$tm_start6.3 > input$tm_end6.3){
+if(input$tm_start6.3 > input$tm_end6.3){
         p<-ggplot(table6.3)
         }
         else{
@@ -5850,27 +5840,27 @@ output$railway_jbjstz_table<-DT::renderDataTable(
         p<-ggplot(sub6.3,x=c(input$tm_start6.3,input$tm_start6.3))
         }
         if(input$df6.3_capital_toal){
-            p<-p+geom_line(aes(x=tm,y=a1),color="black",size=0.7)+geom_point(aes(x=tm,y=a1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=infrustrate_capital_total),color="black",size=0.7)+geom_point(aes(x=tm,y=infrustrate_capital_total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_national_budget){
-            p<-p+geom_line(aes(x=tm,y=b2),color="red",size=0.7)+geom_point(aes(x=tm,y=b2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=national_budget),color="red",size=0.7)+geom_point(aes(x=tm,y=national_budget),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_internal_loan){
-            p<-p+geom_line(aes(x=tm,y=c3),color="blue",size=0.7)+geom_point(aes(x=tm,y=c3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=domestic_loans),color="blue",size=0.7)+geom_point(aes(x=tm,y=domestic_loans),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_foreign_capital){
-            p<-p+geom_line(aes(x=tm,y=d4),color="orange",size=0.7)+geom_point(aes(x=tm,y=d4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=foreign_capital),color="orange",size=0.7)+geom_point(aes(x=tm,y=foreign_capital),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_special_fund){
-            p<-p+geom_line(aes(x=tm,y=e5),color="green",size=0.7)+geom_point(aes(x=tm,y=e5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=special_fund),color="green",size=0.7)+geom_point(aes(x=tm,y=special_fund),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_bond){
-            p<-p+geom_line(aes(x=tm,y=f6),color="purple",size=0.7)+geom_point(aes(x=tm,y=f6),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=bond),color="purple",size=0.7)+geom_point(aes(x=tm,y=bond),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_coal_oil){
-            p<-p+geom_line(aes(x=tm,y=g7),color="black",size=0.7)+geom_point(aes(x=tm,y=g7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=coal_replace_oil),color="black",size=0.7)+geom_point(aes(x=tm,y=coal_replace_oil),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_MOR_self){
-            p<-p+geom_line(aes(x=tm,y=h8),color="red",size=0.7)+geom_point(aes(x=tm,y=h8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=MOR_self),color="red",size=0.7)+geom_point(aes(x=tm,y=MOR_self),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_enterprise_self){
-            p<-p+geom_line(aes(x=tm,y=i9),color="blue",size=0.7)+geom_point(aes(x=tm,y=i9),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=public_institution_self),color="blue",size=0.7)+geom_point(aes(x=tm,y=public_institution_self),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_others){
-            p<-p+geom_line(aes(x=tm,y=j10),color="orange",size=0.7)+geom_point(aes(x=tm,y=j10),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=other_capital),color="orange",size=0.7)+geom_point(aes(x=tm,y=other_capital),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.3_vehicle_tax){
-            p<-p+geom_line(aes(x=tm,y=k11),color="green",size=0.7)+geom_point(aes(x=tm,y=k11),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=vehicle_purchase_tax),color="green",size=0.7)+geom_point(aes(x=tm,y=vehicle_purchase_tax),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         p+ylab("铁道部基本建设投资的资金来源")+xlab("时间")
     })
     
@@ -5879,7 +5869,6 @@ output$railway_jbjstz_table<-DT::renderDataTable(
         table6.3})
 
     output$plot6.4 <- renderPlot({
-        names(table6.4) <- c('tm','a1','b2','c3','d4','e5','f6','g7','h8','i9','j10','k11','l12','m13','n14','o15')
         if(input$tm_start6.4 > input$tm_end6.4){
         p<-ggplot(table6.4)
         }
@@ -5889,35 +5878,35 @@ output$railway_jbjstz_table<-DT::renderDataTable(
         p<-ggplot(sub6.4,x=c(input$tm_start6.4,input$tm_start6.4))
         }
         if(input$df6.4_new_lay_total){
-            p<-p+geom_line(aes(x=tm,y=a1),color="black",size=0.7)+geom_point(aes(x=tm,y=a1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=newline_tracklaying_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=newline_tracklaying_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_new_lay_national){
-            p<-p+geom_line(aes(x=tm,y=b2),color="red",size=0.7)+geom_point(aes(x=tm,y=b2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=national_joint_railway1),color="red",size=0.7)+geom_point(aes(x=tm,y=national_joint_railway1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_new_lay_regional){
-            p<-p+geom_line(aes(x=tm,y=c3),color="blue",size=0.7)+geom_point(aes(x=tm,y=c3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=local_railway1),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_multi_lay_total){
-            p<-p+geom_line(aes(x=tm,y=d4),color="black",size=0.7)+geom_point(aes(x=tm,y=d4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=nultiline_tracklaying_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=nultiline_tracklaying_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_multi_lay_national){
-            p<-p+geom_line(aes(x=tm,y=e5),color="red",size=0.7)+geom_point(aes(x=tm,y=e5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=national_joint_railway2),color="red",size=0.7)+geom_point(aes(x=tm,y=national_joint_railway2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_multi_lay_regional){
-            p<-p+geom_line(aes(x=tm,y=f6),color="blue",size=0.7)+geom_point(aes(x=tm,y=f6),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=local_railway2),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_new_product_total){
-            p<-p+geom_line(aes(x=tm,y=g7),color="black",size=0.7)+geom_point(aes(x=tm,y=g7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=newline_operation_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=newline_operation_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_new_product_national){
-            p<-p+geom_line(aes(x=tm,y=h8),color="red",size=0.7)+geom_point(aes(x=tm,y=h8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=national_joint_railway3),color="red",size=0.7)+geom_point(aes(x=tm,y=national_joint_railway3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_new_product_regional){
-            p<-p+geom_line(aes(x=tm,y=i9),color="blue",size=0.7)+geom_point(aes(x=tm,y=i9),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=local_railway3),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_multi_product_total){
-            p<-p+geom_line(aes(x=tm,y=j10),color="black",size=0.7)+geom_point(aes(x=tm,y=j10),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=nultiline_operation_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=nultiline_operation_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_multi_product_national){
-            p<-p+geom_line(aes(x=tm,y=k11),color="red",size=0.7)+geom_point(aes(x=tm,y=k11),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=national_joint_railway4),color="red",size=0.7)+geom_point(aes(x=tm,y=national_joint_railway4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_multi_product_regional){
-            p<-p+geom_line(aes(x=tm,y=l12),color="blue",size=0.7)+geom_point(aes(x=tm,y=l12),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=local_railway4),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_electr_product_total){
-            p<-p+geom_line(aes(x=tm,y=m13),color="black",size=0.7)+geom_point(aes(x=tm,y=m13),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=electric_railway_opration_mileage),color="black",size=0.7)+geom_point(aes(x=tm,y=electric_railway_opration_mileage),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_electr_product_national){
-            p<-p+geom_line(aes(x=tm,y=n14),color="red",size=0.7)+geom_point(aes(x=tm,y=n14),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=national_joint_railway5),color="red",size=0.7)+geom_point(aes(x=tm,y=national_joint_railway5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.4_electr_product_regional){
-            p<-p+geom_line(aes(x=tm,y=o15),color="blue",size=0.7)+geom_point(aes(x=tm,y=o15),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=local_railway5),color="blue",size=0.7)+geom_point(aes(x=tm,y=local_railway5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         p+ylab("铁路基本建设铺轨及投产里程")+xlab("时间")
     })
     
@@ -5926,7 +5915,6 @@ output$railway_jbjstz_table<-DT::renderDataTable(
         table6.4})
     
     output$plot6.7 <- renderPlot({
-        names(table6.7) <- c('tm','a1','b2','c3','d4','e5','f6','g7','h8','i9','j10','k11')
         if(input$tm_start6.7 > input$tm_end6.7){
         p<-ggplot(table6.7)
         }
@@ -5936,31 +5924,68 @@ output$railway_jbjstz_table<-DT::renderDataTable(
         p<-ggplot(sub6.7,x=c(input$tm_start6.7,input$tm_end6.7))
         }
         if(input$df6.7_invest_toal){
-            p<-p+geom_line(aes(x=tm,y=a1),color="black",size=0.7)+geom_point(aes(x=tm,y=a1),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=completed_investment),color="black",size=0.7)+geom_point(aes(x=tm,y=completed_investment),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_invest_infruatructure){
-            p<-p+geom_line(aes(x=tm,y=b2),color="red",size=0.7)+geom_point(aes(x=tm,y=b2),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=infrastructure_capital),color="red",size=0.7)+geom_point(aes(x=tm,y=infrastructure_capital),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_invest_change){
-            p<-p+geom_line(aes(x=tm,y=c3),color="blue",size=0.7)+geom_point(aes(x=tm,y=c3),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=change_capital),color="blue",size=0.7)+geom_point(aes(x=tm,y=change_capital),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_invest_others){
-            p<-p+geom_line(aes(x=tm,y=d4),color="orange",size=0.7)+geom_point(aes(x=tm,y=d4),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=other_capital),color="orange",size=0.7)+geom_point(aes(x=tm,y=other_capital),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_motor_total){
-            p<-p+geom_line(aes(x=tm,y=e5),color="black",size=0.7)+geom_point(aes(x=tm,y=e5),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=locomotive_total),color="black",size=0.7)+geom_point(aes(x=tm,y=locomotive_total),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_motor_fuel){
-            p<-p+geom_line(aes(x=tm,y=g7),color="red",size=0.7)+geom_point(aes(x=tm,y=g7),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=diesel_locomotive),color="red",size=0.7)+geom_point(aes(x=tm,y=diesel_locomotive),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_motor_electric){
-            p<-p+geom_line(aes(x=tm,y=h8),color="blue",size=0.7)+geom_point(aes(x=tm,y=h8),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=electic_locomotive),color="blue",size=0.7)+geom_point(aes(x=tm,y=electic_locomotive),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_bus7){
-            p<-p+geom_line(aes(x=tm,y=i9),color="red",size=0.7)+geom_point(aes(x=tm,y=i9),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=passenger_car),color="red",size=0.7)+geom_point(aes(x=tm,y=passenger_car),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_truck){
-            p<-p+geom_line(aes(x=tm,y=j10),color="blue",size=0.7)+geom_point(aes(x=tm,y=j10),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=freight_car),color="blue",size=0.7)+geom_point(aes(x=tm,y=freight_car),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         if(input$df6.7_bullet){
-            p<-p+geom_line(aes(x=tm,y=k11),color="black",size=0.7)+geom_point(aes(x=tm,y=k11),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
+            p<-p+geom_line(aes(x=tm,y=bullettrain_group),color="black",size=0.7)+geom_point(aes(x=tm,y=bullettrain_group),size=3,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))}
         p+ylab("国家铁路机车车辆购置")+xlab('时间')
     })
     
     output$table6.7 <- DT::renderDataTable({
         names(table6.7)<-c('年度','投资完成（亿元）','基建资金','更改资金','其他资金','机车（台）','内燃','电力',"客车（辆）",'货车（辆）',"动车组(组)")
         table6.7})
+    
+#---------------地图-------------------------------------------
+#---------------map函数------------------
+mapFunction <- function(data,year){
+        mydf1 <- data[,-2] ## 加辅助列香港以保证每张图在作图时存在相同的最大值，以使得同表各年份地图颜色一致。
+        top_provinceData <- max(sapply(data[,c(-1,-2)],max),na.rm = TRUE)
+        mydf2 <- data.frame(mydf1,hongkang = rep(top_provinceData,nrow(data))) # 比地图少 台湾 和 香港
+        china.shp <- readShapePoly('bou2_4p.shp')
+        china.df <- fortify(china.shp)
+        ##测试用
+        temp <- which(year==mydf2[,1])
+        a <- mydf2[temp,]
+        ## 调整表格数据以匹配地图数据中省份的位置，然后选取相应省份数据
+        a1 <- a[,c(8,5,31,7,6,28,3,1,4,2,27,30,29,15,26,16,10,12,23,17,22,9,11,18,14,25,24,13,20,19,32,21)+1]
+        b <- t(a1)[,1]
+
+        provinceName <- unique(china.shp$NAME)[c(-34,-30)] ## 保留除去NA和台湾的省名
+        
+        temp1 <- data.frame(NAME = provinceName,provinceData=b)## 得到地图数据中的省份对应的ID
+        temp.id <- china.shp$BOU2_4M_-2
+        temp2 <- data.frame(id=temp.id,NAME=china.shp$NAME) ## 得到地图数据中，省份名与对应ID
+        
+        #mydata <- merge(temp1,temp2,by='NAME',all=TRUE)
+        mydata <- plyr::join(temp1,temp2,by='NAME',type='right')
+        final.df <- plyr::join(china.df,mydata,by='id',type='inner') ## 通过连接增加各省的数据
+        ## 绘图
+        mymap <- ggplot()+geom_polygon(data =final.df,aes(x = long, y = lat, group = id,fill =provinceData), colour = "black")+theme_grey() 
+        mymap + coord_quickmap()+scale_fill_gradient(low = 'white',high = 'red')
+}
+#---------------map函数 END--------------
+
+output$map_plot3.2 <- renderPlot(mapFunction(mengmeng2_yearly,input$year3.2))
+output$map_plot4.16 <- renderPlot(mapFunction(lxy1_yearly,input$year4.16))
+output$map_plot4.17 <- renderPlot(mapFunction(lxy2_yearly,input$year4.17))
+output$map_plot4.18 <- renderPlot(mapFunction(lxy3_yearly,input$year4.18))
+output$map_plot4.19 <- renderPlot(mapFunction(lxy4_yearly,input$year4.19))
+#---------------地图 END --------------
 
 }
 )
