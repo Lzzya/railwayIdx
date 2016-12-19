@@ -9,6 +9,7 @@ shinyServer(function(input, output) {
   require(rJava)
   require(xlsx)
   require(maptools)
+  require(rgeos)
   df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
   df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
  #-------------------其它铁路原始数据----------------------
@@ -2075,7 +2076,7 @@ output$passenger_volume_table<-DT::renderDataTable(
   
   PVdata<-passenger_volume_data
 } , 
-colnames = c('序号', '时间', '客运量（万人）','动车组数（组）','客车机车日行公里（公里）','多元回归预测（亿万）','随机森林回归预测（亿万）','随机森林回归预测（万元）','支持向量机回归预测（亿万）'),
+colnames = c('序号', '时间', '客运量（万人）','动车组数（组）','客车机车日行公里（公里）','多元回归预测（万人）','随机森林回归预测（万人）','支持向量机回归预测（万人）'),
 rownames = TRUE)
 )
   #--------------------------------------------------------------------
