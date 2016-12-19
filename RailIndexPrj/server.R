@@ -1879,7 +1879,7 @@ rownames = TRUE)
   output$investmenttable<-DT::renderDataTable(
     DT::datatable(
       data<-investment_data, 
-      colnames = c('序号', '年','固定资产投资增加额（万元）','新增普客车辆数（辆）','新增动车组数(组)','多元回归预测（万元）','随机森林回归预测（万元）','支持向量机回归预测（万元）'),
+      colnames = c('序号', '年','固定资产投资（万元）','新增普客车辆数（辆）','新增动车组数(组)','多元回归预测（万元）','随机森林回归预测（万元）','支持向量机回归预测（万元）'),
       rownames = TRUE)
   )
   
