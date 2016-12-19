@@ -3100,7 +3100,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
   freight_rn<-auto.arima(freight_indus,ic="bic")
   freight_rn<-arima(freight_indus,order=c(2,1,3),seasonal=c(0,1,2))
   freight_rn2<-forecast(freight_rn,h=12)
-  freight_rn3<- data.frame(freight_rn2)
+  freight_rn3<- round(data.frame(freight_rn2),2)
   freight_rn3$forecast<- data.frame(freight_rn2)[1]
   freight_rn3$low80<- data.frame(freight_rn2)[2]
   freight_rn3$upper80<- data.frame(freight_rn2)[3]
@@ -3112,7 +3112,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
     freight_p<- plot(freight_rn2,main="货运量（预测未来一年）",ylab="货运量",xlab="年")})
   output$freight_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {freight_data<-freight_rn4},
+      {freight_data<-round(freight_rn4,2)},
       colnames = c('货运量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
@@ -3136,7 +3136,7 @@ output$passenger_volume_forecast <- renderPlot( {
   passenger_volume_p<- plot(passenger_volume_rn2,main="客运量（预测未来一年）",ylab="客运量",xlab="年")})
 output$passenger_volume_forecast_table<-DT::renderDataTable(
   DT::datatable(
-{passenger_volume_data<-passenger_volume_rn4},
+{passenger_volume_data<-round(passenger_volume_rn4,4)},
 colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
   )
 )
@@ -3165,7 +3165,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$SteelTime_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-SteelTimern4},
+      {data<-round(SteelTimern4,2)},
       colnames = c('成品钢材产量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
@@ -3195,7 +3195,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$TruckTime_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-TruckTimern4},
+      {data<-round(TruckTimern4)},
       colnames = c('货车辆数',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
@@ -3224,7 +3224,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$CoalTime_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-CoalTimern4},
+      {data<-round(CoalTimern4,2)},
       colnames = c('原煤产量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
@@ -3254,7 +3254,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$OilTime_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-OilTimern4},
+      {data<-round(OilTimern4,2)},
       colnames = c('原油加工量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
@@ -3280,7 +3280,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$Industrial_Added_Value_Rate_forecast_timesery_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-dfIndustrial_Added_Value_Rate4},
+      {data<-round(dfIndustrial_Added_Value_Rate4,2)},
       colnames = c('工业增加值增长率',  '80%置信区间下限','80%置信区间上限','95%置信区间下限','95%置信区间上限')
     )
   )
@@ -3305,7 +3305,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$Investment_in_Fixed_Assets_forecast_table_timesery<-DT::renderDataTable(
     DT::datatable(
-      {data<-dfInvestment_in_Fixed_Assets4},
+      {data<-round(dfInvestment_in_Fixed_Assets4,2)},
       colnames = c('固定资产投资',  '80%置信区间下限','80%置信区间上限','95%置信区间下限','95%置信区间上限')
     )
   )
