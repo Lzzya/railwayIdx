@@ -979,8 +979,8 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
 #-----------------------------------------固定资产适配性研究----------------------------------------
 #-----------------------------------------固定资产适配性研究----------------------------------------
                               
-                              tabPanel("固定资产-新增客车-新增动车",
-                                       titlePanel("固定资产-新增客车-新增动车"),
+                              tabPanel("固定资产-新增普客车辆数-新增动车组数",
+                                       titlePanel("固定资产-新增普客车辆数-新增动车组数"),
                                        sidebarLayout(
                                          sidebarPanel(
                                            checkboxInput(inputId="investment_stat_data",
@@ -999,10 +999,10 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                        choice=investment_y,
                                                        selected=max(investment_y) ),
                                            textInput(inputId="ptrain_input",
-                                                     label=strong("预测输入值—客车增加数量（辆）"),
+                                                     label=strong("预测输入值—新增普客车辆数（辆）"),
                                                      value=round(mean(investment_data$passenger_car_delta),0)),
                                            textInput(inputId="htrain_input",
-                                                     label=strong("预测输入值—动车组增加数量（组）"),
+                                                     label=strong("预测输入值—动车组增加数（组）"),
                                                      value=round(mean(investment_data$bullettrain_number_delta),0)),      
                                            
                                            hr("预测结果——固定资产投资额（万元）"),
@@ -1080,8 +1080,8 @@ tabPanel("客运量-动车组数-客运机车日车公里数",
 #-----------------------------------------营业里程适配性研究----------------------------------------
 #-----------------------------------------营业里程适配性研究----------------------------------------
 
-                              tabPanel("营业里程-机车-动车",
-                                       titlePanel("营业里程-机车-动车"),
+                              tabPanel("营业里程-机车台数-动车组数",
+                                       titlePanel("营业里程-机车台数-动车组数"),
                                        sidebarLayout(
                                          sidebarPanel(
                                            checkboxInput(inputId="distance_stat_data1",
@@ -1501,9 +1501,9 @@ tabPanel("货运量-营业里程",
                                                                     radioButtons(inputId="transport_rawdata",#transport_rawdata 原始数据显示中的运量相关数据页签的单选框，以下是4个类别的变量代码
                                                                                  label=NULL,
                                                                                  choices = c("货运量(万吨)"="freight_volume_rawdata",
-                                                                                             "货运周转量(亿吨)"="freight_rotation_volume_rawdata",
+                                                                                             "货运周转量(亿吨公里)"="freight_rotation_volume_rawdata",
                                                                                              "客运量(亿人)"="passenger_volume_rawdata",
-                                                                                             "客运周转量(亿人)"="passenger_person_km_rawdata") ),
+                                                                                             "客运周转量(亿人公里)"="passenger_person_km_rawdata") ),
                                                                     hr(),
                                                                     selectInput(inputId = "year_start_rawdata_transport",#year_start_xghy 运量相关数据中的起始年下拉框，以下终止年雷同
                                                                                 label = "自:", 
@@ -1568,8 +1568,8 @@ tabPanel("货运量-营业里程",
                                                                                  label=NULL,
                                                                                  choices = c("客车辆数(辆)"="passenger_car_rawdata",
                                                                                              "货车辆数(辆)"="freight_car_rawdata",
-                                                                                             "机车台数(辆)"="locomotive_number_rawdata",
-                                                                                             "动车台数(台)"="bullettrain_number_rawdata",
+                                                                                             "机车台数(台)"="locomotive_number_rawdata",
+                                                                                             "动车组数(组)"="bullettrain_number_rawdata",
                                                                                              "铁路固定资产投资(亿元)"="fixed_assets_investment_rawdata",
                                                                                              "从业人员数量(万人)"="practitioner_number_rawdata",
                                                                                              "新线铺轨里程(km)"="newline_tracklaying_mileage_rawdata",
