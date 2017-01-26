@@ -177,7 +177,11 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                    
                    tabPanel("预警信号系统",
                             titlePanel("铁路预警信号灯(黑线代表货运，蓝线代表客运)"),
-                            hr(),                          
+                            hr(), 
+                            fluidRow(
+                                column(1,actionButton("updata_x12", "更新x12数据")),
+                                column(3,textOutput(outputId='updata_x12_text'))
+                                ),
                             plotOutput(outputId = "plot_index", height = "400px"),
                             hr(),
                             wellPanel(

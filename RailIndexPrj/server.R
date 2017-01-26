@@ -10,6 +10,7 @@ shinyServer(function(input, output) {
   require(xlsx)
   require(maptools)
   require(rgeos)
+  require(x12)
   df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
   df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
  #-------------------其它铁路原始数据----------------------
@@ -65,7 +66,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   #-------------------------------------------------------------
   #从x-12数据起计算预警指数
   
-  index_x12data<-read.csv("预警 - from x-12.csv",head=T)
+  index_x12data<-read.xlsx("预警 - from x-12.xlsx",1,head=T)
   
   n<-dim(index_x12data)[1]
   index_x12data2<-index_x12data[13:n,]
@@ -5986,7 +5987,66 @@ output$map_plot4.16 <- renderPlot(mapFunction(lxy1_yearly,input$year4.16))
 output$map_plot4.17 <- renderPlot(mapFunction(lxy2_yearly,input$year4.17))
 output$map_plot4.18 <- renderPlot(mapFunction(lxy3_yearly,input$year4.18))
 output$map_plot4.19 <- renderPlot(mapFunction(lxy4_yearly,input$year4.19))
-#---------------地图 END --------------
+#---------------地图 END --------------||
+#---------------X12数据更新------------
+  output$updata_x12_text <- renderText({
+      if(input$updata_x12){
+      withProgress(
+      message = "Processing corpus...",
+      
+      {df_monthly <- read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+      ## 2001年1月到今
+      df_monthly_sub1 <- df_monthly[,c(2, 3, 4, 5, 9, 8, 6, 10, 11)]
+      ## 1. iron_output; 2. coal_output; 3. oil_processing_volume; 4. coalfired_power_generation
+      ## 5. freight_rotation_volume; 6. freight_volume; 7. Industrial_Added_Value_Rate
+      
+      ## 对各量值做x12季节调整------------------------------------------------------------
+      for(i in 1:9)
+          df_monthly_sub1[,i] <- ts(df_monthly_sub1[,i], start = c(2001,1), frequency = 12)
+      
+      ## 准备为x12需要的数据结构
+      my_x12BaseInfo <- new("x12BaseInfo","x13as.exe","x13as.exe","use",FALSE)
+      x12_monthly_sub1 <- new("x12Batch", list(df_monthly_sub1[,1], df_monthly_sub1[,2], df_monthly_sub1[,3], df_monthly_sub1[,4],df_monthly_sub1[,5], 
+                                              +df_monthly_sub1[,6], df_monthly_sub1[,7], df_monthly_sub1[,8], df_monthly_sub1[,9]),x12BaseInfo=my_x12BaseInfo)
+      
+      ## 设定模型参数,x12处理
+      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(2,1,3),arima.smodel=c(0,1,2)),1)
+      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(2,1,3),arima.smodel=c(0,1,2)),2)
+      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(2,1,3),arima.smodel=c(0,1,2)),3)
+      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(automdl=TRUE),4)
+      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(automdl=TRUE),5)
+      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(2,1,3),arima.smodel=c(0,1,2)),6)
+      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(1,1,1),arima.smodel=c(2,0,2)),7)
+      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(automdl=TRUE),8)
+      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(automdl=TRUE),9)
+      ## x12处理
+      x12path("x13as.exe")
+      x12_monthly_sub2 <- x12(x12_monthly_sub1)
+      
+      ## 借助df_monthly_sub1 创建一个用来存放输出数据的dataframe
+      out_monthly_sub1 <- df_monthly_sub1
+      ## 将输出的数据调整后的数据e2以dataframe的格式存储
+      for (j in 1:9) {
+          out_monthly_sub1[,j] <- data.frame(x12_monthly_sub2@x12List[[j]]@x12Output@d12)
+          out_monthly_sub1[,j] <- as.numeric(out_monthly_sub1[,j]) 
+      }
+      ## 修改列名
+      names(out_monthly_sub1) <- c("iron","coal",	"oil","steam_power","freight_tr","freight","industral_product","passenger","passenger_tr")
+      out_monthly_sub1 <- plyr::mutate(out_monthly_sub1, freight=freight/10000)
+      out_monthly_sub1 <- cbind(tm=df_monthly[,1],out_monthly_sub1)
+      ## 对各量值进行x12季节调整完成---------------------------------------------||
+      
+      ##-------------------------------------------------------
+      ## 输出 excel 文件
+      write.xlsx(out_monthly_sub1,"预警 - from x-12.xlsx",row.names = FALSE)
+      
+      saveObj <- c(list.files(pattern ="xlsx"),list.files(pattern ="xls"),list.files(pattern ="csv"),list.files(pattern ="R"),list.files(pattern ="Rproj"),list.files(pattern ="RData"),list.files(pattern ="exe"),list.files(pattern ="dbf"),list.files(pattern ="shp"),list.files(pattern ="shx"))
+      unlink(setdiff(dir(),saveObj),recursive = TRUE)
+      
+      "更新 预警 - from x-12.xlsx 【完成】"})
+      }
+  })
+##------------------x12数据更新 END-------------||
 
 }
 )
