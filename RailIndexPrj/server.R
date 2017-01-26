@@ -9,6 +9,7 @@ shinyServer(function(input, output) {
   require(rJava)
   require(xlsx)
   require(maptools)
+  require(rgeos)
   df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
   df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
  #-------------------其它铁路原始数据----------------------
@@ -704,10 +705,10 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   #hyzzl.trans.percent<- percent.1(dftrans$hyzzl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
   
   #------------(3) 运输滞后指标的权重---
-  kyl.trans.percent<- percent.1(dftrans$kyl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
-  kyzzl.trans.percent<- percent.1(dftrans$kyzzl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
-  gdzctz.trans.percent<- percent.1(dftrans$gdzctz)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
-  yylc.trans.percent<- percent.1(dftrans$yylc)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
+  kyl.trans.percent<- percent.1(dftrans$kyl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
+  kyzzl.trans.percent<- percent.1(dftrans$kyzzl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
+  gdzctz.trans.percent<- percent.1(dftrans$gdzctz)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
+  yylc.trans.percent<- percent.1(dftrans$yylc)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
   
   #------------(4) 设备先行指标的权----
   #iron_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.iron_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
@@ -1365,7 +1366,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     if (input$mileage_stat_data) {
       mileage_p<-mileage_p+geom_point(aes(x=tm4,y=construct_investment1),color="red",size=3,shape=21)
     }
-    mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   output$mileage_fixed_assets_investment_output<-renderText({
     mileage_x<-as.numeric(input$mileage_input)
@@ -1436,7 +1437,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     if (input$mileage_stat_data) {
       mileage_p<-mileage_p+geom_point(aes(x=tm4,y=construct_investment1),color="red",size=3,shape=21)
     }
-    mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   #----------------------------支持向量机Tabset画线
   
@@ -1473,7 +1474,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     if (input$mileage_stat_data) {
       mileage_p<-mileage_p+geom_point(aes(x=tm4,y=construct_investment1),color="red",size=3,shape=21)
     }
-    mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   
@@ -1494,7 +1495,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
 {
   mileage_data<-mileage1_data
 } , 
-colnames = c('序号', '时间', '基本建设投资','新增营业里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
+colnames = c('序号', '时间', '基本建设投资（亿元）','新增营业里程（公里）','多元回归（亿元）','随机森林回归（亿元）','支持向量机回归（亿元）'),
 rownames = TRUE)
   ) 
 
@@ -1551,7 +1552,7 @@ output$tracklaying_mileage_linearplot <- renderPlot( {
   if (input$tracklaying_mileage_stat_data) {
     tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=construct_investment,group=1),color="red",size=3,shape=21)
   }
-  tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  tracklaying_mileage_p+ylab("基本建设投资")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 output$tracklaying_mileage_output<-renderText({
   tracklaying_mileage_x1<-as.numeric(input$newline_tracklaying_mileage_input)
@@ -1628,7 +1629,7 @@ output$tracklaying_mileage_rfplot <- renderPlot( {
   if (input$tracklaying_mileage_stat_data) {
     tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=construct_investment,group=1),color="red",size=3,shape=21)
   }
-  tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  tracklaying_mileage_p+ylab("基本建设投资（亿元）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 #----------------------------支持向量机Tabset画线
 
@@ -1662,7 +1663,7 @@ output$tracklaying_mileage_svmplot <- renderPlot( {
   if (input$tracklaying_mileage_stat_data) {
     tracklaying_mileage_p<-tracklaying_mileage_p+geom_point(aes(x=tm,y=construct_investment,group=1),color="red",size=3,shape=21)
   }
-  tracklaying_mileage_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  tracklaying_mileage_p+ylab("基本建设投资（亿元）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 construct_investment<-df_yearly2$construct_investment
@@ -1678,7 +1679,7 @@ tracklaying_mileage2_data<-data.frame(tm,construct_investment,newline_tracklayin
 output$tracklaying_mileage_table<-DT::renderDataTable(
   DT::datatable(
 {  tracklaying_mileage_data<-tracklaying_mileage2_data} , 
-colnames = c('序号', '时间', '基本建设投资','新线铺轨里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
+colnames = c('序号', '时间', '基本建设投资(亿元)','新线铺轨里程（公里）','多元回归预测（亿元）','随机森林回归（亿元）','支持向量机回归（亿元）'),
 rownames = TRUE)
 ) 
 
@@ -1750,7 +1751,7 @@ rownames = TRUE)
     if (input$investment_stat_data) {
       p<-p+geom_point(aes(x=tm_delta,y=fixed_assets_investment_delta),color="red",size=3,shape=21)
     }
-    p+ylab("固定资产投资额")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    p+ylab("固定资产投资（亿元）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   #----------------------------------------------------
@@ -1832,7 +1833,7 @@ rownames = TRUE)
     if (input$investment_stat_data) {
       p<-p+geom_point(aes(x=tm_delta,y=fixed_assets_investment_delta),color="red",size=3,shape=21)
     }
-    p+ylab("固定资产投资额")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    p+ylab("固定资产投资（亿元）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   #----------------------------支持向量机Tabset画线
   
@@ -1878,7 +1879,7 @@ rownames = TRUE)
   output$investmenttable<-DT::renderDataTable(
     DT::datatable(
       data<-investment_data, 
-      colnames = c('序号', '年','固定资产投资增加额（万元）','客车车辆数（辆）','动车组数量(组)','多元回归预测（万元）','支持向量机回归预测（万元）'),
+      colnames = c('序号', '年','固定资产投资（亿元）','新增普客车辆数（辆）','新增动车组数(组)','多元回归预测（亿元）','随机森林回归（亿元）','支持向量机回归（亿元）'),
       rownames = TRUE)
   )
   
@@ -1938,7 +1939,7 @@ output$passenger_volume_linearplot <- renderPlot( {
   if (input$passenger_volume_stat_data) {
     PVp<-PVp+geom_point(aes(x=tm,y=passenger_volume),color="red",size=3,shape=21)
   }
-  PVp+ylab("客运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  PVp+ylab("客运量（万人）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 output$passenger_volume_output<-renderText({
   PVx1<-as.numeric(input$bullettrain_number_input)
@@ -2006,7 +2007,7 @@ output$passenger_volume_rfplot <- renderPlot( {
     {
       PVp<-plotCurve(PVdfsub,PVdfsub$tm,PVdfsub$frRegPred)
     }
-    PVp+ylab("客运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    PVp+ylab("客运量（万人）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   }
  
   if(input$passenger_volume_predict_data){
@@ -2017,7 +2018,7 @@ output$passenger_volume_rfplot <- renderPlot( {
     PVp<-PVp+geom_point(aes(x=tm,y=passenger_volume),color="red",size=3,shape=21)
   }
   
-  PVp+ylab("客运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  PVp+ylab("客运量（万人）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   }
 )
 #----------------------------支持向量机Tabset画线
@@ -2052,7 +2053,7 @@ output$passenger_volume_svmplot <- renderPlot( {
   if (input$passenger_volume_stat_data) {
     PVp<-PVp+geom_point(aes(x=tm,y=passenger_volume),color="red",size=3,shape=21)
   }
-  PVp+ylab("客运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+  PVp+ylab("客运量（万人）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
 })
 
 #--------------------------------------
@@ -2075,7 +2076,7 @@ output$passenger_volume_table<-DT::renderDataTable(
   
   PVdata<-passenger_volume_data
 } , 
-colnames = c('序号', '时间', '客运量（万人）','动车组数（组）','客车机车日行公里（公里）','多元回归预测（亿万）','随机森林回归预测（亿万）','随机森林回归预测（万元）','支持向量机回归预测（亿万）'),
+colnames = c('序号', '时间', '客运量（万人）','动车组数（组）','客车机车日行公里（公里）','多元回归（万人）','随机森林回归（万人）','支持向量机回归（万人）'),
 rownames = TRUE)
 )
   #--------------------------------------------------------------------
@@ -2142,7 +2143,7 @@ rownames = TRUE)
       p<-p+geom_point(aes(x=tm,y=mileage),color="red",size=3,shape=21)
 
     }
-    p+ylab("营业里程")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    p+ylab("营业里程（公里）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   #----------------------------------------------------
@@ -2227,7 +2228,7 @@ rownames = TRUE)
     if (input$distance_stat_data1) {
       p<-p+geom_point(aes(x=tm,y=mileage),color="red",size=3,shape=21)
     }
-    p+ylab("营业里程")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    p+ylab("营业里程（公里）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   #----------------------------支持向量机Tabset画线
@@ -2263,7 +2264,7 @@ rownames = TRUE)
     if (input$distance_stat_data1) {
       p<-p+geom_point(aes(x=tm,y=mileage),color="red",size=3,shape=21)
     }
-    p+ylab("营业里程")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    p+ylab("营业里程（公里）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   #--------------------------------------
@@ -2281,7 +2282,7 @@ rownames = TRUE)
   output$distancetable<-DT::renderDataTable(
     DT::datatable(
       data<-distance_data, 
-      colnames = c('序号', '年','营业里程（公里）','机车数量（辆）',"动车组数（组)",'多元回归预测（公里）','随机森林回归预测（公里）','支持向量机回归预测（公里）'),
+      colnames = c('序号', '年','营业里程（公里）','机车数量（辆）',"动车组数（组)",'多元回归预测（公里）','随机森林回归（公里）','支持向量机回归（公里）'),
       rownames = TRUE)
   )
  
@@ -2550,7 +2551,7 @@ rownames = TRUE)
     if (input$freight_mileage_stat_data) {
       cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
     }
-    cw_p+ylab("货运量")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    cw_p+ylab("货运量（万吨）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
   output$f_car_output<-renderText({
@@ -2630,7 +2631,7 @@ rownames = TRUE)
     if (input$freight_mileage_stat_data) {
       cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
     }
-    cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    cw_p+ylab("货运量（万吨）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   #----------------------------支持向量机Tabset画线
   
@@ -2664,7 +2665,7 @@ rownames = TRUE)
     if (input$freight_mileage_stat_data) {
       cw_p<-cw_p+geom_point(aes(x=tm,y=freight),color="red",size=3,shape=21)
     }
-    cw_p+ylab("固定资产值")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
+    cw_p+ylab("货运量（万吨）")+xlab("时间")+geom_point(shape=21,color='red',fill='cornsilk',size=3)
   })
   
  
@@ -2674,7 +2675,7 @@ rownames = TRUE)
         
         pg_cw_data<-freight_olm_car_df
       } , 
-      colnames = c('序号', '时间', '货运量','货车车辆数','营业里程','多元回归预测（亿元）','随机森林回归预测（亿元）','支持向量机回归预测（亿元）'),
+      colnames = c('序号', '时间', '货运量（万吨）','货车车辆数','营业里程（公里）','多元回归（万吨）','随机森林回归（万吨）','支持向量机回归（万吨）'),
       rownames = TRUE)
   )
   
@@ -2859,7 +2860,7 @@ names(df)<-c("tm","iron","coal","freight") #iron表示成品钢材产量，coal�
   output$table<-DT::renderDataTable(
     DT::datatable(
       data<-df, 
-      colnames = c('日期', '成品钢材产量(万吨)','原煤产量(万吨)','货运量(万吨)','多元回归预测(万吨)','随机森林回归预测(万吨)','支持向量机回归预测(万吨)'),
+      colnames = c('日期', '成品钢材产量(万吨)','原煤产量(万吨)','货运量(万吨)','多元回归(万吨)','随机森林回归(万吨)','支持向量机回归(万吨)'),
       rownames = TRUE)
   )
   
@@ -3099,7 +3100,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
   freight_rn<-auto.arima(freight_indus,ic="bic")
   freight_rn<-arima(freight_indus,order=c(2,1,3),seasonal=c(0,1,2))
   freight_rn2<-forecast(freight_rn,h=12)
-  freight_rn3<- data.frame(freight_rn2)
+  freight_rn3<- round(data.frame(freight_rn2),2)
   freight_rn3$forecast<- data.frame(freight_rn2)[1]
   freight_rn3$low80<- data.frame(freight_rn2)[2]
   freight_rn3$upper80<- data.frame(freight_rn2)[3]
@@ -3111,8 +3112,8 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
     freight_p<- plot(freight_rn2,main="货运量（预测未来一年）",ylab="货运量",xlab="年")})
   output$freight_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {freight_data<-freight_rn4},
-      colnames = c('货运量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
+      {freight_data<-round(freight_rn4,2)},
+      colnames = c('货运量（万吨）',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
 #--------------------------------------------
@@ -3132,11 +3133,11 @@ passenger_volume_rn3$upper90<- data.frame(passenger_volume_rn2)[5]
 passenger_volume_rn4<- data.frame(passenger_volume_rn3$forecast,passenger_volume_rn3$low80,passenger_volume_rn3$upper80,passenger_volume_rn3$low90,passenger_volume_rn3$upper90)
 
 output$passenger_volume_forecast <- renderPlot( {
-  passenger_volume_p<- plot(passenger_volume_rn2,main="客运量（预测未来一年）",ylab="客运量",xlab="年")})
+  passenger_volume_p<- plot(passenger_volume_rn2,main="客运量（预测未来一年）",ylab="客运量（万人）",xlab="年")})
 output$passenger_volume_forecast_table<-DT::renderDataTable(
   DT::datatable(
-{passenger_volume_data<-passenger_volume_rn4},
-colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
+{passenger_volume_data<-round(passenger_volume_rn4,4)},
+colnames = c('客运量（万人）',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
   )
 )
 
@@ -3164,8 +3165,8 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$SteelTime_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-SteelTimern4},
-      colnames = c('成品钢材产量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
+      {data<-round(SteelTimern4,2)},
+      colnames = c('成品钢材产量（万吨）',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
   
@@ -3194,7 +3195,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$TruckTime_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-TruckTimern4},
+      {data<-round(TruckTimern4)},
       colnames = c('货车辆数',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
@@ -3223,8 +3224,8 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$CoalTime_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-CoalTimern4},
-      colnames = c('原煤产量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
+      {data<-round(CoalTimern4,2)},
+      colnames = c('原煤产量（万吨）',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
   
@@ -3253,8 +3254,8 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$OilTime_forecast_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-OilTimern4},
-      colnames = c('原油加工量',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
+      {data<-round(OilTimern4,2)},
+      colnames = c('原油加工量（万吨）',  '80%概率区间下限','80%概率区间上限','95%概率区间下限','95%概率区间上限')
     )
   )
   
@@ -3279,7 +3280,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$Industrial_Added_Value_Rate_forecast_timesery_table<-DT::renderDataTable(
     DT::datatable(
-      {data<-dfIndustrial_Added_Value_Rate4},
+      {data<-round(dfIndustrial_Added_Value_Rate4,2)},
       colnames = c('工业增加值增长率',  '80%置信区间下限','80%置信区间上限','95%置信区间下限','95%置信区间上限')
     )
   )
@@ -3304,8 +3305,8 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
   
   output$Investment_in_Fixed_Assets_forecast_table_timesery<-DT::renderDataTable(
     DT::datatable(
-      {data<-dfInvestment_in_Fixed_Assets4},
-      colnames = c('固定资产投资',  '80%置信区间下限','80%置信区间上限','95%置信区间下限','95%置信区间上限')
+      {data<-round(dfInvestment_in_Fixed_Assets4,2)},
+      colnames = c('固定资产投资（亿元）',  '80%置信区间下限','80%置信区间上限','95%置信区间下限','95%置信区间上限')
     )
   )
   
@@ -3331,7 +3332,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
       p<-ggplot(dfrawdatasub,x=c(dfrawdatasub$tm[1],dfrawdatasub$tm[len]),aes(x=tm[1],y=0))
     }
     
-    #iron_output_rawdata---------------成品钢材产量(亿吨)
+    #iron_output_rawdata---------------成品钢材产量(万吨)
     if(input$relevant_industry_rawdata=="iron_output_rawdata"){
       p<-p+geom_line(aes(x=tm,y=iron_output),color="black",size=0.7)+geom_point(aes(x=tm,y=iron_output),size=2,shape=21,colour="black",fill="cornsilk",position=position_dodge(width=0.2))
     }
@@ -3385,7 +3386,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
       p<-p+geom_point(aes(x=tm,y=freight_volume),size=2,shape=21,colour="darkred",fill="pink",position=position_dodge(width=0.2))
     }
     
-    #passenger_volume_rawdata----------客运量(亿人)
+    #passenger_volume_rawdata----------客运量(万人)
     if (input$transport_rawdata=="passenger_volume_rawdata") {
       p<-p+geom_line(aes(x=tm,y=passenger_volume),color="blue",size=0.6)+ylim(0.5,3)
       p<-p+geom_point(aes(x=tm,y=passenger_volume),size=2,shape=21,colour="darkblue",fill="cornsilk",position=position_dodge(width=0.2))
@@ -3625,7 +3626,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
         dfrawdata<-df_monthly
         dfrawdata<-data.frame(dfrawdata$tm,dfrawdata[8:11])
         data<-dfrawdata},
-      colnames = c('时间','货运量（万吨）','货运周转量（亿吨公里）','客运量（亿人）','客运周转量（亿人公里）'),
+      colnames = c('时间','货运量（万吨）','货运周转量（亿吨公里）','客运量（万人）','客运周转量（亿人公里）'),
       rownames = TRUE))
   
   output$rawdata_operation_table<-DT::renderDataTable(
@@ -3634,7 +3635,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
         dfrawdata<-df_yearly
         dfrawdata<-data.frame(dfrawdata$tm,dfrawdata[13:18])
         data<-dfrawdata},
-      colnames = c('时间','营业里程（km）','日均运用车（辆）','日均现在车（辆）','客运机车日车公里（km）','货运机车日车公里（km）','机车总行走里程（百万km）'),
+      colnames = c('时间','营业里程（公里）','日均运用车（辆）','日均现在车（辆）','客运机车日车公里（公里）','货运机车日车公里（公里）','机车总行走里程（百万公里）'),
       rownames = TRUE))
   
   #rawdata_property-------原始数据/资产相关
@@ -3644,7 +3645,7 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
         dfrawdata<-df_yearly
         dfrawdata<-data.frame(dfrawdata[1:9])
         data<-dfrawdata},
-      colnames = c('时间','客车辆数(辆)','机车台数(辆)','货车辆数(辆)','动车组数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
+      colnames = c('时间','客车辆数(辆)','机车台数(台)','货车辆数(辆)','动车组数(组)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(公里)','复线铺轨里程(公里)'),
       rownames = TRUE))
   
   output$rawdata_black_table<-DT::renderDataTable(
@@ -3664,58 +3665,59 @@ colnames = c('客运量',  '80%概率区间下限','80%概率区间上限','95%�
         data<-dfrawdata},
       colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担(吨)','集装箱(万吨)'),
       rownames = TRUE))
+#'''
+#output$yssj.xghy.table<-DT::renderDataTable(
+#  DT::datatable(
+# {
+#    dfyssj<-read.csv("compidx-qitahangye.csv",head=T)
+#    data<-dfyssj},
+#    colnames = c('时间','成品钢材产量（亿吨）','原油加工量（亿吨）','原煤产量（亿吨）','火力发电量（亿千瓦时）','工业增加值（增长率）'),
+#    rownames = TRUE))
 
-output$yssj.xghy.table<-DT::renderDataTable(
-  DT::datatable(
-{
-  dfyssj<-read.csv("compidx-qitahangye.csv",head=T)
-  data<-dfyssj},
-colnames = c('时间','成品钢材产量（亿吨）','原油加工量（亿吨）','原煤产量（亿吨）','火力发电量（亿千瓦时）','工业增加值（增长率）'),
-rownames = TRUE))
-
-
-output$yssj.ylxg.table<-DT::renderDataTable(
-  DT::datatable(
-{  
-  dfyssj<-read.csv("compidx-yunliang.csv",head=T)
-  data<-dfyssj},
-colnames = c('时间','货运量（亿吨）','货运周转量（亿吨）','客运量（亿人）','客运周转量（亿人）'),
-rownames = TRUE))
-
-output$yssj.yyxg.table<-DT::renderDataTable(
-  DT::datatable(
-{  
-  dfyssj<-read.csv("compidx-yunying.csv",head=T)
-  data<-dfyssj},
-colnames = c('时间','营业里程（km）','日均运用车（万辆）','日均现在车（万辆）','客运机车日车公里（km）','货运机车日车公里（km）','机车总行走里程（1000km）'),
-rownames = TRUE))
-
-#yssj.zcxg-------原始数据/资产相关
-output$yssj.zcxg.table<-DT::renderDataTable(
-  DT::datatable(
-{  
-  dfyssj<-read.csv("compidx-zichan.csv",head=T)
-  data<-dfyssj},
-colnames = c('时间','客车辆数(辆)','货车辆数(万辆)','机车台数(辆)','动车台数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
-rownames = TRUE))
-
-output$yssj.heihuo.table<-DT::renderDataTable(
-  DT::datatable(
-    {  
-      dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
-      dfyssj<-data.frame(dfyssj[1],dfyssj[9:13])
-      data<-dfyssj},
-    colnames = c('时间','金属矿石(万吨)','矿建(万吨)','钢材(万吨)', '石油(万吨)','煤(万吨)'),
-    rownames = TRUE))
-
-output$yssj.baihuo.table<-DT::renderDataTable(
-  DT::datatable(
-    {  
-      dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
-      dfyssj<-data.frame(dfyssj[1:8])
-      data<-dfyssj},
-    colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担(吨)','集装箱(万吨)'),
-    rownames = TRUE))
+# 
+# output$yssj.ylxg.table<-DT::renderDataTable(
+#   DT::datatable(
+# {  
+#   dfyssj<-read.csv("compidx-yunliang.csv",head=T)
+#   data<-dfyssj},
+# colnames = c('时间','货运量（亿吨）','货运周转量（亿吨）','客运量（亿人）','客运周转量（亿人）'),
+# rownames = TRUE))
+# 
+# output$yssj.yyxg.table<-DT::renderDataTable(
+#   DT::datatable(
+# {  
+#   dfyssj<-read.csv("compidx-yunying.csv",head=T)
+#   data<-dfyssj},
+# colnames = c('时间','营业里程（km）','日均运用车（万辆）','日均现在车（万辆）','客运机车日车公里（km）','货运机车日车公里（km）','机车总行走里程（1000km）'),
+# rownames = TRUE))
+# 
+# #yssj.zcxg-------原始数据/资产相关
+# output$yssj.zcxg.table<-DT::renderDataTable(
+#   DT::datatable(
+# {  
+#   dfyssj<-read.csv("compidx-zichan.csv",head=T)
+#   data<-dfyssj},
+# colnames = c('时间','客车辆数(辆)','货车辆数(万辆)','机车台数(辆)','动车台数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
+# rownames = TRUE))
+# 
+# output$yssj.heihuo.table<-DT::renderDataTable(
+#   DT::datatable(
+#     {  
+#       dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
+#       dfyssj<-data.frame(dfyssj[1],dfyssj[9:13])
+#       data<-dfyssj},
+#     colnames = c('时间','金属矿石(万吨)','矿建(万吨)','钢材(万吨)', '石油(万吨)','煤(万吨)'),
+#     rownames = TRUE))
+# 
+# output$yssj.baihuo.table<-DT::renderDataTable(
+#   DT::datatable(
+#     {  
+#       dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
+#       dfyssj<-data.frame(dfyssj[1:8])
+#       data<-dfyssj},
+#     colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担(吨)','集装箱(万吨)'),
+#     rownames = TRUE))
+# '''
 #-------------------mashaomeng---START-----------------------------------------------------------------
 #——--------------------里程相关——————————————————————————————————————————————————————————————————————————————————————
 output$rawdata_relevant_mileage_plot <- renderPlot( {
