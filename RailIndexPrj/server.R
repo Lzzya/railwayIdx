@@ -134,15 +134,18 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   
   output$plot_index<-renderPlot({ 
     a<-length(index_data$date)
-    p<-ggplot(data=index_data,aes(x=date,y=freight_index))
+    p<-ggplot(data=index_data,aes(x=date,y=0))
+
     p<-p+ylim(0,1)+xlim(index_data[1,1],index_data[a,1])
     p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0,ymax=0.15,fill="green",alpha=0.7)
     p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.15,ymax=0.35,fill="green",alpha=0.7)
     p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.35,ymax=0.65,fill="yellow",alpha=0.7)
     p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.65,ymax=0.85,fill="red",alpha=0.7)
     p<-p+annotate("rect",xmin=index_data[1,1],xmax=index_data[a,1],ymin=0.85,ymax=1,fill="red",alpha=0.7)
-
-    p<-p+geom_line(size=1)+geom_line(aes(x=date,y=passenger_index),color="blue",size=1)
+    if(input$freight_index){
+      p<-p+geom_line(aes(x=date,y=freight_index),size=1)}
+    if(input$passenger_index){
+      p<-p+geom_line(aes(x=date,y=passenger_index),color="blue",size=1)}
     p+theme_bw()+theme(panel.border=element_blank())+xlab("日期")+ylab("指数")
   })
   
@@ -2691,16 +2694,13 @@ a<-c(1,2,3,8)
 df<-df_monthly[1:180,a]
 #变量重命名，tm-时间，iron—成品钢材产量，coal—原煤产量，freight-货运量
 names(df)<-c("tm","iron","coal","freight") #iron表示成品钢材产量，coal表示原煤产量
-
-  olsRegModel<-lm(freight~iron+coal,data=df)    
+  load('modleFile/ols_freight')
+  load('modleFile/rf_freight')
+  load('modleFile/svm_freight')
+  
   df$linearRegPred<-as.integer(predict(olsRegModel,newdata=df))
-  
-  rfRegModel<-randomForest(freight~iron+coal,data=df,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
-  
   df$frRegPred<-as.integer(predict(rfRegModel,df))     #<-----------随机森林的预测数据已经在这里计算得到
-  
-  svmRegModel<-svm(freight~iron+coal,data=df,type="eps-regression",cross=dim(df)[1]/2)
-  df$svmRegPred<-as.integer(predict(svmRegModel,df))   #<-----------支持向量机的预测数据已经在这里计算得到
+  df$svmRegPred<-as.integer(predict(svmRegModel,df))  #<-----------支持向量机的预测数据已经在这里计算得到
   
   len<-length(df$tm)
   plotCurve<-function(db,xdata,ydata)
@@ -2710,7 +2710,20 @@ names(df)<-c("tm","iron","coal","freight") #iron表示成品钢材产量，coal�
     return(plt)
   }
   #---------------------------多元回归画线
-  output$linearplot <- renderPlot( {
+  output$linearplot <- renderPlot( { #按钮触发更新模型的判断代码
+    if(input$modle_feight){
+  file.remove('modleFile/ols_freight','modleFile/rf_freight','modleFile/svm_freight')
+  rm("olsRegModel",'rfRegModel','svmRegModel')
+  
+  olsRegModel<-lm(freight~iron+coal,data=df)    
+  rfRegModel<-randomForest(freight~iron+coal,data=df,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
+  svmRegModel<-svm(freight~iron+coal,data=df,type="eps-regression",cross=dim(df)[1]/2)
+  df$linearRegPred<-as.integer(predict(olsRegModel,newdata=df))
+  df$frRegPred<-as.integer(predict(rfRegModel,df))     #<-----------随机森林的预测数据已经在这里计算得到
+  df$svmRegPred<-as.integer(predict(svmRegModel,df))  #<-----------支持向量机的预测数据已经在这里计算得到
+  save(olsRegModel,file = 'modleFile/ols_freight')
+  save(rfRegModel,file = 'modleFile/rf_freight')
+  save(svmRegModel,file = 'modleFile/svm_freight')}
     
     if(input$year_start> input$year_end)  {
       
@@ -2884,13 +2897,9 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
   0.65*passagerpre_df$aviation+11.27*passagerpre_df$EMU+
   0.78*passagerpre_df$railcar-409634.8
   
-  passagerpre_rfRegModel<-randomForest(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
-                                       data=passagerpre_df,importance=T, ntree=100,type="regression")   #ranpassagerpre_dfrstReg函数在randomForest.r文件中
-  
+  load('modleFile/rf_passager')
+  load('modleFile/svm_passager')
   passagerpre_df$frRegPred<-as.integer(predict(passagerpre_rfRegModel,passagerpre_df))     #<-----------随机森林的预测数据已经在这里计算得到
-  
-  passagerpre_svmRegModel<-svm(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
-                               data=passagerpre_df,type="eps-regression",cross=dim(passagerpre_df)[1]/2)
   passagerpre_df$svmRegPred<-as.integer(predict(passagerpre_svmRegModel,passagerpre_df))   #<-----------支持向量机的预测数据已经在这里计算得到
   
   len<-length(passagerpre_df$Year)
@@ -2902,6 +2911,16 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
   }
   #---------------------------多元回归画线
   output$passagerpre_linearplot <- renderPlot( {
+  if(input$modle_passager){  #按钮触发更新模型的判断代码
+  file.remove('modleFile/rf_passager','modleFile/svm_passager')
+  rm('passagerpre_rfRegModel','passagerpre_svmRegModel')
+  passagerpre_rfRegModel<-randomForest(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
+                                       data=passagerpre_df,importance=T, ntree=100,type="regression")   #ranpassagerpre_dfrstReg函数在randomForest.r文件中
+  passagerpre_svmRegModel<-svm(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
+                               data=passagerpre_df,type="eps-regression",cross=dim(passagerpre_df)[1]/2)
+  save(passagerpre_rfRegModel,file = 'modleFile/rf_passager')
+  save(passagerpre_svmRegModel,file = 'modleFile/svm_passager')
+  }
     
     if(input$passagerpre_year_start> input$passagerpre_year_end)  {
       
