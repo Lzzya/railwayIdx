@@ -177,7 +177,16 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                    
                    tabPanel("预警信号系统",
                             titlePanel("铁路预警信号灯(黑线代表货运，蓝线代表客运)"),
-                            hr(),                          
+                            hr(), 
+                            fluidRow(
+                                column(2,checkboxInput(inputId="freight_index",
+                                  label=("货运预警"),
+                                  value=TRUE)),
+                                column(2,checkboxInput(inputId="passenger_index",
+                                   label=("客运预警"),
+                                   value=TRUE)),
+                                column(1,actionButton("updata_x12", "更新x12数据"))
+                                ),
                             plotOutput(outputId = "plot_index", height = "400px"),
                             hr(),
                             wellPanel(
@@ -1265,7 +1274,9 @@ tabPanel("货运量-货车车辆数-营业里程",
                                 hr(),
                                 textOutput("freight_FRR"),
                                 hr(),
-                                textOutput("freight_zhi")
+                                textOutput("freight_zhi"),
+                                hr(),
+                                actionButton('model_feight','更新模型')
                                 
                                 
                               ), 
@@ -1336,7 +1347,9 @@ tabPanel("货运量-货车车辆数-营业里程",
                                 hr(),
                                 textOutput("passagerpre_FRR"),
                                 hr(),
-                                textOutput("passagerpre_zhi")
+                                textOutput("passagerpre_zhi"),
+                                hr(),
+                                actionButton("model_passager","更新模型")
                                 
                                 
                               ), 
