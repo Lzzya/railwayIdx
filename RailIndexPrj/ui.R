@@ -185,8 +185,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                 column(2,checkboxInput(inputId="passenger_index",
                                    label=("客运预警"),
                                    value=TRUE)),
-                                column(1,actionButton("updata_x12", "更新x12数据")),
-                                column(3,textOutput(outputId='updata_x12_text'))
+                                column(1,actionButton("updata_x12", "更新x12数据"))
                                 ),
                             plotOutput(outputId = "plot_index", height = "400px"),
                             hr(),
@@ -1277,7 +1276,7 @@ tabPanel("货运量-货车车辆数-营业里程",
                                 hr(),
                                 textOutput("freight_zhi"),
                                 hr(),
-                                actionButton('modle_feight','更新模型')
+                                actionButton('model_feight','更新模型')
                                 
                                 
                               ), 
@@ -1350,7 +1349,7 @@ tabPanel("货运量-货车车辆数-营业里程",
                                 hr(),
                                 textOutput("passagerpre_zhi"),
                                 hr(),
-                                actionButton("modle_passager","更新模型")
+                                actionButton("model_passager","更新模型")
                                 
                                 
                               ), 

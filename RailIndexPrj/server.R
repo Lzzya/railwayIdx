@@ -11,10 +11,24 @@ shinyServer(function(input, output) {
   require(maptools)
   require(rgeos)
   require(x12)
+  
+#--------定义plotCurve通用函数，后面的代码全部使用此函数
+  plotCurve<-function(db,xdata,ydata)  {
+    len=dim(xdata)[1]
+    plt<-ggplot(db,x=c(xdata[1],xdata[len]),aes(x=xdata,y=ydata),color="red")
+    return(plt)
+  }
+#-----------------------
+
+  
+  
   df_monthly<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
   df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+  
+  
+  
  #-------------------其它铁路原始数据----------------------
-  #---------------------mashaomeng--------------------------
+ #---------------------mashaomeng--------------------------
 mengmeng_yearly<-read.xlsx("3-1 全国铁路线路、铁路复线、电气化、内燃牵引里程.xlsx",1,head=T,startRow=2,encoding = "UTF-8")#--------表3-1是3-1和3-6的合并
 
 mengmeng1_yearly<-read.xlsx("3-9 全国铁路机车拥有量.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
@@ -1124,9 +1138,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   source("index.R")
   
   #-----黑货指数计算--------------------------------------------------------------------------------------------
-  # liaozili<-read.csv("index-black.csv",head=T)# 读取黑货原始数据到变量liaozili中
-  # liaozili$tm<-as.Date.POSIXct(liaozili$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
-  # liaozili_len<-length(liaozili$tm)
+  
   wb<-read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
   wb_len<-length(wb$coal)
   metal<-wb$metal[85:wb_len]
@@ -1330,15 +1342,8 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   df_yearly1$frRegPred<-as.integer(predict(mileage_rfRegModel,df_yearly1))
   mileage_svmRegModel<-svm(construct_investment1~mileage_delta,data=df_yearly1,type="eps-regression",cross=dim(df_yearly1)[1]/2)
   df_yearly1$svmRegPred<-as.integer(predict(mileage_svmRegModel,df_yearly1))
-  mileage_len<-length(df_yearly1$tm4)
+ 
   
-  
-  plotCurve<-function(db,xdata,ydata)
-  {
-    mileage_len=dim(xdata)[1]
-    mileage_plt<-ggplot(db,x=c(xdata[1],xdata[mileage_len]),aes(x=xdata,y=ydata),color="red")
-    return(mileage_plt)
-  }
   output$mileage_linearplot <- renderPlot( {
     
     if(input$mileage_year_start> input$mileage_year_end)  {
@@ -1516,14 +1521,8 @@ tracklaying_mileage_rfRegModel<-randomForest(construct_investment~newline_trackl
 df_yearly2$frRegPred<-as.integer(predict(tracklaying_mileage_rfRegModel,df_yearly2))
 tracklaying_mileage_svmRegModel<-svm(construct_investment~newline_tracklaying_mileage,data=df_yearly2,type="eps-regression",cross=dim(df_yearly2)[1]/2)
 df_yearly2$svmRegPred<-as.integer(predict(tracklaying_mileage_svmRegModel,df_yearly2))
-tracklaying_mileage_len<-length(df_yearly2$tm)
 
-plotCurve<-function(db,xdata,ydata)
-{
-  tracklaying_mileage_len=dim(xdata)[1]
-  tracklaying_mileage_plt<-ggplot(db,x=c(xdata[1],xdata[tracklaying_mileage_len]),aes(x=xdata,y=ydata,group=1),color="red")
-  return(tracklaying_mileage_plt)
-}
+
 output$tracklaying_mileage_linearplot <- renderPlot( {
   
   if(input$tracklaying_mileage_year_start> input$tracklaying_mileage_year_end)  {
@@ -1713,14 +1712,7 @@ rownames = TRUE)
   #svm 内含交叉验证，所以不需要再运行交叉验证.eps-regression   huigui
   investment_data$svmRegPred<-as.integer(predict(ptrainsvmRegModel,investment_data))   #<-----------支持向量机的预测数据已经在这里计算得到
   
-  investment_len<-length(investment_data$tm_delta)
-  #plotCurve是画曲线的通过用函数，为了减少后面的代码量  
-  plotCurve<-function(db,xdata,ydata)
-  {
-    investment_len=dim(xdata)[1]
-    plt<-ggplot(db,x=c(xdata[1],xdata[investment_len]),aes(x=xdata,y=ydata),color="red")
-    return(plt)
-  }
+ 
   #---------------------------多元回归画线
   output$investmentlinearplot <- renderPlot( {
     
@@ -1903,14 +1895,9 @@ PVrfRegModel<-randomForest(passenger_volume~bullettrain_number+locomotive_mileag
 PVdf$frRegPred<-as.integer(predict(PVrfRegModel,PVdf))
 PVsvmRegModel<-svm(passenger_volume~bullettrain_number+locomotive_mileage_pcar,data=PVdf,type="eps-regression",cross=dim(PVdf)[1]/2)
 PVdf$svmRegPred<-as.integer(predict(PVsvmRegModel,PVdf))
-PVlen<-length(PVdf$tm)
 
-plotCurve<-function(db,xdata,ydata)
-{
-  PVlen=dim(xdata)[1]
-  PVplt<-ggplot(db,x=c(xdata[1],xdata[PVlen]),aes(x=xdata,y=ydata),color="red")
-  return(PVplt)
-}
+
+
 output$passenger_volume_linearplot <- renderPlot( {
   
   if(input$passenger_volume_year_start> input$passenger_volume_year_end)  {
@@ -2104,14 +2091,7 @@ rownames = TRUE)
   #svm 内含交叉验证，所以不需要再运行交叉验证.eps-regression   huigui
   distance_fre$dissvmRegPred<-as.integer(predict(distancesvmRegModel,distance_fre))   #<-----------支持向量机的预测数据已经在这里计算得到
   
-  distance_len<-length(distance_fre$tm)
-  #plotCurve是画曲线的通过用函数，为了减少后面的代码量  
-  plotCurve<-function(db,xdata,ydata)
-  {
-    distance_len=dim(xdata)[1]
-    plt<-ggplot(db,x=c(xdata[1],xdata[distance_len]),aes(x=xdata,y=ydata),color="red")
-    return(plt)
-  }
+  
   #---------------------------多元回归画线-------------------------------------------
   output$distancelinearplot <- renderPlot( {
     
@@ -2314,14 +2294,7 @@ rownames = TRUE)
   #svm 内含交叉验证，所以不需要再运行交叉验证.eps-regression   huigui
   Locomotive_fre$svmRegPred<-as.integer(predict(freightsvmRegModel,Locomotive_fre))   #<-----------支持向量机的预测数据已经在这里计算得到
   
-  locomotive_len<-length(Locomotive_fre$tm)
-  #plotCurve是画曲线的通过用函数，为了减少后面的代码量  
-  plotCurve<-function(db,xdata,ydata)
-  {
-    locomotive_len=dim(xdata)[1]
-    plt<-ggplot(db,x=c(xdata[1],xdata[locomotive_len]),aes(x=xdata,y=ydata),color="red")
-    return(plt)
-  }
+  
   #---------------------------多元回归画线-------------------------------------------
   output$freightlinearplot <- renderPlot( {
     
@@ -2515,14 +2488,7 @@ rownames = TRUE)
   freight_olm_car_df$frRegPred<-as.integer(predict(f_car_rfRegModel,freight_olm_car_df))
   f_car_svmRegModel<-svm(freight~freightcar+olm,data=freight_olm_car_df,type="eps-regression",cross=dim(freight_olm_car_df)[1]/2)
   freight_olm_car_df$svmRegPred<-as.integer(predict(f_car_svmRegModel,freight_olm_car_df))
-  pg_cw_len<-length(freight_olm_car_df$tm)
   
-  plotCurve<-function(db,xdata,ydata)
-  {
-    pg_cw_len=dim(xdata)[1]
-    cw_plt<-ggplot(db,x=c(xdata[1],xdata[pg_cw_len]),aes(x=xdata,y=ydata),color="red")
-    return(cw_plt)
-  }
   output$f_car_linearplot <- renderPlot( {
     
     if(input$freight_mileage_year_start> input$freight_mileage_year_end)  {
@@ -2530,8 +2496,7 @@ rownames = TRUE)
       if (input$freight_mileage_stat_data) {
         cw_p<-plotCurve(freight_olm_car_df,freight_olm_car_df$tm,freight_olm_car_df$freight)
       }
-      else
-      {
+      else  {
         cw_p<-plotCurve(freight_olm_car_df,freight_olm_car_df$tm,freight_olm_car_df$linearRegPred)
       }
     }
@@ -2541,8 +2506,7 @@ rownames = TRUE)
       if (input$freight_mileage_stat_data) {
         cw_p<-plotCurve(freight_olm_car_dfsub,freight_olm_car_dfsub$tm,freight_olm_car_dfsub$freight)
       }
-      else
-      {
+      else  {
         cw_p<-plotCurve(freight_olm_car_dfsub,freight_olm_car_dfsub$tm,freight_olm_car_dfsub$linearRegPred)
       }
     }
@@ -2694,36 +2658,48 @@ a<-c(1,2,3,8)
 df<-df_monthly[1:180,a]
 #变量重命名，tm-时间，iron—成品钢材产量，coal—原煤产量，freight-货运量
 names(df)<-c("tm","iron","coal","freight") #iron表示成品钢材产量，coal表示原煤产量
-  load('modleFile/ols_freight')
-  load('modleFile/rf_freight')
-  load('modleFile/svm_freight')
+
+genFreightRegModel<-function(df,returnModel=FALSE){   #生成货运量回归模型,并save to Rdata File
+  gc()   #清理内存，回收空间
+  olsRegModel<-lm(freight~iron+coal,data=df)    
+  rfRegModel<-randomForest(freight~iron+coal,data=df,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
+  svmRegModel<-svm(freight~iron+coal,data=df,type="eps-regression",cross=dim(df)[1]/2)
+  gc()
+  if(!dir.exists("./modelFile")) {dir.create("./modelFile")}
+  save(olsRegModel,rfRegModel,svmRegModel,file="./modelFile/freightModel.Rdata")
+  if(returnModel){
+    return(list(olsRegModel,rfRegModel,svmRegModel))  #将3个模型结果用list返回
+  }
+  else{  return(NULL)}
+}
+
+if(file.exists("./modelFile/freightModel.Rdata")){
+  gc()
+  load('./modelFile/freightModel.Rdata')}
+else{
+  model<-genFreightRegModel(df,returnModel = TRUE)
+  olsRegModel<-model[[1]]
+  rfRegModel<-model[[2]]
+  svmRegModel<-model[[3]]
+  gc()
+  
+}
+
   
   df$linearRegPred<-as.integer(predict(olsRegModel,newdata=df))
   df$frRegPred<-as.integer(predict(rfRegModel,df))     #<-----------随机森林的预测数据已经在这里计算得到
   df$svmRegPred<-as.integer(predict(svmRegModel,df))  #<-----------支持向量机的预测数据已经在这里计算得到
   
   len<-length(df$tm)
-  plotCurve<-function(db,xdata,ydata)
-  {
-    len=dim(xdata)[1]
-    plt<-ggplot(db,x=c(xdata[1],xdata[len]),aes(x=xdata,y=ydata),color="red")
-    return(plt)
-  }
-  #---------------------------多元回归画线
-  output$linearplot <- renderPlot( { #按钮触发更新模型的判断代码
-    if(input$modle_feight){
-  file.remove('modleFile/ols_freight','modleFile/rf_freight','modleFile/svm_freight')
-  rm("olsRegModel",'rfRegModel','svmRegModel')
   
-  olsRegModel<-lm(freight~iron+coal,data=df)    
-  rfRegModel<-randomForest(freight~iron+coal,data=df,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
-  svmRegModel<-svm(freight~iron+coal,data=df,type="eps-regression",cross=dim(df)[1]/2)
-  df$linearRegPred<-as.integer(predict(olsRegModel,newdata=df))
-  df$frRegPred<-as.integer(predict(rfRegModel,df))     #<-----------随机森林的预测数据已经在这里计算得到
-  df$svmRegPred<-as.integer(predict(svmRegModel,df))  #<-----------支持向量机的预测数据已经在这里计算得到
-  save(olsRegModel,file = 'modleFile/ols_freight')
-  save(rfRegModel,file = 'modleFile/rf_freight')
-  save(svmRegModel,file = 'modleFile/svm_freight')}
+  observeEvent(input$model_feight, {  #按钮激活函数,将回归模型保存到Rdata文件中
+    gc()
+    genFreightRegModel(df,returnModel = FALSE)
+  })  
+  
+  
+  #---------------------------多元回归画线
+  output$linearplot <- renderPlot( {
     
     if(input$year_start> input$year_end)  {
       
@@ -2897,30 +2873,49 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
   0.65*passagerpre_df$aviation+11.27*passagerpre_df$EMU+
   0.78*passagerpre_df$railcar-409634.8
   
-  load('modleFile/rf_passager')
-  load('modleFile/svm_passager')
+genPassangerModel<-function(df,returnModel=FALSE) {
+  gc()
+  passagerpre_rfRegModel<-randomForest(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
+                                       data=df,importance=T, ntree=10,type="regression")   #ranpassagerpre_dfrstReg函数在randomForest.r文件中
+  passagerpre_svmRegModel<-svm(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
+                               data=df,type="eps-regression",cross=dim(df)[1]/2)
+  if(!dir.exists("./modelFile")) {dir.create("./modelFile")}
+  save(passagerpre_rfRegModel,passagerpre_svmRegModel,file = './modelFile/passagerModel.RData')
+  if(returnModel)  {
+    return(list(passagerpre_rfRegModel,passagerpre_svmRegModel))
+  }
+  else{
+    return(NULL)
+  }
+}  
+  
+if(file.exists('./modelFile/passagerModel.RData')){
+    gc()
+    load('./modelFile/passagerModel.RData')
+  }
+  else{
+    gc()
+    model<-genPassangerModel(passagerpre_df,returnModel = TRUE)
+    passagerpre_rfRegModel<-model[[1]]
+    passagerpre_svmRegModel<-model[[2]]
+    gc()
+    
+  }
+ 
   passagerpre_df$frRegPred<-as.integer(predict(passagerpre_rfRegModel,passagerpre_df))     #<-----------随机森林的预测数据已经在这里计算得到
   passagerpre_df$svmRegPred<-as.integer(predict(passagerpre_svmRegModel,passagerpre_df))   #<-----------支持向量机的预测数据已经在这里计算得到
   
-  len<-length(passagerpre_df$Year)
-  plotCurve<-function(db,xdata,ydata)
-  {
-    len=dim(xdata)[1]
-    plt<-ggplot(db,x=c(xdata[1],xdata[len]),aes(x=xdata,y=ydata),color="red")
-    return(plt)
-  }
+  #len<-length(passagerpre_df$Year)
+  
+  
+  observeEvent(input$model_passager, {  #按钮激活函数,将回归模型保存到Rdata文件中
+    gc()
+    genPassangerModel(passagerpre_df[,1:9],returnModel = FALSE)
+  })  
+  
   #---------------------------多元回归画线
   output$passagerpre_linearplot <- renderPlot( {
-  if(input$modle_passager){  #按钮触发更新模型的判断代码
-  file.remove('modleFile/rf_passager','modleFile/svm_passager')
-  rm('passagerpre_rfRegModel','passagerpre_svmRegModel')
-  passagerpre_rfRegModel<-randomForest(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
-                                       data=passagerpre_df,importance=T, ntree=100,type="regression")   #ranpassagerpre_dfrstReg函数在randomForest.r文件中
-  passagerpre_svmRegModel<-svm(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
-                               data=passagerpre_df,type="eps-regression",cross=dim(passagerpre_df)[1]/2)
-  save(passagerpre_rfRegModel,file = 'modleFile/rf_passager')
-  save(passagerpre_svmRegModel,file = 'modleFile/svm_passager')
-  }
+  
     
     if(input$passagerpre_year_start> input$passagerpre_year_end)  {
       
@@ -3685,59 +3680,7 @@ colnames = c('客运量（万人）',  '80%概率区间下限','80%概率区间�
         data<-dfrawdata},
       colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担(吨)','集装箱(万吨)'),
       rownames = TRUE))
-#'''
-#output$yssj.xghy.table<-DT::renderDataTable(
-#  DT::datatable(
-# {
-#    dfyssj<-read.csv("compidx-qitahangye.csv",head=T)
-#    data<-dfyssj},
-#    colnames = c('时间','成品钢材产量（亿吨）','原油加工量（亿吨）','原煤产量（亿吨）','火力发电量（亿千瓦时）','工业增加值（增长率）'),
-#    rownames = TRUE))
 
-# 
-# output$yssj.ylxg.table<-DT::renderDataTable(
-#   DT::datatable(
-# {  
-#   dfyssj<-read.csv("compidx-yunliang.csv",head=T)
-#   data<-dfyssj},
-# colnames = c('时间','货运量（亿吨）','货运周转量（亿吨）','客运量（亿人）','客运周转量（亿人）'),
-# rownames = TRUE))
-# 
-# output$yssj.yyxg.table<-DT::renderDataTable(
-#   DT::datatable(
-# {  
-#   dfyssj<-read.csv("compidx-yunying.csv",head=T)
-#   data<-dfyssj},
-# colnames = c('时间','营业里程（km）','日均运用车（万辆）','日均现在车（万辆）','客运机车日车公里（km）','货运机车日车公里（km）','机车总行走里程（1000km）'),
-# rownames = TRUE))
-# 
-# #yssj.zcxg-------原始数据/资产相关
-# output$yssj.zcxg.table<-DT::renderDataTable(
-#   DT::datatable(
-# {  
-#   dfyssj<-read.csv("compidx-zichan.csv",head=T)
-#   data<-dfyssj},
-# colnames = c('时间','客车辆数(辆)','货车辆数(万辆)','机车台数(辆)','动车台数(辆)', '铁路固定资产投资(亿元)','从业人员数量(万人)','新线铺轨里程(km)','复线铺轨里程(km))'),
-# rownames = TRUE))
-# 
-# output$yssj.heihuo.table<-DT::renderDataTable(
-#   DT::datatable(
-#     {  
-#       dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
-#       dfyssj<-data.frame(dfyssj[1],dfyssj[9:13])
-#       data<-dfyssj},
-#     colnames = c('时间','金属矿石(万吨)','矿建(万吨)','钢材(万吨)', '石油(万吨)','煤(万吨)'),
-#     rownames = TRUE))
-# 
-# output$yssj.baihuo.table<-DT::renderDataTable(
-#   DT::datatable(
-#     {  
-#       dfyssj<-read.csv("compidx-heihuobaihuo.csv",head=T)
-#       dfyssj<-data.frame(dfyssj[1:8])
-#       data<-dfyssj},
-#     colnames = c('时间','工业机械(万吨)','电子电气(万吨)','农副产品(万吨)', '饮食烟草(万吨)','文教用品(万吨)','零担(吨)','集装箱(万吨)'),
-#     rownames = TRUE))
-# '''
 #-------------------mashaomeng---START-----------------------------------------------------------------
 #——--------------------里程相关——————————————————————————————————————————————————————————————————————————————————————
 output$rawdata_relevant_mileage_plot <- renderPlot( {
@@ -6007,64 +5950,66 @@ output$map_plot4.17 <- renderPlot(mapFunction(lxy2_yearly,input$year4.17))
 output$map_plot4.18 <- renderPlot(mapFunction(lxy3_yearly,input$year4.18))
 output$map_plot4.19 <- renderPlot(mapFunction(lxy4_yearly,input$year4.19))
 #---------------地图 END --------------||
+
+
 #---------------X12数据更新------------
-  output$updata_x12_text <- renderText({
-      if(input$updata_x12){
-      withProgress(
-      message = "Processing corpus...",
-      
-      {df_monthly <- read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
-      ## 2001年1月到今
-      df_monthly_sub1 <- df_monthly[,c(2, 3, 4, 5, 9, 8, 6, 10, 11)]
-      ## 1. iron_output; 2. coal_output; 3. oil_processing_volume; 4. coalfired_power_generation
-      ## 5. freight_rotation_volume; 6. freight_volume; 7. Industrial_Added_Value_Rate
-      
-      ## 对各量值做x12季节调整------------------------------------------------------------
-      for(i in 1:9)
-          df_monthly_sub1[,i] <- ts(df_monthly_sub1[,i], start = c(2001,1), frequency = 12)
-      
-      ## 准备为x12需要的数据结构
-      my_x12BaseInfo <- new("x12BaseInfo","x13as.exe","x13as.exe","use",FALSE)
-      x12_monthly_sub1 <- new("x12Batch", list(df_monthly_sub1[,1], df_monthly_sub1[,2], df_monthly_sub1[,3], df_monthly_sub1[,4],df_monthly_sub1[,5], 
-                                              +df_monthly_sub1[,6], df_monthly_sub1[,7], df_monthly_sub1[,8], df_monthly_sub1[,9]),x12BaseInfo=my_x12BaseInfo)
-      
-      ## 设定模型参数,x12处理
-      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(2,1,3),arima.smodel=c(0,1,2)),1)
-      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(2,1,3),arima.smodel=c(0,1,2)),2)
-      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(2,1,3),arima.smodel=c(0,1,2)),3)
-      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(automdl=TRUE),4)
-      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(automdl=TRUE),5)
-      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(2,1,3),arima.smodel=c(0,1,2)),6)
-      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(1,1,1),arima.smodel=c(2,0,2)),7)
-      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(automdl=TRUE),8)
-      x12_monthly_sub1 <- setP(x12_monthly_sub1,list(automdl=TRUE),9)
-      ## x12处理
-      x12path("x13as.exe")
-      x12_monthly_sub2 <- x12(x12_monthly_sub1)
-      
-      ## 借助df_monthly_sub1 创建一个用来存放输出数据的dataframe
-      out_monthly_sub1 <- df_monthly_sub1
-      ## 将输出的数据调整后的数据e2以dataframe的格式存储
-      for (j in 1:9) {
-          out_monthly_sub1[,j] <- data.frame(x12_monthly_sub2@x12List[[j]]@x12Output@d12)
-          out_monthly_sub1[,j] <- as.numeric(out_monthly_sub1[,j]) 
-      }
-      ## 修改列名
-      names(out_monthly_sub1) <- c("iron","coal",	"oil","steam_power","freight_tr","freight","industral_product","passenger","passenger_tr")
-      out_monthly_sub1 <- plyr::mutate(out_monthly_sub1, freight=freight/10000)
-      out_monthly_sub1 <- cbind(tm=df_monthly[,1],out_monthly_sub1)
-      ## 对各量值进行x12季节调整完成---------------------------------------------||
-      
-      ##-------------------------------------------------------
-      ## 输出 excel 文件
-      write.xlsx(out_monthly_sub1,"预警 - from x-12.xlsx",row.names = FALSE)
-      
-      saveObj <- c(list.files(pattern ="xlsx"),list.files(pattern ="xls"),list.files(pattern ="csv"),list.files(pattern ="R"),list.files(pattern ="Rproj"),list.files(pattern ="RData"),list.files(pattern ="exe"),list.files(pattern ="dbf"),list.files(pattern ="shp"),list.files(pattern ="shx"))
-      unlink(setdiff(dir(),saveObj),recursive = TRUE)
-      
-      "更新 预警 - from x-12.xlsx 【完成】"})
-      }
-  })
+observeEvent(input$updata_x12,{
+  withProgress(
+    message = "Processing corpus...",
+    
+    {df_monthly <- read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
+    ## 2001年1月到今
+    df_monthly_sub1 <- df_monthly[,c(2, 3, 4, 5, 9, 8, 6, 10, 11)]
+    ## 1. iron_output; 2. coal_output; 3. oil_processing_volume; 4. coalfired_power_generation
+    ## 5. freight_rotation_volume; 6. freight_volume; 7. Industrial_Added_Value_Rate
+    
+    ## 对各量值做x12季节调整------------------------------------------------------------
+    for(i in 1:9)
+      df_monthly_sub1[,i] <- ts(df_monthly_sub1[,i], start = c(2001,1), frequency = 12)
+    
+    ## 准备为x12需要的数据结构
+    my_x12BaseInfo <- new("x12BaseInfo","x13as.exe","x13as.exe","use",FALSE)
+    x12_monthly_sub1 <- new("x12Batch", list(df_monthly_sub1[,1], df_monthly_sub1[,2], df_monthly_sub1[,3], df_monthly_sub1[,4],df_monthly_sub1[,5], 
+                                             +df_monthly_sub1[,6], df_monthly_sub1[,7], df_monthly_sub1[,8], df_monthly_sub1[,9]),x12BaseInfo=my_x12BaseInfo)
+    
+    ## 设定模型参数,x12处理
+    x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(2,1,3),arima.smodel=c(0,1,2)),1)
+    x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(2,1,3),arima.smodel=c(0,1,2)),2)
+    x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(2,1,3),arima.smodel=c(0,1,2)),3)
+    x12_monthly_sub1 <- setP(x12_monthly_sub1,list(automdl=TRUE),4)
+    x12_monthly_sub1 <- setP(x12_monthly_sub1,list(automdl=TRUE),5)
+    x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(2,1,3),arima.smodel=c(0,1,2)),6)
+    x12_monthly_sub1 <- setP(x12_monthly_sub1,list(arima.model= c(1,1,1),arima.smodel=c(2,0,2)),7)
+    x12_monthly_sub1 <- setP(x12_monthly_sub1,list(automdl=TRUE),8)
+    x12_monthly_sub1 <- setP(x12_monthly_sub1,list(automdl=TRUE),9)
+    ## x12处理
+    x12path("x13as.exe")
+    x12_monthly_sub2 <- x12(x12_monthly_sub1)
+    
+    ## 借助df_monthly_sub1 创建一个用来存放输出数据的dataframe
+    out_monthly_sub1 <- df_monthly_sub1
+    ## 将输出的数据调整后的数据e2以dataframe的格式存储
+    for (j in 1:9) {
+      out_monthly_sub1[,j] <- data.frame(x12_monthly_sub2@x12List[[j]]@x12Output@d12)
+      out_monthly_sub1[,j] <- as.numeric(out_monthly_sub1[,j]) 
+    }
+    ## 修改列名
+    names(out_monthly_sub1) <- c("iron","coal",	"oil","steam_power","freight_tr","freight","industral_product","passenger","passenger_tr")
+    out_monthly_sub1 <- plyr::mutate(out_monthly_sub1, freight=freight/10000)
+    out_monthly_sub1 <- cbind(tm=df_monthly[,1],out_monthly_sub1)
+    ## 对各量值进行x12季节调整完成---------------------------------------------||
+    
+    ##-------------------------------------------------------
+    ## 输出 excel 文件
+    write.xlsx(out_monthly_sub1,"预警 - from x-12.xlsx",row.names = FALSE)
+    
+    saveObj <- c(list.files(pattern ="xlsx"),list.files(pattern ="xls"),list.files(pattern ="csv"),list.files(pattern ="R"),list.files(pattern ="Rproj"),list.files(pattern ="RData"),list.files(pattern ="exe"),list.files(pattern ="dbf"),list.files(pattern ="shp"),list.files(pattern ="shx"))
+    unlink(setdiff(dir(),saveObj),recursive = FALSE)  
+    
+    "更新 预警 - from x-12.xlsx 【完成】"})
+  
+})
+
 ##------------------x12数据更新 END-------------||
 
 }
