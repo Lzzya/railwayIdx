@@ -2659,45 +2659,44 @@ df<-df_monthly[1:180,a]
 #变量重命名，tm-时间，iron—成品钢材产量，coal—原煤产量，freight-货运量
 names(df)<-c("tm","iron","coal","freight") #iron表示成品钢材产量，coal表示原煤产量
 
-genFreightRegModel<-function(df,returnModel=FALSE){   #生成货运量回归模型,并save to Rdata File
-  gc()   #清理内存，回收空间
+# genFreightRegModel<-function(df,returnModel=FALSE){   #生成货运量回归模型,并save to Rdata File
+#   gc()   #清理内存，回收空间
+#   olsRegModel<-lm(freight~iron+coal,data=df)    
+#   rfRegModel<-randomForest(freight~iron+coal,data=df,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
+#   svmRegModel<-svm(freight~iron+coal,data=df,type="eps-regression",cross=dim(df)[1]/2)
+#   gc()
+#   if(!dir.exists("./modelFile")) {dir.create("./modelFile")}
+#   save(olsRegModel,rfRegModel,svmRegModel,file="./modelFile/freightModel.Rdata")
+#   if(returnModel){
+#     return(list(olsRegModel,rfRegModel,svmRegModel))  #将3个模型结果用list返回
+#   }
+#   else{  return(NULL)}
+# }
+# 
+# if(file.exists("./modelFile/freightModel.Rdata")){
+#   gc()
+#   load('./modelFile/freightModel.Rdata')}
+# else{
+#   model<-genFreightRegModel(df,returnModel = TRUE)
+#   olsRegModel<-model[[1]]
+#   rfRegModel<-model[[2]]
+#   svmRegModel<-model[[3]]
+#   gc()
+#   
+# }
+# 
+#   observeEvent(input$model_feight, {  #按钮激活函数,将回归模型保存到Rdata文件中
+#     gc()
+#     genFreightRegModel(df,returnModel = FALSE)
+#   }) 
+  
   olsRegModel<-lm(freight~iron+coal,data=df)    
   rfRegModel<-randomForest(freight~iron+coal,data=df,importance=T, ntree=100,type="regression")   #randFrstReg函数在randomForest.r文件中
   svmRegModel<-svm(freight~iron+coal,data=df,type="eps-regression",cross=dim(df)[1]/2)
-  gc()
-  if(!dir.exists("./modelFile")) {dir.create("./modelFile")}
-  save(olsRegModel,rfRegModel,svmRegModel,file="./modelFile/freightModel.Rdata")
-  if(returnModel){
-    return(list(olsRegModel,rfRegModel,svmRegModel))  #将3个模型结果用list返回
-  }
-  else{  return(NULL)}
-}
-
-if(file.exists("./modelFile/freightModel.Rdata")){
-  gc()
-  load('./modelFile/freightModel.Rdata')}
-else{
-  model<-genFreightRegModel(df,returnModel = TRUE)
-  olsRegModel<-model[[1]]
-  rfRegModel<-model[[2]]
-  svmRegModel<-model[[3]]
-  gc()
-  
-}
-
-  
   df$linearRegPred<-as.integer(predict(olsRegModel,newdata=df))
   df$frRegPred<-as.integer(predict(rfRegModel,df))     #<-----------随机森林的预测数据已经在这里计算得到
   df$svmRegPred<-as.integer(predict(svmRegModel,df))  #<-----------支持向量机的预测数据已经在这里计算得到
-  
-  len<-length(df$tm)
-  
-  observeEvent(input$model_feight, {  #按钮激活函数,将回归模型保存到Rdata文件中
-    gc()
-    genFreightRegModel(df,returnModel = FALSE)
-  })  
-  
-  
+
   #---------------------------多元回归画线
   output$linearplot <- renderPlot( {
     
@@ -2873,45 +2872,46 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
   0.65*passagerpre_df$aviation+11.27*passagerpre_df$EMU+
   0.78*passagerpre_df$railcar-409634.8
   
-genPassangerModel<-function(df,returnModel=FALSE) {
-  gc()
-  passagerpre_rfRegModel<-randomForest(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
-                                       data=df,importance=T, ntree=10,type="regression")   #ranpassagerpre_dfrstReg函数在randomForest.r文件中
-  passagerpre_svmRegModel<-svm(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
-                               data=df,type="eps-regression",cross=dim(df)[1]/2)
-  if(!dir.exists("./modelFile")) {dir.create("./modelFile")}
-  save(passagerpre_rfRegModel,passagerpre_svmRegModel,file = './modelFile/passagerModel.RData')
-  if(returnModel)  {
-    return(list(passagerpre_rfRegModel,passagerpre_svmRegModel))
-  }
-  else{
-    return(NULL)
-  }
-}  
+# genPassangerModel<-function(df,returnModel=FALSE) {
+#   gc()
+#   passagerpre_rfRegModel<-randomForest(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
+#                                        data=df,importance=T, ntree=10,type="regression")   #ranpassagerpre_dfrstReg函数在randomForest.r文件中
+#   passagerpre_svmRegModel<-svm(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
+#                                data=df,type="eps-regression",cross=dim(df)[1]/2)
+#   if(!dir.exists("./modelFile")) {dir.create("./modelFile")}
+#   save(passagerpre_rfRegModel,passagerpre_svmRegModel,file = './modelFile/passagerModel.RData')
+#   if(returnModel)  {
+#     return(list(passagerpre_rfRegModel,passagerpre_svmRegModel))
+#   }
+#   else{
+#     return(NULL)
+#   }
+# }  
+#   
+# if(file.exists('./modelFile/passagerModel.RData')){
+#     gc()
+#     load('./modelFile/passagerModel.RData')
+#   }
+#   else{
+#     gc()
+#     model<-genPassangerModel(passagerpre_df,returnModel = TRUE)
+#     passagerpre_rfRegModel<-model[[1]]
+#     passagerpre_svmRegModel<-model[[2]]
+#     gc()
+#     
+#   }
+#  
+#   observeEvent(input$model_passager, {  #按钮激活函数,将回归模型保存到Rdata文件中
+#     gc()
+#     genPassangerModel(passagerpre_df[,1:9],returnModel = FALSE)
+#   })  
   
-if(file.exists('./modelFile/passagerModel.RData')){
-    gc()
-    load('./modelFile/passagerModel.RData')
-  }
-  else{
-    gc()
-    model<-genPassangerModel(passagerpre_df,returnModel = TRUE)
-    passagerpre_rfRegModel<-model[[1]]
-    passagerpre_svmRegModel<-model[[2]]
-    gc()
-    
-  }
- 
+  passagerpre_rfRegModel<-randomForest(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
+                                       data=passagerpre_df,importance=T, ntree=100,type="regression")   #ranpassagerpre_dfrstReg函数在randomForest.r文件中
+  passagerpre_svmRegModel<-svm(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
+                               data=passagerpre_df,type="eps-regression",cross=dim(passagerpre_df)[1]/2)
   passagerpre_df$frRegPred<-as.integer(predict(passagerpre_rfRegModel,passagerpre_df))     #<-----------随机森林的预测数据已经在这里计算得到
   passagerpre_df$svmRegPred<-as.integer(predict(passagerpre_svmRegModel,passagerpre_df))   #<-----------支持向量机的预测数据已经在这里计算得到
-  
-  #len<-length(passagerpre_df$Year)
-  
-  
-  observeEvent(input$model_passager, {  #按钮激活函数,将回归模型保存到Rdata文件中
-    gc()
-    genPassangerModel(passagerpre_df[,1:9],returnModel = FALSE)
-  })  
   
   #---------------------------多元回归画线
   output$passagerpre_linearplot <- renderPlot( {
@@ -5955,7 +5955,7 @@ output$map_plot4.19 <- renderPlot(mapFunction(lxy4_yearly,input$year4.19))
 #---------------X12数据更新------------
 observeEvent(input$updata_x12,{
   withProgress(
-    message = "Processing corpus...",
+    message = "请等待...",
     
     {df_monthly <- read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
     ## 2001年1月到今
@@ -6005,6 +6005,7 @@ observeEvent(input$updata_x12,{
     
     saveObj <- c(list.files(pattern ="xlsx"),list.files(pattern ="xls"),list.files(pattern ="csv"),list.files(pattern ="R"),list.files(pattern ="Rproj"),list.files(pattern ="RData"),list.files(pattern ="exe"),list.files(pattern ="dbf"),list.files(pattern ="shp"),list.files(pattern ="shx"))
     unlink(setdiff(dir(),saveObj),recursive = FALSE)  
+    unlink(c('gra_Series_1','gra_Series_2','gra_Series_3','gra_Series_4','gra_Series_5','gra_Series_6','gra_Series_7','gra_Series_8','gra_Series_9'),recursive = TRUE)
     
     "更新 预警 - from x-12.xlsx 【完成】"})
   
