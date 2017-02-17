@@ -2659,6 +2659,7 @@ df<-df_monthly[1:180,a]
 #变量重命名，tm-时间，iron—成品钢材产量，coal—原煤产量，freight-货运量
 names(df)<-c("tm","iron","coal","freight") #iron表示成品钢材产量，coal表示原煤产量
 
+
 # genFreightRegModel<-function(df,returnModel=FALSE){   #生成货运量回归模型,并save to Rdata File
 #   gc()   #清理内存，回收空间
 #   olsRegModel<-lm(freight~iron+coal,data=df)    
@@ -2696,6 +2697,7 @@ names(df)<-c("tm","iron","coal","freight") #iron表示成品钢材产量，coal�
   df$linearRegPred<-as.integer(predict(olsRegModel,newdata=df))
   df$frRegPred<-as.integer(predict(rfRegModel,df))     #<-----------随机森林的预测数据已经在这里计算得到
   df$svmRegPred<-as.integer(predict(svmRegModel,df))  #<-----------支持向量机的预测数据已经在这里计算得到
+
 
   #---------------------------多元回归画线
   output$linearplot <- renderPlot( {
@@ -2872,6 +2874,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
   0.65*passagerpre_df$aviation+11.27*passagerpre_df$EMU+
   0.78*passagerpre_df$railcar-409634.8
   
+
 # genPassangerModel<-function(df,returnModel=FALSE) {
 #   gc()
 #   passagerpre_rfRegModel<-randomForest(passager~GDP+population+income+third_industry+aviation+EMU+railcar,
@@ -2913,6 +2916,7 @@ passagerpre_df$linearRegPred<-0.04*passagerpre_df$GDP+2.76*passagerpre_df$popula
   passagerpre_df$frRegPred<-as.integer(predict(passagerpre_rfRegModel,passagerpre_df))     #<-----------随机森林的预测数据已经在这里计算得到
   passagerpre_df$svmRegPred<-as.integer(predict(passagerpre_svmRegModel,passagerpre_df))   #<-----------支持向量机的预测数据已经在这里计算得到
   
+
   #---------------------------多元回归画线
   output$passagerpre_linearplot <- renderPlot( {
   
@@ -5955,8 +5959,8 @@ output$map_plot4.19 <- renderPlot(mapFunction(lxy4_yearly,input$year4.19))
 #---------------X12数据更新------------
 observeEvent(input$updata_x12,{
   withProgress(
+
     message = "请等待...",
-    
     {df_monthly <- read.xlsx("rawdata_monthly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
     ## 2001年1月到今
     df_monthly_sub1 <- df_monthly[,c(2, 3, 4, 5, 9, 8, 6, 10, 11)]
@@ -6006,6 +6010,7 @@ observeEvent(input$updata_x12,{
     saveObj <- c(list.files(pattern ="xlsx"),list.files(pattern ="xls"),list.files(pattern ="csv"),list.files(pattern ="R"),list.files(pattern ="Rproj"),list.files(pattern ="RData"),list.files(pattern ="exe"),list.files(pattern ="dbf"),list.files(pattern ="shp"),list.files(pattern ="shx"))
     unlink(setdiff(dir(),saveObj),recursive = FALSE)  
     unlink(c('gra_Series_1','gra_Series_2','gra_Series_3','gra_Series_4','gra_Series_5','gra_Series_6','gra_Series_7','gra_Series_8','gra_Series_9'),recursive = TRUE)
+
     
     "更新 预警 - from x-12.xlsx 【完成】"})
   
