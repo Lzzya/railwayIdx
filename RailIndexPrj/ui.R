@@ -1274,9 +1274,11 @@ tabPanel("货运量-货车车辆数-营业里程",
                                 hr(),
                                 textOutput("freight_FRR"),
                                 hr(),
-                                textOutput("freight_zhi"),
-                                hr(),
-                                actionButton('model_feight','更新模型')
+
+                                textOutput("freight_zhi")
+                                # hr(),
+                                # actionButton('model_feight','更新模型')
+
                                 
                                 
                               ), 
@@ -1347,9 +1349,10 @@ tabPanel("货运量-货车车辆数-营业里程",
                                 hr(),
                                 textOutput("passagerpre_FRR"),
                                 hr(),
-                                textOutput("passagerpre_zhi"),
-                                hr(),
-                                actionButton("model_passager","更新模型")
+                                textOutput("passagerpre_zhi")
+                                # hr(),
+                                # actionButton("model_passager","更新模型")
+
                                 
                                 
                               ), 
@@ -3735,12 +3738,3 @@ tabPanel( "基本建设投资", titlePanel('基本建设投资'),
 )
 )
 )
-
-
-
-
-
-
-
-
-
