@@ -6008,7 +6008,8 @@ observeEvent(input$updata_x12,{
     
     saveObj <- c(list.files(pattern ="xlsx"),list.files(pattern ="xls"),list.files(pattern ="csv"),list.files(pattern ="R"),list.files(pattern ="Rproj"),list.files(pattern ="RData"),list.files(pattern ="exe"),list.files(pattern ="dbf"),list.files(pattern ="shp"),list.files(pattern ="shx"))
     unlink(setdiff(dir(),saveObj),recursive = FALSE)  
-    unlink(c('gra_Series_1','gra_Series_2','gra_Series_3','gra_Series_4','gra_Series_5','gra_Series_6','gra_Series_7','gra_Series_8','gra_Series_9'),recursive = TRUE)
+    unlink(paste('gra_Series_',1:9),recursive = TRUE)
+    #unlink(c('gra_Series_1','gra_Series_2','gra_Series_3','gra_Series_4','gra_Series_5','gra_Series_6','gra_Series_7','gra_Series_8','gra_Series_9'),recursive = TRUE)
 
     
     "更新 预警 - from x-12.xlsx 【完成】"})
