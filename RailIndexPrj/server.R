@@ -1,11 +1,10 @@
 shinyServer(function(input, output) {
-  
-  
+  require(stringr)
+  require(forecast)
   require(ggplot2)
   require(DT)
   require(e1071)
   require(randomForest)
-  require(forecast)
   require(rJava)
   require(xlsx)
   require(maptools)
