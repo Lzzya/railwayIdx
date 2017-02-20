@@ -722,10 +722,10 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   #hyzzl.trans.percent<- percent.1(dftrans$hyzzl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
   
   #------------(3) 运输滞后指标的权重---
-  kyl.trans.percent<- percent.1(dftrans$kyl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
-  kyzzl.trans.percent<- percent.1(dftrans$kyzzl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
-  gdzctz.trans.percent<- percent.1(dftrans$gdzctz)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
-  yylc.trans.percent<- percent.1(dftrans$yylc)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
+  kyl.trans.percent<- percent.1(dftrans$kyl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc))
+  kyzzl.trans.percent<- percent.1(dftrans$kyzzl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc))
+  gdzctz.trans.percent<- percent.1(dftrans$gdzctz)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc))
+  yylc.trans.percent<- percent.1(dftrans$yylc)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc))
   
   #------------(4) 设备先行指标的权----
   #iron_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.iron_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
