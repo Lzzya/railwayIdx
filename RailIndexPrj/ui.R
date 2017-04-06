@@ -18,7 +18,7 @@ y_wenjing_rawdata_black_white<-y_wenjing_rawdata_monthly
 
 df_yearly<-read.xlsx("rawdata_yearly.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
 y_wenjing_rawdata_yearly<-substr(df_yearly$tm,1,4)
-
+percent_tm2 <-unique(y_wenjing_rawdata_yearly[y_wenjing_rawdata_yearly>="2001"]) 
 #-----------------------------------------
 #-------铁路景气指数----------------------
 dftrans<-read.xlsx("trans_index_x12.xlsx",1,head=T,startRow=2,encoding = "UTF-8")
@@ -26,6 +26,10 @@ dftrans$tm<-as.Date.POSIXct(dftrans$tm,"%Y-%m-%d",tz=Sys.timezone(location = TRU
 y_wenjing<-c(2000:max(y_wenjing_rawdata_yearly))
 y_wangyang<-c(2002:max(y_wenjing_rawdata_yearly))
 y_yiheng<-y_wenjing
+
+#-------读取权重文件---------------------
+percent01 <- read.xlsx("all_conTrans_percent_withYear.xlsx",1,head=T)
+percent_tm <- unique(substr(percent01$tm,1,4))
 
 #-----------------------------------------
 #-------黑货白货指数----------------------
@@ -231,6 +235,16 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                               value = TRUE),
                                                                                 
                                                                                 h4(strong("2.各要素权重手动调整"),style="color:black"),
+                                                                                fluidRow(
+                                                                                  column(6,  selectInput(inputId = "year_start_conTran",#year_start_trans运输合成指数中权重调整范围的起始年下拉框
+                                                                                                         label = "自:", 
+                                                                                                         choices= percent_tm,
+                                                                                                         selected = min(percent_tm) )),
+                                                                                  column(6, selectInput(inputId="year_end_conTran",#year_end_trans运输合成指数中权重调整范围的终止年下拉框
+                                                                                                        label="至:",
+                                                                                                        choices=percent_tm,
+                                                                                                        selected=max(percent_tm)))
+                                                                                ),
                                                                                 checkboxInput(inputId="trans_qz_coor_input",#trans_qz_coor_input权重手动输入的运输合成同步指数复选框
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
@@ -272,6 +286,10 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 textInput(inputId="trans_gdzctz_qz_input",#trans_gdzctz_qz_input固定资产投资的权重输入框
                                                                                           label=h5("固定资产投资%"),
                                                                                           value="80.48"),
+                                                                                fluidRow(
+                                                                                        column(6,actionButton("updata_percent10","恢复初始权重数据")),
+                                                                                        column(6,actionButton("updata_percent11","永久保存权重数据"))
+                                                                                        ),
                                                                                 width=3
                                                                               ),#侧边框
                                                                               
@@ -293,8 +311,7 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 width=9
                                                                               )#主显示区
                                                                               
-                                                                            ))), #运输指数的页签
-                                                                
+                                                                            ))),#运输合成指数
                                                                 tabPanel( "设备合成指数", 
                                                                           fluidRow(
                                                                             sidebarLayout(
@@ -311,6 +328,16 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                               value=TRUE),
                                                                                 
                                                                                 h4(strong("2.各要素权重手动调整"),style="color:black"),
+                                                                                fluidRow(
+                                                                                  column(6,  selectInput(inputId = "year_start_conEquip",#year_start_trans运输合成指数中权重调整范围的起始年下拉框
+                                                                                                         label = "自:", 
+                                                                                                         choices= percent_tm2,
+                                                                                                         selected = min(percent_tm2) )),
+                                                                                  column(6, selectInput(inputId="year_end_conEquip",#year_end_trans运输合成指数中权重调整范围的终止年下拉框
+                                                                                                        label="至:",
+                                                                                                        choices=percent_tm2,
+                                                                                                        selected=max(percent_tm2)))
+                                                                                ),
                                                                                 checkboxInput(inputId="equip_qz_coor_input",#equip_qz_adv_input权重手动输入的设备合成同步指数复选框
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
@@ -358,7 +385,10 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 textInput(inputId="equip_jcts_qz_input",#equip_jcts_qz_input设备合成指数中的机车台数的权重输入框
                                                                                           label=h5("机车台数%"),
                                                                                           value="9.08"),
-                                                                                
+                                                                                fluidRow(
+                                                                                        column(6,actionButton("updata_percent_conEquip_0","恢复初始权重数据")),
+                                                                                        column(6,actionButton("updata_percent_conEquip_1","永久保存权重数据"))
+                                                                                        ),
                                                                                 width=3
                                                                               ),
                                                                               
@@ -380,7 +410,6 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                               )
                                                                               
                                                                             ))), #设备指数的页签
-                                                                
                                                                 tabPanel( "规模合成指数", 
                                                                           fluidRow(
                                                                             sidebarLayout(
@@ -397,6 +426,16 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                               value = TRUE),
                                                                                 
                                                                                 h4(strong("2.各要素权重手动调整"),style="color:black"),
+                                                                                fluidRow(
+                                                                                  column(6,  selectInput(inputId = "year_start_conScale",#year_start_trans运输合成指数中权重调整范围的起始年下拉框
+                                                                                                         label = "自:", 
+                                                                                                         choices= percent_tm,
+                                                                                                         selected = min(percent_tm) )),
+                                                                                  column(6, selectInput(inputId="year_end_conScale",#year_end_trans运输合成指数中权重调整范围的终止年下拉框
+                                                                                                        label="至:",
+                                                                                                        choices=percent_tm,
+                                                                                                        selected=max(percent_tm)))
+                                                                                ),
                                                                                 checkboxInput(inputId="scale_qz_coor_input",#sacale_qz_coor_input权重手动输入的规模合成同步指数复选框
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
@@ -444,7 +483,10 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 textInput(inputId="scale_jcts_qz_input",#scale_jcts_qz_input设备合成指数中的机车台数的权重输入框
                                                                                           label=h5("机车台数%"),
                                                                                           value="13.53"),
-                                                                                
+                                                                                fluidRow(
+                                                                                        column(6,actionButton("updata_percent_conScale_0","恢复初始权重数据")),
+                                                                                        column(6,actionButton("updata_percent_conScale_1","永久保存权重数据"))
+                                                                                        ),
                                                                                 width=3
                                                                                 
                                                                               ),
@@ -467,11 +509,9 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                               )
                                                                               
                                                                             ))) #规模指数的页签
-                                                                
-                                                                
                                          )))
                                        
-                              ),
+                              ),#合成指数
                               tabPanel("扩散指数",
                                        titlePanel("铁路扩散景气指数"),
                                        
@@ -491,7 +531,16 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                               checkboxInput(inputId = "trans_DIz_Index",
                                                                                             label = ("滞后指数"),
                                                                                             value = TRUE),
-                                                                              
+                                                                              fluidRow(
+                                                                                  column(6,  selectInput(inputId = "year_start_diffTran",#year_start_trans运输合成指数中权重调整范围的起始年下拉框
+                                                                                                         label = "自:", 
+                                                                                                         choices= percent_tm,
+                                                                                                         selected = min(percent_tm) )),
+                                                                                  column(6, selectInput(inputId="year_end_diffTran",#year_end_trans运输合成指数中权重调整范围的终止年下拉框
+                                                                                                        label="至:",
+                                                                                                        choices=percent_tm,
+                                                                                                        selected=max(percent_tm)))
+                                                                                ),
                                                                               h4(strong("2.各要素权重手动调整"),style="color:black"),
                                                                               checkboxInput(inputId="trans_percent_coor_input",
                                                                                             label = strong("2.1 同步指数要素权重"),
@@ -537,6 +586,10 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                               textInput(inputId="trans_yylc_percent_input",
                                                                                         label=h5("营业里程%"),
                                                                                         value="2.00"),
+                                                                              fluidRow(
+                                                                                        column(6,actionButton("updata_percent_diffTran10","恢复初始权重数据")),
+                                                                                        column(6,actionButton("updata_percent_diffTran11","永久保存权重数据"))
+                                                                                        ),
                                                                               width=3
                                                                             ),
                                                                             
@@ -574,8 +627,17 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 checkboxInput(inputId="equip_DIx_Index",
                                                                                               label=("先行指数"),
                                                                                               value=TRUE),
-                                                                                
                                                                                 h4(strong("2.各要素权重手动调整"),style="color:black"),
+                                                                                fluidRow(
+                                                                                  column(6,  selectInput(inputId = "year_start_diffEquip",#year_start_trans运输合成指数中权重调整范围的起始年下拉框
+                                                                                                         label = "自:", 
+                                                                                                         choices= percent_tm2,
+                                                                                                         selected = min(percent_tm2) )),
+                                                                                  column(6, selectInput(inputId="year_end_diffEquip",#year_end_trans运输合成指数中权重调整范围的终止年下拉框
+                                                                                                        label="至:",
+                                                                                                        choices=percent_tm2,
+                                                                                                        selected=max(percent_tm2)))
+                                                                                ),
                                                                                 checkboxInput(inputId="equip_percent_coor_input",
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
@@ -623,6 +685,10 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 textInput(inputId="equip_jcts_percent_input",
                                                                                           label=h5("机车台数%"),
                                                                                           value="9.08"),
+                                                                                fluidRow(
+                                                                                        column(6,actionButton("updata_percent_diffEquip_0","恢复初始权重数据")),
+                                                                                        column(6,actionButton("updata_percent_diffEquip_1","永久保存权重数据"))
+                                                                                        ),
                                                                                 width=3
                                                                               ),
                                                                               
@@ -661,6 +727,16 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                               value = TRUE),
                                                                                 
                                                                                 h4(strong("2.各要素权重手动调整"),style="color:black"),
+                                                                                fluidRow(
+                                                                                  column(6,  selectInput(inputId = "year_start_diffScale",#year_start_trans运输合成指数中权重调整范围的起始年下拉框
+                                                                                                         label = "自:", 
+                                                                                                         choices= percent_tm2,
+                                                                                                         selected = min(percent_tm2) )),
+                                                                                  column(6, selectInput(inputId="year_end_diffScale",#year_end_trans运输合成指数中权重调整范围的终止年下拉框
+                                                                                                        label="至:",
+                                                                                                        choices=percent_tm2,
+                                                                                                        selected=max(percent_tm2)))
+                                                                                ),
                                                                                 checkboxInput(inputId="scale_percent_coor_input",
                                                                                               label = strong("2.1 同步指数要素权重"),
                                                                                               value = FALSE),
@@ -708,7 +784,10 @@ shinyUI(navbarPage(p(strong("铁路景气指数"),responsive=T,fluid=T),
                                                                                 textInput(inputId="scale_jcts_percent_input",
                                                                                           label=h5("机车台数%"),
                                                                                           value="13.53"),
-                                                                                
+                                                                                 fluidRow(
+                                                                                        column(6,actionButton("updata_percent_diffScale_0","恢复初始权重数据")),
+                                                                                        column(6,actionButton("updata_percent_diffScale_1","永久保存权重数据"))
+                                                                                        ),
                                                                                 width=3
                                                                                 
                                                                               ),

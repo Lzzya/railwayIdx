@@ -188,23 +188,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   x<- x/max(x)
   x<- -(1/log(xlen))*sum( (x/sum(x))*log((x/sum(x))) )
   x<- 1-x}
-  
-  #------运输---1.1 同步/一致指标的权重--------
-  hyl.trans.percent<- percent.1(dftrans$hyl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
-  gyzjz.trans.percent<- percent.1(dftrans$gyzjz)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
-  hyzzl.trans.percent<- percent.1(dftrans$hyzzl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
-  
-  #------运输----1.2 滞后指标的权重--------------------------------------------------------------- 
-  kyl.trans.percent<- percent.1(dftrans$kyl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
-  kyzzl.trans.percent<- percent.1(dftrans$kyzzl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
-  gdzctz.trans.percent<- percent.1(dftrans$gdzctz)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
-  
-  #----运输------1.3 先行指标的权重--------------------------------------------------------------- 
-  gc.trans.percent<- percent.1(dftrans$gc)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
-  ym.trans.percent<- percent.1(dftrans$ym)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
-  yy.trans.percent<- percent.1(dftrans$yy)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
-  hlfdl.trans.percent<- percent.1(dftrans$hlfdl)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
-  
+  #-----从文件中读取权重-------------
+  percent11 <- read.xlsx("all_conTrans_percent_withYear.xlsx",1,head=T) # 从文件中读取各年的权重数据
+
   #-----运输----2. 合成指数计算------------------------  
   
   #-----运输----2.1 标准化变化率计算--------
@@ -223,11 +209,11 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   z<- z/(sum(abs(z))/(zlen-1))}
   
   #-----运输----2.2 平均变化率R----------------------------------------------------------------------------
-  coor.trans.test<- index.2(dftrans2$x12hyl)*hyl.trans.percent + index.2(dftrans2$x12hyzzl)*hyzzl.trans.percent+index.2(dftrans2$x12gyzjz)*gyzjz.trans.percent
+  coor.trans.test<- index.2(dftrans2$x12hyl)*percent11$hyl.trans.percent + index.2(dftrans2$x12hyzzl)*percent11$hyzzl.trans.percent+index.2(dftrans2$x12gyzjz)*percent11$gyzjz.trans.percent
   #coor.test一致合成指数平均变化率R2
-  adv.trans.test<- index.2(dftrans2$x12gc)*(gc.trans.percent-0.2)+ index.2(dftrans2$x12ym)*ym.trans.percent+index.2(dftrans2$x12yy)*(yy.trans.percent+0.1)+index.2(dftrans2$x12hlfdl)*(hlfdl.trans.percent+0.1)
+  adv.trans.test<- index.2(dftrans2$x12gc)*(percent11$gc.trans.percent-0.2)+ index.2(dftrans2$x12ym)*percent11$ym.trans.percent+index.2(dftrans2$x12yy)*(percent11$yy.trans.percent+0.1)+index.2(dftrans2$x12hlfdl)*(percent11$hlfdl.trans.percent+0.1)
   #adv.trans.test先行合成指数平均变化率R1
-  delay.trans.test<- index.2(dftrans2$x12kyl)*kyl.trans.percent + index.2(dftrans2$x12kyzzl)*kyzzl.trans.percent+index.2(dftrans2$x12gdzctz)*gdzctz.trans.percent
+  delay.trans.test<- index.2(dftrans2$x12kyl)*percent11$kyl.trans.percent + index.2(dftrans2$x12kyzzl)*percent11$kyzzl.trans.percent+index.2(dftrans2$x12gdzctz)*percent11$gdzctz.trans.percent
   #coor.trans.test滞后合成指数平均变化率R3
   
   #-----运输----2.3 标准化因子F----------------------------------------------
@@ -274,10 +260,31 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     gdzctz.qz.input<- percent.input(input$trans_gdzctz_qz_input)
     kyzzl.qz.input<- percent.input(input$trans_kyzzl_qz_input)
     
-    coor.test.input<- index.2(dftrans2$x12hyl)*hyl.qz.input+index.2(dftrans2$x12hyzzl)*hyzzl.qz.input+index.2(dftrans2$x12gyzjz)*gyzjz.qz.input
-    adv.test.input<- index.2(dftrans2$x12gc)*gc.qz.input + index.2(dftrans2$x12ym)*ym.qz.input+index.2(dftrans2$x12yy)*yy.qz.input+index.2(dftrans2$x12hlfdl)*hlfdl.qz.input
-    delay.test.input<- index.2(dftrans2$x12kyl)*kyl.qz.input + index.2(dftrans2$x12kyzzl)*kyzzl.qz.input+index.2(dftrans2$x12gdzctz)*gdzctz.qz.input
-    
+    #---用输入值代替部分权重----------
+    percent12 <- percent11
+    tm_selected <- substr(percent12$tm,1,4) <= input$year_end_conTran & substr(percent12$tm,1,4) >=input$year_start_conTran
+    #创建persent12是为了保存权重数据文件
+    percent12[tm_selected,]$hyl.trans.percent <- hyl.qz.input
+    percent12[tm_selected,]$gyzjz.trans.percent <- gyzjz.qz.input
+    percent12[tm_selected,]$hyzzl.trans.percent <- hyzzl.qz.input
+    percent12[tm_selected,]$kyl.trans.percent <- kyl.qz.input
+    percent12[tm_selected,]$kyzzl.trans.percent <- kyzzl.qz.input
+    percent12[tm_selected,]$gdzctz.trans.percent <- gdzctz.qz.input
+    percent12[tm_selected,]$gc.trans.percent <- gc.qz.input
+    percent12[tm_selected,]$ym.trans.percent <-ym.qz.input
+    percent12[tm_selected,]$yy.trans.percent <- yy.qz.input
+    percent12[tm_selected,]$hlfdl.trans.percent <- hlfdl.qz.input
+  #---保存更新权重值进文件--------------------------------------
+  observeEvent(input$updata_percent_conTran11,{
+    write.xlsx(percent12,"all_conTrans_percent_withYear.xlsx",row.names=F)
+  })
+  #-----运输----2.2 平均变化率R----------------------------------------------------------------------------
+  coor.test.input<- index.2(dftrans2$x12hyl)*percent12$hyl.trans.percent + index.2(dftrans2$x12hyzzl)*percent12$hyzzl.trans.percent+index.2(dftrans2$x12gyzjz)*percent12$gyzjz.trans.percent
+  #coor.test.input一致合成指数平均变化率R2
+  adv.test.input<- index.2(dftrans2$x12gc)*percent12$gc.trans.percent+ index.2(dftrans2$x12ym)*percent12$ym.trans.percent+index.2(dftrans2$x12yy)*percent12$yy.trans.percent+index.2(dftrans2$x12hlfdl)*percent12$hlfdl.trans.percent
+  #adv.test.input先行合成指数平均变化率R1
+  delay.test.input<- index.2(dftrans2$x12kyl)*percent12$kyl.trans.percent + index.2(dftrans2$x12kyzzl)*percent12$kyzzl.trans.percent+index.2(dftrans2$x12gdzctz)*percent12$gdzctz.trans.percent
+  #coor.test.input滞后合成指数平均变化率R3
     biaozhunhua.F.adv.input<- sum(abs(adv.test.input))/sum(abs(coor.test.input)) 
     biaozhunhua.F.delay.input<- sum(abs(delay.test.input))/sum(abs(coor.test.input))
     
@@ -317,7 +324,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   
   #----运输-----4.数据表的显示------------------------------------ 
   output$table_trans_index<-DT::renderDataTable({
-    
+   #----运输----4.1 输入修改权重后算出来的三个指数------------------   
+    if(input$trans_qz_coor_input|input$trans_qz_adv_input|input$trans_qz_delay_input){
+      #---权重手动输入的计算----------
     hyl.qz.input<- percent.input(input$trans_hyl_qz_input)
     gyzjz.qz.input<- percent.input(input$trans_gyzjz_qz_input)
     hyzzl.qz.input<- percent.input(input$trans_hyzzl_qz_input)
@@ -328,10 +337,27 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     kyl.qz.input<- percent.input(input$trans_kyl_qz_input)
     gdzctz.qz.input<- percent.input(input$trans_gdzctz_qz_input)
     kyzzl.qz.input<- percent.input(input$trans_kyzzl_qz_input)
-    
-    coor.test.input<- index.2(dftrans2$x12hyl)*hyl.qz.input+index.2(dftrans2$x12hyzzl)*hyzzl.qz.input+index.2(dftrans2$x12gyzjz)*gyzjz.qz.input
-    adv.test.input<- index.2(dftrans2$x12gc)*gc.qz.input + index.2(dftrans2$x12ym)*ym.qz.input+index.2(dftrans2$x12yy)*yy.qz.input+index.2(dftrans2$x12hlfdl)*hlfdl.qz.input
-    delay.test.input<- index.2(dftrans2$x12kyl)*kyl.qz.input + index.2(dftrans2$x12kyzzl)*kyzzl.qz.input+index.2(dftrans2$x12gdzctz)*gdzctz.qz.input
+    #---用输入值代替部分权重----------
+    percent12 <- percent11
+    tm_selected <- substr(percent12$tm,1,4) <= input$year_end_conTran & substr(percent12$tm,1,4) >=input$year_start_conTran
+    #创建persent02是为了保存权重数据文件
+    percent12[tm_selected,]$hyl.trans.percent <- hyl.qz.input
+    percent12[tm_selected,]$gyzjz.trans.percent <- gyzjz.qz.input
+    percent12[tm_selected,]$hyzzl.trans.percent <- hyzzl.qz.input
+    percent12[tm_selected,]$kyl.trans.percent <- kyl.qz.input
+    percent12[tm_selected,]$kyzzl.trans.percent <- kyzzl.qz.input
+    percent12[tm_selected,]$gdzctz.trans.percent <- gdzctz.qz.input
+    percent12[tm_selected,]$gc.trans.percent <- gc.qz.input
+    percent12[tm_selected,]$ym.trans.percent <-ym.qz.input
+    percent12[tm_selected,]$yy.trans.percent <- yy.qz.input
+    percent12[tm_selected,]$hlfdl.trans.percent <- hlfdl.qz.input
+  #-----运输----2.2 平均变化率R----------------------------------------------------------------------------
+  coor.test.input<- index.2(dftrans2$x12hyl)*percent12$hyl.trans.percent + index.2(dftrans2$x12hyzzl)*percent12$hyzzl.trans.percent+index.2(dftrans2$x12gyzjz)*percent12$gyzjz.trans.percent
+  #coor.test.input一致合成指数平均变化率R2
+  adv.test.input<- index.2(dftrans2$x12gc)*percent12$gc.trans.percent+ index.2(dftrans2$x12ym)*percent12$ym.trans.percent+index.2(dftrans2$x12yy)*percent12$yy.trans.percent+index.2(dftrans2$x12hlfdl)*percent12$hlfdl.trans.percent
+  #adv.test.input先行合成指数平均变化率R1
+  delay.test.input<- index.2(dftrans2$x12kyl)*percent12$kyl.trans.percent + index.2(dftrans2$x12kyzzl)*percent12$kyzzl.trans.percent+index.2(dftrans2$x12gdzctz)*percent12$gdzctz.trans.percent
+  #coor.test.input滞后合成指数平均变化率R3
     
     biaozhunhua.F.adv.input<- sum(abs(adv.test.input))/sum(abs(coor.test.input)) 
     biaozhunhua.F.delay.input<- sum(abs(delay.test.input))/sum(abs(coor.test.input))
@@ -344,8 +370,6 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     dftrans2$adv.input<- trans.adv.input
     dftrans2$delay.input<- trans.delay.input
     
-    #----运输----4.1 输入修改权重后算出来的三个指数------------------   
-    if(input$trans_qz_coor_input|input$trans_qz_adv_input|input$trans_qz_delay_input){
       DT::datatable(
         { dftrans<- data.frame(dftrans2$tm,dftrans2$adv.input,dftrans2$coor.input,dftrans2$delay.input)
         data<-dftrans},
@@ -367,29 +391,8 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   dfequip$df_yearly.tm<-as.Date.POSIXct(dfequip$df_yearly.tm,"%Y-%m-%d",tz=Sys.timezone(location = TRUE))  #转化为日期型数据
   equip.len<-length(dfequip$df_yearly.tm)
   
-  #---------设备 1. 权重计算------------------------
-  #---函数公式同上，不用再写一遍
-  
-  #----------设备 1.1 同步/一致指标的权重---------------------------------------------------------------
-  locomotive_mileage_sum.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_sum)/(percent.1(dfequip$df_yearly.locomotive_mileage_sum)+percent.1(dfequip$df_yearly.dailycar_run))
-  dailycar_run.equip.qz<- percent.1(dfequip$df_yearly.dailycar_run)/(percent.1(dfequip$df_yearly.locomotive_mileage_sum)+percent.1(dfequip$df_yearly.dailycar_run))
-  
-  #----------设备 1.2 滞后指标的权重--------------------------------------------------------------- 
-  dailycar_now.equip.qz<- percent.1(dfequip$df_yearly.dailycar_now)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  locomotive_mileage_pcar.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_pcar)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  locomotive_mileage_fcar.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_fcar)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  passenger_car.equip.qz<- percent.1(dfequip$df_yearly.passenger_car)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  freight_car.equip.qz<- percent.1(dfequip$df_yearly.freight_car)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  locomotive_number.equip.qz<- percent.1(dfequip$df_yearly.locomotive_number)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  
-  #----------设备 1.3 先行指标的权重，计算出来同运输的不一样，所以变量标注2--------------------------------------------------------------- 
-  iron_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.iron_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  coal_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.coal_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  oil_processing_volume_yearly.equip.qz<- percent.1(dfequip$df_yearly.oil_processing_volume_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  coalfired_power_generation_yearly.equip.qz<- percent.1(dfequip$df_yearly.coalfired_power_generation_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  
   #---------设备 2. 合成指数计算------------------------  
-  
+  percent21 <- read.xlsx("all_conEquip_percent_withYear.xlsx",1,head=T) # 从文件中读取各年的权重数据
   #--------设备的合成指数不用去季节化，因为本来就是年度数据，直接计算增长率---------
   rate.1<- function(m)
   { m[2:length(m)]<- m[2:length(m)]/m[1:(length(m)-1)]-1
@@ -399,11 +402,11 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   #---------设备 2.1 标准化变化率计算----同上运输标准化变化率，不用再重复----
   
   #---------设备 2.2 平均变化率R----------------------------------------------------------------------------
-  coor.equip.test<- index.1(rate.1(dfequip$df_yearly.locomotive_mileage_sum))*locomotive_mileage_sum.equip.qz + index.1(rate.1(dfequip$df_yearly.dailycar_run))*dailycar_run.equip.qz
+  coor.equip.test<- index.1(rate.1(dfequip$df_yearly.locomotive_mileage_sum))*percent21$locomotive_mileage_sum.equip.qz + index.1(rate.1(dfequip$df_yearly.dailycar_run))*percent21$dailycar_run.equip.qz
   #coor2.test一致合成指数平均变化率R2
-  adv.equip.test<- index.1(rate.1(dfequip$df_yearly.iron_output_yearly))*iron_output_yearly.equip.qz + index.1(rate.1(dfequip$df_yearly.coal_output_yearly))*coal_output_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.oil_processing_volume_yearly))*oil_processing_volume_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.coalfired_power_generation_yearly))*coalfired_power_generation_yearly.equip.qz
+  adv.equip.test<- index.1(rate.1(dfequip$df_yearly.iron_output_yearly))*percent21$iron_output_yearly.equip.qz + index.1(rate.1(dfequip$df_yearly.coal_output_yearly))*percent21$coal_output_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.oil_processing_volume_yearly))*percent21$oil_processing_volume_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.coalfired_power_generation_yearly))*percent21$coalfired_power_generation_yearly.equip.qz
   #coor2.test先行合成指数平均变化率R1
-  delay.equip.test<- index.1(rate.1(dfequip$df_yearly.dailycar_now))*dailycar_now.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_pcar))*locomotive_mileage_pcar.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_fcar))*locomotive_mileage_fcar.equip.qz+index.1(rate.1(dfequip$df_yearly.passenger_car))*passenger_car.equip.qz+index.1(rate.1(dfequip$df_yearly.freight_car))*freight_car.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_number))*locomotive_number.equip.qz
+  delay.equip.test<- index.1(rate.1(dfequip$df_yearly.dailycar_now))*percent21$dailycar_now.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_pcar))*percent21$locomotive_mileage_pcar.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_fcar))*percent21$locomotive_mileage_fcar.equip.qz+index.1(rate.1(dfequip$df_yearly.passenger_car))*percent21$passenger_car.equip.qz+index.1(rate.1(dfequip$df_yearly.freight_car))*percent21$freight_car.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_number))*percent21$locomotive_number.equip.qz
   #coor2.test滞后合成指数平均变化率R3
   
   #---------设备 2.3 标准化因子F----------------------------------------------
@@ -428,10 +431,7 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   equip.coor<- hecheng.equip.index(coor.equip.test,biaozhunhua.equip.F.coor)
   equip.adv<- hecheng.equip.index(adv.equip.test,biaozhunhua.equip.F.adv)
   equip.delay<- hecheng.equip.index(delay.equip.test,biaozhunhua.equip.F.delay)
-  
-  dfequip$coor<- c(1:equip.len)
-  dfequip$adv<- c(1:equip.len)
-  dfequip$delay<- c(1:equip.len)
+
   dfequip$coor<- equip.coor
   dfequip$adv<- equip.adv
   dfequip$delay<- equip.delay
@@ -452,10 +452,33 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     hcls.qz.input<- percent.input(input$equip_hcls_qz_input)
     jcts.qz.input<- percent.input(input$equip_jcts_qz_input)
     
-    equip.coor.test.input<- index.1(rate.1(dfequip$df_yearly.locomotive_mileage_sum))*jczxzlc.qz.input + index.1(rate.1(dfequip$df_yearly.dailycar_run))*rjyyc.qz.input
-    equip.adv.test.input<- index.1(rate.1(dfequip$df_yearly.iron_output_yearly))*gc.qz.input + index.1(rate.1(dfequip$df_yearly.coal_output_yearly))*ym.qz.input+index.1(rate.1(dfequip$df_yearly.oil_processing_volume_yearly))*yy.qz.input+index.1(rate.1(dfequip$df_yearly.coalfired_power_generation_yearly))*hlfdl.qz.input
-    equip.delay.test.input<- index.1(rate.1(dfequip$df_yearly.dailycar_now))*rjxzc.qz.input+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_pcar))*kyjclc.qz.input+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_fcar))*hyjclc.qz.input+index.1(rate.1(dfequip$df_yearly.passenger_car))*kcls.qz.input+index.1(rate.1(dfequip$df_yearly.freight_car))*hcls.qz.input+index.1(rate.1(dfequip$df_yearly.locomotive_number))*jcts.qz.input
+    percent22 <- percent21
+    tm_selected2 <- substr(percent22$tm,1,4) <= input$year_end_conEquip & substr(percent22$tm,1,4) >=input$year_start_conEquip
+    #创建persent22是为了保存权重数据文件
     
+    percent22[tm_selected2,]$dailycar_run.equip.qz <- rjyyc.qz.input
+    percent22[tm_selected2,]$locomotive_mileage_sum.equip.qz <- jczxzlc.qz.input
+    percent22[tm_selected2,]$iron_output_yearly.equip.qz <- gc.qz.input
+    percent22[tm_selected2,]$coal_output_yearly.equip.qz <- ym.qz.input
+    percent22[tm_selected2,]$oil_processing_volume_yearly.equip.qz <- yy.qz.input
+    percent22[tm_selected2,]$coalfired_power_generation_yearly.equip.qz <- hlfdl.qz.input
+    percent22[tm_selected2,]$dailycar_now.equip.qz <-rjxzc.qz.input
+    percent22[tm_selected2,]$locomotive_mileage_pcar.equip.qz <- kyjclc.qz.input
+    percent22[tm_selected2,]$locomotive_mileage_fcar.equip.qz <- hyjclc.qz.input
+    percent22[tm_selected2,]$passenger_car.equip.qz <- kcls.qz.input
+    percent22[tm_selected2,]$freight_car.equip.qz <- hcls.qz.input
+    percent22[tm_selected2,]$locomotive_number.equip.qz <- jcts.qz.input
+  #---保存更新权重值进文件--------------------------------------
+  observeEvent(input$updata_percent_conEquip_1,{
+    write.xlsx(percent22,"all_conEquip_percent_withYear.xlsx",row.names=F)
+  })
+  #-----运输----2.2 平均变化率R----------------------------------------------------------------------------
+  
+    
+    equip.coor.test.input<- index.1(rate.1(dfequip$df_yearly.locomotive_mileage_sum))*percent22$locomotive_mileage_sum.equip.qz + index.1(rate.1(dfequip$df_yearly.dailycar_run))*percent22$dailycar_run.equip.qz
+    equip.adv.test.input<- index.1(rate.1(dfequip$df_yearly.iron_output_yearly))*percent22$iron_output_yearly.equip.qz + index.1(rate.1(dfequip$df_yearly.coal_output_yearly))*percent22$coal_output_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.oil_processing_volume_yearly))*percent22$oil_processing_volume_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.coalfired_power_generation_yearly))*percent22$coalfired_power_generation_yearly.equip.qz
+    equip.delay.test.input<- index.1(rate.1(dfequip$df_yearly.dailycar_now))*percent22$dailycar_now.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_pcar))*percent22$locomotive_mileage_pcar.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_fcar))*percent22$locomotive_mileage_fcar.equip.qz+index.1(rate.1(dfequip$df_yearly.passenger_car))*percent22$passenger_car.equip.qz+index.1(rate.1(dfequip$df_yearly.freight_car))*percent22$freight_car.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_number))*percent22$locomotive_number.equip.qz
+      
     equip.biaozhunhua.F.adv.input<- sum(abs(equip.adv.test.input))/sum(abs(equip.coor.test.input)) 
     equip.biaozhunhua.F.delay.input<- sum(abs(equip.delay.test.input))/sum(abs(equip.coor.test.input))
     
@@ -466,7 +489,6 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     dfequip$coor.input<- equip.coor.input   
     dfequip$adv.input<- equip.adv.input
     dfequip$delay.input<- equip.delay.input
-    
     #-----设备----3.1 默认权重计算的画线------------     
     if(input$year_start_equip > input$year_end_equip)  {
       p<-ggplot(dfequip,x=c(dfequip$df_yearly.tm[1],dfequip$df_yearly.tm[equip.len]),aes(x=df_yearly.tm,y=100))  }
@@ -501,7 +523,6 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   })
   
   output$table_equip_index<-DT::renderDataTable({
-    
     rjyyc.qz.input<- percent.input(input$equip_rjyyc_qz_input)
     jczxzlc.qz.input<- percent.input(input$equip_jczxzlc_qz_input)
     gc.qz.input<- percent.input(input$equip_gc_qz_input)
@@ -515,10 +536,27 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     hcls.qz.input<- percent.input(input$equip_hcls_qz_input)
     jcts.qz.input<- percent.input(input$equip_jcts_qz_input)
     
-    equip.coor.test.input<- index.1(rate.1(dfequip$df_yearly.locomotive_mileage_sum))*jczxzlc.qz.input + index.1(rate.1(dfequip$df_yearly.dailycar_run))*rjyyc.qz.input
-    equip.adv.test.input<- index.1(rate.1(dfequip$df_yearly.iron_output_yearly))*gc.qz.input + index.1(rate.1(dfequip$df_yearly.coal_output_yearly))*ym.qz.input+index.1(rate.1(dfequip$df_yearly.oil_processing_volume_yearly))*yy.qz.input+index.1(rate.1(dfequip$df_yearly.coalfired_power_generation_yearly))*hlfdl.qz.input
-    equip.delay.test.input<- index.1(rate.1(dfequip$df_yearly.dailycar_now))*rjxzc.qz.input+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_pcar))*kyjclc.qz.input+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_fcar))*hyjclc.qz.input+index.1(rate.1(dfequip$df_yearly.passenger_car))*kcls.qz.input+index.1(rate.1(dfequip$df_yearly.freight_car))*hcls.qz.input+index.1(rate.1(dfequip$df_yearly.locomotive_number))*jcts.qz.input
+    percent22 <- percent21
+    tm_selected2 <- substr(percent22$tm,1,4) <= input$year_end_conEquip & substr(percent22$tm,1,4) >=input$year_start_conEquip
+    #创建persent22是为了保存权重数据文件
     
+    percent22[tm_selected2,]$dailycar_run.equip.qz <- rjyyc.qz.input
+    percent22[tm_selected2,]$locomotive_mileage_sum.equip.qz <- jczxzlc.qz.input
+    percent22[tm_selected2,]$iron_output_yearly.equip.qz <- gc.qz.input
+    percent22[tm_selected2,]$coal_output_yearly.equip.qz <- ym.qz.input
+    percent22[tm_selected2,]$oil_processing_volume_yearly.equip.qz <- yy.qz.input
+    percent22[tm_selected2,]$coalfired_power_generation_yearly.equip.qz <- hlfdl.qz.input
+    percent22[tm_selected2,]$dailycar_now.equip.qz <-rjxzc.qz.input
+    percent22[tm_selected2,]$locomotive_mileage_pcar.equip.qz <- kyjclc.qz.input
+    percent22[tm_selected2,]$locomotive_mileage_fcar.equip.qz <- hyjclc.qz.input
+    percent22[tm_selected2,]$passenger_car.equip.qz <- kcls.qz.input
+    percent22[tm_selected2,]$freight_car.equip.qz <- hcls.qz.input
+    percent22[tm_selected2,]$locomotive_number.equip.qz <- jcts.qz.input
+  #-----运输----2.2 平均变化率R----------------------------------------------------------------------------
+    equip.coor.test.input<- index.1(rate.1(dfequip$df_yearly.locomotive_mileage_sum))*percent22$locomotive_mileage_sum.equip.qz + index.1(rate.1(dfequip$df_yearly.dailycar_run))*percent22$dailycar_run.equip.qz
+    equip.adv.test.input<- index.1(rate.1(dfequip$df_yearly.iron_output_yearly))*percent22$iron_output_yearly.equip.qz + index.1(rate.1(dfequip$df_yearly.coal_output_yearly))*percent22$coal_output_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.oil_processing_volume_yearly))*percent22$oil_processing_volume_yearly.equip.qz+index.1(rate.1(dfequip$df_yearly.coalfired_power_generation_yearly))*percent22$coalfired_power_generation_yearly.equip.qz
+    equip.delay.test.input<- index.1(rate.1(dfequip$df_yearly.dailycar_now))*percent22$dailycar_now.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_pcar))*percent22$locomotive_mileage_pcar.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_mileage_fcar))*percent22$locomotive_mileage_fcar.equip.qz+index.1(rate.1(dfequip$df_yearly.passenger_car))*percent22$passenger_car.equip.qz+index.1(rate.1(dfequip$df_yearly.freight_car))*percent22$freight_car.equip.qz+index.1(rate.1(dfequip$df_yearly.locomotive_number))*percent22$locomotive_number.equip.qz
+      
     equip.biaozhunhua.F.adv.input<- sum(abs(equip.adv.test.input))/sum(abs(equip.coor.test.input)) 
     equip.biaozhunhua.F.delay.input<- sum(abs(equip.delay.test.input))/sum(abs(equip.coor.test.input))
     
@@ -550,35 +588,18 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   scale.len<-length(dfscale$df_yearly.tm)
   
   #---------规模 1. 权重计算------------------------
-  #---函数公式同上，不用再写一遍
+  percent31 <- read.xlsx("all_conScale_percent_withYear.xlsx",1,head=T) 
   
-  #---------规模 1.1 同步/一致指标的权重---------------------------------------------------------------
-  gyzjz.scale.qz<- percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)/(percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
-  hyl.scale.qz<- percent.1(dfscale$df_yearly.freight_volume_28_yearly)/(percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
-  hyzzl.scale.qz<- percent.1(dfscale$df_yearly.freight_rotation_volume_yearly)/(percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
-  #----------规模 1.2 滞后指标的权重--------------------------------------------------------------- 
-  kcls.scale.qz<- percent.1(dfscale$df_yearly.passenger_car)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  hcls.scale.qz<- percent.1(dfscale$df_yearly.freight_car)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  yylc.scale.qz<- percent.1(dfscale$df_yearly.mileage)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  cyrysl.scale.qz<- percent.1(dfscale$df_yearly.practitioner_number)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  jcts.scale.qz<- percent.1(dfscale$df_yearly.locomotive_number)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  
-  #----------规模 1.3 先行指标的权重，计算出来同规模一样，直接用设备的即可--------------------------------------------------------------- 
-  
-  #---------规模 2. 合成指数计算----规模的合成指数不用去季节化，因为本来就是年度数据，直接计算增长率-----------------------------  
-  #---------规模 2.1 标准化变化率计算----同上设备标准化变化率，不用再重复----
-  
-  #---------规模 2.2 平均变化率R----------------------------------------------------------------------------
-  coor.scale.test<- index.1(rate.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly))*gyzjz.scale.qz + index.1(rate.1(dfscale$df_yearly.freight_volume_28_yearly))*hyl.scale.qz + index.1(rate.1(dfscale$df_yearly.freight_rotation_volume_yearly))*hyzzl.scale.qz
+  coor.scale.test<- index.1(rate.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly))*percent31$gyzjz.scale.qz + index.1(rate.1(dfscale$df_yearly.freight_volume_28_yearly))*percent31$hyl.scale.qz + index.1(rate.1(dfscale$df_yearly.freight_rotation_volume_yearly))*percent31$hyzzl.scale.qz
   #coor.scale.test一致合成指数平均变化率R2
-  #adv.equip.test<- index.1(rate.1(dfscale$df_yearly.iron_output_yearly))*gc2.qz + index.1(rate.1(dfscale$df_yearly.coal_output_yearly))*ym2.qz+index.1(rate.1(dfscale$df_yearly.oil_processing_volume_yearly))*yy2.qz+index.1(rate.1(dfscale$df_yearly.coalfired_power_generation_yearly))*hlfdl2.qz
+  adv.scale.test<- index.1(rate.1(dfscale$df_yearly.iron_output_yearly))*percent31$gc.scale.qz + index.1(rate.1(dfscale$df_yearly.coal_output_yearly))*percent31$ym.scale.qz+index.1(rate.1(dfscale$df_yearly.oil_processing_volume_yearly))*percent31$yy.scale.qz+index.1(rate.1(dfscale$df_yearly.coalfired_power_generation_yearly))*percent31$hlfdl.scale.qz
   #adv.scale.test先行合成指数平均变化率R1 同coor.equip.test
   
-  delay.scale.test<- index.1(rate.1(dfscale$df_yearly.passenger_car))*kcls.scale.qz+index.1(rate.1(dfscale$df_yearly.freight_car))*hcls.scale.qz+index.1(rate.1(dfscale$df_yearly.mileage))*yylc.scale.qz+index.1(rate.1(dfscale$df_yearly.practitioner_number))*cyrysl.scale.qz+index.1(rate.1(dfscale$df_yearly.locomotive_number))*jcts.scale.qz  #delay3.test滞后合成指数平均变化率R3
+  delay.scale.test<- index.1(rate.1(dfscale$df_yearly.passenger_car))*percent31$kcls.scale.qz+index.1(rate.1(dfscale$df_yearly.freight_car))*percent31$hcls.scale.qz+index.1(rate.1(dfscale$df_yearly.mileage))*percent31$yylc.scale.qz+index.1(rate.1(dfscale$df_yearly.practitioner_number))*percent31$cyrysl.scale.qz+index.1(rate.1(dfscale$df_yearly.locomotive_number))*percent31$jcts.scale.qz  #delay3.test滞后合成指数平均变化率R3
   
   #---------规模 2.3 标准化因子F----------------------------------------------
   biaozhunhua.scale.F.coor<- 1  #同步的标准化因子是1
-  biaozhunhua.scale.F.adv<- sum(abs(adv.equip.test))/sum(abs(coor.scale.test)) #先行的标准化因子
+  biaozhunhua.scale.F.adv<- sum(abs(adv.scale.test))/sum(abs(coor.scale.test)) #先行的标准化因子
   biaozhunhua.scale.F.delay<- sum(abs(delay.scale.test))/sum(abs(coor.scale.test)) #滞后的标准化因子
   
   #---------规模 2.4 合成指数计算--规模的合成基本年数的值同设备的，都设为100，也不用写了-------------
@@ -589,11 +610,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   dfscale$coor<- scale.coor
   dfscale$adv<- scale.adv
   dfscale$delay<- scale.delay
-  
   #-----------规模的也算完了！！----底下是画线和显示数据表--------
   
   output$scale_index<- renderPlot( {
-    
     hyl.qz.input<- percent.input(input$scale_hyl_qz_input)
     gyzjz.qz.input<- percent.input(input$scale_gyzjz_qz_input)
     hyzzl.qz.input<- percent.input(input$scale_hyzzl_qz_input)
@@ -607,21 +626,45 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     cyrysl.qz.input<- percent.input(input$scale_cyrysl_qz_input)
     jcts.qz.input<- percent.input(input$scale_jcts_qz_input)
     
-    coor.test.input<- index.1(rate.1(dfscale$df_yearly.freight_volume_28_yearly))*hyl.qz.input+index.1(rate.1(dfscale$df_yearly.freight_rotation_volume_yearly))*hyzzl.qz.input+index.1(rate.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly))*gyzjz.qz.input
-    adv.test.input<- index.1(rate.1(dfscale$df_yearly.iron_output_yearly))*gc.qz.input + index.1(rate.1(dfscale$df_yearly.coal_output_yearly))*ym.qz.input+index.1(rate.1(dfscale$df_yearly.oil_processing_volume_yearly))*yy.qz.input+index.1(rate.1(dfscale$df_yearly.coalfired_power_generation_yearly))*hlfdl.qz.input
-    delay.test.input<- index.1(rate.1(dfscale$df_yearly.passenger_car))*kcls.qz.input + index.1(rate.1(dfscale$df_yearly.freight_car))*hcls.qz.input+index.1(rate.1(dfscale$df_yearly.mileage))*yylc.qz.input+index.1(rate.1(dfscale$df_yearly.practitioner_number))*cyrysl.qz.input+index.1(rate.1(dfscale$df_yearly.locomotive_number))*jcts.qz.input
+    percent32 <- percent31
+    tm_selected3 <- substr(percent32$tm,1,4) <= input$year_end_conScale & substr(percent32$tm,1,4) >=input$year_start_conScale
+    percent32[tm_selected3,]$hyl.scale.qz <- hyl.qz.input
+    percent32[tm_selected3,]$gyzjz.scale.qz <- gyzjz.qz.input
+    percent32[tm_selected3,]$hyzzl.scale.qz <- hyzzl.qz.input
     
-    biaozhunhua.F.adv.input<- sum(abs(adv.test.input))/sum(abs(coor.test.input)) 
-    biaozhunhua.F.delay.input<- sum(abs(delay.test.input))/sum(abs(coor.test.input))
+    percent32[tm_selected3,]$kcls.scale.qz <- kcls.qz.input
+    percent32[tm_selected3,]$hcls.scale.qz <- hcls.qz.input
+    percent32[tm_selected3,]$yylc.scale.qz <- yylc.qz.input
+    percent32[tm_selected3,]$cyrysl.scale.qz <-cyrysl.qz.input
+    percent32[tm_selected3,]$jcts.scale.qz <- jcts.qz.input
     
-    scale.coor.input<- hecheng.equip.index(coor.test.input,biaozhunhua.F.coor)
-    scale.adv.input<- hecheng.equip.index(adv.test.input,biaozhunhua.F.adv.input)
-    scale.delay.input<- hecheng.equip.index(delay.test.input,biaozhunhua.F.delay.input)
+    percent32[tm_selected3,]$gc.scale.qz <- gc.qz.input
+    percent32[tm_selected3,]$ym.scale.qz <- ym.qz.input
+    percent32[tm_selected3,]$yy.scale.qz <- yy.qz.input
+    percent32[tm_selected3,]$hlfdl.scale.qz <- hlfdl.qz.input
+      #---保存更新权重值进文件--------------------------------------
+  observeEvent(input$updata_percent_conScale_1,{
+    write.xlsx(percent32,"all_conScale_percent_withYear.xlsx",row.names=F)
+  })
+     scale.coor.test.input<- index.1(rate.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly))*percent32$gyzjz.scale.qz + index.1(rate.1(dfscale$df_yearly.freight_volume_28_yearly))*percent32$hyl.scale.qz + index.1(rate.1(dfscale$df_yearly.freight_rotation_volume_yearly))*percent32$hyzzl.scale.qz
+    #scale.coor.test.input<- index.1(rate.1(dfscale$df_yearly.freight_volume_28_yearly))*percent32$hyl.qz.input+index.1(rate.1(dfscale$df_yearly.freight_rotation_volume_yearly))*percent32$hyzzl.qz.input+index.1(rate.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly))*percent32$gyzjz.qz.input
+     scale.adv.test.input<- index.1(rate.1(dfscale$df_yearly.iron_output_yearly))*percent32$gc.scale.qz + index.1(rate.1(dfscale$df_yearly.coal_output_yearly))*percent32$ym.scale.qz+index.1(rate.1(dfscale$df_yearly.oil_processing_volume_yearly))*percent32$yy.scale.qz+index.1(rate.1(dfscale$df_yearly.coalfired_power_generation_yearly))*percent32$hlfdl.scale.qz
+    #scale.adv.test.input<- index.1(rate.1(dfscale$df_yearly.iron_output_yearly))*percent32$gc.qz.input + index.1(rate.1(dfscale$df_yearly.coal_output_yearly))*percent32$ym.qz.input+index.1(rate.1(dfscale$df_yearly.oil_processing_volume_yearly))*percent32$yy.qz.input+index.1(rate.1(dfscale$df_yearly.coalfired_power_generation_yearly))*percent32$hlfdl.qz.input
+    #adv.scale.test先行合成指数平均变化率R1 同coor.equip.test
+     scale.delay.test.input <- index.1(rate.1(dfscale$df_yearly.passenger_car))*percent32$kcls.scale.qz+index.1(rate.1(dfscale$df_yearly.freight_car))*percent32$hcls.scale.qz+index.1(rate.1(dfscale$df_yearly.mileage))*percent32$yylc.scale.qz+index.1(rate.1(dfscale$df_yearly.practitioner_number))*percent32$cyrysl.scale.qz+index.1(rate.1(dfscale$df_yearly.locomotive_number))*percent32$jcts.scale.qz  
+    #delay3.test滞后合成指数平均变化率R3
+  
+    
+    biaozhunhua.F.adv.input<- sum(abs(scale.adv.test.input))/sum(abs(scale.coor.test.input)) 
+    biaozhunhua.F.delay.input<- sum(abs(scale.delay.test.input))/sum(abs(scale.coor.test.input))
+    
+    scale.coor.input<- hecheng.equip.index(scale.coor.test.input,biaozhunhua.F.coor)
+    scale.adv.input<- hecheng.equip.index(scale.adv.test.input,biaozhunhua.F.adv.input)
+    scale.delay.input<- hecheng.equip.index(scale.delay.test.input,biaozhunhua.F.delay.input)
     
     dfscale$coor.input<- scale.coor.input   
     dfscale$adv.input<- scale.adv.input
     dfscale$delay.input<- scale.delay.input
-    
     #-----规模----3.1 默认权重计算的画线------------          
     if(input$year_start_scale> input$year_end_scale)  {
       p<-ggplot(dfscale,x=c(dfscale$df_yearly.tm[1],dfscale$df_yearly.tm[scale.len]),aes(x=df_yearly.tm,y=100))
@@ -657,36 +700,56 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   })
   
   
-  output$table_scale_index<-DT::renderDataTable(
-    {
-      hyl.qz.input<- percent.input(input$scale_hyl_qz_input)
-      gyzjz.qz.input<- percent.input(input$scale_gyzjz_qz_input)
-      hyzzl.qz.input<- percent.input(input$scale_hyzzl_qz_input)
-      gc.qz.input<- percent.input(input$scale_gc_qz_input)
-      ym.qz.input<- percent.input(input$scale_ym_qz_input)
-      yy.qz.input<- percent.input(input$scale_yy_qz_input)
-      hlfdl.qz.input<- percent.input(input$scale_hlfdl_qz_input)
-      kcls.qz.input<- percent.input(input$scale_kcls_qz_input)
-      hcls.qz.input<- percent.input(input$scale_hcls_qz_input)
-      yylc.qz.input<- percent.input(input$scale_yylc_qz_input)
-      cyrysl.qz.input<- percent.input(input$scale_cyrysl_qz_input)
-      jcts.qz.input<- percent.input(input$scale_jcts_qz_input)
-      
-      coor.test.input<- index.1(rate.1(dfscale$df_yearly.freight_volume_28_yearly))*hyl.qz.input+index.1(rate.1(dfscale$df_yearly.freight_rotation_volume_yearly))*hyzzl.qz.input+index.1(rate.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly))*gyzjz.qz.input
-      adv.test.input<- index.1(rate.1(dfscale$df_yearly.iron_output_yearly))*gc.qz.input + index.1(rate.1(dfscale$df_yearly.coal_output_yearly))*ym.qz.input+index.1(rate.1(dfscale$df_yearly.oil_processing_volume_yearly))*yy.qz.input+index.1(rate.1(dfscale$df_yearly.coalfired_power_generation_yearly))*hlfdl.qz.input
-      delay.test.input<- index.1(rate.1(dfscale$df_yearly.passenger_car))*kcls.qz.input + index.1(rate.1(dfscale$df_yearly.freight_car))*hcls.qz.input+index.1(rate.1(dfscale$df_yearly.mileage))*yylc.qz.input+index.1(rate.1(dfscale$df_yearly.practitioner_number))*cyrysl.qz.input+index.1(rate.1(dfscale$df_yearly.locomotive_number))*jcts.qz.input
-      
-      biaozhunhua.F.adv.input<- sum(abs(adv.test.input))/sum(abs(coor.test.input)) 
-      biaozhunhua.F.delay.input<- sum(abs(delay.test.input))/sum(abs(coor.test.input))
-      
-      scale.coor.input<- hecheng.equip.index(coor.test.input,biaozhunhua.F.coor)
-      scale.adv.input<- hecheng.equip.index(adv.test.input,biaozhunhua.F.adv.input)
-      scale.delay.input<- hecheng.equip.index(delay.test.input,biaozhunhua.F.delay.input)
-      
-      dfscale$coor.input<- scale.coor.input   
-      dfscale$adv.input<- scale.adv.input
-      dfscale$delay.input<- scale.delay.input
-      
+  output$table_scale_index<-DT::renderDataTable({
+    hyl.qz.input<- percent.input(input$scale_hyl_qz_input)
+    gyzjz.qz.input<- percent.input(input$scale_gyzjz_qz_input)
+    hyzzl.qz.input<- percent.input(input$scale_hyzzl_qz_input)
+    gc.qz.input<- percent.input(input$scale_gc_qz_input)
+    ym.qz.input<- percent.input(input$scale_ym_qz_input)
+    yy.qz.input<- percent.input(input$scale_yy_qz_input)
+    hlfdl.qz.input<- percent.input(input$scale_hlfdl_qz_input)
+    kcls.qz.input<- percent.input(input$scale_kcls_qz_input)
+    hcls.qz.input<- percent.input(input$scale_hcls_qz_input)
+    yylc.qz.input<- percent.input(input$scale_yylc_qz_input)
+    cyrysl.qz.input<- percent.input(input$scale_cyrysl_qz_input)
+    jcts.qz.input<- percent.input(input$scale_jcts_qz_input)
+
+    percent32 <- percent31
+    tm_selected3 <- substr(percent32$tm,1,4) <= input$year_end_conScale & substr(percent32$tm,1,4) >=input$year_start_conScale
+    percent32[tm_selected3,]$hyl.scale.qz <- hyl.qz.input
+    percent32[tm_selected3,]$gyzjz.scale.qz <- gyzjz.qz.input
+    percent32[tm_selected3,]$hyzzl.scale.qz <- hyzzl.qz.input
+    
+    percent32[tm_selected3,]$kcls.scale.qz <- kcls.qz.input
+    percent32[tm_selected3,]$hcls.scale.qz <- hcls.qz.input
+    percent32[tm_selected3,]$yylc.scale.qz <- yylc.qz.input
+    percent32[tm_selected3,]$cyrysl.scale.qz <-cyrysl.qz.input
+    percent32[tm_selected3,]$jcts.scale.qz <- jcts.qz.input
+    
+    percent32[tm_selected3,]$gc.scale.qz <- gc.qz.input
+    percent32[tm_selected3,]$ym.scale.qz <- ym.qz.input
+    percent32[tm_selected3,]$yy.scale.qz <- yy.qz.input
+    percent32[tm_selected3,]$hlfdl.scale.qz <- hlfdl.qz.input
+    
+     scale.coor.test.input<- index.1(rate.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly))*percent32$gyzjz.scale.qz + index.1(rate.1(dfscale$df_yearly.freight_volume_28_yearly))*percent32$hyl.scale.qz + index.1(rate.1(dfscale$df_yearly.freight_rotation_volume_yearly))*percent32$hyzzl.scale.qz
+    #scale.coor.test.input<- index.1(rate.1(dfscale$df_yearly.freight_volume_28_yearly))*percent32$hyl.qz.input+index.1(rate.1(dfscale$df_yearly.freight_rotation_volume_yearly))*percent32$hyzzl.qz.input+index.1(rate.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly))*percent32$gyzjz.qz.input
+     scale.adv.test.input<- index.1(rate.1(dfscale$df_yearly.iron_output_yearly))*percent32$gc.scale.qz + index.1(rate.1(dfscale$df_yearly.coal_output_yearly))*percent32$ym.scale.qz+index.1(rate.1(dfscale$df_yearly.oil_processing_volume_yearly))*percent32$yy.scale.qz+index.1(rate.1(dfscale$df_yearly.coalfired_power_generation_yearly))*percent32$hlfdl.scale.qz
+    #scale.adv.test.input<- index.1(rate.1(dfscale$df_yearly.iron_output_yearly))*percent32$gc.qz.input + index.1(rate.1(dfscale$df_yearly.coal_output_yearly))*percent32$ym.qz.input+index.1(rate.1(dfscale$df_yearly.oil_processing_volume_yearly))*percent32$yy.qz.input+index.1(rate.1(dfscale$df_yearly.coalfired_power_generation_yearly))*percent32$hlfdl.qz.input
+    #adv.scale.test先行合成指数平均变化率R1 同coor.equip.test
+     scale.delay.test.input <- index.1(rate.1(dfscale$df_yearly.passenger_car))*percent32$kcls.scale.qz+index.1(rate.1(dfscale$df_yearly.freight_car))*percent32$hcls.scale.qz+index.1(rate.1(dfscale$df_yearly.mileage))*percent32$yylc.scale.qz+index.1(rate.1(dfscale$df_yearly.practitioner_number))*percent32$cyrysl.scale.qz+index.1(rate.1(dfscale$df_yearly.locomotive_number))*percent32$jcts.scale.qz  
+    #delay3.test滞后合成指数平均变化率R3
+  
+    biaozhunhua.F.adv.input<- sum(abs(scale.adv.test.input))/sum(abs(scale.coor.test.input)) 
+    biaozhunhua.F.delay.input<- sum(abs(scale.delay.test.input))/sum(abs(scale.coor.test.input))
+    
+    scale.coor.input<- hecheng.equip.index(scale.coor.test.input,biaozhunhua.F.coor)
+    scale.adv.input<- hecheng.equip.index(scale.adv.test.input,biaozhunhua.F.adv.input)
+    scale.delay.input<- hecheng.equip.index(scale.delay.test.input,biaozhunhua.F.delay.input)
+    
+    dfscale$coor.input<- scale.coor.input   
+    dfscale$adv.input<- scale.adv.input
+    dfscale$delay.input<- scale.delay.input
+    
       if(input$scale_qz_coor_input|input$scale_qz_adv_input|input$scale_qz_delay_input){
         DT::datatable(
           { dfscale<- data.frame(dfscale$df_yearly.tm,dfscale$adv.input,dfscale$coor.input,dfscale$delay.input)
@@ -705,65 +768,11 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   
   #-------------------------------------------------------------------------
   #----------------------------扩散指数------------------------------------
-  
-  #dftrans<-read.csv("Trans_DI.csv",head=T)
-  
   #——————————————1.计算过程———————————————
   #-------------1.1 权重计算--------------
-  
-  #------------(1) 运输先行指标的权重-----
-  #gc.trans.percent<- percent.1(dftrans$gc)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
-  #ym.trans.percent<- percent.1(dftrans$ym)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
-  #yy.trans.percent<- percent.1(dftrans$yy)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
-  #hlfdl.trans.percent<- percent.1(dftrans$hlfdl)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
-  
-  #------------(2) 运输同步指标的权重---
-  #hyl.trans.percent<- percent.1(dftrans$hyl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
-  #gyzjz.trans.percent<- percent.1(dftrans$gyzjz)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
-  #hyzzl.trans.percent<- percent.1(dftrans$hyzzl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
-  
-  #------------(3) 运输滞后指标的权重---
-  kyl.trans.percent<- percent.1(dftrans$kyl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
-  kyzzl.trans.percent<- percent.1(dftrans$kyzzl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
-  gdzctz.trans.percent<- percent.1(dftrans$gdzctz)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
-  yylc.trans.percent<- percent.1(dftrans$yylc)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
-  
-  #------------(4) 设备先行指标的权----
-  #iron_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.iron_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  #coal_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.coal_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  #oil_processing_volume_yearly.equip.qz<- percent.1(dfequip$df_yearly.oil_processing_volume_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  #coalfired_power_generation_yearly.equip.qz<- percent.1(dfequip$df_yearly.coalfired_power_generation_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
-  
-  #------------(5) 设备同步指标的权重------------------------------------
-  #locomotive_mileage_sum.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_sum)/(percent.1(dfequip$df_yearly.locomotive_mileage_sum)+percent.1(dfequip$df_yearly.dailycar_run))
-  #dailycar_run.equip.qz<- percent.1(dfequip$df_yearly.dailycar_run)/(percent.1(dfequip$df_yearly.locomotive_mileage_sum)+percent.1(dfequip$df_yearly.dailycar_run))
-  
-  #------------(6) 设备滞后指标的权重------------------------------------ 
-  #dailycar_now.equip.qz<- percent.1(dfequip$df_yearly.dailycar_now)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  #locomotive_mileage_pcar.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_pcar)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  #locomotive_mileage_fcar.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_fcar)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  #passenger_car.equip.qz<- percent.1(dfequip$df_yearly.passenger_car)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  #freight_car.equip.qz<- percent.1(dfequip$df_yearly.freight_car)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  #locomotive_number.equip.qz<- percent.1(dfequip$df_yearly.locomotive_number)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
-  
-  #------------(7) 规模先行指标的权重------------------------------------ 
-  gc.scale.percent<- iron_output_yearly.equip.qz #percent.1(dfscale$df_yearly.iron_output_yearly)/(percent.1(dfscale$df_yearly.iron_output_yearly)+percent.1(dfscale$df_yearly.coal_output_yearly)+percent.1(dfscale$df_yearly.oil_processing_volume_yearly)+percent.1(dfscale$df_yearly.coalfired_power_generation_yearly))
-  ym.scale.percent<- coal_output_yearly.equip.qz #percent.1(dfscale$df_yearly.coal_output_yearly)/(percent.1(dfscale$df_yearly.iron_output_yearly)+percent.1(dfscale$df_yearly.coal_output_yearly)+percent.1(dfscale$df_yearly.oil_processing_volume_yearly)+percent.1(dfscale$df_yearly.coalfired_power_generation_yearly))
-  yy.scale.percent<- oil_processing_volume_yearly.equip.qz #percent.1(dfscale$df_yearly.oil_processing_volume_yearly)/(percent.1(dfscale$df_yearly.iron_output_yearly)+percent.1(dfscale$df_yearly.coal_output_yearly)+percent.1(dfscale$df_yearly.oil_processing_volume_yearly)+percent.1(dfscale$df_yearly.coalfired_power_generation_yearly))
-  hlfdl.scale.percent<- coalfired_power_generation_yearly.equip.qz #percent.1(dfscale$df_yearly.coalfired_power_generation_yearly)/(percent.1(dfscale$df_yearly.iron_output_yearly)+percent.1(dfscale$df_yearly.coal_output_yearly)+percent.1(dfscale$df_yearly.oil_processing_volume_yearly)+percent.1(dfscale$df_yearly.coalfired_power_generation_yearly))
-  
-  #------------(8) 规模同步指标的权重------------------------------------
-  #hyl.scale.qz<- percent.1(dfscale$df_yearly.freight_volume_28_yearly)/(percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
-  #gyzjz.scale.qz<- percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)/(percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
-  #hyzzl.scale.qz<- percent.1(dfscale$df_yearly.freight_rotation_volume_yearly)/(percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
-  
-  #------------(9) 规模滞后指标的权重------------------------------------
-  #kcls.scale.qz<- percent.1(dfscale$df_yearly.passenger_car)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  #hcls.scale.qz<- percent.1(dfscale$df_yearly.freight_car)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  #yylc.scale.qz<- percent.1(dfscale$df_yearly.mileage)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  #cyrysl.scale.qz<- percent.1(dfscale$df_yearly.practitioner_number)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  #jcts.scale.qz<- percent.1(dfscale$df_yearly.locomotive_number)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
-  
+  percent41 <- read.xlsx("all_diffTrans_percent_withYear.xlsx",1,head=T) # 从文件中读取各年的权重数据
+  percent51 <- read.xlsx("all_diffEquip_percent_withYear.xlsx",1,head=T) # 从文件中读取各年的权重数据
+  percent61 <- read.xlsx("all_diffScale_percent_withYear.xlsx",1,head=T) # 从文件中读取各年的权重数据
   #-------------1.2 扩散指数计算---------------------------------------------------------------------
   #自定义函数，输入为某量的时间序列数据，输出为1,0.5,0三个值
   function1<-function(v){
@@ -791,9 +800,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   c10<-function1(dftrans$gdzctz)
   c11<-function1(dftrans$yylc)
   
-  DIx_trans<-gc.trans.percent*c1+ym.trans.percent*c2+yy.trans.percent*c3+hlfdl.trans.percent*c4#运输扩散先行指数
-  DIt_trans<-hyzzl.trans.percent*c5+hyl.trans.percent*c6+gyzjz.trans.percent*c7#运输扩散同步指数
-  DIz_trans<-kyl.trans.percent*c8+kyzzl.trans.percent*c9+gdzctz.trans.percent*c10+yylc.trans.percent*c11#运输扩散滞后指数
+  DIx_trans<-percent41$gc.trans.percent*c1+percent41$ym.trans.percent*c2+percent41$yy.trans.percent*c3+percent41$hlfdl.trans.percent*c4#运输扩散先行指数
+  DIt_trans<-percent41$hyzzl.trans.percent*c5+percent41$hyl.trans.percent*c6+percent41$gyzjz.trans.percent*c7#运输扩散同步指数
+  DIz_trans<-percent41$kyl.trans.percent*c8+percent41$kyzzl.trans.percent*c9+percent41$gdzctz.trans.percent*c10+percent41$yylc.trans.percent*c11#运输扩散滞后指数
   
   DI_trans<-data.frame(tm1,DIx_trans,DIt_trans,DIz_trans)#存储所有指数计算结果的数据框
   #DI_trans$tm1<-as.Date.POSIXct(DI_trans$tm1,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
@@ -813,9 +822,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   c23<-function1(dfequip$df_yearly.coal_output_yearly)
   c24<-function1(dfequip$df_yearly.oil_processing_volume_yearly)
   c25<-function1(dfequip$df_yearly.coalfired_power_generation_yearly)
-  DIx_equip<-iron_output_yearly.equip.qz*c22+coal_output_yearly.equip.qz*c23+oil_processing_volume_yearly.equip.qz*c24+coalfired_power_generation_yearly.equip.qz*c25 #设备扩散先行指数
-  DIt_equip<-locomotive_mileage_sum.equip.qz*c12+dailycar_run.equip.qz*c13#设备扩散同步指数
-  DIz_equip<-dailycar_now.equip.qz*c14+locomotive_mileage_pcar.equip.qz*c15+locomotive_mileage_fcar.equip.qz*c16+passenger_car.equip.qz*c17+freight_car.equip.qz*c18+locomotive_number.equip.qz*c19#设备扩散滞后指数
+  DIx_equip<-percent51$iron_output_yearly.equip.qz*c22+percent51$coal_output_yearly.equip.qz*c23+percent51$oil_processing_volume_yearly.equip.qz*c24+percent51$coalfired_power_generation_yearly.equip.qz*c25 #设备扩散先行指数
+  DIt_equip<-percent51$locomotive_mileage_sum.equip.qz*c12+percent51$dailycar_run.equip.qz*c13#设备扩散同步指数
+  DIz_equip<-percent51$dailycar_now.equip.qz*c14+percent51$locomotive_mileage_pcar.equip.qz*c15+percent51$locomotive_mileage_fcar.equip.qz*c16+percent51$passenger_car.equip.qz*c17+percent51$freight_car.equip.qz*c18+percent51$locomotive_number.equip.qz*c19#设备扩散滞后指数
   
   DI_equip<-data.frame(tm2,DIx_equip,DIt_equip,DIz_equip)#存储所有指数计算结果的数据框，不需要再写c成csv表格
   
@@ -830,9 +839,9 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   c30<-function1(dfscale$df_yearly.freight_rotation_volume_yearly)
   c31<-function1(dfscale$df_yearly.freight_volume_28_yearly)
   c32<-function1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)
-  DIx_scale<-gc.scale.percent*c22+ym.scale.percent*c23+yy.scale.percent*c24+hlfdl.scale.percent*c25 #规模扩散先行指数
-  DIt_scale<-hyzzl.scale.qz*c30+hyl.scale.qz*c31+gyzjz.scale.qz*c32#规模扩散同步指数
-  DIz_scale<-kcls.scale.qz*c17+hcls.scale.qz*c18+yylc.scale.qz*c21+cyrysl.scale.qz*c20+jcts.scale.qz*c19#规模扩散滞后指数
+  DIx_scale<-percent61$gc.scale.qz*c22+percent61$ym.scale.qz*c23+percent61$yy.scale.qz*c24+percent61$hlfdl.scale.qz*c25 #规模扩散先行指数
+  DIt_scale<-percent61$hyzzl.scale.qz*c30+percent61$hyl.scale.qz*c31+percent61$gyzjz.scale.qz*c32#规模扩散同步指数
+  DIz_scale<-percent61$kcls.scale.qz*c17+percent61$hcls.scale.qz*c18+percent61$yylc.scale.qz*c21+percent61$cyrysl.scale.qz*c20+percent61$jcts.scale.qz*c19#规模扩散滞后指数
   
   DI_scale<-data.frame(tm3,DIx_scale,DIt_scale,DIz_scale)#存储所有指数计算结果的数据框
   
@@ -840,7 +849,6 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   #------------2.1运输扩散指数画图------------------------
   #----------(1)运输扩散指数计算--权重手动输入------------
   output$trans_DI_index<- renderPlot( {
-    
     hyl.input<- percent.input(input$trans_hyl_percent_input)
     gyzjz.input<- percent.input(input$trans_gyzjz_percent_input)
     hyzzl.input<- percent.input(input$trans_hyzzl_percent_input)
@@ -857,14 +865,29 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     rjyyc.input<- percent.input(input$trans_rjyyc_percent_input)
     rjxzc.input<- percent.input(input$equip_rjxzc_percent_input)
     
-    DIx_trans_input<- gc.input*c1 + ym.input*c2+yy.input*c3+hlfdl.input*c4
-    DIt_trans_input<- hyzzl.input*c5+hyl.input*c6+gyzjz.input*c7
-    DIz_trans_input<- kyl.input*c8 + kyzzl.input*c9+gdzctz.input*c10+yylc.input*c11
+    percent42 <- percent41
+    tm_selected <- substr(percent42$tm,1,4) <= input$year_end_diffTran & substr(percent42$tm,1,4) >=input$year_start_diffTran
+    #创建persent42是为了保存权重数据文件
+    percent42[tm_selected,]$hyl.trans.percent <- hyl.input
+    percent42[tm_selected,]$gyzjz.trans.percent <- gyzjz.input
+    percent42[tm_selected,]$hyzzl.trans.percent <- hyzzl.input
+    percent42[tm_selected,]$kyl.trans.percent <- kyl.input
+    percent42[tm_selected,]$kyzzl.trans.percent <- kyzzl.input
+    percent42[tm_selected,]$gdzctz.trans.percent <- gdzctz.input
+    percent42[tm_selected,]$yylc.trans.percent <- yylc.input
+    percent42[tm_selected,]$gc.trans.percent <- gc.input
+    percent42[tm_selected,]$ym.trans.percent <-ym.input
+    percent42[tm_selected,]$yy.trans.percent <- yy.input
+    percent42[tm_selected,]$hlfdl.trans.percent <- hlfdl.input
+  #---保存更新权重值进文件--------------------------------------
+  observeEvent(input$updata_percent_diffTran11,{
+    write.xlsx(percent42,"all_diffTrans_percent_withYear.xlsx",row.names=F)
+  })    
+    DIx_trans_input<- percent42$gc.trans.percent*c1 + percent42$ym.trans.percent*c2+percent42$yy.trans.percent*c3+percent42$hlfdl.trans.percent*c4
+    DIt_trans_input<- percent42$hyzzl.trans.percent*c5+percent42$hyl.trans.percent*c6+percent42$gyzjz.trans.percent*c7
+    DIz_trans_input<- percent42$kyl.trans.percent*c8 + percent42$kyzzl.trans.percent*c9+percent42$gdzctz.trans.percent*c10+percent42$yylc.trans.percent*c11
     
     DI_trans_input<-data.frame(tm1,DIx_trans_input, DIt_trans_input,DIz_trans_input)#存储所有指数计算结果的数据框
-    DI_trans_input$tm1<-as.Date.POSIXct(DI_trans_input$tm1,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    #write.csv(DI_trans_input,file="DI_Trans_Input.csv",row.names = FALSE)    
-    
     #----------(2)运输扩散指数--默认权重计算的画图--------------------------------- 
     DI_trans.len<-length(DI_trans_input$tm1)
     
@@ -913,15 +936,34 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     kcls.input<- percent.input(input$equip_kcls_percent_input)
     hcls.input<- percent.input(input$equip_hcls_percent_input)
     jcts.input<- percent.input(input$equip_jcts_percent_input)
+    percent52 <- percent51
+    tm_selected2 <- substr(percent52$tm,1,4) <= input$year_end_diffEquip & substr(percent52$tm,1,4) >=input$year_start_diffEquip
+    #创建persent22是为了保存权重数据文件
     
-    DIx_equip_input<- gc.input*c22 + ym.input*c23+yy.input*c24+hlfdl.input*c25
-    DIt_equip_input<- jczxzlc.input*c12+rjyyc.input*c13
-    DIz_equip_input<- rjxzc.input*c14+kyjclc.input*c15+hyjclc.input*c16+kcls.input*c17+hcls.input*c18+jcts.input*c19
+    percent52[tm_selected2,]$dailycar_run.equip.qz <- rjyyc.input
+    percent52[tm_selected2,]$locomotive_mileage_sum.equip.qz <- jczxzlc.input
+    percent52[tm_selected2,]$iron_output_yearly.equip.qz <- gc.input
+    percent52[tm_selected2,]$coal_output_yearly.equip.qz <- ym.input
+    percent52[tm_selected2,]$oil_processing_volume_yearly.equip.qz <- yy.input
+    percent52[tm_selected2,]$coalfired_power_generation_yearly.equip.qz <- hlfdl.input
+    percent52[tm_selected2,]$dailycar_now.equip.qz <-rjxzc.input
+    percent52[tm_selected2,]$locomotive_mileage_pcar.equip.qz <- kyjclc.input
+    percent52[tm_selected2,]$locomotive_mileage_fcar.equip.qz <- hyjclc.input
+    percent52[tm_selected2,]$passenger_car.equip.qz <- kcls.input
+    percent52[tm_selected2,]$freight_car.equip.qz <- hcls.input
+    percent52[tm_selected2,]$locomotive_number.equip.qz <- jcts.input
+  #---保存更新权重值进文件--------------------------------------
+  observeEvent(input$updata_percent_diffEquip_1,{
+    write.xlsx(percent52,"all_diffEquip_percent_withYear.xlsx",row.names=F)
+  })
+  #-----运输----2.2 平均变化率R----------------------------------------------------------------------------
+  
+    
+    DIx_equip_input<- percent52$iron_output_yearly.equip.qz*c22 + percent52$coal_output_yearly.equip.qz*c23+percent52$oil_processing_volume_yearly.equip.qz*c24+percent52$coalfired_power_generation_yearly.equip.qz*c25
+    DIt_equip_input<- percent52$locomotive_mileage_sum.equip.qz*c12+percent52$dailycar_run.equip.qz*c13
+    DIz_equip_input<- percent52$dailycar_now.equip.qz*c14+percent52$locomotive_mileage_pcar.equip.qz*c15+percent52$locomotive_mileage_fcar.equip.qz*c16+percent52$passenger_car.equip.qz*c17+percent52$freight_car.equip.qz*c18+percent52$locomotive_number.equip.qz*c19
     
     DI_equip_input<-data.frame(tm2,DIx_equip_input, DIt_equip_input,DIz_equip_input)#存储所有指数计算结果的数据框
-    #DI_equip_input$tm2<-as.Date.POSIXct(DI_equip_input$tm2,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    #write.csv(DI_equip_input,file="DI_Equip_Input.csv",row.names = FALSE) 
-    
     #----------(2)设备扩散指数--默认权重计算的画图---------------------
     DI_equip.len<-length(DI_equip_input$tm2)
     
@@ -956,28 +998,45 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
   #------------2.3规模扩散指数画图-----------------------------------------
   #----------(1)规模扩散指数计算--权重手动输入---------------------
   output$scale_DI_index<- renderPlot( {
+    hyl.qz.input<- percent.input(input$scale_hyl_percent_input)
+    gyzjz.qz.input<- percent.input(input$scale_gyzjz_percent_input)
+    hyzzl.qz.input<- percent.input(input$scale_hyzzl_percent_input)
+    gc.qz.input<- percent.input(input$scale_gc_percent_input)
+    ym.qz.input<- percent.input(input$scale_ym_percent_input)
+    yy.qz.input<- percent.input(input$scale_yy_percent_input)
+    hlfdl.qz.input<- percent.input(input$scale_hlfdl_percent_input)
+    kcls.qz.input<- percent.input(input$scale_kcls_percent_input)
+    hcls.qz.input<- percent.input(input$scale_hcls_percent_input)
+    yylc.qz.input<- percent.input(input$scale_yylc_percent_input)
+    cyrysl.qz.input<- percent.input(input$scale_cyrysl_percent_input)
+    jcts.qz.input<- percent.input(input$scale_jcts_percent_input)
+   
+    percent62 <- percent61
+    tm_selected3 <- substr(percent62$tm,1,4) <= input$year_end_diffScale & substr(percent62$tm,1,4) >=input$year_start_diffScale
+    percent62[tm_selected3,]$hyl.scale.qz <- hyl.qz.input
+    percent62[tm_selected3,]$gyzjz.scale.qz <- gyzjz.qz.input
+    percent62[tm_selected3,]$hyzzl.scale.qz <- hyzzl.qz.input
     
-    hyl.input<- percent.input(input$scale_hyl_percent_input)
-    gyzjz.input<- percent.input(input$scale_gyzjz_percent_input)
-    hyzzl.input<- percent.input(input$scale_hyzzl_percent_input)
-    gc.input<- percent.input(input$scale_gc_percent_input)
-    ym.input<- percent.input(input$scale_ym_percent_input)
-    yy.input<- percent.input(input$scale_yy_percent_input)
-    hlfdl.input<- percent.input(input$scale_hlfdl_percent_input)
-    kcls.input<- percent.input(input$scale_kcls_percent_input)
-    hcls.input<- percent.input(input$scale_hcls_percent_input)
-    yylc.input<- percent.input(input$scale_yylc_percent_input)
-    cyrysl.input<- percent.input(input$scale_cyrysl_percent_input)
-    jcts.input<- percent.input(input$scale_jcts_percent_input)
+    percent62[tm_selected3,]$kcls.scale.qz <- kcls.qz.input
+    percent62[tm_selected3,]$hcls.scale.qz <- hcls.qz.input
+    percent62[tm_selected3,]$yylc.scale.qz <- yylc.qz.input
+    percent62[tm_selected3,]$cyrysl.scale.qz <-cyrysl.qz.input
+    percent62[tm_selected3,]$jcts.scale.qz <- jcts.qz.input
     
-    DIx_scale_input<- gc.input*c22 + ym.input*c23+yy.input*c24+hlfdl.input*c25
-    DIt_scale_input<- hyzzl.input*c30+hyl.input*c31+gyzjz.input*c32
-    DIz_scale_input<- kcls.input*c17+hcls.input*c18+yylc.input*c21+cyrysl.input*c20+jcts.input*c19
+    percent62[tm_selected3,]$gc.scale.qz <- gc.qz.input
+    percent62[tm_selected3,]$ym.scale.qz <- ym.qz.input
+    percent62[tm_selected3,]$yy.scale.qz <- yy.qz.input
+    percent62[tm_selected3,]$hlfdl.scale.qz <- hlfdl.qz.input
+      #---保存更新权重值进文件--------------------------------------
+  observeEvent(input$updata_percent_diffScale_1,{
+    write.xlsx(percent62,"all_diffScale_percent_withYear.xlsx",row.names=F)
+  })
+    
+    DIx_scale_input<-percent62$gc.scale.qz*c22+percent62$ym.scale.qz*c23+percent62$yy.scale.qz*c24+percent62$hlfdl.scale.qz*c25 #规模扩散先行指数
+    DIt_scale_input<- percent62$hyzzl.scale.qz*c30+percent62$hyl.scale.qz*c31+percent62$gyzjz.scale.qz*c32#规模扩散同步指数
+    DIz_scale_input<- percent62$kcls.scale.qz*c17+percent62$hcls.scale.qz*c18+percent62$yylc.scale.qz*c21+percent62$cyrysl.scale.qz*c20+percent62$jcts.scale.qz*c19#规模扩散滞后指数
     
     DI_scale_input<-data.frame(tm3,DIx_scale_input, DIt_scale_input,DIz_scale_input)#存储所有指数计算结果的数据框
-    #DI_scale_input$tm3<-as.Date.POSIXct(DI_scale_input$tm3,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    #write.csv(DI_scale_input,file="DI_Scale_Input.csv",row.names = FALSE)    
-    
     #----------(2)规模扩散指数--默认权重计算的画图---------------------
     DI_scale.len<-length(DI_scale_input$tm3)
     
@@ -1028,14 +1087,27 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     rjyyc.input<- percent.input(input$trans_rjyyc_percent_input)
     rjxzc.input<- percent.input(input$equip_rjxzc_percent_input)
     
-    DIx_trans_input<- gc.input*c1 + ym.input*c2+yy.input*c3+hlfdl.input*c4
-    DIt_trans_input<- hyzzl.input*c5+hyl.input*c6+gyzjz.input*c7
-    DIz_trans_input<- kyl.input*c8 + kyzzl.input*c9+gdzctz.input*c10+yylc.input*c11
+    percent42 <- percent41
+    tm_selected <- substr(percent42$tm,1,4) <= input$year_end_diffTran & substr(percent42$tm,1,4) >=input$year_start_diffTran
+    #创建persent42是为了保存权重数据文件
+    percent42[tm_selected,]$hyl.trans.percent <- hyl.input
+    percent42[tm_selected,]$gyzjz.trans.percent <- gyzjz.input
+    percent42[tm_selected,]$hyzzl.trans.percent <- hyzzl.input
+    percent42[tm_selected,]$kyl.trans.percent <- kyl.input
+    percent42[tm_selected,]$kyzzl.trans.percent <- kyzzl.input
+    percent42[tm_selected,]$gdzctz.trans.percent <- gdzctz.input
+    percent42[tm_selected,]$yylc.trans.percent <- yylc.input
+    percent42[tm_selected,]$gc.trans.percent <- gc.input
+    percent42[tm_selected,]$ym.trans.percent <-ym.input
+    percent42[tm_selected,]$yy.trans.percent <- yy.input
+    percent42[tm_selected,]$hlfdl.trans.percent <- hlfdl.input
+   
+    DIx_trans_input<- percent42$gc.trans.percent*c1 + percent42$ym.trans.percent*c2+percent42$yy.trans.percent*c3+percent42$hlfdl.trans.percent*c4
+    DIt_trans_input<- percent42$hyzzl.trans.percent*c5+percent42$hyl.trans.percent*c6+percent42$gyzjz.trans.percent*c7
+    DIz_trans_input<- percent42$kyl.trans.percent*c8 + percent42$kyzzl.trans.percent*c9+percent42$gdzctz.trans.percent*c10+percent42$yylc.trans.percent*c11
     
     DI_trans_input<-data.frame(tm1,DIx_trans_input, DIt_trans_input,DIz_trans_input)#存储所有指数计算结果的数据框
-    #DI_trans_input$tm1<-as.Date.POSIXct(DI_trans_input$tm1,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    #write.csv(DI_trans_input,file="DI_Trans_Input.csv",row.names = FALSE)
-    
+   
     #----运输----输入修改权重后算出来的三个指数------------------   
     if(input$trans_percent_coor_input|input$trans_percent_adv_input|input$trans_percent_delay_input){
       DT::datatable(
@@ -1066,14 +1138,27 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     kcls.input<- percent.input(input$equip_kcls_percent_input)
     hcls.input<- percent.input(input$equip_hcls_percent_input)
     jcts.input<- percent.input(input$equip_jcts_percent_input)
+    percent52 <- percent51
+    tm_selected2 <- substr(percent52$tm,1,4) <= input$year_end_diffEquip & substr(percent52$tm,1,4) >=input$year_start_diffEquip
+
+    percent52[tm_selected2,]$dailycar_run.equip.qz <- rjyyc.input
+    percent52[tm_selected2,]$locomotive_mileage_sum.equip.qz <- jczxzlc.input
+    percent52[tm_selected2,]$iron_output_yearly.equip.qz <- gc.input
+    percent52[tm_selected2,]$coal_output_yearly.equip.qz <- ym.input
+    percent52[tm_selected2,]$oil_processing_volume_yearly.equip.qz <- yy.input
+    percent52[tm_selected2,]$coalfired_power_generation_yearly.equip.qz <- hlfdl.input
+    percent52[tm_selected2,]$dailycar_now.equip.qz <-rjxzc.input
+    percent52[tm_selected2,]$locomotive_mileage_pcar.equip.qz <- kyjclc.input
+    percent52[tm_selected2,]$locomotive_mileage_fcar.equip.qz <- hyjclc.input
+    percent52[tm_selected2,]$passenger_car.equip.qz <- kcls.input
+    percent52[tm_selected2,]$freight_car.equip.qz <- hcls.input
+    percent52[tm_selected2,]$locomotive_number.equip.qz <- jcts.input
     
-    DIx_equip_input<- gc.input*c22 + ym.input*c23+yy.input*c24+hlfdl.input*c25
-    DIt_equip_input<- jczxzlc.input*c12+rjyyc.input*c13
-    DIz_equip_input<- rjxzc.input*c14+kyjclc.input*c15+hyjclc.input*c16+kcls.input*c17+hcls.input*c18+jcts.input*c19
+    DIx_equip_input<- percent52$iron_output_yearly.equip.qz*c22 + percent52$coal_output_yearly.equip.qz*c23+percent52$oil_processing_volume_yearly.equip.qz*c24+percent52$coalfired_power_generation_yearly.equip.qz*c25
+    DIt_equip_input<- percent52$locomotive_mileage_sum.equip.qz*c12+percent52$dailycar_run.equip.qz*c13
+    DIz_equip_input<- percent52$dailycar_now.equip.qz*c14+percent52$locomotive_mileage_pcar.equip.qz*c15+percent52$locomotive_mileage_fcar.equip.qz*c16+percent52$passenger_car.equip.qz*c17+percent52$freight_car.equip.qz*c18+percent52$locomotive_number.equip.qz*c19
     
     DI_equip_input<-data.frame(tm2,DIx_equip_input, DIt_equip_input,DIz_equip_input)#存储所有指数计算结果的数据框
-    #DI_equip_input$tm2<-as.Date.POSIXct(DI_equip_input$tm2,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    #write.csv(DI_equip_input,file="DI_Equip_Input.csv",row.names = FALSE)
     
     #----设备----输入修改权重后算出来的三个指数------------------   
     if(input$equip_percent_coor_input|input$equip_percent_adv_input|input$equip_percent_delay_input){
@@ -1108,8 +1193,6 @@ table6.7 <- read.xlsx("6-7 国家铁路机车车辆购置.xls",1,header = T,star
     DIz_scale_input<- kcls.input*c17+hcls.input*c18+yylc.input*c21+cyrysl.input*c20+jcts.input*c19
     
     DI_scale_input<-data.frame(tm3,DIx_scale_input, DIt_scale_input,DIz_scale_input)#存储所有指数计算结果的数据框
-    #DI_scale_input$tm3<-as.Date.POSIXct(DI_scale_input$tm3,"%Y%m%d",tz=Sys.timezone(location = TRUE))#转换时间格式  
-    #write.csv(DI_scale_input,file="DI_Scale_Input.csv",row.names = FALSE)  
     
     #----规模---- 输入修改权重后算出来的三个指数------------------  
     if(input$scale_percent_coor_input|input$scale_percent_adv_input|input$scale_percent_delay_input){
@@ -6017,6 +6100,152 @@ observeEvent(input$updata_x12,{
 })
 
 ##------------------x12数据更新 END-------------||
+  ##---恢复初始权重并创建文件----------------------------------------------------
+  observeEvent(input$updata_percent10,{
+  #------运输---1.1 同步/一致指标的权重--------
+  hyl.trans.percent<- percent.1(dftrans$hyl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
+  gyzjz.trans.percent<- percent.1(dftrans$gyzjz)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
+  hyzzl.trans.percent<- percent.1(dftrans$hyzzl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
+
+  #------运输----1.2 滞后指标的权重---------------------------------------------------------------
+  kyl.trans.percent<- percent.1(dftrans$kyl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
+  kyzzl.trans.percent<- percent.1(dftrans$kyzzl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
+  gdzctz.trans.percent<- percent.1(dftrans$gdzctz)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
+  yylc.trans.percent<- percent.1(dftrans$yylc)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
+  #----运输------1.3 先行指标的权重---------------------------------------------------------------
+  gc.trans.percent<- percent.1(dftrans$gc)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
+  ym.trans.percent<- percent.1(dftrans$ym)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
+  yy.trans.percent<- percent.1(dftrans$yy)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
+  hlfdl.trans.percent<- percent.1(dftrans$hlfdl)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
+  all.trans.percent <- data.frame(hyl.trans.percent,gyzjz.trans.percent,hyzzl.trans.percent,kyl.trans.percent,kyzzl.trans.percent,gdzctz.trans.percent,yylc.trans.percent,gc.trans.percent,ym.trans.percent,yy.trans.percent,hlfdl.trans.percent)
+
+  percent11 <- cbind(tm=dftrans2$tm, all.trans.percent)
+  write.xlsx(percent11,"all_conTrans_percent_withYear.xlsx",row.names=F)
+  })
+
+  observeEvent(input$updata_percent_conEquip_0,{
+  #---------设备 1. 权重计算------------------------
+  #---函数公式同上，不用再写一遍
+  #----------设备 1.1 同步/一致指标的权重---------------------------------------------------------------
+  locomotive_mileage_sum.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_sum)/(percent.1(dfequip$df_yearly.locomotive_mileage_sum)+percent.1(dfequip$df_yearly.dailycar_run))
+  dailycar_run.equip.qz<- percent.1(dfequip$df_yearly.dailycar_run)/(percent.1(dfequip$df_yearly.locomotive_mileage_sum)+percent.1(dfequip$df_yearly.dailycar_run))
+  
+  #----------设备 1.2 滞后指标的权重--------------------------------------------------------------- 
+  dailycar_now.equip.qz<- percent.1(dfequip$df_yearly.dailycar_now)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
+  locomotive_mileage_pcar.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_pcar)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
+  locomotive_mileage_fcar.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_fcar)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
+  passenger_car.equip.qz<- percent.1(dfequip$df_yearly.passenger_car)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
+  freight_car.equip.qz<- percent.1(dfequip$df_yearly.freight_car)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
+  locomotive_number.equip.qz<- percent.1(dfequip$df_yearly.locomotive_number)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
+  
+  #----------设备 1.3 先行指标的权重，计算出来同运输的不一样，所以变量标注2--------------------------------------------------------------- 
+  iron_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.iron_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  coal_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.coal_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  oil_processing_volume_yearly.equip.qz<- percent.1(dfequip$df_yearly.oil_processing_volume_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  coalfired_power_generation_yearly.equip.qz<- percent.1(dfequip$df_yearly.coalfired_power_generation_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  all.equip.percent <- data.frame(locomotive_mileage_sum.equip.qz,dailycar_run.equip.qz,dailycar_now.equip.qz,locomotive_mileage_pcar.equip.qz,locomotive_mileage_fcar.equip.qz,passenger_car.equip.qz,freight_car.equip.qz, locomotive_number.equip.qz, iron_output_yearly.equip.qz, coal_output_yearly.equip.qz, oil_processing_volume_yearly.equip.qz, coalfired_power_generation_yearly.equip.qz)
+
+  percent21 <- cbind(tm=dfequip$df_yearly.tm, all.equip.percent)
+  write.xlsx(percent21,"all_conEquip_percent_withYear.xlsx",row.names=F)
+  })
+ 
+  observeEvent(input$updata_percent_conScale_0,{
+  #---------规模 1. 权重计算------------------------
+  #---函数公式同上，不用再写一遍
+  
+  #---------规模 1.1 同步/一致指标的权重---------------------------------------------------------------
+  gyzjz.scale.qz<- percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)/(percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
+  hyl.scale.qz<- percent.1(dfscale$df_yearly.freight_volume_28_yearly)/(percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
+  hyzzl.scale.qz<- percent.1(dfscale$df_yearly.freight_rotation_volume_yearly)/(percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
+  #----------规模 1.2 滞后指标的权重--------------------------------------------------------------- 
+  kcls.scale.qz<- percent.1(dfscale$df_yearly.passenger_car)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
+  hcls.scale.qz<- percent.1(dfscale$df_yearly.freight_car)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
+  yylc.scale.qz<- percent.1(dfscale$df_yearly.mileage)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
+  cyrysl.scale.qz<- percent.1(dfscale$df_yearly.practitioner_number)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
+  jcts.scale.qz<- percent.1(dfscale$df_yearly.locomotive_number)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
+  #----------规模 1.3 先行指数权重
+  gc.scale.qz<- iron_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.iron_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  ym.scale.qz <- coal_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.coal_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  yy.scale.qz <- oil_processing_volume_yearly.equip.qz<- percent.1(dfequip$df_yearly.oil_processing_volume_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  hlfdl.scale.qz <- coalfired_power_generation_yearly.equip.qz<- percent.1(dfequip$df_yearly.coalfired_power_generation_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  
+  all.scale.percent <- data.frame(gyzjz.scale.qz, hyl.scale.qz, hyzzl.scale.qz, kcls.scale.qz, hcls.scale.qz, yylc.scale.qz, cyrysl.scale.qz, jcts.scale.qz, gc.scale.qz, ym.scale.qz, yy.scale.qz, hlfdl.scale.qz) #命名不合理，但为了编码简单就选择直接加尾缀
+  
+  percent31 <- cbind(tm=dfscale$df_yearly.tm, all.scale.percent)
+  write.xlsx(percent31,"all_conScale_percent_withYear.xlsx",row.names=F)
+  })
+  
+  observeEvent(input$updata_percent_diffTran10,{
+  #——————————————1.计算过程———————————————
+  #-------------1.1 权重计算实用前面合成部分计算得到的值
+  hyl.trans.percent<- percent.1(dftrans$hyl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
+  gyzjz.trans.percent<- percent.1(dftrans$gyzjz)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
+  hyzzl.trans.percent<- percent.1(dftrans$hyzzl)/(percent.1(dftrans$hyl)+percent.1(dftrans$gyzjz)+percent.1(dftrans$hyzzl))
+
+  #------运输----1.2 滞后指标的权重---------------------------------------------------------------
+  kyl.trans.percent<- percent.1(dftrans$kyl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
+  kyzzl.trans.percent<- percent.1(dftrans$kyzzl)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
+  gdzctz.trans.percent<- percent.1(dftrans$gdzctz)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz))
+  yylc.trans.percent<- percent.1(dftrans$yylc)/(percent.1(dftrans$kyl)+percent.1(dftrans$kyzzl)+percent.1(dftrans$gdzctz)+percent.1(dftrans$yylc)+percent.1(dftrans$yylc))
+  #----运输------1.3 先行指标的权重---------------------------------------------------------------
+  gc.trans.percent<- percent.1(dftrans$gc)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
+  ym.trans.percent<- percent.1(dftrans$ym)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
+  yy.trans.percent<- percent.1(dftrans$yy)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
+  hlfdl.trans.percent<- percent.1(dftrans$hlfdl)/(percent.1(dftrans$gc)+percent.1(dftrans$ym)+percent.1(dftrans$yy)+percent.1(dftrans$hlfdl))
+  
+  all.trans.percent <- data.frame(hyl.trans.percent,gyzjz.trans.percent,hyzzl.trans.percent,kyl.trans.percent,kyzzl.trans.percent,gdzctz.trans.percent,yylc.trans.percent,gc.trans.percent,ym.trans.percent,yy.trans.percent,hlfdl.trans.percent)
+
+  tm1<-dftrans$tm[-1]
+  percent41 <- cbind(tm=tm1, all.trans.percent)
+  write.xlsx(percent41,"all_diffTrans_percent_withYear.xlsx",row.names=F)
+  })
+observeEvent(input$updata_percent_diffEquip_0,{  
+  #-------------(2) 设备扩散指数计算-----------------------------
+  locomotive_mileage_sum.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_sum)/(percent.1(dfequip$df_yearly.locomotive_mileage_sum)+percent.1(dfequip$df_yearly.dailycar_run))
+  dailycar_run.equip.qz<- percent.1(dfequip$df_yearly.dailycar_run)/(percent.1(dfequip$df_yearly.locomotive_mileage_sum)+percent.1(dfequip$df_yearly.dailycar_run))
+  
+  #----------设备 1.2 滞后指标的权重--------------------------------------------------------------- 
+  dailycar_now.equip.qz<- percent.1(dfequip$df_yearly.dailycar_now)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
+  locomotive_mileage_pcar.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_pcar)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
+  locomotive_mileage_fcar.equip.qz<- percent.1(dfequip$df_yearly.locomotive_mileage_fcar)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
+  passenger_car.equip.qz<- percent.1(dfequip$df_yearly.passenger_car)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
+  freight_car.equip.qz<- percent.1(dfequip$df_yearly.freight_car)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
+  locomotive_number.equip.qz<- percent.1(dfequip$df_yearly.locomotive_number)/(percent.1(dfequip$df_yearly.dailycar_now)+percent.1(dfequip$df_yearly.locomotive_mileage_pcar)+percent.1(dfequip$df_yearly.locomotive_mileage_fcar)+percent.1(dfequip$df_yearly.passenger_car)+percent.1(dfequip$df_yearly.freight_car)+percent.1(dfequip$df_yearly.locomotive_number))
+  
+  #----------设备 1.3 先行指标的权重，计算出来同运输的不一样，所以变量标注2--------------------------------------------------------------- 
+  iron_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.iron_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  coal_output_yearly.equip.qz<- percent.1(dfequip$df_yearly.coal_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  oil_processing_volume_yearly.equip.qz<- percent.1(dfequip$df_yearly.oil_processing_volume_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  coalfired_power_generation_yearly.equip.qz<- percent.1(dfequip$df_yearly.coalfired_power_generation_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  all.equip.percent <- data.frame(locomotive_mileage_sum.equip.qz,dailycar_run.equip.qz,dailycar_now.equip.qz,locomotive_mileage_pcar.equip.qz,locomotive_mileage_fcar.equip.qz,passenger_car.equip.qz,freight_car.equip.qz, locomotive_number.equip.qz, iron_output_yearly.equip.qz, coal_output_yearly.equip.qz, oil_processing_volume_yearly.equip.qz, coalfired_power_generation_yearly.equip.qz)
+
+  tm2<-dfequip$df_yearly.tm[2:equip.len]#这里是从第二行开始计算和显示的，所以可以把第一行的数据设置为0
+  percent51 <- cbind(tm2,all.equip.percent)
+  write.xlsx(percent51,"all_diffEquip_percent_withYear.xlsx",row.names=F)
+})
+
+observeEvent(input$updata_percent_diffScale_0,{  
+  #规模扩散指数
+  gyzjz.scale.qz<- percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)/(percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
+  hyl.scale.qz<- percent.1(dfscale$df_yearly.freight_volume_28_yearly)/(percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
+  hyzzl.scale.qz<- percent.1(dfscale$df_yearly.freight_rotation_volume_yearly)/(percent.1(dfscale$df_yearly.Industrial_Added_Value_Rate_yearly)+percent.1(dfscale$df_yearly.freight_volume_28_yearly)+percent.1(dfscale$df_yearly.freight_rotation_volume_yearly))
+  #----------规模 1.2 滞后指标的权重--------------------------------------------------------------- 
+  kcls.scale.qz<- percent.1(dfscale$df_yearly.passenger_car)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
+  hcls.scale.qz<- percent.1(dfscale$df_yearly.freight_car)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
+  yylc.scale.qz<- percent.1(dfscale$df_yearly.mileage)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
+  cyrysl.scale.qz<- percent.1(dfscale$df_yearly.practitioner_number)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
+  jcts.scale.qz<- percent.1(dfscale$df_yearly.locomotive_number)/(percent.1(dfscale$df_yearly.passenger_car)+percent.1(dfscale$df_yearly.freight_car)+percent.1(dfscale$df_yearly.mileage)+percent.1(dfscale$df_yearly.practitioner_number)+percent.1(dfscale$df_yearly.locomotive_number))
+  #----------规模 1.3 先行指数权重
+  gc.scale.qz<- percent.1(dfequip$df_yearly.iron_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  ym.scale.qz <- percent.1(dfequip$df_yearly.coal_output_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  yy.scale.qz <- percent.1(dfequip$df_yearly.oil_processing_volume_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  hlfdl.scale.qz <- percent.1(dfequip$df_yearly.coalfired_power_generation_yearly)/(percent.1(dfequip$df_yearly.iron_output_yearly)+percent.1(dfequip$df_yearly.coal_output_yearly)+percent.1(dfequip$df_yearly.oil_processing_volume_yearly)+percent.1(dfequip$df_yearly.coalfired_power_generation_yearly))
+  
+  all.scale.percent <- data.frame(gyzjz.scale.qz, hyl.scale.qz, hyzzl.scale.qz, kcls.scale.qz, hcls.scale.qz, yylc.scale.qz, cyrysl.scale.qz, jcts.scale.qz, gc.scale.qz, ym.scale.qz, yy.scale.qz, hlfdl.scale.qz) #命名不合理，但为了编码简单就选择直接加尾缀
+  tm3 <- dfscale$df_yearly.tm[-1]
+  percent61 <- cbind(tm=tm3, all.scale.percent)
+  write.xlsx(percent61,"all_diffScale_percent_withYear.xlsx",row.names=F)
+})
 
 }
 )
